@@ -1,0 +1,14 @@
+.slot-color-available{
+    --sx-color-primary-container: rgb(146, 255, 139);
+    --sx-color-primary: rgb(0, 123, 37);
+  }
+
+.slot-color-unavailable{
+    --sx-color-primary-container: rgb(255, 139, 139);
+    --sx-color-primary: rgb(123, 0, 0);
+}
+
+.slot-color-unpreferred{
+    --sx-color-primary-container: rgb(245, 255, 139);
+    --sx-color-primary: rgb(121, 123, 0);
+}

@@ -1,0 +1,7 @@
+{
+    "slotStatus": {
+        "AVAILABLE": "Disponible",
+        "UNAVAILABLE": "Non disponible",
+        "UNPREFERRED": "A éviter"
+    }
+}
