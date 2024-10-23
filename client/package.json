@@ -4,6 +4,9 @@
   "private": true,
   "dependencies": {
     "@bitnoi.se/react-scheduler": "^0.3.1",
+    "@emotion/react": "^11.13.3",
+    "@emotion/styled": "^11.13.0",
+    "@mui/material": "^6.1.5",
     "@schedule-x/events-service": "^2.4.1",
     "@schedule-x/react": "^2.4.1",
     "@schedule-x/theme-default": "^2.4.1",

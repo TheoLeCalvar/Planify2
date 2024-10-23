@@ -4,6 +4,9 @@ import {
 
 export const constants = {
     CALENDAR: {
+        TYPES: {
+            AVAILABILITY: 'availability',
+        },
         SLOT_STATUS: {
             AVAILABLE: 'AVAILABLE',
             UNAVAILABLE: 'UNAVAILABLE',

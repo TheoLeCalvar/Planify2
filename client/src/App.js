@@ -3,8 +3,12 @@ import { createEventsServicePlugin } from '@schedule-x/events-service'
 import React, { useEffect } from 'react'
 
 import generateClassSlots from './helper/classSlot'
+import exportCalendar from './helper/exportCalendar'
+import importCalendar from './helper/importCalendar'
 import { constants } from './contants'
 import locale from './config/locale.json'
+import Button from '@mui/material/Button';
+
  
 import '@schedule-x/theme-default/dist/index.css'
 import './calendar.css'
@@ -37,6 +41,17 @@ function CalendarApp() {
   return (
     <div>
       <ScheduleXCalendar calendarApp={calendar} />
+      <Button variant="text" onClick={() => {exportCalendar(eventService.getAll(), constants.CALENDAR.TYPES.AVAILABILITY)}}>Exporter</Button>
+      <Button variant="text" onClick={() => {
+        importCalendar(constants.CALENDAR.TYPES.AVAILABILITY)
+        .then((events) => {
+          eventService.set(events)
+        })
+        .catch((error) => {
+          console.error(error)
+        })
+      }}>Importer</Button>
+
     </div>
   )
 }
