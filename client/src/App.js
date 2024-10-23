@@ -1,10 +1,4 @@
 import { useCalendarApp, ScheduleXCalendar } from '@schedule-x/react'
-import {
-  createViewDay,
-  createViewMonthAgenda,
-  createViewMonthGrid,
-  createViewWeek,
-} from '@schedule-x/calendar'
 import { createEventsServicePlugin } from '@schedule-x/events-service'
 import React, { useEffect } from 'react'
 
@@ -32,29 +26,14 @@ function CalendarApp() {
   }
  
   const calendar = useCalendarApp({
-    locale: "fr-FR",
-    dayBoundaries: {
-      start: '08:00',
-      end: '19:00',
-    },
-    weekOptions: {
-      gridHeight: 500,
-      nDays: 5,
-      eventWidth: 95,
-    },
-    views: [createViewWeek()],
+    ...constants.SCHEDULE_GENERAL_CONFIG,
     events: generateClassSlots('2024-09-01', '2024-12-31'),
     callbacks: {
       onEventClick
     }
 
   }, [eventService])
- 
-  useEffect(() => {
-    // get all events
-    calendar.eventsService.getAll()
-  }, [])
- 
+  
   return (
     <div>
       <ScheduleXCalendar calendarApp={calendar} />

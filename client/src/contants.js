@@ -1,3 +1,7 @@
+import {
+    createViewWeek,
+  } from '@schedule-x/calendar'
+
 export const constants = {
     CALENDAR: {
         SLOT_STATUS: {
@@ -11,5 +15,18 @@ export const constants = {
             UNPREFERRED: 'slot-color-unpreferred'
         },
         DEFAULT_STATUS: 'AVAILABLE',
+    },
+    SCHEDULE_GENERAL_CONFIG: {
+        locale: "fr-FR",
+        dayBoundaries: {
+          start: '08:00',
+          end: '19:00',
+        },
+        weekOptions: {
+          gridHeight: 500,
+          nDays: 5,
+          eventWidth: 95,
+        },
+        views: [createViewWeek()]
     }
 }
