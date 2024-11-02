@@ -36,9 +36,9 @@ export default function importCalendar(acceptedType) {
                             start: event.start || reject("Données invalides (Début manquant)"),
                             end: event.end || reject("Données invalides (Fin manquante)"),
                             status: event.status || reject("Données invalides (Statut manquant)"),
-                            people: [locale.slotStatus[event.status]] || reject("Données invalides (Statut invalide)"),
+                            people: [locale.slotStatus[event.status] || reject("Données invalides (Statut invalide)")],
                             _options: {
-                                additionalClasses: [constants.CALENDAR.SLOT_COLOR[event.status]],
+                                additionalClasses: [constants.CALENDAR.SLOT_COLOR[event.status] || reject("Données invalides (Statut invalide)")],
                             }
                         };
                     });
