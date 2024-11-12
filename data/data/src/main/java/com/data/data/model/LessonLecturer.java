@@ -15,7 +15,7 @@ import lombok.Data;
 public class LessonLecturer {
     
     @EmbeddedId
-    private LessonLecturerId id = new LessonLecturerId();
+    private LessonLecturerId id = new LessonLecturerId(this.user.getId(), this.lesson.getId());
 
     @ManyToOne
     @MapsId("idUser")
@@ -29,11 +29,15 @@ public class LessonLecturer {
 
     // Composite Key class
     @Embeddable
+    @Data
     public static class LessonLecturerId implements Serializable {
         private Long idUser;
         private Long idLesson;
 
-        // equals and hashCode
+        public LessonLecturerId(long idUser, long idLesson) {
+            this.idUser=idUser;
+            this.idLesson=idLesson;
+        }
     }
 
 }

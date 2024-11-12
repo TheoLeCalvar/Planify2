@@ -1,18 +1,19 @@
 package com.data.data.model;
 
 import java.io.Serializable;
-import jakarta.annotation.sql.DataSourceDefinition;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import lombok.Data;
 
 @Entity
+@Data
 public class Synchronization {
    
     @EmbeddedId
-    private SynchronizationId id;
+    private SynchronizationId id = new SynchronizationId(this.lesson1.getId(),this.lesson2.getId());
 
     @ManyToOne
     @JoinColumn(name = "id")  
@@ -23,6 +24,7 @@ public class Synchronization {
     private Lesson lesson2;
 
     @Embeddable
+    @Data
     private class SynchronizationId implements Serializable{
 
         private Long idLessonTAF1;
@@ -32,6 +34,5 @@ public class Synchronization {
             this.idLessonTAF1 = idLessonTAF1;
             this.idLessonTAF2 = idLessonTAF2;
         }
-
-
+    }
 }

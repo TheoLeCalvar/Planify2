@@ -35,4 +35,5 @@ public class Lesson {
 
     @OneToMany(mappedBy = "lesson")
     private List<Synchronization> synchronizations;
+
 }

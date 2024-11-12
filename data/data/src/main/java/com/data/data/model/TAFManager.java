@@ -6,12 +6,14 @@ import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import lombok.Data;
 
 @Entity
+@Data
 public class TAFManager {
 
     @EmbeddedId
-    private TAFManagerId id;
+    private TAFManagerId id = new TAFManagerId(this.user.getId(), this.taf.getId());
 
     @ManyToOne
     @JoinColumn(name = "id")  
@@ -22,6 +24,7 @@ public class TAFManager {
     private TAF taf;
 
     @Embeddable
+    @Data
     private class TAFManagerId implements Serializable{
 
         private Long idUser;
@@ -33,5 +36,5 @@ public class TAFManager {
         }
     
 
-    
+    }
 }

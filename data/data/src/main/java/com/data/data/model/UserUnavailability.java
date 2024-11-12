@@ -7,21 +7,28 @@ import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import lombok.Data;
 
 @Entity
+@Data
 public class UserUnavailability {
         
     @EmbeddedId
-    private UserUnavailabilityId id;
+    private UserUnavailabilityId id = new UserUnavailabilityId(this.slot.getId(),this.user.getId());
 
     private boolean strict;
 
     @ManyToOne
-    @JoinColumn(name = "id") 
+    @JoinColumn(name = "idUser") 
     private User user;
 
+    @ManyToOne
+    @JoinColumn(name = "idSlot") 
+    private Slot slot;
+
     @Embeddable
-    private class UserUnavailabilityId implements Serializable{
+    @Data
+    public class UserUnavailabilityId implements Serializable{
 
         private Long idSlot;
         private Long idUser;
@@ -31,40 +38,6 @@ public class UserUnavailability {
             this.idUser = idUser;
         }
 
-        // Getters and Setters
-        public Long getIdSlot() {
-            return idSlot;
-        }
-
-        public void setIdSlot(Long idSlot) {
-            this.idSlot = idSlot;
-        }
-
-        public Long getIdUser() {
-            return idUser;
-        }
-
-        public void setIdUser(Long idUser) {
-            this.idUser = idUser;
-        }
-
-    }
-
-    // Getters and Setters
-    public Long getIdSlot() {
-        return this.id.getIdSlot();
-    }
-
-    public void setIdSlot(Long idSlot) {
-        this.id.setIdSlot(idSlot);
-    }
-
-    public Long getIdUser() {
-        return this.id.getIdUser();
-    }
-
-    public void setIdUser(Long idUser) {
-        this.id.setIdUser(idUser);;
     }
 
 }

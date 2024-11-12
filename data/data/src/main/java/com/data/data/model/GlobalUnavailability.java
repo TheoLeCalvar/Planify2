@@ -3,7 +3,7 @@ package com.data.data.model;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import lombok.Data;
 
 @Entity
@@ -13,7 +13,7 @@ public class GlobalUnavailability {
     private boolean strict;
 
     @Id
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "idSlot")
     private Slot slot;
     

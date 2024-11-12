@@ -15,7 +15,7 @@ import lombok.Data;
 public class Antecedence {
 
     @EmbeddedId
-    private AntecedenceId id = new AntecedenceId();
+    private AntecedenceId id = new AntecedenceId(this.previousLesson.getId(),this.nextLesson.getId());
 
     @ManyToOne
     @MapsId("idPreviousLesson")
@@ -29,11 +29,15 @@ public class Antecedence {
 
     // Composite Key class
     @Embeddable
+    @Data
     public static class AntecedenceId implements Serializable {
         private Long idPreviousLesson;
         private Long idNextLesson;
 
-        // equals and hashCode
+        public AntecedenceId(long idPreviousLesson, long idNextLesson) {
+            this.idPreviousLesson=idPreviousLesson;
+            this.idNextLesson=idNextLesson;
+        }
     }
     
 }
