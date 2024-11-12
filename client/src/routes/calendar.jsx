@@ -1,10 +1,10 @@
 import { useState } from "react";
-import Calendar from "./components/calendar/Calendar";
-import GenericWeekCalendar from "./components/calendar/GenericWeekCalendar"
+import Calendar from "../components/calendar/Calendar";
+import GenericWeekCalendar from "../components/calendar/GenericWeekCalendar"
 import { Tabs, Tab } from "@mui/material";
-import CalendarContextProvider from "./context/CalendarContext";
-import ImportButton from "./components/calendar/ImportButton";
-import ExportButton from "./components/calendar/ExportButton";
+import CalendarContextProvider from "../context/CalendarContext";
+import ImportButton from "../components/calendar/ImportButton";
+import ExportButton from "../components/calendar/ExportButton";
 import { ToastContainer } from 'react-toastify';
 
 import 'react-toastify/dist/ReactToastify.css';
@@ -23,10 +23,10 @@ export default function App() {
         <Tab label="Agenda" />
       </Tabs>
       <CalendarContextProvider>
-        <div style={{display: tabIndex === 0 ? 'block' : 'none'}}>
+        <div hidden={tabIndex !== 0}>
           <GenericWeekCalendar/>
         </div>
-        <div style={{display: tabIndex === 1 ? 'block' : 'none'}}>
+        <div hidden={tabIndex !== 1}>
           <Calendar/>
         </div>
         <ImportButton/>
