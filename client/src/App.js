@@ -1,59 +1,35 @@
-import { useCalendarApp, ScheduleXCalendar } from '@schedule-x/react'
-import { createEventsServicePlugin } from '@schedule-x/events-service'
-import React, { useEffect } from 'react'
+import { useState } from "react";
+import Calendar from "./components/calendar/Calendar";
+import GenericWeekCalendar from "./components/calendar/GenericWeekCalendar"
+import { Tabs, Tab } from "@mui/material";
+import CalendarContextProvider from "./context/CalendarContext";
+import ImportButton from "./components/calendar/ImportButton";
+import ExportButton from "./components/calendar/ExportButton";
 
-import generateClassSlots from './helper/classSlot'
-import exportCalendar from './helper/exportCalendar'
-import importCalendar from './helper/importCalendar'
-import { constants } from './contants'
-import locale from './config/locale.json'
-import Button from '@mui/material/Button';
+export default function App() {
+  const [tabIndex, setTabIndex] = useState(1)
 
- 
-import '@schedule-x/theme-default/dist/index.css'
-import './calendar.css'
- 
-function CalendarApp() {
-  const eventService = createEventsServicePlugin()
-
-  const onEventClick = (event) => {
-    const currentStatus = Object.values(constants.CALENDAR.SLOT_STATUS).indexOf(event.status)
-    const newStatusId = (currentStatus + 1) % Object.values(constants.CALENDAR.SLOT_STATUS).length
-    const newStatus = Object.values(constants.CALENDAR.SLOT_STATUS)[newStatusId]
-    eventService.update({
-      ...event, 
-      status: newStatus,
-      people: [locale.slotStatus[newStatus]],
-      _options: {
-        additionalClasses: [constants.CALENDAR.SLOT_COLOR[newStatus]],
-      }})
-  }
- 
-  const calendar = useCalendarApp({
-    ...constants.SCHEDULE_GENERAL_CONFIG,
-    events: generateClassSlots('2024-09-01', '2024-12-31'),
-    callbacks: {
-      onEventClick
-    }
-
-  }, [eventService])
+  const handleChange = (event, newValue) => {
+    setTabIndex(newValue);
+  };
   
   return (
     <div>
-      <ScheduleXCalendar calendarApp={calendar} />
-      <Button variant="text" onClick={() => {exportCalendar(eventService.getAll(), constants.CALENDAR.TYPES.AVAILABILITY)}}>Exporter</Button>
-      <Button variant="text" onClick={() => {
-        importCalendar(constants.CALENDAR.TYPES.AVAILABILITY)
-        .then((events) => {
-          eventService.set(events)
-        })
-        .catch((error) => {
-          console.error(error)
-        })
-      }}>Importer</Button>
-
+      <Tabs value={tabIndex} onChange={handleChange}>
+        <Tab label="Semaine type" />
+        <Tab label="Agenda" />
+      </Tabs>
+      <CalendarContextProvider>
+        <div style={{display: tabIndex === 0 ? 'block' : 'none'}}>
+          <GenericWeekCalendar/>
+        </div>
+        <div style={{display: tabIndex === 1 ? 'block' : 'none'}}>
+          <Calendar/>
+        </div>
+        <ImportButton/>
+        <ExportButton/>
+      </CalendarContextProvider>
     </div>
   )
 }
  
-export default CalendarApp

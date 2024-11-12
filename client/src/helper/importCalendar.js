@@ -1,6 +1,4 @@
-import locale from "../config/locale.json";
-import { constants } from '../contants'
-
+import { JSONToCalendarEvent } from "./calendarEvent";
 
 export default function importCalendar(acceptedType) {
     return new Promise((resolve, reject) => {
@@ -29,21 +27,10 @@ export default function importCalendar(acceptedType) {
                         return;
                     }
 
-                    const events = jsonData.data.map((event) => {
-                        return {
-                            id: event.id || reject("Données invalides (ID manquant)"),
-                            title: event.title || reject("Données invalides (Titre manquant)"),
-                            start: event.start || reject("Données invalides (Début manquant)"),
-                            end: event.end || reject("Données invalides (Fin manquante)"),
-                            status: event.status || reject("Données invalides (Statut manquant)"),
-                            people: [locale.slotStatus[event.status] || reject("Données invalides (Statut invalide)")],
-                            _options: {
-                                additionalClasses: [constants.CALENDAR.SLOT_COLOR[event.status] || reject("Données invalides (Statut invalide)")],
-                            }
-                        };
-                    });
+                    const events = jsonData.dataCalendar.map(JSONToCalendarEvent);
+                    const genericEvents = jsonData.dataGenericCalendar.map(JSONToCalendarEvent);
 
-                    resolve(events); // Résoudre la promesse avec les données JSON
+                    resolve({events, genericEvents}); // Résoudre la promesse avec les données JSON
                 } catch (error) {
                     reject(
                         "Erreur lors de la lecture du fichier JSON : " + error

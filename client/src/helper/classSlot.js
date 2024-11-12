@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 
 import slotConfig from "../config/slots.json";
-import locale from "../config/locale.json";
+import { JSONToCalendarEvent } from "./calendarEvent";
 import { constants } from '../contants'
 
 export default function generateClassSlots(startDate, endDate){
@@ -15,17 +15,14 @@ export default function generateClassSlots(startDate, endDate){
             const slots = slotConfig[currentDate.day()];
             // eslint-disable-next-line no-loop-func
             slots.forEach((slot, index) => {
-                events.push({
+                events.push(JSONToCalendarEvent({
                     id: currentId.toString(),
+                    inWeekId: currentDate.day().toString() + '_' + index.toString(),
                     title: `Créneau ${index + 1}`,
                     start: currentDate.format(`YYYY-MM-DD ${slot.start}`),
                     end: currentDate.format(`YYYY-MM-DD ${slot.end}`),
-                    status: constants.CALENDAR.DEFAULT_STATUS,
-                    people: [locale.slotStatus[constants.CALENDAR.DEFAULT_STATUS]],
-                    _options: {
-                        additionalClasses: [constants.CALENDAR.SLOT_COLOR[constants.CALENDAR.DEFAULT_STATUS]],
-                    },
-                });
+                    status: constants.CALENDAR.DEFAULT_STATUS
+                }));
                 currentId++;
             });
         }

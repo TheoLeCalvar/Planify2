@@ -1,21 +1,11 @@
-export function calendarToJson(calendar){
-    const result = calendar.map((event) => {
-        return {
-            id: event.id,
-            title: event.title,
-            start: event.start,
-            end: event.end,
-            status: event.status,
-        }
-    })
-    return result
-}
+import { CalendarEventToJSON } from "./calendarEvent"
 
-export default function exportCalendar(calendar, type="availability", filename="export-calendrier.json"){
+export default function exportCalendar(calendar, genericCalendar, type="availability", filename="export-calendrier.json"){
     const jsonContent = {
         calendarType: type,
         exportTime: new Date().toISOString(),
-        data: calendarToJson(calendar)
+        dataCalendar: calendar.map(CalendarEventToJSON),
+        dataGenericCalendar: genericCalendar.map(CalendarEventToJSON)
     }
 
     const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(JSON.stringify(jsonContent))}`;
