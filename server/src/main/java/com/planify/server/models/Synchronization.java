@@ -6,23 +6,26 @@ import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapsId;
 
 @Entity
 public class Synchronization {
-   
+
     @EmbeddedId
-    private SynchronizationId id = new SynchronizationId(this.lesson1.getId(),this.lesson2.getId());
+    private SynchronizationId id = new SynchronizationId(this.lesson1.getId(), this.lesson2.getId());
 
     @ManyToOne
-    @JoinColumn(name = "id")  
-    private Lesson lesson1 ;
+    @MapsId("idLessonTAF1")
+    @JoinColumn(name = "idLessonTAF1")
+    private Lesson lesson1;
 
     @ManyToOne
-    @JoinColumn(name = "id")  
+    @MapsId("idLessonTAF2")
+    @JoinColumn(name = "idLessonTAF2")
     private Lesson lesson2;
 
     @Embeddable
-    private class SynchronizationId implements Serializable{
+    private class SynchronizationId implements Serializable {
 
         private Long idLessonTAF1;
         private Long idLessonTAF2;

@@ -1,4 +1,5 @@
 package com.planify.server.models;
+
 import java.util.List;
 
 import jakarta.persistence.Entity;
@@ -6,27 +7,29 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 
 @Entity
+@Table(name = "app_user")
 public class User {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToMany(mappedBy = "userunavailability")
+    @OneToMany(mappedBy = "user")
     private List<UserUnavailability> userunavailabilities;
 
-    @OneToMany(mappedBy = "lessonlecturer")
+    @OneToMany(mappedBy = "user")
     private List<LessonLecturer> lessonLecturers;
 
-    @OneToMany(mappedBy = "uemanager")
+    @OneToMany(mappedBy = "user")
     private List<UEManager> ueManagers;
 
-    @OneToMany(mappedBy = "tafmanager")
+    @OneToMany(mappedBy = "user")
     private List<TAFManager> tafManagers;
 
-	public long getId() {
-		return id;
-	}
+    public long getId() {
+        return id;
+    }
 }

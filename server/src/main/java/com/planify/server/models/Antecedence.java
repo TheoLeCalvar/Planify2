@@ -13,7 +13,7 @@ import jakarta.persistence.MapsId;
 public class Antecedence {
 
     @EmbeddedId
-    private AntecedenceId id = new AntecedenceId(this.previousLesson.getId(),this.nextLesson.getId());
+    private AntecedenceId id = new AntecedenceId(this.previousLesson.getId(), this.nextLesson.getId());
 
     @ManyToOne
     @MapsId("idPreviousLesson")
@@ -32,9 +32,9 @@ public class Antecedence {
         private Long idNextLesson;
 
         public AntecedenceId(long idPreviousLesson, long idNextLesson) {
-            this.idPreviousLesson=idPreviousLesson;
-            this.idNextLesson=idNextLesson;
+            this.idPreviousLesson = idPreviousLesson;
+            this.idNextLesson = idNextLesson;
         }
     }
-    
+
 }

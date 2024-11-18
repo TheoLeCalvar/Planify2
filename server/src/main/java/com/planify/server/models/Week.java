@@ -1,6 +1,8 @@
 package com.planify.server.models;
+
 import java.util.List;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -9,14 +11,16 @@ import jakarta.persistence.OneToMany;
 
 @Entity
 public class Week {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private int number; //The number of the week for the year
-    private int year;
+    private int number; // The number of the week for the year
 
-    @OneToMany(mappedBy = "day")
+    @Column(name = "\"year\"")
+    private Integer year;
+
+    @OneToMany(mappedBy = "week")
     private List<Day> days;
 
 }

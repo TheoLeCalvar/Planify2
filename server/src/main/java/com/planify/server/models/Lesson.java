@@ -1,7 +1,9 @@
 package com.planify.server.models;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -25,17 +27,26 @@ public class Lesson {
     @OneToMany(mappedBy = "lesson")
     private List<LessonLecturer> lessonLecturers;
 
-    @OneToMany(mappedBy = "lesson")
-    private List<Antecedence> antecedences;
+    @OneToMany(mappedBy = "previousLesson")
+    private List<Antecedence> antecedencesAsPrevious = new ArrayList<>();
 
-    @OneToMany(mappedBy = "lesson")
-    private List<Sequencing> sequencings;
+    @OneToMany(mappedBy = "nextLesson")
+    private List<Antecedence> antecedencesAsNext = new ArrayList<>();
 
-    @OneToMany(mappedBy = "lesson")
-    private List<Synchronization> synchronizations;
+    @OneToMany(mappedBy = "previousLesson")
+    private List<Sequencing> sequencingsAsPrevious = new ArrayList<>();
 
-	public long getId() {
-		return id;
-	}
+    @OneToMany(mappedBy = "nextLesson")
+    private List<Sequencing> sequencingsAsNext = new ArrayList<>();
+
+    @OneToMany(mappedBy = "lesson1")
+    private List<Synchronization> synchronizations1;
+
+    @OneToMany(mappedBy = "lesson2")
+    private List<Synchronization> synchronizations2;
+
+    public long getId() {
+        return id;
+    }
 
 }

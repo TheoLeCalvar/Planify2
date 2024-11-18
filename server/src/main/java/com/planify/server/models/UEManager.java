@@ -7,6 +7,7 @@ import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapsId;
 
 @Entity
 public class UEManager {
@@ -15,15 +16,17 @@ public class UEManager {
     private UEManagerId id = new UEManagerId(this.user.getId(), this.ue.getId());
 
     @ManyToOne
-    @JoinColumn(name = "id")  
+    @MapsId("idUser")
+    @JoinColumn(name = "idUser")
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "id")  
+    @MapsId("idUE")
+    @JoinColumn(name = "idUE")
     private UE ue;
 
     @Embeddable
-    private class UEManagerId implements Serializable{
+    private class UEManagerId implements Serializable {
 
         private Long idUser;
         private Long idUE;
@@ -32,7 +35,7 @@ public class UEManager {
             this.idUser = idUser;
             this.idUE = idUE;
         }
-    
+
     }
-    
+
 }

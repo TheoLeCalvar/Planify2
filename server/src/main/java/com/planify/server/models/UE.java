@@ -12,7 +12,7 @@ import jakarta.persistence.OneToMany;
 
 @Entity
 public class UE {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -20,17 +20,17 @@ public class UE {
     private String description;
 
     @ManyToOne
-    @JoinColumn(name = "id")  
+    @JoinColumn(name = "taf_id")
     private TAF taf;
 
-    @OneToMany(mappedBy = "lesson")
+    @OneToMany(mappedBy = "ue")
     private List<Lesson> lessons;
 
-    @OneToMany(mappedBy = "uemanager")
+    @OneToMany(mappedBy = "ue")
     private List<UEManager> UEmanagers;
 
-	public Long getId() {
-		return id;
-	}
+    public Long getId() {
+        return id;
+    }
 
 }
