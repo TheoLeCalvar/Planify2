@@ -13,7 +13,7 @@ import jakarta.persistence.MapsId;
 public class UEManager {
 
     @EmbeddedId
-    private UEManagerId id = new UEManagerId(this.user.getId(), this.ue.getId());
+    private UEManagerId id;
 
     @ManyToOne
     @MapsId("idUser")
@@ -36,6 +36,48 @@ public class UEManager {
             this.idUE = idUE;
         }
 
+        public Long getIdUser() {
+            return idUser;
+        }
+
+        public Long getIdUE() {
+            return idUE;
+        }
+
     }
 
+    public UEManager() {
+    }
+
+    public UEManager(User user, UE ue) {
+        this.user = user;
+        this.ue = ue;
+        this.id = new UEManagerId(user.getId(), ue.getId());
+    }
+
+    public UEManagerId getId() {
+        return id;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+        if (this.ue != null) {
+            this.id = new UEManagerId(user.getId(), this.ue.getId());
+        }
+    }
+
+    public UE getUe() {
+        return ue;
+    }
+
+    public void setUe(UE ue) {
+        this.ue = ue;
+        if (this.user != null) {
+            this.id = new UEManagerId(this.user.getId(), ue.getId());
+        }
+    }
 }

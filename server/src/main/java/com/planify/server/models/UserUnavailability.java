@@ -38,6 +38,43 @@ public class UserUnavailability {
             this.idUser = idUser;
         }
 
+        public Long getIdSlot() {
+            return this.idSlot;
+        }
+
+        public Long getIdUser() {
+            return this.idUser;
+        }
+
+    }
+
+    public UserUnavailability() {
+    }
+
+    public UserUnavailability(Slot s, User u, boolean strict) {
+        this.slot = s;
+        this.user = u;
+        this.strict = strict;
+    }
+
+    public UserUnavailabilityId getId() {
+        return this.id;
+    }
+
+    public boolean getStrict() {
+        return this.strict;
+    }
+
+    public void setStrict(boolean s) {
+        this.strict = s;
+    }
+
+    public Slot getSlot() {
+        return this.slot;
+    }
+
+    public User getUser() {
+        return this.user;
     }
 
 }
