@@ -1,5 +1,6 @@
 package com.planify.server.models;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.Entity;
@@ -28,4 +29,40 @@ public class Day {
     @OneToMany
     @JoinColumn(name = "idDay")
     private List<Slot> slots;
+
+    public Day() {}
+
+    public Day(int number, Week week) {
+        this.number = number;
+        this.week = week; // Add this day in Week days list
+        this.slots = new ArrayList<Slot>();
+    }
+
+    public Long getId() {
+        return this.id;
+    }
+
+    public int getNumber() {
+        return this.number;
+    }
+
+    public void setNumber(int number) {
+        this.number = number;
+    }
+
+    public Week getWeek() {
+        return this.week;
+    }
+
+    public void setWeek(Week week) {
+        this.week = week;
+    }
+
+    public List<Slot> getSlots() {
+        return this.slots;
+    }
+
+    public void setSlots(List<Slot> slots) {
+        this.slots = slots;
+    }
 }

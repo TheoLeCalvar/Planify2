@@ -35,6 +35,43 @@ public class Antecedence {
             this.idPreviousLesson = idPreviousLesson;
             this.idNextLesson = idNextLesson;
         }
+
+        public Long getIdPreviousLesson() {
+            return this.idPreviousLesson;
+        }
+
+        public Long getIdNextLesson() {
+            return this.idNextLesson;
+        }
+    }
+
+    public AntecedenceId getId() {
+        return this.id;
+    }
+
+    public Lesson getPreviouLesson() {
+        return this.previousLesson;
+    }
+
+    public void setPreviousLesson(Lesson previousLesson) {
+        this.previousLesson = previousLesson;
+    }
+
+    public Lesson getNextLesson() {
+        return this.nextLesson;
+    }
+
+    public void setNextLesson(Lesson nextLesson) {
+        this.nextLesson = nextLesson;
+    }
+
+    public Antecedence() {
+
+    }
+
+    public Antecedence(Lesson previousLesson, Lesson nextLesson) {
+        this.previousLesson = previousLesson;
+        this.nextLesson = nextLesson;
     }
 
 }

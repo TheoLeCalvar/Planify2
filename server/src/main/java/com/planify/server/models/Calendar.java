@@ -1,5 +1,7 @@
 package com.planify.server.models;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.Entity;
@@ -23,5 +25,32 @@ public class Calendar {
 
     @OneToMany(mappedBy = "calendar")
     private List<Slot> slots;
+
+    public Calendar() {}
+
+    public Calendar(TAF taf) {
+        this.taf = taf;
+        this.slots = new ArrayList<Slot>();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public TAF getTaf() {
+        return taf;
+    }
+
+    public void setTaf(TAF taf) {
+        this.taf = taf;
+    }
+
+    public List<Slot> getSlots() {
+        return slots;
+    }
+
+    public void setSlots(List<Slot> slots) {
+        this.slots = slots;
+    }
     
 }

@@ -35,6 +35,41 @@ public class LessonLecturer {
             this.idUser=idUser;
             this.idLesson=idLesson;
         }
+
+        public Long getIdUser() {
+            return this.idUser;
+        }
+
+        public Long getIdLesson() {
+            return this.idLesson;
+        }
+    }
+
+    public LessonLecturer() {}
+
+    public LessonLecturer(User user, Lesson lesson) {
+        this.user = user;
+        this.lesson = lesson;
+    }
+
+    public LessonLecturerId getId() {
+        return this.id;
+    }
+
+    public User getUser() {
+        return this.user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public Lesson getLesson() {
+        return this.lesson;
+    }
+
+    public void setLesson(Lesson lesson) {
+        this.lesson = lesson;
     }
 
 }
