@@ -25,7 +25,7 @@ public class Synchronization {
     private Lesson lesson2;
 
     @Embeddable
-    private class SynchronizationId implements Serializable {
+    public class SynchronizationId implements Serializable {
 
         private Long idLessonTAF1;
         private Long idLessonTAF2;
