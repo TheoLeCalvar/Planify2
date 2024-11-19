@@ -10,16 +10,18 @@ import com.planify.server.models.GlobalUnavailability;
 import com.planify.server.models.Slot;
 
 @Repository
-public interface GlobalUnavailabilityRepository extends JpaRepository<GlobalUnavailability,Slot>{
+public interface GlobalUnavailabilityRepository extends JpaRepository<GlobalUnavailability, Slot> {
 
     List<GlobalUnavailability> findAll();
 
-    Optional<GlobalUnavailability> findById(Slot slot);
+    Optional<GlobalUnavailability> findById(Long id);
+
+    Optional<GlobalUnavailability> findBySlot(Slot slot);
 
     List<GlobalUnavailability> findByStrict(Boolean bool);
 
     GlobalUnavailability save(GlobalUnavailability globalUnavailability);
 
     void deleteById(GlobalUnavailability globalUnavailability);
-    
+
 }

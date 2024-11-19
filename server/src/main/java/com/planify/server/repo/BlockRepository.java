@@ -10,16 +10,18 @@ import com.planify.server.models.Block;
 import com.planify.server.models.Lesson;
 
 @Repository
-public interface BlockRepository extends JpaRepository<Block, Lesson>{
+public interface BlockRepository extends JpaRepository<Block, Lesson> {
 
     List<Block> findAll();
 
-    Optional<Block> findByFirstLesson(Lesson lesson);
+    Optional<Block> finfById(Long id);
+
+    List<Block> findByFirstLesson(Lesson lesson);
 
     List<Block> findByTitle(String title);
 
     Block save(Block block);
 
     void deleteById(Lesson lesson);
-    
+
 }
