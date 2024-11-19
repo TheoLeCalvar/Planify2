@@ -16,7 +16,7 @@ public interface UERepository extends JpaRepository<UE, Long> {
 
     Optional<UE> findById(Long id);
 
-    List<UE> findByTAF(TAF taf);
+    List<UE> findByTaf(TAF taf);
 
     UE save(UE ue);
 

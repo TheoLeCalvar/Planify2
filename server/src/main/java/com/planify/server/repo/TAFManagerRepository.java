@@ -20,7 +20,7 @@ public interface TAFManagerRepository extends JpaRepository<TAFManager, TAFManag
 
     List<TAFManager> findByUser(User user);
 
-    List<TAFManager> findByTAF(TAF taf);
+    List<TAFManager> findByTaf(TAF taf);
 
     TAFManager save(TAFManager tafManager);
 
