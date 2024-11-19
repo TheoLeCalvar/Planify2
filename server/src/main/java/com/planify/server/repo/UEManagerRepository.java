@@ -20,7 +20,7 @@ public interface UEManagerRepository extends JpaRepository<UEManager, UEManagerI
 
     List<UEManager> findByUser(User user);
 
-    List<UEManager> findByUE(UE ue);
+    List<UEManager> findByUe(UE ue);
 
     UEManager save(UEManager ueManager);
 

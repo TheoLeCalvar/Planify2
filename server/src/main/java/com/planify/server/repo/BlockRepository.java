@@ -14,7 +14,7 @@ public interface BlockRepository extends JpaRepository<Block, Lesson> {
 
     List<Block> findAll();
 
-    Optional<Block> finfById(Long id);
+    Optional<Block> findById(Long id);
 
     List<Block> findByFirstLesson(Lesson lesson);
 
