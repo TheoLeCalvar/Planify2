@@ -23,8 +23,9 @@ public class Block {
     public Block() {
     }
 
-    public Block(Lesson firstLesson) {
+    public Block(Lesson firstLesson, String title) {
         this.firstLesson = firstLesson;
+        this.title = title;
     }
 
     public Lesson getFirstLesson() {
