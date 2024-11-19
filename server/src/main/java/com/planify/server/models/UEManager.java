@@ -26,7 +26,7 @@ public class UEManager {
     private UE ue;
 
     @Embeddable
-    private class UEManagerId implements Serializable {
+    public class UEManagerId implements Serializable {
 
         private Long idUser;
         private Long idUE;

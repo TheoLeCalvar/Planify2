@@ -24,8 +24,41 @@ public class Slot {
     @JoinColumn(name = "idCalendar")
     private Calendar calendar;
 
-	public Long getId() {
-		return id;
-	}
-    
+    public Slot() {
+    }
+
+    public Slot(int number, Day day, Calendar calendar) {
+        this.number = number;
+        this.day = day;
+        this.calendar = calendar;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public int getNumber() {
+        return number;
+    }
+
+    public void setNumber(int number) {
+        this.number = number;
+    }
+
+    public Day getDay() {
+        return day;
+    }
+
+    public void setDay(Day day) {
+        this.day = day;
+    }
+
+    public Calendar getCalendar() {
+        return calendar;
+    }
+
+    public void setCalendar(Calendar calendar) {
+        this.calendar = calendar;
+    }
+
 }

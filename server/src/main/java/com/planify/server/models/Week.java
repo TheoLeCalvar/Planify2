@@ -36,10 +36,6 @@ public class Week {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public int getNumber() {
         return number;
     }
@@ -63,6 +59,4 @@ public class Week {
     public void setDays(List<Day> days) {
         this.days = days;
     }
-}
-
 }

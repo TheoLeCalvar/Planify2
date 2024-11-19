@@ -25,7 +25,7 @@ public class TAFManager {
     private TAF taf;
 
     @Embeddable
-    private class TAFManagerId implements Serializable {
+    public class TAFManagerId implements Serializable {
 
         private Long idUser;
         private Long idTAF;
