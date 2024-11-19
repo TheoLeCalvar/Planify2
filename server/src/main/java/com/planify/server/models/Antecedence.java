@@ -53,16 +53,8 @@ public class Antecedence {
         return this.previousLesson;
     }
 
-    public void setPreviousLesson(Lesson previousLesson) {
-        this.previousLesson = previousLesson;
-    }
-
     public Lesson getNextLesson() {
         return this.nextLesson;
-    }
-
-    public void setNextLesson(Lesson nextLesson) {
-        this.nextLesson = nextLesson;
     }
 
     public Antecedence() {

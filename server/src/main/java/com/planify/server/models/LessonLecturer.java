@@ -60,16 +60,8 @@ public class LessonLecturer {
         return this.user;
     }
 
-    public void setUser(User user) {
-        this.user = user;
-    }
-
     public Lesson getLesson() {
         return this.lesson;
-    }
-
-    public void setLesson(Lesson lesson) {
-        this.lesson = lesson;
     }
 
 }
