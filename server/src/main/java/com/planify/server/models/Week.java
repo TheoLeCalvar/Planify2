@@ -23,4 +23,46 @@ public class Week {
     @OneToMany(mappedBy = "week")
     private List<Day> days;
 
+    public Week() {
+    }
+
+    public Week(int number, Integer year, List<Day> days) {
+        this.number = number;
+        this.year = year;
+        this.days = days;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public int getNumber() {
+        return number;
+    }
+
+    public void setNumber(int number) {
+        this.number = number;
+    }
+
+    public Integer getYear() {
+        return year;
+    }
+
+    public void setYear(Integer year) {
+        this.year = year;
+    }
+
+    public List<Day> getDays() {
+        return days;
+    }
+
+    public void setDays(List<Day> days) {
+        this.days = days;
+    }
+}
+
 }

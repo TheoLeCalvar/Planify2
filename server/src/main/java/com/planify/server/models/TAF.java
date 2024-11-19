@@ -25,8 +25,30 @@ public class TAF {
     @OneToMany(mappedBy = "taf")
     private List<TAFManager> TAFmanagers = new ArrayList<>();
 
+    public TAF() {
+    }
+
+    public TAF(List<UE> ues, List<Calendar> calendars, List<TAFManager> tafManagers) {
+        this.UEs = ues;
+        this.calendars = calendars;
+        this.TAFmanagers = tafManagers;
+    }
+
+    // Getters et setters
+
     public Long getId() {
         return id;
     }
 
+    public List<UE> getUes() {
+        return UEs;
+    }
+
+    public List<Calendar> getCalendars() {
+        return calendars;
+    }
+
+    public List<TAFManager> getTafManagers() {
+        return TAFmanagers;
+    }
 }

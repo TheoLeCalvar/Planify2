@@ -35,5 +35,48 @@ public class TAFManager {
             this.idTAF = idTAF;
         }
 
+        public Long getIdUser() {
+            return idUser;
+        }
+
+        public Long getIdTAF() {
+            return idTAF;
+        }
+
+    }
+
+    public TAFManager() {
+    }
+
+    public TAFManager(User user, TAF taf) {
+        this.user = user;
+        this.taf = taf;
+        this.id = new TAFManagerId(user.getId(), taf.getId());
+    }
+
+    public TAFManagerId getId() {
+        return id;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+        if (this.taf != null) {
+            this.id = new TAFManagerId(user.getId(), this.taf.getId());
+        }
+    }
+
+    public TAF getTaf() {
+        return taf;
+    }
+
+    public void setTaf(TAF taf) {
+        this.taf = taf;
+        if (this.user != null) {
+            this.id = new TAFManagerId(this.user.getId(), taf.getId());
+        }
     }
 }
