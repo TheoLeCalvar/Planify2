@@ -3,23 +3,8 @@ import ReactDOM from "react-dom/client";
 import "./index.css";
 import reportWebVitals from "./reportWebVitals";
 
-import Root from "./routes/root";
-import ErrorPage from "./routes/error-page";
-
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import Calendar from "./routes/calendar";
-
-const router = createBrowserRouter([
-    {
-        path: "/",
-        element: <Root />,
-        errorElement: <ErrorPage />,
-    },
-    {
-      path: "/calendar",
-      element: <Calendar />,
-    }
-]);
+import { RouterProvider } from "react-router-dom";
+import { router } from "./router";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
