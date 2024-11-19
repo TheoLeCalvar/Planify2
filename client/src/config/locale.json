@@ -1,4 +1,19 @@
 {
+    "app": {
+        "applicationName": "Planify2"
+    },
+    "layout": {
+        "appBar": {
+            "TAFSelector": "Sélectionner une TAF"
+        },
+        "sideBar": {
+            "status": "Statut",
+            "preferences": "Préférences",
+            "UE": "Unités d'Enseignement",
+            "UEManager": "Responsable UE",
+            "addUE": "Ajouter une UE"
+        }
+    },
     "slotStatus": {
         "AVAILABLE": "Disponible",
         "UNAVAILABLE": "Non disponible",
