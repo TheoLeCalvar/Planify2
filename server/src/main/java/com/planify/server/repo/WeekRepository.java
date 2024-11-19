@@ -23,4 +23,6 @@ public interface WeekRepository extends JpaRepository<Week, Long> {
 
     void deleteById(Long id);
 
+    boolean existsById(Long id);
+
 }

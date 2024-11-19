@@ -1,11 +1,15 @@
 package com.planify.server.models;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 
 @Entity
 public class Slot {
@@ -23,6 +27,9 @@ public class Slot {
     @ManyToOne
     @JoinColumn(name = "idCalendar")
     private Calendar calendar;
+
+    @OneToMany(mappedBy = "slot")
+    private List<UserUnavailability> userUnavailabilities = new ArrayList<>();
 
     public Slot() {
     }
@@ -59,6 +66,14 @@ public class Slot {
 
     public void setCalendar(Calendar calendar) {
         this.calendar = calendar;
+    }
+
+    public List<UserUnavailability> getUserUnavailabilities() {
+        return this.userUnavailabilities;
+    }
+
+    public void setUserUnavailabilities(List<UserUnavailability> list) {
+        this.userUnavailabilities = list;
     }
 
 }

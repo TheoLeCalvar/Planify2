@@ -23,7 +23,7 @@ public class User {
     private char[] password;
 
     @OneToMany(mappedBy = "user")
-    private List<UserUnavailability> userunavailabilities = new ArrayList<>();
+    private List<UserUnavailability> userUnavailabilities = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")
     private List<LessonLecturer> lessonLecturers = new ArrayList<>();
@@ -78,7 +78,11 @@ public class User {
     }
 
     public List<UserUnavailability> getUserUnavailabilities() {
-        return userunavailabilities;
+        return userUnavailabilities;
+    }
+
+    public void setUserUnavailabilities(List<UserUnavailability> list) {
+        this.userUnavailabilities = list;
     }
 
     public List<LessonLecturer> getLessonLecturers() {

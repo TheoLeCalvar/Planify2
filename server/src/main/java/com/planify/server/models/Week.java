@@ -1,5 +1,6 @@
 package com.planify.server.models;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.Column;
@@ -26,10 +27,10 @@ public class Week {
     public Week() {
     }
 
-    public Week(int number, Integer year, List<Day> days) {
+    public Week(int number, Integer year) {
         this.number = number;
         this.year = year;
-        this.days = days;
+        this.days = new ArrayList<Day>();
     }
 
     public Long getId() {
@@ -60,4 +61,3 @@ public class Week {
         this.days = days;
     }
 }
-
