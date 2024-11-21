@@ -6,9 +6,7 @@ import { CalendarContext } from "../../context/CalendarContext";
 import { constants } from "../../contants";
 import locale from "../../config/locale.json";
 
-import dayjs from "dayjs";
-import isoWeek from "dayjs/plugin/isoWeek";
-dayjs.extend(isoWeek);
+import { convertCalendarToGeneric } from "../../helper/calendarEvent";
 
 import "@schedule-x/theme-default/dist/index.css";
 import "./calendar.css";
@@ -39,37 +37,20 @@ export default function GenericWeekCalendar() {
                 additionalClasses: [constants.CALENDAR.SLOT_COLOR[newStatus]],
             },
         };
+
+        const cancel = () => {
+            eventService.update(event);
+        }
         eventService.update(updatedEvent);
-        onGenericChange(updatedEvent);
+        onGenericChange(updatedEvent, event.status, cancel);
     };
 
-    //const initialEvents = generateClassSlots('2000-01-03', '2000-01-08')
-    const genericInitialEvents = initialEvents.filter(
-        (v, i, a) => a.findIndex((t) => t.inWeekId === v.inWeekId) === i
-    );
-
-    const convertDate = (date) => {
-        const inputDate = dayjs(date); // Parser la date
-        const weekdayOffset = inputDate.isoWeekday() - 1; // Décalage du jour dans la semaine (lundi=0, dimanche=6)
-
-        return dayjs("2000-01-03 00:00") // Début de la première semaine ISO 2000
-            .add(weekdayOffset, "day") // Ajouter le même jour de la semaine
-            .hour(inputDate.hour()) // Conserver l'heure
-            .minute(inputDate.minute()) // Conserver les minutes
-			.format('YYYY-MM-DD HH:mm'); // Formater la date
-    };
-
-    genericInitialEvents.forEach((event) => {
-        event.start = convertDate(event.start);
-		event.end = convertDate(event.end);
-    });
-    console.log(genericInitialEvents);
 
     const calendar = useCalendarApp(
         {
             ...constants.SCHEDULE_GENERAL_CONFIG,
             selectedDate: "2000-01-03",
-            events: genericInitialEvents,
+            events: convertCalendarToGeneric(initialEvents),
             callbacks: {
                 onEventClick,
             },
