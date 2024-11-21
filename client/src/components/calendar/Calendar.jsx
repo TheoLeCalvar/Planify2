@@ -12,7 +12,7 @@ import '@schedule-x/theme-default/dist/index.css'
 import './calendar.css'
  
 export default function Calendar() {
-  const { eventService } = useContext(CalendarContext)
+  const { eventService, initialEvents } = useContext(CalendarContext)
 
   const onEventClick = (event) => {
     const currentStatus = Object.values(constants.CALENDAR.SLOT_STATUS).indexOf(event.status)
@@ -29,7 +29,7 @@ export default function Calendar() {
  
   const calendar = useCalendarApp({
     ...constants.SCHEDULE_GENERAL_CONFIG,
-    events: generateClassSlots('2024-09-01', '2024-12-31'),
+    events: initialEvents,
     callbacks: {
       onEventClick
     }

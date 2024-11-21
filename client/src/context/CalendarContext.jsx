@@ -3,7 +3,7 @@ import { createEventsServicePlugin } from '@schedule-x/events-service';
 
 export const CalendarContext = createContext()
 
-export default function CalendarContextProvider({children}) {
+export default function CalendarContextProvider({children, initialEvents}) {
 
     const eventService = useMemo(() => createEventsServicePlugin(), []);
     const genericEventService = useMemo(() => createEventsServicePlugin(), []);
@@ -26,7 +26,8 @@ export default function CalendarContextProvider({children}) {
             <CalendarContext.Provider value={{
                 onGenericChange,
                 eventService,
-                genericEventService
+                genericEventService,
+                initialEvents
             }}>
                 {children}
             </CalendarContext.Provider> 

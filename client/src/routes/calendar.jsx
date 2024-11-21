@@ -5,6 +5,7 @@ import { Tabs, Tab } from "@mui/material";
 import CalendarContextProvider from "../context/CalendarContext";
 import ImportButton from "../components/calendar/ImportButton";
 import ExportButton from "../components/calendar/ExportButton";
+import generateClassSlots from "../helper/classSlot";
 
 
 export default function CalendarPage() {
@@ -13,6 +14,8 @@ export default function CalendarPage() {
   const handleChange = (event, newValue) => {
     setTabIndex(newValue);
   };
+
+  const initialEvents = generateClassSlots('2024-09-01', '2024-12-31')
   
   return (
     <div>
@@ -20,7 +23,7 @@ export default function CalendarPage() {
         <Tab label="Semaine type" />
         <Tab label="Agenda" />
       </Tabs>
-      <CalendarContextProvider>
+      <CalendarContextProvider initialEvents={initialEvents}>
         <div hidden={tabIndex !== 0}>
           <GenericWeekCalendar/>
         </div>
