@@ -1,22 +1,27 @@
 import { Button } from "@mui/material";
-import { constants } from '../../contants'
-import { useContext } from 'react'
-import { CalendarContext } from '../../context/CalendarContext'
+import { useContext } from "react";
+import { CalendarContext } from "../../context/CalendarContext";
 
-export default function ResetButton(){
+import { convertCalendarToGeneric } from "../../helper/calendarEvent";
+import ConfirmationButton from "../ConfirmationButton";
 
-    const { eventService, genericEventService } = useContext(CalendarContext)
+import { toast } from "react-toastify";
 
-    return(
-        <Button variant="text" onClick={() => {
-            importCalendar(constants.CALENDAR.TYPES.AVAILABILITY)
-            .then(({events, genericEvents}) => {
-                eventService.set(events)
-                genericEventService.set(genericEvents)
-            })
-            .catch((error) => {
-              console.error(error)
-            })
-          }}>Réinitialiser</Button>
-    )
+export default function ResetButton() {
+    const { eventService, genericEventService, initialEvents } =
+        useContext(CalendarContext);
+
+    const handleClick = () => {
+        eventService.set(initialEvents);
+        genericEventService.set(convertCalendarToGeneric(initialEvents));
+        toast.info('Calendrier réinitialisé')
+    };
+
+    return (
+        <ConfirmationButton
+            buttonText="Réinitialiser"
+            dialogMessage="Êtes-vous sûr de vouloir réinitialiser le calendrier à son état initial ?"
+            onConfirm={handleClick}
+        />
+    );
 }
