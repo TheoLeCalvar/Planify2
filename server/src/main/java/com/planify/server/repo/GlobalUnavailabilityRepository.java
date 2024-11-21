@@ -14,8 +14,6 @@ public interface GlobalUnavailabilityRepository extends JpaRepository<GlobalUnav
 
     List<GlobalUnavailability> findAll();
 
-    Optional<GlobalUnavailability> findById(Long id);
-
     Optional<GlobalUnavailability> findBySlot(Slot slot);
 
     List<GlobalUnavailability> findByStrict(Boolean bool);

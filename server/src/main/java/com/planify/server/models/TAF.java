@@ -52,7 +52,15 @@ public class TAF {
         return calendars;
     }
 
+    public void setCalendars(List<Calendar> calendars) {
+        this.calendars = calendars;
+    }
+
     public List<TAFManager> getTafManagers() {
         return TAFmanagers;
+    }
+
+    public void setTafManagers(List<TAFManager> tafManagers) {
+        this.TAFmanagers = tafManagers;
     }
 }

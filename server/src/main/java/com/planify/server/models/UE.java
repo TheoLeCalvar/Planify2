@@ -62,12 +62,16 @@ public class UE {
         return this.lessons;
     }
 
+    public void setLessons(List<Lesson> lessons) {
+        this.lessons = lessons;
+    }
+
     public List<UEManager> getUeManagers() {
         return this.UEmanagers;
     }
 
-    public void setUeManagers(List<UEManager> list) {
-        this.UEmanagers = list;
+    public void setUeManagers(List<UEManager> ueManagers) {
+        this.UEmanagers = ueManagers;
     }
 
 }

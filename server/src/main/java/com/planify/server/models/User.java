@@ -90,16 +90,24 @@ public class User {
         return lessonLecturers;
     }
 
+    public void setLessonLecturers(List<LessonLecturer> lessonLecturers) {
+        this.lessonLecturers = lessonLecturers;
+    }
+
     public List<UEManager> getUeManagers() {
         return ueManagers;
     }
 
-    public void setUeManagers(List<UEManager> list) {
-        this.ueManagers = list;
+    public void setUeManagers(List<UEManager> ueManagers) {
+        this.ueManagers = ueManagers;
     }
 
     public List<TAFManager> getTafManagers() {
         return tafManagers;
+    }
+
+    public void setTafManagers(List<TAFManager> tafManagers) {
+        this.tafManagers = tafManagers;
     }
 
 }
