@@ -1,9 +1,8 @@
 import ICAL from "ical.js";
 import { toast } from "react-toastify";
-import { constants } from "../contants";
 import { JSONToCalendarEvent } from "./calendarEvent";
 
-export default function importExclusionCalendar(previousEvents, delay) {
+export default function importExclusionCalendar(previousEvents, delay, changingStatus) {
   return new Promise((resolve, reject) => {
     // Créer dynamiquement un élément input de type file
     const input = document.createElement("input");
@@ -65,7 +64,7 @@ export default function importExclusionCalendar(previousEvents, delay) {
             );
 
             if (overlaps) {
-                newStatus = constants.CALENDAR.SLOT_STATUS.UNAVAILABLE;
+                newStatus = changingStatus;
             }
 
             return JSONToCalendarEvent({...prevEvent, status: newStatus});
