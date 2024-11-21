@@ -5,11 +5,9 @@ import { Tabs, Tab } from "@mui/material";
 import CalendarContextProvider from "../context/CalendarContext";
 import ImportButton from "../components/calendar/ImportButton";
 import ExportButton from "../components/calendar/ExportButton";
-import { ToastContainer } from 'react-toastify';
 
-import 'react-toastify/dist/ReactToastify.css';
 
-export default function App() {
+export default function CalendarPage() {
   const [tabIndex, setTabIndex] = useState(1)
 
   const handleChange = (event, newValue) => {
@@ -32,18 +30,6 @@ export default function App() {
         <ImportButton/>
         <ExportButton/>
       </CalendarContextProvider>
-      <ToastContainer
-        position="bottom-right"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-      />
     </div>
   )
 }

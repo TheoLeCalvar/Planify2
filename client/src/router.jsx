@@ -5,29 +5,35 @@ import SideBar from "./routes/layout/sideBar";
 import ErrorPage from "./routes/error-page";
 import Calendar from "./routes/calendar";
 
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
+import { createBrowserRouter } from "react-router-dom";
 
 export const router = createBrowserRouter([
     {
         path: "/",
-        element: <AppBarComponent />,
+        element: <Root />,
         errorElement: <ErrorPage />,
         children: [
-          {
-            path: "",
-            element: <SideBar />,
-            children: [
-              {
-                path: "calendar",
-                element: <Calendar />
-              }
-            ]
-          }
-        ]
+            {
+                path: "",
+                element: <AppBarComponent />,
+                children: [
+                    {
+                        path: "",
+                        element: <SideBar />,
+                        children: [
+                            {
+                                path: "calendar",
+                                element: <Calendar />,
+                            },
+                        ],
+                    },
+                ],
+            },
+            {
+                path: "login",
+                element: <LoginPage />,
+            },
+        ],
     },
-    {
-      path: "/login",
-      element: <LoginPage />,
-    }
 ]);
