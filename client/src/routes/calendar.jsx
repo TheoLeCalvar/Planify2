@@ -6,6 +6,8 @@ import CalendarContextProvider from "../context/CalendarContext";
 import ImportButton from "../components/calendar/ImportButton";
 import ExportButton from "../components/calendar/ExportButton";
 import generateClassSlots from "../helper/classSlot";
+import ResetButton from "../components/calendar/ResetButton";
+import ImportExclusionButton from "../components/calendar/ImportExclusionButton";
 
 
 export default function CalendarPage() {
@@ -30,8 +32,10 @@ export default function CalendarPage() {
         <div hidden={tabIndex !== 1}>
           <Calendar/>
         </div>
+        <ResetButton/>
         <ImportButton/>
         <ExportButton/>
+        <ImportExclusionButton/>
       </CalendarContextProvider>
     </div>
   )
