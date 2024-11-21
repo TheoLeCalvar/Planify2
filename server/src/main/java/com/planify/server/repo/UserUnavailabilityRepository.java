@@ -18,9 +18,9 @@ public interface UserUnavailabilityRepository extends JpaRepository<UserUnavaila
 
     Optional<UserUnavailability> findById(UserUnavailabilityId id);
 
-    Optional<UserUnavailability> findByUser(User user);
+    List<UserUnavailability> findByUser(User user);
 
-    Optional<UserUnavailability> findBySlot(Slot slot);
+    List<UserUnavailability> findBySlot(Slot slot);
 
     UserUnavailability save(UserUnavailability userUnavailability);
 

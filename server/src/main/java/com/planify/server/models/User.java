@@ -17,6 +17,7 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String name;
     private String lastName;
     private String mail;
@@ -91,6 +92,10 @@ public class User {
 
     public List<UEManager> getUeManagers() {
         return ueManagers;
+    }
+
+    public void setUeManagers(List<UEManager> list) {
+        this.ueManagers = list;
     }
 
     public List<TAFManager> getTafManagers() {

@@ -44,6 +44,10 @@ public class TAF {
         return UEs;
     }
 
+    public void setUes(List<UE> list) {
+        this.UEs = list;
+    }
+
     public List<Calendar> getCalendars() {
         return calendars;
     }

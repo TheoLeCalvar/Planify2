@@ -1,5 +1,6 @@
 package com.planify.server.models;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.Entity;
@@ -24,10 +25,10 @@ public class UE {
     private TAF taf;
 
     @OneToMany(mappedBy = "ue")
-    private List<Lesson> lessons;
+    private List<Lesson> lessons = new ArrayList<>();
 
     @OneToMany(mappedBy = "ue")
-    private List<UEManager> UEmanagers;
+    private List<UEManager> UEmanagers = new ArrayList<>();
 
     public UE() {
     }
@@ -63,6 +64,10 @@ public class UE {
 
     public List<UEManager> getUeManagers() {
         return this.UEmanagers;
+    }
+
+    public void setUeManagers(List<UEManager> list) {
+        this.UEmanagers = list;
     }
 
 }
