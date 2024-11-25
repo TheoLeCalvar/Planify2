@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import com.planify.server.models.TAF;
 
 @Repository
-public interface TAFRepository extends JpaRepository<TAF,Long>{
+public interface TAFRepository extends JpaRepository<TAF, Long> {
 
     List<TAF> findAll();
 
@@ -18,5 +18,5 @@ public interface TAFRepository extends JpaRepository<TAF,Long>{
     TAF save(TAF taf);
 
     void deleteById(TAF taf);
-    
+
 }
