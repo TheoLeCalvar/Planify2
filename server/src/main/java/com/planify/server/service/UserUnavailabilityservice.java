@@ -21,10 +21,10 @@ public class UserUnavailabilityservice {
     private UserUnavailabilityRepository userUnavailabilityRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
 
     @Autowired
-    private SlotRepository slotRepository;
+    private SlotService slotService;
 
     public UserUnavailability addUserUnavailability(Slot slot, User user, boolean strict) {
         // Add userUnavailibility in the table
@@ -35,13 +35,13 @@ public class UserUnavailabilityservice {
         List<UserUnavailability> listUser = user.getUserUnavailabilities();
         listUser.addLast(userUnavailability);
         user.setUserUnavailabilities(listUser);
-        userRepository.save(user);
+        userService.save(user);
 
         // Add it in the slot's list of unavailibities
         List<UserUnavailability> listSlot = slot.getUserUnavailabilities();
         listSlot.addLast(userUnavailability);
         slot.setUserUnavailabilities(listSlot);
-        slotRepository.save(slot);
+        slotService.save(slot);
 
         return userUnavailability;
     }
@@ -54,25 +54,29 @@ public class UserUnavailabilityservice {
             userUnavailabilityRepository.deleteById(id);
 
             // Remove it from the user's list of unavailability
-            User user = userRepository.findById(id.getIdUser()).get();
+            User user = userService.findById(id.getIdUser()).get();
             List<UserUnavailability> listUser = user.getUserUnavailabilities();
             listUser.remove(userUnavailability);
             user.setUserUnavailabilities(listUser);
-            userRepository.save(user);
+            userService.save(user);
 
             // Remove it from the slot's list of unavailability
-            Slot slot = slotRepository.findById(id.getIdSlot()).get();
+            Slot slot = slotService.findById(id.getIdSlot()).get();
             List<UserUnavailability> listSlot = slot.getUserUnavailabilities();
             listSlot.remove(userUnavailability);
             slot.setUserUnavailabilities(listSlot);
-            slotRepository.save(slot);
+            slotService.save(slot);
 
             return true;
         }
         return false;
     }
 
-    public Optional<UserUnavailability> findById(UserUnavailabilityId id) {
+    public Optional<UserUnavailability> findById(long id) {
         return userUnavailabilityRepository.findById(id);
+    }
+
+    public void save(UserUnavailability userUnavailability) {
+        userUnavailabilityRepository.save(userUnavailability);
     }
 }
