@@ -88,7 +88,11 @@ const SideBar = () => {
                             primary={locale.layout.sideBar.preferences}
                         />
                     </ListItemButton>
-
+                    <ListItemButton sx={{ flex: "initial" }}>
+                        <ListItemText
+                            primary={locale.layout.sideBar.lessons}
+                        />
+                    </ListItemButton>
                     {/* Scrollable Courses List - Takes available space */}
                     <Typography variant="h6" sx={{ mt: 2, px: 2 }}>
                         {locale.layout.sideBar.UE}
