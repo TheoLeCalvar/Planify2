@@ -35,6 +35,10 @@ public class TAFService {
         return taf;
     }
 
+    public void save(TAF taf) {
+        tafRepository.save(taf);
+    }
+
     public boolean deleteTAF(Long id) {
         if (tafRepository.existsById(id)) {
             TAF taf = tafRepository.findById(id).get();

@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.planify.server.models.LessonLecturer.LessonLecturerId;
+import com.planify.server.models.GlobalUnavailability;
 import com.planify.server.models.Lesson;
 import com.planify.server.models.LessonLecturer;
 import com.planify.server.models.User;
@@ -18,8 +19,14 @@ public class LessonLecturerService {
     @Autowired
     private LessonLecturerRepository lessonLecturerRepository;
 
-    public LessonLecturer add(User user, Lesson lesson) {
-        LessonLecturer lessonLecturer = new LessonLecturer(user,lesson);
+    @Autowired
+    private LessonService lessonService;
+
+    @Autowired
+    private UserService userService;
+
+    public LessonLecturer addLessonLecturer(User user, Lesson lesson) {
+        LessonLecturer lessonLecturer = new LessonLecturer(user, lesson);
 
         // Update lesson lecturers for user
         List<LessonLecturer> lessonLecturers = user.getLessonLecturers();
@@ -36,12 +43,16 @@ public class LessonLecturerService {
         return lessonLecturer;
     }
 
+    public void save(LessonLecturer lessonLecturer) {
+        lessonLecturerRepository.save(lessonLecturer);
+    }
+
     public Optional<LessonLecturer> findById(LessonLecturerId id) {
         Optional<LessonLecturer> lessonLecturer = lessonLecturerRepository.findById(id);
         return lessonLecturer;
     }
 
-    public boolean delete(LessonLecturerId id) {
+    public boolean deleteLessonLecturer(LessonLecturerId id) {
 
         if (lessonLecturerRepository.existsById(id)) {
             LessonLecturer lessonLecturer = lessonLecturerRepository.findById(id).get();
@@ -64,5 +75,5 @@ public class LessonLecturerService {
             return false;
         }
     }
-    
+
 }

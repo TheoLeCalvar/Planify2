@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.planify.server.models.Calendar;
 import com.planify.server.models.Day;
+import com.planify.server.models.Sequencing;
 import com.planify.server.models.Slot;
 import com.planify.server.repo.SlotRepository;
 
@@ -18,7 +19,7 @@ public class SlotService {
     private SlotRepository slotRepository;
 
     public Slot add(int number, Day day, Calendar calendar) {
-        Slot slot = new Slot(number,day,calendar);
+        Slot slot = new Slot(number, day, calendar);
 
         // Update slot list for days
         List<Slot> slots = day.getSlots();
@@ -34,12 +35,16 @@ public class SlotService {
         return slot;
     }
 
+    public void save(Slot slot) {
+        slotRepository.save(slot);
+    }
+
     public Optional<Slot> findById(Long id) {
         Optional<Slot> slot = slotRepository.findById(id);
         return slot;
     }
 
-    public boolean delete(Long id) {
+    public boolean deleteSlot(Long id) {
         if (slotRepository.existsById(id)) {
 
             Slot slot = slotRepository.findById(id).get();
@@ -56,10 +61,9 @@ public class SlotService {
 
             slotRepository.deleteById(id);
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     }
-    
+
 }

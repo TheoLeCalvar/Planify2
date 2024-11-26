@@ -49,7 +49,7 @@ public class Antecedence {
         return this.id;
     }
 
-    public Lesson getPreviouLesson() {
+    public Lesson getPreviousLesson() {
         return this.previousLesson;
     }
 

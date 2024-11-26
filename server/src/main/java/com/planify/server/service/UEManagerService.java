@@ -6,6 +6,8 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.planify.server.models.TAF;
+import com.planify.server.models.TAFManager;
 import com.planify.server.models.UE;
 import com.planify.server.models.UEManager;
 import com.planify.server.models.User;
@@ -43,6 +45,10 @@ public class UEManagerService {
         ueRepository.save(ue);
 
         return ueManager;
+    }
+
+    public void save(UEManager manager) {
+        ueManagerRepository.save(manager);
     }
 
     public boolean deleteUEManager(UEManagerId id) {

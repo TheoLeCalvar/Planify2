@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.planify.server.models.Sequencing.SequencingId;
 import com.planify.server.models.Lesson;
+import com.planify.server.models.LessonLecturer;
 import com.planify.server.models.Sequencing;
 import com.planify.server.repo.SequencingRepository;
 
@@ -18,7 +19,7 @@ public class SequencingService {
     private SequencingRepository sequencingRepository;
 
     public Sequencing add(Lesson previousLesson, Lesson nextLesson) {
-        Sequencing sequencing = new Sequencing(previousLesson,nextLesson);
+        Sequencing sequencing = new Sequencing(previousLesson, nextLesson);
 
         // Update previous sequencings for lesson
         List<Sequencing> sequencingsAsPrevious = previousLesson.getSequencingsAsPrevious();
@@ -33,6 +34,10 @@ public class SequencingService {
         // Save new object in repository
         sequencingRepository.save(sequencing);
         return sequencing;
+    }
+
+    public void save(Sequencing sequencing) {
+        sequencingRepository.save(sequencing);
     }
 
     public Optional<Sequencing> findById(SequencingId id) {
@@ -62,5 +67,5 @@ public class SequencingService {
             return false;
         }
     }
-    
+
 }

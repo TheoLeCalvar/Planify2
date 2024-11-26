@@ -44,6 +44,10 @@ public class UEService {
         return ue;
     }
 
+    public void save(UE ue) {
+        ueRepository.save(ue);
+    }
+
     public boolean deleteUE(Long id) {
         if (ueRepository.existsById(id)) {
             UE ue = ueRepository.findById(id).get();

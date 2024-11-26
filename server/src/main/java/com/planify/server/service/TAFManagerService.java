@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.planify.server.models.Synchronization;
 import com.planify.server.models.TAF;
 import com.planify.server.models.TAFManager;
 import com.planify.server.models.User;
@@ -43,6 +44,10 @@ public class TAFManagerService {
         tafRepository.save(taf);
 
         return tafManager;
+    }
+
+    public void save(TAFManager tafManager) {
+        tafManagerRepository.save(tafManager);
     }
 
     public boolean deleteTAFManager(TAFManagerId id) {

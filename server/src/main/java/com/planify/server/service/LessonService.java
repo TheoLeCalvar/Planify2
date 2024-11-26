@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.planify.server.models.Lesson;
+import com.planify.server.models.LessonLecturer;
 import com.planify.server.models.UE;
 import com.planify.server.repo.LessonRepository;
 
@@ -17,7 +18,7 @@ public class LessonService {
     private LessonRepository lessonRepository;
 
     public Lesson add(String name, UE ue) {
-        Lesson lesson = new Lesson(name,ue);
+        Lesson lesson = new Lesson(name, ue);
 
         // Update lessons list for ue
         List<Lesson> lessons = ue.getLessons();
@@ -26,6 +27,10 @@ public class LessonService {
 
         lessonRepository.save(lesson);
         return lesson;
+    }
+
+    public void save(Lesson lesson) {
+        lessonRepository.save(lesson);
     }
 
     public Optional<Lesson> findById(Long id) {
@@ -45,10 +50,9 @@ public class LessonService {
 
             lessonRepository.deleteById(id);
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     }
-    
+
 }
