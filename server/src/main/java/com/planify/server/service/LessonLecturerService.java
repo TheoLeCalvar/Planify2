@@ -6,13 +6,10 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.planify.server.models.Antecedence;
-import com.planify.server.models.Antecedence.AntecedenceId;
 import com.planify.server.models.LessonLecturer.LessonLecturerId;
 import com.planify.server.models.Lesson;
 import com.planify.server.models.LessonLecturer;
 import com.planify.server.models.User;
-import com.planify.server.repo.AntecedenceRepository;
 import com.planify.server.repo.LessonLecturerRepository;
 
 @Service

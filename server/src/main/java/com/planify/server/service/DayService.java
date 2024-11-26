@@ -6,7 +6,6 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.planify.server.models.Calendar;
 import com.planify.server.models.Day;
 import com.planify.server.models.Week;
 import com.planify.server.repo.DayRepository;
