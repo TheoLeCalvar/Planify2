@@ -30,7 +30,7 @@ public class WeekService {
             // delete week in the day table
             List<Day> days = weekRepository.findById(id).get().getDays();
             for (Day day : days) {
-                dayService.delete(day.getId());
+                dayService.deleteDay(day.getId());
             }
 
             weekRepository.deleteById(id);

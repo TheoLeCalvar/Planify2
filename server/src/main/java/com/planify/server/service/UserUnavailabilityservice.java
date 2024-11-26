@@ -10,12 +10,10 @@ import com.planify.server.models.Slot;
 import com.planify.server.models.User;
 import com.planify.server.models.UserUnavailability;
 import com.planify.server.models.UserUnavailability.UserUnavailabilityId;
-import com.planify.server.repo.SlotRepository;
-import com.planify.server.repo.UserRepository;
 import com.planify.server.repo.UserUnavailabilityRepository;
 
 @Service
-public class UserUnavailabilityservice {
+public class UserUnavailabilityService {
 
     @Autowired
     private UserUnavailabilityRepository userUnavailabilityRepository;
@@ -72,7 +70,7 @@ public class UserUnavailabilityservice {
         return false;
     }
 
-    public Optional<UserUnavailability> findById(long id) {
+    public Optional<UserUnavailability> findById(UserUnavailabilityId id) {
         return userUnavailabilityRepository.findById(id);
     }
 

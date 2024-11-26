@@ -6,14 +6,11 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.planify.server.models.Synchronization;
 import com.planify.server.models.TAF;
 import com.planify.server.models.TAFManager;
 import com.planify.server.models.User;
 import com.planify.server.models.TAFManager.TAFManagerId;
 import com.planify.server.repo.TAFManagerRepository;
-import com.planify.server.repo.TAFRepository;
-import com.planify.server.repo.UserRepository;
 
 @Service
 public class TAFManagerService {
@@ -22,10 +19,10 @@ public class TAFManagerService {
     private TAFManagerRepository tafManagerRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
 
     @Autowired
-    private TAFRepository tafRepository;
+    private TAFService tafService;
 
     public TAFManager addTAFManager(User user, TAF taf) {
         // Add TAFManager to the table
@@ -35,13 +32,13 @@ public class TAFManagerService {
         List<TAFManager> tafManagers = user.getTafManagers();
         tafManagers.addLast(tafManager);
         user.setTafManagers(tafManagers);
-        userRepository.save(user);
+        userService.save(user);
 
         // Add the TAFManager to the TAF's list of TafManager
         List<TAFManager> tafManagers2 = taf.getTafManagers();
         tafManagers2.addLast(tafManager);
         taf.setTafManagers(tafManagers2);
-        tafRepository.save(taf);
+        tafService.save(taf);
 
         return tafManager;
     }
@@ -55,18 +52,18 @@ public class TAFManagerService {
             TAFManager tafManager = tafManagerRepository.findById(id).get();
 
             // delete the TAFManager from the TAF's list of TAFManager
-            TAF taf = tafRepository.findById(tafManager.getTaf().getId()).get();
+            TAF taf = tafService.findById(tafManager.getTaf().getId()).get();
             List<TAFManager> listManagerFromTAF = taf.getTafManagers();
             listManagerFromTAF.remove(tafManager);
             taf.setTafManagers(listManagerFromTAF);
-            tafRepository.save(taf);
+            tafService.save(taf);
 
             // Delete the TAFManager in the User's UeManagers
-            User user = userRepository.findById(tafManager.getUser().getId()).get();
+            User user = userService.findById(tafManager.getUser().getId()).get();
             List<TAFManager> listManagerFromUser = user.getTafManagers();
             listManagerFromUser.remove(tafManager);
             user.setTafManagers(listManagerFromUser);
-            userRepository.save(user);
+            userService.save(user);
 
             // Delete the taf manager in the TAFMAnager's table
             tafManagerRepository.delete(tafManager);

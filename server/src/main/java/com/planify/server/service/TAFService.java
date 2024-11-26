@@ -10,10 +10,7 @@ import com.planify.server.models.Calendar;
 import com.planify.server.models.TAF;
 import com.planify.server.models.TAFManager;
 import com.planify.server.models.UE;
-import com.planify.server.repo.CalendarRepository;
-import com.planify.server.repo.TAFManagerRepository;
 import com.planify.server.repo.TAFRepository;
-import com.planify.server.repo.UERepository;
 
 @Service
 public class TAFService {
@@ -22,13 +19,13 @@ public class TAFService {
     private TAFRepository tafRepository;
 
     @Autowired
-    private UERepository ueRepository;
+    private UEService ueService;
 
     @Autowired
-    private CalendarRepository calendarRepository;
+    private CalendarService calendarService;
 
     @Autowired
-    private TAFManagerRepository tafManagerRepository;
+    private TAFManagerService tafManagerService;
 
     public TAF addTAF(String name) {
         TAF taf = tafRepository.save(new TAF(name));
@@ -46,19 +43,19 @@ public class TAFService {
             // Delete the UEs of this TAF
             List<UE> listUes = taf.getUes();
             for (UE ue : listUes) {
-                ueRepository.delete(ue);
+                ueService.deleteUE(ue.getId());
             }
 
             // Delete the calendars associated to this TAF
             List<Calendar> listCalendars = taf.getCalendars();
             for (Calendar c : listCalendars) {
-                calendarRepository.delete(c);
+                calendarService.deleteCalendar(c.getId());
             }
 
             // Delete the TAFManager of this TAF
             List<TAFManager> listManagers = taf.getTafManagers();
             for (TAFManager m : listManagers) {
-                tafManagerRepository.delete(m);
+                tafManagerService.deleteTAFManager(m.getId());
             }
 
             // Delete the taf in the TAF's table
