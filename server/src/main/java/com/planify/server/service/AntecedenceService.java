@@ -19,7 +19,7 @@ public class AntecedenceService {
     private AntecedenceRepository antecedenceRepository;
 
     @Autowired
-    private LessonRepository lessonRepository;
+    private LessonRepository lessonService;
 
     public Antecedence addAntecedence(Lesson previousLesson, Lesson nextLesson) {
         Antecedence antecedence = new Antecedence(previousLesson, nextLesson);
@@ -28,11 +28,13 @@ public class AntecedenceService {
         List<Antecedence> antecedencesAsPrevious = previousLesson.getAntecedencesAsPrevious();
         antecedencesAsPrevious.addLast(antecedence);
         previousLesson.setAntecedencesAsPrevious(antecedencesAsPrevious);
+        lessonService.save(previousLesson);
 
         // Update next antecedences for lesson
         List<Antecedence> antecedencesAsNext = nextLesson.getAntecedencesAsNext();
         antecedencesAsNext.addLast(antecedence);
         nextLesson.setAntecedencesAsNext(antecedencesAsNext);
+        lessonService.save(nextLesson);
 
         // Save new object in repository
         antecedenceRepository.save(antecedence);
@@ -58,13 +60,13 @@ public class AntecedenceService {
             List<Antecedence> antecedencesAsPrevious = antecedence.getPreviousLesson().getAntecedencesAsPrevious();
             antecedencesAsPrevious.remove(antecedence);
             antecedence.getPreviousLesson().setAntecedencesAsPrevious(antecedencesAsPrevious);
-            lessonRepository.save(antecedence.getPreviousLesson());
+            lessonService.save(antecedence.getPreviousLesson());
 
             // Update next antecedences for lesson
             List<Antecedence> antecedencesAsNext = antecedence.getNextLesson().getAntecedencesAsNext();
             antecedencesAsNext.remove(antecedence);
             antecedence.getNextLesson().setAntecedencesAsNext(antecedencesAsNext);
-            lessonRepository.save(antecedence.getNextLesson());
+            lessonService.save(antecedence.getNextLesson());
 
             // Then delete it
             antecedenceRepository.deleteById(id);

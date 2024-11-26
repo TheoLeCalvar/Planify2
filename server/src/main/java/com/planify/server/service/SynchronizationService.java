@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.planify.server.models.Lesson;
+import com.planify.server.models.Slot;
 import com.planify.server.models.Synchronization;
 import com.planify.server.models.Synchronization.SynchronizationId;
 import com.planify.server.repo.SynchronizationRepository;
@@ -22,6 +23,10 @@ public class SynchronizationService {
 
         synchronizationRepository.save(synchronization);
         return synchronization;
+    }
+
+    public void save(Synchronization synchronization) {
+        synchronizationRepository.save(synchronization);
     }
 
     public boolean deleteSynchronization(SynchronizationId id) {

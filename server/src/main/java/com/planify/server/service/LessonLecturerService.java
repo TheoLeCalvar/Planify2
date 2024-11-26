@@ -32,11 +32,13 @@ public class LessonLecturerService {
         List<LessonLecturer> lessonLecturers = user.getLessonLecturers();
         lessonLecturers.addLast(lessonLecturer);
         user.setLessonLecturers(lessonLecturers);
+        userService.save(user);
 
         // Update lesson lecturers for lesson
         List<LessonLecturer> lessonLecturers2 = lesson.getLessonLecturers();
         lessonLecturers2.addLast(lessonLecturer);
         lesson.setLessonLecturers(lessonLecturers2);
+        lessonService.save(lesson);
 
         // Save new object in repository
         lessonLecturerRepository.save(lessonLecturer);
@@ -61,11 +63,13 @@ public class LessonLecturerService {
             List<LessonLecturer> lessonLecturers = lessonLecturer.getUser().getLessonLecturers();
             lessonLecturers.remove(lessonLecturer);
             lessonLecturer.getUser().setLessonLecturers(lessonLecturers);
+            userService.save(lessonLecturer.getUser());
 
             // Update lesson lecturers for lesson
             List<LessonLecturer> lessonLecturers2 = lessonLecturer.getLesson().getLessonLecturers();
             lessonLecturers2.remove(lessonLecturer);
             lessonLecturer.getLesson().setLessonLecturers(lessonLecturers2);
+            lessonService.save(lessonLecturer.getLesson());
 
             // Then delete it
             lessonLecturerRepository.deleteById(id);
