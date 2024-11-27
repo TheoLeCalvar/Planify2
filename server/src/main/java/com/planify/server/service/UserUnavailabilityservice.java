@@ -74,7 +74,12 @@ public class UserUnavailabilityService {
         return userUnavailabilityRepository.findById(id);
     }
 
+    public List<UserUnavailability> findBySlot(Slot s) {
+        return userUnavailabilityRepository.findBySlot(s);
+    }
+
     public void save(UserUnavailability userUnavailability) {
         userUnavailabilityRepository.save(userUnavailability);
     }
+
 }
