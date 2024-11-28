@@ -15,23 +15,22 @@ import {
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import AddIcon from "@mui/icons-material/Add";
-import { Outlet, useOutletContext } from "react-router-dom";
-
+import { Outlet } from "react-router-dom";
 import locale from "../../config/locale.json";
+import useStore from "../../hooks/store";
 
 const drawerWidth = 250; // Width of the sidebar
 
 const SideBar = () => {
-    const [isOpen, setIsOpen] = useOutletContext(); // Sidebar is open by default
+    const isOpen = useStore((state) => state.sideBarOpen)
+
     const [courses, setCourses] = useState([
         { id: 1, name: "UE A", responsible: "Théo Le Calvar" },
         { id: 2, name: "UE B", responsible: "Jacques Noyé" },
         { id: 3, name: "UE C", responsible: "Gilles Simonin" },
     ]);
 
-    const toggleDrawer = () => {
-        setIsOpen(!isOpen);
-    };
+    const toggleDrawer = useStore((state) => state.toggleSideBar)
 
     const handleAddCourse = () => {
         const newCourse = {

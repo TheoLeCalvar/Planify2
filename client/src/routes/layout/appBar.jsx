@@ -25,12 +25,12 @@ import LogoutIcon from "@mui/icons-material/Logout";
 
 import { Outlet } from "react-router-dom";
 import { app, layout } from "../../config/locale.json";
+import useStore from "../../hooks/store";
 
 const AppBarComponent = () => {
     const [selectedOption, setSelectedOption] = useState("");
     const [profileAnchorEl, setProfileAnchorEl] = useState(null);
     const [notificationsAnchorEl, setNotificationsAnchorEl] = useState(null);
-    const [sideBarOpen, setSideBarOpen] = useState(true);
     const [notifications, setNotifications] = useState([
         {
             id: 1,
@@ -46,9 +46,7 @@ const AppBarComponent = () => {
         },
     ]);
 
-    const toggleDrawer = () => {
-        setSideBarOpen(!sideBarOpen);
-    };
+    const toggleDrawer = useStore((state) => state.toggleSideBar)
 
     const handleProfileClick = (event) => {
         setProfileAnchorEl(event.currentTarget);
@@ -205,7 +203,7 @@ const AppBarComponent = () => {
                     </Menu>
                 </Toolbar>
             </AppBar>
-            <Outlet context={[sideBarOpen, setSideBarOpen]} />
+            <Outlet/>
         </>
     );
 };
