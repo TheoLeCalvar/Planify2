@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 
 import com.planify.server.models.Sequencing.SequencingId;
 import com.planify.server.models.Lesson;
-import com.planify.server.models.LessonLecturer;
 import com.planify.server.models.Sequencing;
 import com.planify.server.repo.SequencingRepository;
 

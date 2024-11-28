@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import com.planify.server.models.Calendar;
@@ -18,12 +19,15 @@ public class TAFService {
     @Autowired
     private TAFRepository tafRepository;
 
+    @Lazy
     @Autowired
     private UEService ueService;
 
+    @Lazy
     @Autowired
     private CalendarService calendarService;
 
+    @Lazy
     @Autowired
     private TAFManagerService tafManagerService;
 

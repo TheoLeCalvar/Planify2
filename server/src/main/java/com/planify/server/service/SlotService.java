@@ -3,12 +3,14 @@ package com.planify.server.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.hibernate.annotations.LazyToOne;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import com.planify.server.models.Calendar;
 import com.planify.server.models.Day;
-import com.planify.server.models.Sequencing;
+import com.planify.server.models.GlobalUnavailability;
 import com.planify.server.models.Slot;
 import com.planify.server.models.UserUnavailability;
 import com.planify.server.repo.SlotRepository;
@@ -25,8 +27,13 @@ public class SlotService {
     @Autowired
     private CalendarService calendarService;
 
+    @Lazy
     @Autowired
     private UserUnavailabilityService userUnavailabilityService;
+
+    @Lazy
+    @Autowired
+    private GlobalUnavailabilityService globalUnavailabilityService;
 
     public Slot add(int number, Day day, Calendar calendar) {
         Slot slot = new Slot(number, day, calendar);
@@ -77,6 +84,12 @@ public class SlotService {
             List<UserUnavailability> list = userUnavailabilityService.findBySlot(slot);
             for (UserUnavailability u : list) {
                 userUnavailabilityService.deleteUserUnavailability(u.getId());
+            }
+
+            // Delete globalunavailability linked to this slot if exists
+            Optional<GlobalUnavailability> globalUnavailability = globalUnavailabilityService.findBySlot(slot);
+            if (globalUnavailability.isPresent()) {
+                globalUnavailabilityService.deleteGlobalUnavailability(globalUnavailability.get().getId());
             }
 
             slotRepository.deleteById(id);

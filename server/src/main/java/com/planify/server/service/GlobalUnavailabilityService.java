@@ -5,7 +5,6 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.planify.server.models.Antecedence;
 import com.planify.server.models.GlobalUnavailability;
 import com.planify.server.models.Slot;
 import com.planify.server.repo.GlobalUnavailabilityRepository;
@@ -26,14 +25,19 @@ public class GlobalUnavailabilityService {
         globalUnavailabilityRepository.save(globalUnavailability);
     }
 
+    public Optional<GlobalUnavailability> findById(Long id) {
+        Optional<GlobalUnavailability> globalUnavailability = globalUnavailabilityRepository.findById(id);
+        return globalUnavailability;
+    }
+
     public Optional<GlobalUnavailability> findBySlot(Slot slot) {
         Optional<GlobalUnavailability> globalUnavailability = globalUnavailabilityRepository.findBySlot(slot);
         return globalUnavailability;
     }
 
-    public boolean deleteGlobalUnavailability(Slot slot) {
-        if (globalUnavailabilityRepository.existsById(slot)) {
-            globalUnavailabilityRepository.deleteById(slot);
+    public boolean deleteGlobalUnavailability(Long id) {
+        if (globalUnavailabilityRepository.existsById(id)) {
+            globalUnavailabilityRepository.deleteById(id);
             return true;
         } else {
             return false;

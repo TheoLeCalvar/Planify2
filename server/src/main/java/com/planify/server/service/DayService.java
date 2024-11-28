@@ -4,9 +4,9 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
-import com.planify.server.models.Antecedence;
 import com.planify.server.models.Day;
 import com.planify.server.models.Slot;
 import com.planify.server.models.Week;
@@ -18,6 +18,7 @@ public class DayService {
     @Autowired
     private DayRepository dayRepository;
 
+    @Lazy
     @Autowired
     private SlotService slotService;
 

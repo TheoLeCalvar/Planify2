@@ -1,15 +1,14 @@
 package com.planify.server.service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import com.planify.server.models.Antecedence;
 import com.planify.server.models.Lesson;
-import com.planify.server.models.LessonLecturer;
 import com.planify.server.models.Sequencing;
 import com.planify.server.models.Synchronization;
 import com.planify.server.models.UE;
@@ -21,12 +20,15 @@ public class LessonService {
     @Autowired
     private LessonRepository lessonRepository;
 
+    @Lazy
     @Autowired
     private AntecedenceService antecedenceService;
 
+    @Lazy
     @Autowired
     private SequencingService sequencingService;
 
+    @Lazy
     @Autowired
     private SynchronizationService synchronizationService;
 
