@@ -11,8 +11,6 @@ import com.planify.server.models.UEManager;
 import com.planify.server.models.User;
 import com.planify.server.models.UEManager.UEManagerId;
 import com.planify.server.repo.UEManagerRepository;
-import com.planify.server.repo.UERepository;
-import com.planify.server.repo.UserRepository;
 
 @Service
 public class UEManagerService {
@@ -21,10 +19,10 @@ public class UEManagerService {
     private UEManagerRepository ueManagerRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
 
     @Autowired
-    private UERepository ueRepository;
+    private UEService ueService;
 
     public UEManager addUEManager(User user, UE ue) {
         // Add UEManager to the table
@@ -34,15 +32,19 @@ public class UEManagerService {
         List<UEManager> ueManagers = user.getUeManagers();
         ueManagers.addLast(ueManager);
         user.setUeManagers(ueManagers);
-        userRepository.save(user);
+        userService.save(user);
 
         // Add the UEmanager to the ue's list of UEManager
         List<UEManager> listUE = ue.getUeManagers();
         listUE.addLast(ueManager);
         ue.setUeManagers(listUE);
-        ueRepository.save(ue);
+        ueService.save(ue);
 
         return ueManager;
+    }
+
+    public void save(UEManager manager) {
+        ueManagerRepository.save(manager);
     }
 
     public boolean deleteUEManager(UEManagerId id) {
@@ -50,18 +52,18 @@ public class UEManagerService {
             UEManager ueManager = ueManagerRepository.findById(id).get();
 
             // Delete the UEManager in the UE's UeManagers
-            UE ue = ueRepository.findById(ueManager.getUe().getId()).get();
+            UE ue = ueService.findById(ueManager.getUe().getId()).get();
             List<UEManager> listManagerFromUE = ue.getUeManagers();
             listManagerFromUE.remove(ueManager);
             ue.setUeManagers(listManagerFromUE);
-            ueRepository.save(ue);
+            ueService.save(ue);
 
             // Delete the UEManager in the User's UeManagers
-            User user = userRepository.findById(ueManager.getUser().getId()).get();
+            User user = userService.findById(ueManager.getUser().getId()).get();
             List<UEManager> listManagerFromUser = user.getUeManagers();
             listManagerFromUser.remove(ueManager);
             user.setUeManagers(listManagerFromUser);
-            userRepository.save(user);
+            userService.save(user);
 
             // Delete the ue's manager in the UEManager's table
             ueManagerRepository.delete(ueManager);

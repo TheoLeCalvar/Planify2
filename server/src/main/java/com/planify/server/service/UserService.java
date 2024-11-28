@@ -11,11 +11,7 @@ import com.planify.server.models.TAFManager;
 import com.planify.server.models.UEManager;
 import com.planify.server.models.User;
 import com.planify.server.models.UserUnavailability;
-import com.planify.server.repo.LessonLecturerRepository;
-import com.planify.server.repo.TAFManagerRepository;
-import com.planify.server.repo.UEManagerRepository;
 import com.planify.server.repo.UserRepository;
-import com.planify.server.repo.UserUnavailabilityRepository;
 
 @Service
 public class UserService {
@@ -24,16 +20,16 @@ public class UserService {
     private UserRepository userRepository;
 
     @Autowired
-    private UserUnavailabilityRepository userUnavailabilityRepository;
+    private UserUnavailabilityService userUnavailabilityService;
 
     @Autowired
-    private LessonLecturerRepository lessonLecturerRepository;
+    private LessonLecturerService lessonLecturerService;
 
     @Autowired
-    private UEManagerRepository ueManagerRepository;
+    private UEManagerService ueManagerService;
 
     @Autowired
-    private TAFManagerRepository tafManagerRepository;
+    private TAFManagerService tafManagerService;
 
     public User addUser(String name, String lastName, String mail, char[] password) {
         User user = userRepository.save(new User(name, lastName, mail, password));
@@ -45,27 +41,27 @@ public class UserService {
             User user = userRepository.findById(id).get();
 
             // delete user in the userUnavailibility table
-            List<UserUnavailability> listUnavailibility = userUnavailabilityRepository.findByUser(user);
+            List<UserUnavailability> listUnavailibility = user.getUserUnavailabilities();
             for (UserUnavailability unavailability : listUnavailibility) {
-                userUnavailabilityRepository.deleteById(unavailability.getId());
+                userUnavailabilityService.deleteUserUnavailability(unavailability.getId());
             }
 
             // delete user in the LessonLecturer table
-            List<LessonLecturer> lessonLecturers = lessonLecturerRepository.findByUser(user);
+            List<LessonLecturer> lessonLecturers = user.getLessonLecturers();
             for (LessonLecturer lessonLecturer : lessonLecturers) {
-                lessonLecturerRepository.deleteById(lessonLecturer.getId());
+                lessonLecturerService.deleteLessonLecturer(lessonLecturer.getId());
             }
 
             // delete user in the UEManager table
-            List<UEManager> ueManagers = ueManagerRepository.findByUser(user);
+            List<UEManager> ueManagers = user.getUeManagers();
             for (UEManager ueManager : ueManagers) {
-                ueManagerRepository.deleteById(ueManager.getId());
+                ueManagerService.deleteUEManager(ueManager.getId());
             }
 
             // delete user in the TAFManager
-            List<TAFManager> tafManagers = tafManagerRepository.findByUser(user);
+            List<TAFManager> tafManagers = user.getTafManagers();
             for (TAFManager tafManager : tafManagers) {
-                tafManagerRepository.deleteById(tafManager.getId());
+                tafManagerService.deleteTAFManager(tafManager.getId());
             }
 
             // delete the user in the user table
@@ -81,6 +77,10 @@ public class UserService {
 
     public Optional<User> findById(Long id) {
         return userRepository.findById(id);
+    }
+
+    public void save(User user) {
+        userRepository.save(user);
     }
 
 }

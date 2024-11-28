@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.planify.server.models.Antecedence;
 import com.planify.server.models.Calendar;
+import com.planify.server.models.Slot;
 import com.planify.server.models.TAF;
 import com.planify.server.repo.CalendarRepository;
 
@@ -17,7 +18,10 @@ public class CalendarService {
     @Autowired
     private CalendarRepository calendarRepository;
 
-    public Calendar add(TAF taf) {
+    @Autowired
+    private SlotService slotService;
+
+    public Calendar addCalendar(TAF taf) {
         Calendar calendar = new Calendar(taf);
 
         // Update calendar list for taf
@@ -29,12 +33,16 @@ public class CalendarService {
         return calendar;
     }
 
+    public void save(Calendar calendar) {
+        calendarRepository.save(calendar);
+    }
+
     public Optional<Calendar> findById(Long id) {
         Optional<Calendar> calendar = calendarRepository.findById(id);
         return calendar;
     }
 
-    public boolean delete(Long id) {
+    public boolean deleteCalendar(Long id) {
         if (calendarRepository.existsById(id)) {
             Calendar calendar = calendarRepository.findById(id).get();
 
@@ -42,13 +50,19 @@ public class CalendarService {
             List<Calendar> calendars = calendar.getTaf().getCalendars();
             calendars.remove(calendar);
             calendar.getTaf().setCalendars(calendars);
+            calendarRepository.save(calendar);
+
+            // Delete the slots associated to this calendar
+            List<Slot> slots = calendar.getSlots();
+            for (Slot s : slots) {
+                slotService.deleteSlot(s.getId());
+            }
 
             calendarRepository.deleteById(id);
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     }
-    
+
 }

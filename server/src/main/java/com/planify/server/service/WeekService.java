@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 
 import com.planify.server.models.Day;
 import com.planify.server.models.Week;
-import com.planify.server.repo.DayRepository;
 import com.planify.server.repo.WeekRepository;
 
 @Service
@@ -18,7 +17,7 @@ public class WeekService {
     private WeekRepository weekRepository;
 
     @Autowired
-    private DayRepository dayRepository;
+    private DayService dayService;
 
     public Week addWeek(int number, Integer year) {
         Week week = new Week(number, year);
@@ -29,8 +28,10 @@ public class WeekService {
     public boolean deleteWeek(Long id) {
         if (weekRepository.existsById(id)) {
             // delete week in the day table
-            List<Day> days = dayRepository.findByWeek(weekRepository.findById(id).get());
-            dayRepository.deleteAll(days);
+            List<Day> days = weekRepository.findById(id).get().getDays();
+            for (Day day : days) {
+                dayService.deleteDay(day.getId());
+            }
 
             weekRepository.deleteById(id);
             return true;
@@ -40,6 +41,10 @@ public class WeekService {
 
     public Optional<Week> findById(Long Id) {
         return weekRepository.findById(Id);
+    }
+
+    public void save(Week week) {
+        weekRepository.save(week);
     }
 
 }
