@@ -56,6 +56,7 @@ const SideBar = () => {
                     "& .MuiDrawer-paper": {
                         width: drawerWidth + 1,
                         boxSizing: "border-box",
+                        position: "relative",
                     },
                 }}
             >
@@ -68,16 +69,6 @@ const SideBar = () => {
                     }}
                     role="presentation"
                 >
-                    {/* Title and Hamburger Button */}
-                    <Box sx={{ display: "flex", alignItems: "center", p: 2 }}>
-                        <IconButton onClick={toggleDrawer} color="inherit">
-                            <MenuIcon />
-                        </IconButton>
-                        <Typography variant="h6" sx={{ flexGrow: 1 }}>
-                            {locale.app.applicationName}
-                        </Typography>
-                    </Box>
-
                     {/* Sidebar Buttons */}
                     <ListItemButton sx={{ flex: "initial" }}>
                         <ListItemText primary={locale.layout.sideBar.status} />
