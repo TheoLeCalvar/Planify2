@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.planify.server.models.Antecedence;
 import com.planify.server.models.Lesson;
@@ -22,6 +23,10 @@ public class LessonService {
 
     @Lazy
     @Autowired
+    private UEService ueService;
+
+    @Lazy
+    @Autowired
     private AntecedenceService antecedenceService;
 
     @Lazy
@@ -32,6 +37,7 @@ public class LessonService {
     @Autowired
     private SynchronizationService synchronizationService;
 
+    @Transactional
     public Lesson add(String name, UE ue) {
         Lesson lesson = new Lesson(name, ue);
 
@@ -39,6 +45,7 @@ public class LessonService {
         List<Lesson> lessons = ue.getLessons();
         lessons.addLast(lesson);
         ue.setLessons(lessons);
+        ueService.save(ue);
 
         lessonRepository.save(lesson);
         return lesson;
@@ -53,6 +60,7 @@ public class LessonService {
         return lesson;
     }
 
+    @Transactional
     public boolean delete(Long id) {
         if (lessonRepository.existsById(id)) {
 

@@ -7,6 +7,7 @@ import org.hibernate.annotations.LazyToOne;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.planify.server.models.Calendar;
 import com.planify.server.models.Day;
@@ -35,6 +36,7 @@ public class SlotService {
     @Autowired
     private GlobalUnavailabilityService globalUnavailabilityService;
 
+    @Transactional
     public Slot add(int number, Day day, Calendar calendar) {
         Slot slot = new Slot(number, day, calendar);
 
@@ -63,6 +65,7 @@ public class SlotService {
         return slot;
     }
 
+    @Transactional
     public boolean deleteSlot(Long id) {
         if (slotRepository.existsById(id)) {
 

@@ -15,6 +15,8 @@ public interface TAFRepository extends JpaRepository<TAF, Long> {
 
     Optional<TAF> findById(Long id);
 
+    List<TAF> findByName(String name);
+
     TAF save(TAF taf);
 
     void deleteById(TAF taf);

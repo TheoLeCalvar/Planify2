@@ -34,6 +34,10 @@ public class TAF {
         this.name = name;
     }
 
+    public String toString() {
+        return "TAF " + Long.toString(this.id) + "\n Name: " + name;
+    }
+
     // Getters et setters
 
     public Long getId() {

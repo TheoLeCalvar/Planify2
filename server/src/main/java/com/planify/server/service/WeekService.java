@@ -3,6 +3,7 @@ package com.planify.server.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -10,6 +11,8 @@ import org.springframework.stereotype.Service;
 import com.planify.server.models.Day;
 import com.planify.server.models.Week;
 import com.planify.server.repo.WeekRepository;
+
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class WeekService {
@@ -27,6 +30,7 @@ public class WeekService {
         return week;
     }
 
+    @Transactional
     public boolean deleteWeek(Long id) {
         if (weekRepository.existsById(id)) {
             // delete week in the day table
@@ -43,6 +47,15 @@ public class WeekService {
 
     public Optional<Week> findById(Long Id) {
         return weekRepository.findById(Id);
+    }
+
+    @Transactional
+    public List<Week> findByNumber(int n) {
+        List<Week> weeks = weekRepository.findByNumber(n);
+        // for (Week week: weeks) {
+        // Hibernate.initialize(week.getDays());
+        // }
+        return weeks;
     }
 
     public void save(Week week) {
