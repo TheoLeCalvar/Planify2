@@ -20,18 +20,6 @@ public class TAFService {
     @Autowired
     private TAFRepository tafRepository;
 
-    @Lazy
-    @Autowired
-    private UEService ueService;
-
-    @Lazy
-    @Autowired
-    private CalendarService calendarService;
-
-    @Lazy
-    @Autowired
-    private TAFManagerService tafManagerService;
-
     public TAF addTAF(String name) {
         TAF taf = tafRepository.save(new TAF(name));
         return taf;
@@ -45,25 +33,6 @@ public class TAFService {
     public boolean deleteTAF(Long id) {
         if (tafRepository.existsById(id)) {
             TAF taf = tafRepository.findById(id).get();
-
-            // Delete the UEs of this TAF
-            List<UE> listUes = taf.getUes();
-            for (UE ue : listUes) {
-                ueService.deleteUE(ue.getId());
-            }
-
-            // Delete the calendars associated to this TAF
-            List<Calendar> listCalendars = taf.getCalendars();
-            for (Calendar c : listCalendars) {
-                calendarService.deleteCalendar(c.getId());
-            }
-
-            // Delete the TAFManager of this TAF
-            List<TAFManager> listManagers = taf.getTafManagers();
-            for (TAFManager m : listManagers) {
-                tafManagerService.deleteTAFManager(m.getId());
-            }
-
             // Delete the taf in the TAF's table
             tafRepository.delete(taf);
 

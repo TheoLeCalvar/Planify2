@@ -18,25 +18,8 @@ public class SequencingService {
     @Autowired
     private SequencingRepository sequencingRepository;
 
-    @Autowired
-    private LessonService lessonService;
-
     public Sequencing add(Lesson previousLesson, Lesson nextLesson) {
         Sequencing sequencing = new Sequencing(previousLesson, nextLesson);
-
-        // Update previous sequencings for lesson
-        List<Sequencing> sequencingsAsPrevious = previousLesson.getSequencingsAsPrevious();
-        sequencingsAsPrevious.addLast(sequencing);
-        previousLesson.setSequencingsAsPrevious(sequencingsAsPrevious);
-        lessonService.save(previousLesson);
-
-        // Update next sequencings for lesson
-        List<Sequencing> sequencingsAsNext = nextLesson.getSequencingsAsNext();
-        sequencingsAsNext.addLast(sequencing);
-        nextLesson.setSequencingsAsNext(sequencingsAsNext);
-        lessonService.save(nextLesson);
-
-        // Save new object in repository
         sequencingRepository.save(sequencing);
         return sequencing;
     }
@@ -52,21 +35,6 @@ public class SequencingService {
 
     public boolean delete(SequencingId id) {
         if (sequencingRepository.existsById(id)) {
-            Sequencing sequencing = sequencingRepository.findById(id).get();
-
-            // Update sequencings for previous lesson
-            List<Sequencing> sequencings = sequencing.getPreviousLesson().getSequencingsAsPrevious();
-            sequencings.remove(sequencing);
-            sequencing.getPreviousLesson().setSequencingsAsPrevious(sequencings);
-            lessonService.save(sequencing.getPreviousLesson());
-
-            // Update sequencings for next lesson
-            List<Sequencing> sequencings2 = sequencing.getNextLesson().getSequencingsAsNext();
-            sequencings2.remove(sequencing);
-            sequencing.getNextLesson().setSequencingsAsNext(sequencings2);
-            lessonService.save(sequencing.getNextLesson());
-
-            // Then delete it
             sequencingRepository.deleteById(id);
 
             return true;

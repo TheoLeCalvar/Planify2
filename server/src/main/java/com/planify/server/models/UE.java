@@ -3,7 +3,9 @@ package com.planify.server.models;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -24,10 +26,10 @@ public class UE {
     @JoinColumn(name = "taf_id")
     private TAF taf;
 
-    @OneToMany(mappedBy = "ue")
+    @OneToMany(mappedBy = "ue", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Lesson> lessons = new ArrayList<>();
 
-    @OneToMany(mappedBy = "ue")
+    @OneToMany(mappedBy = "ue", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<UEManager> UEmanagers = new ArrayList<>();
 
     public UE() {

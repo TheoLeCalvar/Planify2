@@ -3,7 +3,9 @@ package com.planify.server.models;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -22,10 +24,11 @@ public class Calendar {
     @JoinColumn(name = "idTAF")
     private TAF taf;
 
-    @OneToMany(mappedBy = "calendar")
+    @OneToMany(mappedBy = "calendar", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Slot> slots;
 
-    public Calendar() {}
+    public Calendar() {
+    }
 
     public Calendar(TAF taf) {
         this.taf = taf;
@@ -51,5 +54,5 @@ public class Calendar {
     public void setSlots(List<Slot> slots) {
         this.slots = slots;
     }
-    
+
 }

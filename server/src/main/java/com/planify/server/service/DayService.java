@@ -19,24 +19,8 @@ public class DayService {
     @Autowired
     private DayRepository dayRepository;
 
-    @Lazy
-    @Autowired
-    private SlotService slotService;
-
-    @Lazy
-    @Autowired
-    private WeekService weekService;
-
-    @Transactional
     public Day addDay(int number, Week week) {
         Day day = new Day(number, week);
-
-        // Update days list for week
-        // List<Day> days = week.getDays();
-        // days.addLast(day);
-        // week.setDays(days);
-        // weekService.save(week);
-
         dayRepository.save(day);
         return day;
     }
@@ -54,24 +38,8 @@ public class DayService {
         return dayRepository.findByWeek(week);
     }
 
-    @Transactional
     public boolean deleteDay(Long id) {
         if (dayRepository.existsById(id)) {
-
-            Day day = dayRepository.findById(id).get();
-
-            // Update days list for week
-            List<Day> days = day.getWeek().getDays();
-            days.remove(day);
-            day.getWeek().setDays(days);
-            dayRepository.save(day);
-
-            // Delete the slots associated to this day
-            List<Slot> slots = day.getSlots();
-            for (Slot s : slots) {
-                slotService.deleteSlot(s.getId());
-            }
-
             dayRepository.deleteById(id);
             return true;
         } else {

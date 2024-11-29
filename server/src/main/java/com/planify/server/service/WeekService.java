@@ -20,25 +20,14 @@ public class WeekService {
     @Autowired
     private WeekRepository weekRepository;
 
-    @Lazy
-    @Autowired
-    private DayService dayService;
-
     public Week addWeek(int number, Integer year) {
         Week week = new Week(number, year);
         week = weekRepository.save(week);
         return week;
     }
 
-    @Transactional
     public boolean deleteWeek(Long id) {
         if (weekRepository.existsById(id)) {
-            // delete week in the day table
-            List<Day> days = weekRepository.findById(id).get().getDays();
-            for (Day day : days) {
-                dayService.deleteDay(day.getId());
-            }
-
             weekRepository.deleteById(id);
             return true;
         }
@@ -49,12 +38,8 @@ public class WeekService {
         return weekRepository.findById(Id);
     }
 
-    @Transactional
     public List<Week> findByNumber(int n) {
         List<Week> weeks = weekRepository.findByNumber(n);
-        // for (Week week: weeks) {
-        // Hibernate.initialize(week.getDays());
-        // }
         return weeks;
     }
 

@@ -3,7 +3,9 @@ package com.planify.server.models;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -23,28 +25,29 @@ public class Lesson {
     @JoinColumn(name = "idUE")
     private UE ue;
 
-    @OneToMany(mappedBy = "lesson")
+    @OneToMany(mappedBy = "lesson", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<LessonLecturer> lessonLecturers = new ArrayList<>();
 
-    @OneToMany(mappedBy = "previousLesson")
+    @OneToMany(mappedBy = "previousLesson", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Antecedence> antecedencesAsPrevious = new ArrayList<>();
 
-    @OneToMany(mappedBy = "nextLesson")
+    @OneToMany(mappedBy = "nextLesson", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Antecedence> antecedencesAsNext = new ArrayList<>();
 
-    @OneToMany(mappedBy = "previousLesson")
+    @OneToMany(mappedBy = "previousLesson", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Sequencing> sequencingsAsPrevious = new ArrayList<>();
 
-    @OneToMany(mappedBy = "nextLesson")
+    @OneToMany(mappedBy = "nextLesson", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Sequencing> sequencingsAsNext = new ArrayList<>();
 
-    @OneToMany(mappedBy = "lesson1")
+    @OneToMany(mappedBy = "lesson1", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Synchronization> synchronizations1 = new ArrayList<>();
 
-    @OneToMany(mappedBy = "lesson2")
+    @OneToMany(mappedBy = "lesson2", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Synchronization> synchronizations2 = new ArrayList<>();
 
-    public Lesson() {}
+    public Lesson() {
+    }
 
     public Lesson(String name, UE ue) {
         this.name = name;

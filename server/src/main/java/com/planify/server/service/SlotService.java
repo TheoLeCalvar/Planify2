@@ -22,36 +22,8 @@ public class SlotService {
     @Autowired
     private SlotRepository slotRepository;
 
-    @Autowired
-    private DayService dayService;
-
-    @Autowired
-    private CalendarService calendarService;
-
-    @Lazy
-    @Autowired
-    private UserUnavailabilityService userUnavailabilityService;
-
-    @Lazy
-    @Autowired
-    private GlobalUnavailabilityService globalUnavailabilityService;
-
-    @Transactional
     public Slot add(int number, Day day, Calendar calendar) {
         Slot slot = new Slot(number, day, calendar);
-
-        // Update slot list for days
-        List<Slot> slots = day.getSlots();
-        slots.addLast(slot);
-        day.setSlots(slots);
-        dayService.save(day);
-
-        // Update slot list for calendar
-        List<Slot> slots2 = calendar.getSlots();
-        slots2.addLast(slot);
-        calendar.setSlots(slots2);
-        calendarService.save(calendar);
-
         slotRepository.save(slot);
         return slot;
     }
@@ -65,36 +37,8 @@ public class SlotService {
         return slot;
     }
 
-    @Transactional
     public boolean deleteSlot(Long id) {
         if (slotRepository.existsById(id)) {
-
-            Slot slot = slotRepository.findById(id).get();
-
-            // Update slot list for day
-            List<Slot> slots = slot.getDay().getSlots();
-            slots.remove(slot);
-            slot.getDay().setSlots(slots);
-            dayService.save(slot.getDay());
-
-            // Update slot list for calendar
-            List<Slot> slots2 = slot.getCalendar().getSlots();
-            slots2.remove(slot);
-            slot.getCalendar().setSlots(slots2);
-            calendarService.save(slot.getCalendar());
-
-            // Delete userUnavailabilities of this slot
-            List<UserUnavailability> list = userUnavailabilityService.findBySlot(slot);
-            for (UserUnavailability u : list) {
-                userUnavailabilityService.deleteUserUnavailability(u.getId());
-            }
-
-            // Delete globalunavailability linked to this slot if exists
-            Optional<GlobalUnavailability> globalUnavailability = globalUnavailabilityService.findBySlot(slot);
-            if (globalUnavailability.isPresent()) {
-                globalUnavailabilityService.deleteGlobalUnavailability(globalUnavailability.get().getId());
-            }
-
             slotRepository.deleteById(id);
             return true;
         } else {

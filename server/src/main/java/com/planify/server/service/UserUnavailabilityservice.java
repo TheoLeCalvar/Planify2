@@ -19,29 +19,10 @@ public class UserUnavailabilityService {
     @Autowired
     private UserUnavailabilityRepository userUnavailabilityRepository;
 
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private SlotService slotService;
-
-    @Transactional
     public UserUnavailability addUserUnavailability(Slot slot, User user, boolean strict) {
         // Add userUnavailibility in the table
         UserUnavailability userUnavailability = userUnavailabilityRepository
                 .save(new UserUnavailability(slot, user, strict));
-
-        // Add it in the user's list of unavailabilities
-        List<UserUnavailability> listUser = user.getUserUnavailabilities();
-        listUser.addLast(userUnavailability);
-        user.setUserUnavailabilities(listUser);
-        userService.save(user);
-
-        // Add it in the slot's list of unavailibities
-        List<UserUnavailability> listSlot = slot.getUserUnavailabilities();
-        listSlot.addLast(userUnavailability);
-        slot.setUserUnavailabilities(listSlot);
-        slotService.save(slot);
 
         return userUnavailability;
     }
@@ -49,24 +30,9 @@ public class UserUnavailabilityService {
     @Transactional
     public boolean deleteUserUnavailability(UserUnavailabilityId id) {
         if (userUnavailabilityRepository.existsById(id)) {
-            UserUnavailability userUnavailability = userUnavailabilityRepository.findById(id).get();
 
             // Remove userUnavailability from the table
             userUnavailabilityRepository.deleteById(id);
-
-            // Remove it from the user's list of unavailability
-            User user = userService.findById(id.getIdUser()).get();
-            List<UserUnavailability> listUser = user.getUserUnavailabilities();
-            listUser.remove(userUnavailability);
-            user.setUserUnavailabilities(listUser);
-            userService.save(user);
-
-            // Remove it from the slot's list of unavailability
-            Slot slot = slotService.findById(id.getIdSlot()).get();
-            List<UserUnavailability> listSlot = slot.getUserUnavailabilities();
-            listSlot.remove(userUnavailability);
-            slot.setUserUnavailabilities(listSlot);
-            slotService.save(slot);
 
             return true;
         }
