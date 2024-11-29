@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -18,13 +19,13 @@ public class TAF {
 
     private String name;
 
-    @OneToMany(mappedBy = "taf")
+    @OneToMany(mappedBy = "taf", fetch = FetchType.EAGER)
     private List<UE> UEs = new ArrayList<>();
 
-    @OneToMany(mappedBy = "taf")
+    @OneToMany(mappedBy = "taf", fetch = FetchType.EAGER)
     private List<Calendar> calendars = new ArrayList<>();
 
-    @OneToMany(mappedBy = "taf")
+    @OneToMany(mappedBy = "taf", fetch = FetchType.EAGER)
     private List<TAFManager> TAFmanagers = new ArrayList<>();
 
     public TAF() {

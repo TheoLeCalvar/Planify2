@@ -69,7 +69,7 @@ public class ServerApplication {
 		if (!days.isEmpty()) {
 			System.out.println(GREEN + "Day added with success:" + RESET);
 			System.out.println(days.get(0).toString());
-			// System.out.println(weekService.findByNumber(5).get(0).getDays());
+			System.out.println(weekService.findByNumber(5).get(0).getDays());
 		} else {
 			System.out.println(RED + "PB!!! Day not added" + RESET);
 		}
@@ -125,7 +125,6 @@ public class ServerApplication {
 		} else {
 			System.out.println(GREEN + "Calendar deleted with success" + RESET);
 		}
-		calendarService.addCalendar(taf);
 
 	}
 

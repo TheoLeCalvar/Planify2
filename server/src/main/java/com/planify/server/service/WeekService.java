@@ -52,9 +52,6 @@ public class WeekService {
     @Transactional
     public List<Week> findByNumber(int n) {
         List<Week> weeks = weekRepository.findByNumber(n);
-        // for (Week week: weeks) {
-        // Hibernate.initialize(week.getDays());
-        // }
         return weeks;
     }
 

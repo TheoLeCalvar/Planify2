@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -28,7 +29,7 @@ public class Slot {
     @JoinColumn(name = "idCalendar")
     private Calendar calendar;
 
-    @OneToMany(mappedBy = "slot")
+    @OneToMany(mappedBy = "slot", fetch = FetchType.EAGER)
     private List<UserUnavailability> userUnavailabilities = new ArrayList<>();
 
     public Slot() {
