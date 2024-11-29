@@ -11,7 +11,7 @@ import jakarta.persistence.MapsId;
 
 @Entity
 public class LessonLecturer {
-    
+
     @EmbeddedId
     private LessonLecturerId id = new LessonLecturerId(this.user.getId(), this.lesson.getId());
 
@@ -32,8 +32,8 @@ public class LessonLecturer {
         private Long idLesson;
 
         public LessonLecturerId(long idUser, long idLesson) {
-            this.idUser=idUser;
-            this.idLesson=idLesson;
+            this.idUser = idUser;
+            this.idLesson = idLesson;
         }
 
         public Long getIdUser() {
@@ -45,11 +45,16 @@ public class LessonLecturer {
         }
     }
 
-    public LessonLecturer() {}
+    public LessonLecturer() {
+    }
 
     public LessonLecturer(User user, Lesson lesson) {
         this.user = user;
         this.lesson = lesson;
+    }
+
+    public String toString() {
+        return "Week \n Lecturer: " + this.user.getName() + "\n Lesson: " + this.lesson.getName();
     }
 
     public LessonLecturerId getId() {

@@ -53,6 +53,10 @@ public class Lesson {
         this.ue = ue;
     }
 
+    public String toString() {
+        return "Lesson " + Long.toString(this.id) + "\n Name: " + this.name + "\n UE: " + this.ue.getDescription();
+    }
+
     public long getId() {
         return id;
     }

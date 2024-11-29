@@ -53,6 +53,10 @@ public class Synchronization {
         this.lesson2 = lesson2;
     }
 
+    public String toString() {
+        return "Synchronozation \n Lesson: " + this.lesson1.getId() + "\n And Lesson: " + "" + this.lesson2.getId();
+    }
+
     public SynchronizationId getId() {
         return this.id;
     }

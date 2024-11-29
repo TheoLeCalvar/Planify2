@@ -45,6 +45,11 @@ public class Antecedence {
         }
     }
 
+    public String toString() {
+        return "Antecedence \n Previous Lesson: " + this.previousLesson.getName() + "\n Next Lesson: " + ""
+                + this.getNextLesson().getName();
+    }
+
     public AntecedenceId getId() {
         return this.id;
     }

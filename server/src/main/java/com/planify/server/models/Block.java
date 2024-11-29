@@ -28,6 +28,18 @@ public class Block {
         this.title = title;
     }
 
+    public String toString() {
+        return "Block \n Title: " + this.title + "\n First Lesson " + "" + this.firstLesson.getName();
+    }
+
+    public Long getId() {
+        return this.id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public Lesson getFirstLesson() {
         return this.firstLesson;
     }

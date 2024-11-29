@@ -34,6 +34,10 @@ public class Calendar {
         this.slots = new ArrayList<Slot>();
     }
 
+    public String toString() {
+        return "Calendar " + Long.toString(this.id) + "\n TAF: " + this.taf.getName();
+    }
+
     public Long getId() {
         return id;
     }

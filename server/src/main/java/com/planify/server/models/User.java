@@ -47,6 +47,10 @@ public class User {
         this.password = password;
     }
 
+    public String toString() {
+        return "User " + Long.toString(this.id) + "\n Name: " + name + " " + lastName + "\n mail: " + "" + mail;
+    }
+
     public String getName() {
         return this.name;
     }
