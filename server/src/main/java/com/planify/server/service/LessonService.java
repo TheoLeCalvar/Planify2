@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.planify.server.models.Antecedence;
 import com.planify.server.models.Lesson;
+import com.planify.server.models.LessonLecturer;
 import com.planify.server.models.Sequencing;
 import com.planify.server.models.Synchronization;
 import com.planify.server.models.UE;
@@ -58,6 +59,10 @@ public class LessonService {
     public Optional<Lesson> findById(Long id) {
         Optional<Lesson> lesson = lessonRepository.findById(id);
         return lesson;
+    }
+
+    public List<Lesson> findAll() {
+        return lessonRepository.findAll();
     }
 
     @Transactional

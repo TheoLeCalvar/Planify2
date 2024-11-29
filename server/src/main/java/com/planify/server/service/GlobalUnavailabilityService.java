@@ -1,11 +1,13 @@
 package com.planify.server.service;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.planify.server.models.Antecedence;
 import com.planify.server.models.GlobalUnavailability;
 import com.planify.server.models.Slot;
 import com.planify.server.repo.GlobalUnavailabilityRepository;
@@ -29,6 +31,10 @@ public class GlobalUnavailabilityService {
     public Optional<GlobalUnavailability> findById(Long id) {
         Optional<GlobalUnavailability> globalUnavailability = globalUnavailabilityRepository.findById(id);
         return globalUnavailability;
+    }
+
+    public List<GlobalUnavailability> findAll() {
+        return globalUnavailabilityRepository.findAll();
     }
 
     public Optional<GlobalUnavailability> findBySlot(Slot slot) {

@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import com.planify.server.models.Day;
+import com.planify.server.models.UserUnavailability;
 import com.planify.server.models.Week;
 import com.planify.server.repo.WeekRepository;
 
@@ -47,6 +48,10 @@ public class WeekService {
 
     public Optional<Week> findById(Long Id) {
         return weekRepository.findById(Id);
+    }
+
+    public List<Week> findAll() {
+        return weekRepository.findAll();
     }
 
     @Transactional

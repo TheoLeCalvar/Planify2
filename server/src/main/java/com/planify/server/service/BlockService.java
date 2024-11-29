@@ -1,10 +1,12 @@
 package com.planify.server.service;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.planify.server.models.Antecedence;
 import com.planify.server.models.Block;
 import com.planify.server.models.Lesson;
 import com.planify.server.repo.BlockRepository;
@@ -28,6 +30,10 @@ public class BlockService {
     public Optional<Block> findById(Long id) {
         Optional<Block> block = blockRepository.findById(id);
         return block;
+    }
+
+    public List<Block> findAll() {
+        return blockRepository.findAll();
     }
 
     public boolean deleteBlock(Long id) {

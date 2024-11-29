@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.planify.server.models.Calendar;
 import com.planify.server.models.Day;
 import com.planify.server.models.GlobalUnavailability;
+import com.planify.server.models.LessonLecturer;
 import com.planify.server.models.Slot;
 import com.planify.server.models.UserUnavailability;
 import com.planify.server.repo.SlotRepository;
@@ -63,6 +64,10 @@ public class SlotService {
     public Optional<Slot> findById(Long id) {
         Optional<Slot> slot = slotRepository.findById(id);
         return slot;
+    }
+
+    public List<Slot> findAll() {
+        return slotRepository.findAll();
     }
 
     @Transactional

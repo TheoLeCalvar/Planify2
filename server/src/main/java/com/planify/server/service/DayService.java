@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.planify.server.models.Antecedence;
 import com.planify.server.models.Day;
 import com.planify.server.models.Slot;
 import com.planify.server.models.Week;
@@ -48,6 +49,10 @@ public class DayService {
     public Optional<Day> findById(Long id) {
         Optional<Day> day = dayRepository.findById(id);
         return day;
+    }
+
+    public List<Day> findAll() {
+        return dayRepository.findAll();
     }
 
     public List<Day> findByWeek(Week week) {

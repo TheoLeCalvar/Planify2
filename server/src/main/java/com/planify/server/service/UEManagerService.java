@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.planify.server.models.Synchronization;
 import com.planify.server.models.UE;
 import com.planify.server.models.UEManager;
 import com.planify.server.models.User;
@@ -77,6 +78,10 @@ public class UEManagerService {
 
     public Optional<UEManager> findById(UEManagerId id) {
         return ueManagerRepository.findById(id);
+    }
+
+    public List<UEManager> findAll() {
+        return ueManagerRepository.findAll();
     }
 
 }

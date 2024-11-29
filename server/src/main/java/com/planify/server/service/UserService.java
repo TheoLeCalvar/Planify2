@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.planify.server.models.LessonLecturer;
+import com.planify.server.models.Synchronization;
 import com.planify.server.models.TAFManager;
 import com.planify.server.models.UEManager;
 import com.planify.server.models.User;
@@ -84,6 +85,10 @@ public class UserService {
 
     public Optional<User> findById(Long id) {
         return userRepository.findById(id);
+    }
+
+    public List<User> findAll() {
+        return userRepository.findAll();
     }
 
     public void save(User user) {

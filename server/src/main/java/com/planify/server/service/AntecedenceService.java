@@ -50,6 +50,10 @@ public class AntecedenceService {
         return antecedence;
     }
 
+    public List<Antecedence> findAll() {
+        return antecedenceRepository.findAll();
+    }
+
     public boolean deleteAntecedence(AntecedenceId id) {
         Optional<Antecedence> antecedenceOptional = antecedenceRepository.findById(id);
 

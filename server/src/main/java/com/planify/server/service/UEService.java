@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.planify.server.models.Lesson;
+import com.planify.server.models.Synchronization;
 import com.planify.server.models.TAF;
 import com.planify.server.models.UE;
 import com.planify.server.models.UEManager;
@@ -86,6 +87,10 @@ public class UEService {
 
     public Optional<UE> findById(Long id) {
         return ueRepository.findById(id);
+    }
+
+    public List<UE> findAll() {
+        return ueRepository.findAll();
     }
 
 }

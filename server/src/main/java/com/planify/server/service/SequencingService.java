@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.planify.server.models.Sequencing.SequencingId;
 import com.planify.server.models.Lesson;
+import com.planify.server.models.LessonLecturer;
 import com.planify.server.models.Sequencing;
 import com.planify.server.repo.SequencingRepository;
 
@@ -48,6 +49,10 @@ public class SequencingService {
     public Optional<Sequencing> findById(SequencingId id) {
         Optional<Sequencing> sequencing = sequencingRepository.findById(id);
         return sequencing;
+    }
+
+    public List<Sequencing> findAll() {
+        return sequencingRepository.findAll();
     }
 
     public boolean delete(SequencingId id) {
