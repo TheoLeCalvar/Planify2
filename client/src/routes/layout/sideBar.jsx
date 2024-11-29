@@ -13,7 +13,7 @@ import {
     CssBaseline,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import { Outlet, useOutletContext } from "react-router-dom";
+import { Link, Outlet, useOutletContext } from "react-router-dom";
 import locale from "../../config/locale.json";
 import useStore from "../../hooks/store";
 
@@ -22,7 +22,9 @@ const drawerWidth = 250; // Width of the sidebar
 const SideBar = () => {
     const isOpen = useStore((state) => state.sideBarOpen)
 
-    const { UE: courses}  = useOutletContext().taf
+    const context = useOutletContext()
+
+    const { UE: courses, id: tafID}  = useOutletContext().taf
 
     return (
         <Box sx={{ display: "flex" }}>
@@ -73,23 +75,24 @@ const SideBar = () => {
                     <Box sx={{ flexGrow: 1, overflowY: "auto", px: 2 }}>
                         <List>
                             {courses.map((course) => (
-                                <ListItem
-                                    key={course.id}
-                                    sx={{
-                                        display: "flex",
-                                        flexDirection: "column",
-                                    }}
-                                >
-                                    <Typography variant="body1">
-                                        {course.name}
-                                    </Typography>
-                                    <Typography
-                                        variant="body2"
-                                        color="textSecondary"
+                                <Link to={`/taf/${tafID}/ue/${course.id}`} key={course.id}>
+                                    <ListItem
+                                        sx={{
+                                            display: "flex",
+                                            flexDirection: "column",
+                                        }}
                                     >
-                                        {locale.layout.sideBar.UEManager}: {course.responsible}
-                                    </Typography>
-                                </ListItem>
+                                        <Typography variant="body1">
+                                            {course.name}
+                                        </Typography>
+                                        <Typography
+                                            variant="body2"
+                                            color="textSecondary"
+                                        >
+                                            {locale.layout.sideBar.UEManager}: {course.responsible}
+                                        </Typography>
+                                    </ListItem>
+                                </Link>
                             ))}
                         </List>
                     </Box>
@@ -121,7 +124,7 @@ const SideBar = () => {
                     //marginLeft: isOpen ? `${drawerWidth}px` : 0,
                 }}
             >
-                <Outlet />
+                <Outlet context={context}/>
             </Box>
         </Box>
     );

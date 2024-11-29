@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 
 const useStore = create((set) => ({
-  sideBarOpen: false,
+  sideBarOpen: true,
   toggleSideBar: () => set((state) => ({ sideBarOpen: !state.sideBarOpen })),
 }))
 
