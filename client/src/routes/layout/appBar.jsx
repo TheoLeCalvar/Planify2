@@ -23,12 +23,43 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import Brightness4Icon from "@mui/icons-material/Brightness4";
 import LogoutIcon from "@mui/icons-material/Logout";
 
-import { Outlet } from "react-router-dom";
+import { Outlet, useLoaderData } from "react-router-dom";
 import { app, layout } from "../../config/locale.json";
 import useStore from "../../hooks/store";
+import { useLocation, useNavigate } from "react-router";
+
+
+export async function loader({ params }) {
+  
+    const mockData =
+        [
+            {
+                id: 1,
+                name: "TAF DCL",
+                description: "Développement Collaboratif de Logiciel",
+            },
+            {
+                id: 2,
+                name: "TAF EDP",
+                description: "Environnement de Développement de Projet",
+            },
+            {
+                id: 3,
+                name: "TAF GPE",
+                description: "Gestion de Projet et Entrepreneuriat",
+            },
+        ]
+
+  return mockData;
+}
 
 const AppBarComponent = () => {
-    const [selectedOption, setSelectedOption] = useState("");
+
+    const location = useLocation();
+    const tafId = location.pathname.match(/\/taf\/(\d+)/)?.[1];
+
+    const tafs = useLoaderData()
+    const [selectedOption, setSelectedOption] = useState(tafId);
     const [profileAnchorEl, setProfileAnchorEl] = useState(null);
     const [notificationsAnchorEl, setNotificationsAnchorEl] = useState(null);
     const [notifications, setNotifications] = useState([
@@ -46,6 +77,8 @@ const AppBarComponent = () => {
         },
     ]);
 
+    const navigate = useNavigate();
+
     const toggleDrawer = useStore((state) => state.toggleSideBar)
 
     const handleProfileClick = (event) => {
@@ -57,6 +90,7 @@ const AppBarComponent = () => {
     };
 
     const handleMenuSelect = (event) => {
+        navigate(`/taf/${event.target.value}`);
         setSelectedOption(event.target.value);
     };
 
@@ -103,9 +137,11 @@ const AppBarComponent = () => {
                                 label={layout.appBar.TAFSelector}
                                 
                             >
-                                <MenuItem value={1}>Option 1</MenuItem>
-                                <MenuItem value={2}>Option 2</MenuItem>
-                                <MenuItem value={3}>Option 3</MenuItem>
+                                {tafs.map((taf) => (
+                                    <MenuItem key={taf.id} value={taf.id}>
+                                        {taf.name}
+                                    </MenuItem>
+                                ))}
                             </Select>
                         </FormControl>
                     </Box>

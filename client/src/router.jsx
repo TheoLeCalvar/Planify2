@@ -6,6 +6,7 @@ import ErrorPage from "./routes/error-page";
 import Calendar from "./routes/calendar";
 import TAF from "./routes/taf";
 import { loader as TAFLoader } from "./routes/taf";
+import { loader as AppBarLoader } from "./routes/layout/appBar";
 
 import { createBrowserRouter } from "react-router-dom";
 
@@ -18,6 +19,7 @@ export const router = createBrowserRouter([
             {
                 path: "",
                 element: <AppBarComponent />,
+                loader: AppBarLoader,
                 children: [
                     {
                         path: "taf/:idTAF",
