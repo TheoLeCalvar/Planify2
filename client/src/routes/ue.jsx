@@ -42,7 +42,8 @@ export default function UE() {
     ];
 
     // Identifier l'onglet actif basé sur l'URL
-    const currentTab = tabs.findIndex((tab) => tab.path === location.pathname);
+    const tabIndex = tabs.findIndex((tab) => tab.path === location.pathname.split("/").pop())
+    const currentTab = tabIndex === -1 ? 0 : tabIndex;
 
     // Changer l'URL lorsque l'utilisateur sélectionne un onglet
     const handleTabChange = (event, newValue) => {

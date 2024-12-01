@@ -12,6 +12,7 @@ import General from "./routes/ue/general";
 import { loader as TAFLoader } from "./routes/taf";
 import { loader as AppBarLoader } from "./routes/layout/appBar";
 import { loader as UELoader } from "./routes/ue";
+import { action as editUEAction } from "./routes/ue/settings";
 
 import { createBrowserRouter } from "react-router-dom";
 
@@ -49,6 +50,7 @@ export const router = createBrowserRouter([
                                             },
                                             {
                                                 path: "settings",
+                                                action: editUEAction,
                                                 element: <Settings />,
                                             },
                                             {
