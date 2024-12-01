@@ -113,9 +113,9 @@ const AppBarComponent = () => {
             <AppBar position="static">
                 <Toolbar sx={{ justifyContent: "space-between" }}>
                     {/* App Title */}
-                    <IconButton onClick={toggleDrawer} color="inherit">
+                    {tafId && <IconButton onClick={toggleDrawer} color="inherit">
                         <MenuIcon />
-                    </IconButton>
+                    </IconButton>}
                     <Typography variant="h6">{app.applicationName}</Typography>
 
                     {/* Centered Dropdown Selector */}
