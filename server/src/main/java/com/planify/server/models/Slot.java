@@ -41,6 +41,10 @@ public class Slot {
         this.calendar = calendar;
     }
 
+    public String toString() {
+        return "Slot" + Long.toString(this.id) + "\n Number: " + "" + number + "\n Day: " + "" + day.getId();
+    }
+
     public Long getId() {
         return id;
     }

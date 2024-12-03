@@ -40,11 +40,18 @@ public class User {
         return id;
     }
 
+    public User() {
+    }
+
     public User(String name, String lastName, String mail, char[] password) {
         this.name = name;
         this.lastName = lastName;
         this.mail = mail;
         this.password = password;
+    }
+
+    public String toString() {
+        return "User " + Long.toString(this.id) + "\n Name: " + name + " " + lastName + "\n mail: " + "" + mail;
     }
 
     public String getName() {

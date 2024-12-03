@@ -9,15 +9,14 @@ import jakarta.persistence.OneToOne;
 @Entity
 public class GlobalUnavailability {
 
-
     @Id
     private Long id;
 
     private boolean strict;
 
     @OneToOne
-    @MapsId 
-    @JoinColumn(name = "idSlot") 
+    @MapsId
+    @JoinColumn(name = "idSlot")
     private Slot slot;
 
     public GlobalUnavailability() {
@@ -26,6 +25,11 @@ public class GlobalUnavailability {
     public GlobalUnavailability(boolean strict, Slot slot) {
         this.strict = strict;
         this.slot = slot;
+    }
+
+    public String toString() {
+        return "ClobalUnavailability " + Long.toString(this.id) + "\n Stricte " + "" + this.strict + "\n Slot " + ""
+                + this.slot.getId();
     }
 
     public boolean getStrict() {

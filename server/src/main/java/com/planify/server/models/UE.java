@@ -39,6 +39,10 @@ public class UE {
         this.taf = taf;
     }
 
+    public String toString() {
+        return "UE " + Long.toString(this.id) + "\n Description: " + this.description + "\n TAF: " + this.taf.getName();
+    }
+
     public Long getId() {
         return this.id;
     }

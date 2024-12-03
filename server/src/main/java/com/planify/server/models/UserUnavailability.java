@@ -57,6 +57,11 @@ public class UserUnavailability {
         this.strict = strict;
     }
 
+    public String toString() {
+        return "UserUnavailability \n User: " + this.user.getName() + "\n Slot: " + "" + this.slot.getId() + "\n Strict"
+                + "" + strict;
+    }
+
     public UserUnavailabilityId getId() {
         return this.id;
     }

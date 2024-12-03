@@ -39,6 +39,11 @@ public class SlotService {
 
     @Transactional
     public Slot add(int number, Day day, Calendar calendar) {
+        Day dayDB = dayService.findById(day.getId())
+                .orElseThrow(() -> new RuntimeException("Day not found"));
+        Calendar calendarDB = calendarService.findById(calendar.getId())
+                .orElseThrow(() -> new RuntimeException("Calendar not found"));
+
         Slot slot = new Slot(number, day, calendar);
 
         // Update slot list for days

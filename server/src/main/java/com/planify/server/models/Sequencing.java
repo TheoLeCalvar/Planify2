@@ -57,6 +57,11 @@ public class Sequencing {
         this.id = new SequencingId(previousLesson.getId(), nextLesson.getId());
     }
 
+    public String toString() {
+        return "Week \n Previous Lesson: " + this.previousLesson.getName() + "\n Next Lesson: "
+                + this.nextLesson.getName();
+    }
+
     public SequencingId getId() {
         return id;
     }
