@@ -5,7 +5,7 @@ import LoadingButton from "@mui/lab/LoadingButton";
 import SaveIcon from "@mui/icons-material/Save";
 import { FormContext } from "../context/FormContext";
 
-const ValidatedForm = ({ validateField, onSubmit, children }) => {
+const ValidatedForm = ({ validateField, onSubmit, onCancel, children }) => {
     const [loading, setLoading] = useState(false);
     const [isFormValid, setIsFormValid] = useState(true);
     const submit = useSubmit();
@@ -42,13 +42,15 @@ const ValidatedForm = ({ validateField, onSubmit, children }) => {
                 </Typography>
             )}
             <Stack spacing={2} direction={"row"} justifyContent={"flex-end"}>
-                <Button
-                    variant="outlined"
-                    color="secondary"
-                    onClick={() => navigate("..")}
-                >
-                    Annuler
-                </Button>
+                {onCancel && (
+                    <Button
+                        variant="outlined"
+                        color="secondary"
+                        onClick={onCancel}
+                    >
+                        Annuler
+                    </Button>
+                )}
                 <LoadingButton
                     variant="contained"
                     color="primary"

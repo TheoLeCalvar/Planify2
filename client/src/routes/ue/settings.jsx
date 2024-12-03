@@ -1,6 +1,7 @@
 import {
     Outlet,
     redirect,
+    useNavigate,
     useOutletContext,
 } from "react-router-dom";
 import ValidatedInput from "../../components/ValidatedInput";
@@ -26,6 +27,7 @@ export async function action({ request, params }) {
 
 export default function UESettings() {
     const context = useOutletContext();
+    const navigate = useNavigate();
 
     const ue = context.ue;
 
@@ -41,10 +43,14 @@ export default function UESettings() {
         return ""; // Pas d'erreur
     };
 
+    const onCancel = () => {
+        navigate("..");
+    }
+
 
     return (
         <>
-            <ValidatedForm validateField={validateField}>
+            <ValidatedForm validateField={validateField} onCancel={onCancel}>
                 <ValidatedInput
                     name="name"
                     label="Nom"
