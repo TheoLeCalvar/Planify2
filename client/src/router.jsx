@@ -12,6 +12,7 @@ import General from "./routes/ue/general";
 import { loader as TAFLoader } from "./routes/taf";
 import { loader as AppBarLoader } from "./routes/layout/appBar";
 import { loader as UELoader } from "./routes/ue";
+import { loader as CoursesLoader } from "./routes/ue/courses";
 import { action as editUEAction } from "./routes/ue/settings";
 
 import { createBrowserRouter } from "react-router-dom";
@@ -55,6 +56,7 @@ export const router = createBrowserRouter([
                                             },
                                             {
                                                 path: "courses",
+                                                loader: CoursesLoader,
                                                 element: <Courses />,
                                             },
                                         ],

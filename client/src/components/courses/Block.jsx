@@ -1,0 +1,125 @@
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
+import {
+    Box,
+    Button,
+    IconButton,
+    Paper,
+    Stack,
+    Typography,
+} from "@mui/material";
+import { Draggable, Droppable } from "@hello-pangea/dnd";
+import Course from "./Course";
+import FileCopyIcon from "@mui/icons-material/FileCopy";
+import ConfirmationButton from "../ConfirmationButton";
+
+export default function Block({
+    block,
+    dependencies,
+    onEdit,
+    onDelete,
+    onDuplicate,
+    onAddCourse,
+    onEditCourse,
+    onDeleteCourse,
+    onDuplicateCourse,
+}) {
+    return (
+        <Paper elevation={2} sx={{ padding: 2 }}>
+            <Stack
+                direction="row"
+                justifyContent="space-between"
+                alignItems="center"
+            >
+                <Typography variant="h6">{block.title}</Typography>
+                { dependencies.length > 0 ? (
+                    <Typography variant="body2" color="textSecondary">
+                        Précédence: {dependencies.join(", ")}
+                    </Typography>
+                ) :
+                    <Typography variant="body2" color="textSecondary">
+                        Pas de précédence
+                    </Typography>
+                }
+                <Box>
+                    <IconButton onClick={onEdit} color="primary">
+                        <EditIcon />
+                    </IconButton>
+                    <ConfirmationButton
+                        buttonComponent={
+                            <IconButton color="secondary">
+                                <DeleteIcon />
+                            </IconButton>
+                        }
+                        onConfirm={onDelete}
+                        dialogTitle="Supprimer le bloc ?"
+                        dialogMessage={`Êtes-vous sûr de vouloir supprimer le bloc '${block.title}' ?`}
+                    />
+                    <IconButton onClick={onDuplicate} color="secondary">
+                        <FileCopyIcon />
+                    </IconButton>
+                </Box>
+            </Stack>
+            <Typography variant="body2" color="textSecondary" gutterBottom>
+                {block.description || "Aucune description fournie"}
+            </Typography>
+            <Droppable droppableId={`courses-${block.id}`} type="course">
+                {(provided) => (
+                    <Box
+                        ref={provided.innerRef}
+                        {...provided.droppableProps}
+                        sx={{
+                            marginTop: 2,
+                            padding: 1,
+                            border: "1px dashed gray",
+                        }}
+                    >
+                        {block.courses.map((course, index) => (
+                            <Draggable
+                                key={course.id}
+                                draggableId={`course-${course.id}`}
+                                index={index}
+                            >
+                                {(provided) => (
+                                    <div
+                                        ref={provided.innerRef}
+                                        {...provided.draggableProps}
+                                        {...provided.dragHandleProps}
+                                    >
+                                        <Course
+                                            course={course}
+                                            onEdit={() =>
+                                                onEditCourse(block.id, course)
+                                            }
+                                            onDelete={() =>
+                                                onDeleteCourse(course.id)
+                                            }
+                                            onDuplicate={() =>
+                                                onDuplicateCourse(
+                                                    block.id,
+                                                    course
+                                                )
+                                            }
+                                        />
+                                    </div>
+                                )}
+                            </Draggable>
+                        ))}
+                        {provided.placeholder}
+                    </Box>
+                )}
+            </Droppable>
+            {/* Bouton Ajouter un cours */}
+            <Box sx={{ marginTop: 2 }}>
+                <Button
+                    startIcon={<AddIcon />}
+                    variant="outlined"
+                    onClick={() => onAddCourse(block.id)}
+                >
+                    Ajouter un cours
+                </Button>
+            </Box>
+        </Paper>
+    );
+}

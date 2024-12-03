@@ -23,7 +23,9 @@ const ConfirmationButton = ({
     return (
         <>
             {/* Bouton déclencheur */}
-            {buttonComponent || (
+            {buttonComponent
+                ? React.cloneElement(buttonComponent, { onClick: handleOpen })
+                : (
                 <Button
                     variant={variant ?? "contained"}
                     color={buttonColor}
