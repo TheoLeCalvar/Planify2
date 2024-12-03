@@ -1,10 +1,10 @@
 package com.planify.server.models;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -23,14 +23,19 @@ public class Calendar {
     @JoinColumn(name = "idTAF")
     private TAF taf;
 
-    @OneToMany(mappedBy = "calendar")
+    @OneToMany(mappedBy = "calendar", fetch = FetchType.EAGER)
     private List<Slot> slots;
 
-    public Calendar() {}
+    public Calendar() {
+    }
 
     public Calendar(TAF taf) {
         this.taf = taf;
         this.slots = new ArrayList<Slot>();
+    }
+
+    public String toString() {
+        return "Calendar " + Long.toString(this.id) + "\n TAF: " + this.taf.getName();
     }
 
     public Long getId() {
@@ -52,5 +57,5 @@ public class Calendar {
     public void setSlots(List<Slot> slots) {
         this.slots = slots;
     }
-    
+
 }

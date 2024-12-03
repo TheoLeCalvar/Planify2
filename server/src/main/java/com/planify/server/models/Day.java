@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -26,16 +27,20 @@ public class Day {
     @JoinColumn(name = "idWeek")
     private Week week;
 
-    @OneToMany
-    @JoinColumn(name = "idDay")
+    @OneToMany(mappedBy = "day", fetch = FetchType.EAGER)
     private List<Slot> slots;
 
-    public Day() {}
+    public Day() {
+    }
 
     public Day(int number, Week week) {
         this.number = number;
         this.week = week; // Add this day in Week days list
         this.slots = new ArrayList<Slot>();
+    }
+
+    public String toString() {
+        return "Day " + Long.toString(this.id) + "\n Number: " + "" + number + "\n Week " + "" + week.getId();
     }
 
     public Long getId() {

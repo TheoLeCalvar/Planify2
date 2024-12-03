@@ -3,16 +3,19 @@ package com.planify.server.models;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
 
 @Entity
 public class GlobalUnavailability {
 
+    @Id
+    private Long id;
 
     private boolean strict;
 
-    @Id
     @OneToOne
+    @MapsId
     @JoinColumn(name = "idSlot")
     private Slot slot;
 
@@ -22,6 +25,11 @@ public class GlobalUnavailability {
     public GlobalUnavailability(boolean strict, Slot slot) {
         this.strict = strict;
         this.slot = slot;
+    }
+
+    public String toString() {
+        return "ClobalUnavailability " + Long.toString(this.id) + "\n Stricte " + "" + this.strict + "\n Slot " + ""
+                + this.slot.getId();
     }
 
     public boolean getStrict() {
@@ -38,6 +46,10 @@ public class GlobalUnavailability {
 
     public void setSlot(Slot slot) {
         this.slot = slot;
+    }
+
+    public Long getId() {
+        return this.id;
     }
 
 }

@@ -4,9 +4,12 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.planify.server.models.LessonLecturer;
+import com.planify.server.models.Synchronization;
 import com.planify.server.models.TAFManager;
 import com.planify.server.models.UEManager;
 import com.planify.server.models.User;
@@ -19,15 +22,19 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
+    @Lazy
     @Autowired
     private UserUnavailabilityService userUnavailabilityService;
 
+    @Lazy
     @Autowired
     private LessonLecturerService lessonLecturerService;
 
+    @Lazy
     @Autowired
     private UEManagerService ueManagerService;
 
+    @Lazy
     @Autowired
     private TAFManagerService tafManagerService;
 
@@ -36,6 +43,7 @@ public class UserService {
         return user;
     }
 
+    @Transactional
     public boolean deleteUser(Long id) {
         if (userRepository.existsById(id)) {
             User user = userRepository.findById(id).get();
@@ -77,6 +85,10 @@ public class UserService {
 
     public Optional<User> findById(Long id) {
         return userRepository.findById(id);
+    }
+
+    public List<User> findAll() {
+        return userRepository.findAll();
     }
 
     public void save(User user) {

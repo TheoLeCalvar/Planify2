@@ -5,7 +5,9 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.planify.server.models.Synchronization;
 import com.planify.server.models.TAF;
 import com.planify.server.models.TAFManager;
 import com.planify.server.models.User;
@@ -24,6 +26,7 @@ public class TAFManagerService {
     @Autowired
     private TAFService tafService;
 
+    @Transactional
     public TAFManager addTAFManager(User user, TAF taf) {
         // Add TAFManager to the table
         TAFManager tafManager = tafManagerRepository.save(new TAFManager(user, taf));
@@ -76,6 +79,10 @@ public class TAFManagerService {
 
     public Optional<TAFManager> finfById(TAFManagerId id) {
         return tafManagerRepository.findById(id);
+    }
+
+    public List<TAFManager> findAll() {
+        return tafManagerRepository.findAll();
     }
 
 }

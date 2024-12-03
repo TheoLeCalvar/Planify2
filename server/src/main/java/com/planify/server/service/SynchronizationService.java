@@ -5,9 +5,10 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.planify.server.models.Lesson;
-import com.planify.server.models.Slot;
+import com.planify.server.models.LessonLecturer;
 import com.planify.server.models.Synchronization;
 import com.planify.server.models.Synchronization.SynchronizationId;
 import com.planify.server.repo.SynchronizationRepository;
@@ -72,6 +73,10 @@ public class SynchronizationService {
 
     public Optional<Synchronization> findById(SynchronizationId id) {
         return synchronizationRepository.findById(id);
+    }
+
+    public List<Synchronization> findAll() {
+        return synchronizationRepository.findAll();
     }
 
     public List<Synchronization> findByLesson(Lesson lesson) {

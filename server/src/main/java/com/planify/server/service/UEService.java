@@ -4,9 +4,12 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.planify.server.models.Lesson;
+import com.planify.server.models.Synchronization;
 import com.planify.server.models.TAF;
 import com.planify.server.models.UE;
 import com.planify.server.models.UEManager;
@@ -21,16 +24,18 @@ public class UEService {
     @Autowired
     private TAFService tafService;
 
+    @Lazy
     @Autowired
     private LessonService lessonService;
 
+    @Lazy
     @Autowired
     private UEManagerService ueManagerService;
 
+    @Transactional
     public UE addUE(String description, TAF taf) {
         // ads ue in the UE's table
         UE ue = new UE(description, taf);
-        
 
         // add ue in the TAF's ues
         List<UE> ues = taf.getUes();
@@ -46,6 +51,7 @@ public class UEService {
         ueRepository.save(ue);
     }
 
+    @Transactional
     public boolean deleteUE(Long id) {
         if (ueRepository.existsById(id)) {
             UE ue = ueRepository.findById(id).get();
@@ -81,6 +87,10 @@ public class UEService {
 
     public Optional<UE> findById(Long id) {
         return ueRepository.findById(id);
+    }
+
+    public List<UE> findAll() {
+        return ueRepository.findAll();
     }
 
 }

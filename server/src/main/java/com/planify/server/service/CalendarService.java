@@ -4,9 +4,10 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.planify.server.models.Antecedence;
 import com.planify.server.models.Calendar;
 import com.planify.server.models.Slot;
 import com.planify.server.models.TAF;
@@ -18,9 +19,15 @@ public class CalendarService {
     @Autowired
     private CalendarRepository calendarRepository;
 
+    @Lazy
     @Autowired
     private SlotService slotService;
 
+    @Lazy
+    @Autowired
+    private TAFService tafService;
+
+    @Transactional
     public Calendar addCalendar(TAF taf) {
         Calendar calendar = new Calendar(taf);
 
@@ -28,6 +35,7 @@ public class CalendarService {
         List<Calendar> calendars = taf.getCalendars();
         calendars.addLast(calendar);
         taf.setCalendars(calendars);
+        tafService.save(taf);
 
         calendarRepository.save(calendar);
         return calendar;
@@ -42,6 +50,12 @@ public class CalendarService {
         return calendar;
     }
 
+    public List<Calendar> findAll() {
+        List<Calendar> calendars = calendarRepository.findAll();
+        return calendars;
+    }
+
+    @Transactional
     public boolean deleteCalendar(Long id) {
         if (calendarRepository.existsById(id)) {
             Calendar calendar = calendarRepository.findById(id).get();

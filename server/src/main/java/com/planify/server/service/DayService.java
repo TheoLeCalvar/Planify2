@@ -1,12 +1,17 @@
 package com.planify.server.service;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.planify.server.models.Antecedence;
+import com.planify.server.models.Calendar;
 import com.planify.server.models.Day;
 import com.planify.server.models.Slot;
 import com.planify.server.models.Week;
@@ -18,16 +23,23 @@ public class DayService {
     @Autowired
     private DayRepository dayRepository;
 
+    @Lazy
     @Autowired
     private SlotService slotService;
 
+    @Lazy
+    @Autowired
+    private WeekService weekService;
+
+    @Transactional
     public Day addDay(int number, Week week) {
         Day day = new Day(number, week);
 
         // Update days list for week
-        List<Day> days = week.getDays();
-        days.addLast(day);
-        week.setDays(days);
+        // List<Day> days = week.getDays();
+        // days.addLast(day);
+        // week.setDays(days);
+        // weekService.save(week);
 
         dayRepository.save(day);
         return day;
@@ -42,6 +54,27 @@ public class DayService {
         return day;
     }
 
+    public List<Day> findAll() {
+        return dayRepository.findAll();
+    }
+
+    public List<Day> findByWeek(Week week) {
+        return dayRepository.findByWeek(week);
+    }
+
+    public List<Slot> findLastDailySlotsByCalendar(Calendar calendar) {
+        List<Day> allDays = this.dayRepository.findAll();
+        List<Slot> slots = new ArrayList<Slot>();
+        for (Day day : allDays) {
+            Slot slot = day.getSlots().getLast();
+            if (slot.getCalendar() == calendar) {
+                slots.add(slot);
+            }
+        }
+        return slots;
+    }
+
+    @Transactional
     public boolean deleteDay(Long id) {
         if (dayRepository.existsById(id)) {
 

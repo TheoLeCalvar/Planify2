@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -24,10 +25,10 @@ public class UE {
     @JoinColumn(name = "taf_id")
     private TAF taf;
 
-    @OneToMany(mappedBy = "ue")
+    @OneToMany(mappedBy = "ue", fetch = FetchType.EAGER)
     private List<Lesson> lessons = new ArrayList<>();
 
-    @OneToMany(mappedBy = "ue")
+    @OneToMany(mappedBy = "ue", fetch = FetchType.EAGER)
     private List<UEManager> UEmanagers = new ArrayList<>();
 
     public UE() {
@@ -36,6 +37,10 @@ public class UE {
     public UE(String description, TAF taf) {
         this.description = description;
         this.taf = taf;
+    }
+
+    public String toString() {
+        return "UE " + Long.toString(this.id) + "\n Description: " + this.description + "\n TAF: " + this.taf.getName();
     }
 
     public Long getId() {

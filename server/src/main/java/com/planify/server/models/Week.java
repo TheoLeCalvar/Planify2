@@ -3,8 +3,10 @@ package com.planify.server.models;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -21,7 +23,7 @@ public class Week {
     @Column(name = "\"year\"")
     private Integer year;
 
-    @OneToMany(mappedBy = "week")
+    @OneToMany(mappedBy = "week", fetch = FetchType.EAGER)
     private List<Day> days;
 
     public Week() {
@@ -31,6 +33,10 @@ public class Week {
         this.number = number;
         this.year = year;
         this.days = new ArrayList<Day>();
+    }
+
+    public String toString() {
+        return "Week " + Long.toString(this.id) + "\n Number: " + "" + number + "\n Year: " + "" + year;
     }
 
     public Long getId() {

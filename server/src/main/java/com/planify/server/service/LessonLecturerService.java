@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.planify.server.models.LessonLecturer.LessonLecturerId;
 import com.planify.server.models.GlobalUnavailability;
@@ -52,6 +53,10 @@ public class LessonLecturerService {
     public Optional<LessonLecturer> findById(LessonLecturerId id) {
         Optional<LessonLecturer> lessonLecturer = lessonLecturerRepository.findById(id);
         return lessonLecturer;
+    }
+
+    public List<LessonLecturer> findAll() {
+        return lessonLecturerRepository.findAll();
     }
 
     public boolean deleteLessonLecturer(LessonLecturerId id) {

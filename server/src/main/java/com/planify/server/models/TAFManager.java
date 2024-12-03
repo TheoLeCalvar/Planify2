@@ -54,6 +54,10 @@ public class TAFManager {
         this.id = new TAFManagerId(user.getId(), taf.getId());
     }
 
+    public String toString() {
+        return "TAF MAnager \n Manager: " + this.user.getName() + "\n TAF: " + this.taf.getName();
+    }
+
     public TAFManagerId getId() {
         return id;
     }

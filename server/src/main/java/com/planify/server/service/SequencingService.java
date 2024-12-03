@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.planify.server.models.Sequencing.SequencingId;
 import com.planify.server.models.Lesson;
@@ -48,6 +49,10 @@ public class SequencingService {
     public Optional<Sequencing> findById(SequencingId id) {
         Optional<Sequencing> sequencing = sequencingRepository.findById(id);
         return sequencing;
+    }
+
+    public List<Sequencing> findAll() {
+        return sequencingRepository.findAll();
     }
 
     public boolean delete(SequencingId id) {

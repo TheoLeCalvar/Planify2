@@ -55,6 +55,10 @@ public class UEManager {
         this.id = new UEManagerId(user.getId(), ue.getId());
     }
 
+    public String toString() {
+        return "UE Manager \n Manager: " + this.user.getName() + "\n UE: " + this.ue.getDescription();
+    }
+
     public UEManagerId getId() {
         return id;
     }
