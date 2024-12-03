@@ -21,6 +21,8 @@ public interface SlotRepository extends JpaRepository<Slot,Long>{
 
     List<Slot> findByCalendar(Calendar calendar);
 
+    List<Slot> findByDayAndCalendar(Day day, Calendar calendar);
+
     Slot save(Slot slot);
 
     void deleteById(Slot slot);

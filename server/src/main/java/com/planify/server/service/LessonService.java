@@ -65,6 +65,11 @@ public class LessonService {
         return lessonRepository.findAll();
     }
 
+    public List<LessonLecturer> findLessonLecturersByLesson(Lesson lesson) {
+        List<LessonLecturer> lessonLecturers = lesson.getLessonLecturers();
+        return lessonLecturers;
+    }
+
     @Transactional
     public boolean delete(Long id) {
         if (lessonRepository.existsById(id)) {
