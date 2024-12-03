@@ -12,7 +12,7 @@ import com.tests;
 import com.planify.server.models.*;
 import com.planify.server.service.*;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = "com.planify.server")
 public class ServerApplication {
 
 	public static void main(String[] args) {
