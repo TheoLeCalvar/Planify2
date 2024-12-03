@@ -3,6 +3,7 @@ package com.planify.server.solver;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -12,6 +13,7 @@ import org.chocosolver.solver.search.strategy.Search;
 import org.chocosolver.solver.variables.IntVar;
 
 import com.planify.server.models.Calendar;
+import com.planify.server.models.Day;
 import com.planify.server.models.Lesson;
 import com.planify.server.models.LessonLecturer;
 import com.planify.server.models.Slot;
@@ -19,14 +21,73 @@ import com.planify.server.models.TAF;
 import com.planify.server.models.UE;
 import com.planify.server.models.User;
 import com.planify.server.models.UserUnavailability;
+import com.planify.server.models.Week;
+import com.planify.server.service.CalendarService;
+import com.planify.server.service.TAFService;
 
 public class SolverMain {
-	public static void generateTaf(Calendar cal) {
+	public SolverMain() {}
+	
+	public static void generateCalendar(Calendar[] cals) {
+		for (Calendar cal : cals) {
+			generateCalendar(cal, Arrays.stream(cals).filter(c -> c != cal).toArray(Calendar[]::new));
+		}
+	}
+	
+	public static void generateCalendar(Calendar cal, Calendar[] otherCalendars) {
+		(new SolverMain()).generateCal(cal, otherCalendars);
+	}
+	
+	public static void generateCalendar(Calendar cal) {
+		generateCalendar(cal, new Calendar[0]);
+	}
+
+	private BijectiveHashMap<Long, Integer> idMSlot;
+	private HashMap<Long, IntVar> slotVarLesson;
+	private BijectiveHashMap<Long, Integer> idMLesson;
+	private HashMap<Long, IntVar> lessonVarSlot;
+	private BijectiveHashMap<Long, Integer> idMUe;
+	private BijectiveHashMap<Long, Integer> idMDay;
+	private BijectiveHashMap<Long, Integer> idMWeek;
+	
+	public Integer getIdMSlot(Slot slot) {return idMSlot.getValue(slot.getId());}
+	public Integer[] getIdMSlot(Slot[] slots) {return IntStream.range(0, slots.length).mapToObj(i -> getIdMSlot(slots[i])).toArray(Integer[]::new);}
+	public Long getIdSlot(Integer idM) {return idMSlot.getKey(idM);}
+	public Long[] getIdSlot(Integer[] idMs) {return IntStream.range(0, idMs.length).mapToObj(i -> getIdSlot(idMs[i])).toArray(Long[]::new);}
+	
+	public IntVar getSlotVarLesson(Slot slot) {return slotVarLesson.get(slot.getId());}
+	public IntVar[] getSlotVarLesson(Slot[] slots) {return IntStream.range(0, slots.length).mapToObj(i -> getSlotVarLesson(slots[i])).toArray(IntVar[]::new);}
+	
+	public Integer getIdMLesson(Lesson lesson) {return idMLesson.getValue(lesson.getId());}
+	public Integer[] getIdMLesson(Lesson[] lessons) {return IntStream.range(0, lessons.length).mapToObj(i -> getIdMLesson(lessons[i])).toArray(Integer[]::new);}
+	public Long getIdLesson(Integer idM) {return idMLesson.getKey(idM);}
+	public Long[] getIdLesson(Integer[] idMs) {return IntStream.range(0, idMs.length).mapToObj(i -> getIdLesson(idMs[i])).toArray(Long[]::new);}
+	
+	public IntVar getLessonVarSlot(Lesson lesson) {return lessonVarSlot.get(lesson.getId());}
+	public IntVar[] getLessonVarSlot(Lesson[] lessons) {return IntStream.range(0, lessons.length).mapToObj(i -> getLessonVarSlot(lessons[i])).toArray(IntVar[]::new);}
+	
+	public Integer getIdMUe(UE ue) {return idMUe.getValue(ue.getId());}
+	public Integer[] getIdMUe(UE[] ues) {return IntStream.range(0, ues.length).mapToObj(i -> getIdMUe(ues[i])).toArray(Integer[]::new);}
+	public Long getIdUe(Integer idM) {return idMUe.getKey(idM);}
+	public Long[] getIdUe(Integer[] idMs) {return IntStream.range(0, idMs.length).mapToObj(i -> getIdUe(idMs[i])).toArray(Long[]::new);}
+	
+	public Integer getIdMDay(Day day) {return idMDay.getValue(day.getId());}
+	public Integer[] getIdMDay(Day[] days) {return IntStream.range(0, days.length).mapToObj(i -> getIdMDay(days[i])).toArray(Integer[]::new);}
+	public Long getIdDay(Integer idM) {return idMDay.getKey(idM);}
+	public Long[] getIdDay(Integer[] idMs) {return IntStream.range(0, idMs.length).mapToObj(i -> getIdDay(idMs[i])).toArray(Long[]::new);}
+	
+	public Integer getIdMWeek(Week week) {return idMWeek.getValue(week.getId());}
+	public Integer[] getIdMWeek(Week[] weeks) {return IntStream.range(0, weeks.length).mapToObj(i -> getIdMWeek(weeks[i])).toArray(Integer[]::new);}
+	public Long getIdWeek(Integer idM) {return idMWeek.getKey(idM);}
+	public Long[] getIdWeek(Integer[] idMs) {return IntStream.range(0, idMs.length).mapToObj(i -> getIdWeek(idMs[i])).toArray(Long[]::new);}
+	
+	
+	public void generateCal(Calendar cal, Calendar[] otherCalendars) {
 		Model model = new Model();
 		Solver solver = model.getSolver();
-		int nbSlots = 5;
-		int nbLessons = 3;
-		cal.initialiseVars(model, nbSlots, nbLessons);
+		int nbSlots = CalendarService.getNumberOfSlot(cal);
+		int nbLessons = TAFService.getNumberOfLesson(cal.getTaf());
+		initialiseVars(model, cal, nbSlots, nbLessons);
 		setConstraints(model, cal);
 		IntVar obj = setPreferences(model, cal);
 		setStrategy(solver, cal);
@@ -36,24 +97,68 @@ public class SolverMain {
 		solver.printShortStatistics();
 	}
 	
-	public static void setConstraints(Model model, Calendar cal) {
+	private void initialiseVars(Model model, Calendar cal, int nbSlots, int nbLessons) {
+		initialiseWeeks(cal);
+		initialiseDays(cal);
+		initialiseSlots(model, cal, nbLessons);
+		initialiseUes(cal.getTaf());
+		initialiseLessons(model, cal.getTaf(), nbSlots);
+	}
+	
+	private void initialiseWeeks(Calendar cal) {
+		Integer idMW = 1;
+		for (Week week : CalendarService.getWeeksOrdered(cal)) {
+			idMWeek.put(week.getId(), idMW);
+			idMW ++;
+		}
+	}
+	
+	private void initialiseDays(Calendar cal) {
+		Integer idMD = 1;
+		for (Day day : CalendarService.getDaysOrdered(cal)) {
+			idMDay.put(day.getId(), idMD);
+			idMD ++;
+		}
+	}
+	
+	private void initialiseSlots(Model model, Calendar cal, int nbLessons) {
+		Integer idMS = 1;
+		for (Slot slot : CalendarService.getSlotsOrdered(cal)) {
+			idMSlot.put(slot.getId(), idMS);
+			slotVarLesson.put(slot.getId(), model.intVar("Slot " + idMS + "-VarLesson", 0,nbLessons));
+			idMS ++;
+		}
+	}
+	
+	private void initialiseUes(TAF taf) {
+		Integer idMU = 1;
+		for (UE ue : taf.getUes()) {
+			idMUe.put(ue.getId(), idMU);
+			idMU ++;
+		}
+	}
+	
+	private void initialiseLessons(Model model, TAF taf, int nbSlots) {
+		Integer idML = 1;
+		for (UE ue : taf.getUes())
+			for (Lesson lesson : ue.getLessons()) {
+				idMLesson.put(lesson.getId(), idML);
+				lessonVarSlot.put(lesson.getId(), model.intVar("Lesson " + idML + " (" + lesson.getId() + ")-VarSlot", 1, nbSlots));
+				idML ++;
+			}
+	}
+
+	public void setConstraints(Model model, Calendar cal) {
 		setConstraintLinkLessonsSlots(model, cal);
 		/*if (cal.hasConstraint1())*/ //setConstraintLecturerUnavailability(model, cal);
 	}
 	
-	private static void setConstraintLinkLessonsSlots(Model model, Calendar cal) {
-		//Slot[] slots = (Slot[]) cal.getSlots().toArray();
-		List<Slot> slotsL = cal.getSlots();
-		Slot[] slots = new Slot[slotsL.size()];
-		for (int i = 0; i < slotsL.size(); i ++) slots[i] = slotsL.get(i);
-		//Lesson[] lessons = (Lesson[]) cal.getTaf().getLessons().toArray();
-		List<Lesson> lessonsL = cal.getTaf().getLessons();
-		Lesson[] lessons = new Lesson[lessonsL.size()];
-		for (int i = 0; i < lessonsL.size(); i ++) lessons[i] = lessonsL.get(i);
+	private void setConstraintLinkLessonsSlots(Model model, Calendar cal) {
+		Slot[] slots = CalendarService.getSlotsOrdered(cal).stream().toArray(Slot[]::new);
+		Lesson[] lessons = cal.getTaf().getUes().stream().flatMap(u -> u.getLessons().stream()).toArray(Lesson[]::new);
 		int nbSlots = slots.length;
 		int nbLessons = lessons.length;
-		IntVar[][] slotsV = new IntVar[nbSlots][1];
-		for (int i = 0; i < nbSlots; i ++) slotsV[i][0] = slots[i].getVarLesson();
+		IntVar[][] slotsV = IntStream.range(0, nbSlots).mapToObj(i -> new IntVar[] {getSlotVarLesson(slots[i])}).toArray(IntVar[][]::new);
 		IntVar[] lessonsV = new IntVar[nbSlots];
 		IntVar[][] sortedSlotsV = new IntVar[nbSlots][1];
 		IntVar zero = model.intVar("zero", 0);
@@ -62,42 +167,38 @@ public class SolverMain {
 			sortedSlotsV[i][0] = zero;
 		}
 		for (int i = nbSlots - nbLessons; i < nbSlots; i ++) {
-			lessonsV[i] = lessons[i - nbSlots + nbLessons].getVarSlot();
+			lessonsV[i] = getLessonVarSlot(lessons[i - nbSlots + nbLessons]);
 			sortedSlotsV[i][0] = model.intVar("SortedSlotsV " + i, i - nbSlots + nbLessons + 1);
 		}
 		model.keySort(slotsV, lessonsV, sortedSlotsV, 1).post();
 	}
 
-	public static void setConstraintLecturerUnavailability(Model model, Calendar cal) {
+	public void setConstraintLecturerUnavailability(Model model, Calendar cal) {
 		for (UE ue : cal.getTaf().getUes())
 			for (Lesson lesson : ue.getLessons())
-				/*for (Slot slot : lesson.getLecturersUnavailability(cal))
-					model.arithm(lesson.getVarSlot(), "!=", slot.getIdM());*/
-				for (LessonLecturer lessonLecturer : lesson.getLessonLecturers())
-					for (UserUnavailability userUnavailability : lessonLecturer.getUser().getUserUnavailabilities())
-						model.arithm(lesson.getVarSlot(), "!=", userUnavailability.getSlot().getIdM()).post();
-					
+				for (Slot slot : lesson.getLecturersUnavailability(cal))
+					model.arithm(getLessonVarSlot(lesson), "!=", getIdMSlot(slot)).post();					
 	}
 	
 	
-	public static IntVar setPreferences(Model model, Calendar cal) {
+	public IntVar setPreferences(Model model, Calendar cal) {
 		
 		return null;
 	}
 	
-	public static void setStrategy(Solver solver, Calendar cal) {
+	public void setStrategy(Solver solver, Calendar cal) {
 		//solver.setSearch(Search.minDomLBSearch(getVarDecisionSlots(cal)));
 		solver.setSearch(Search.minDomUBSearch(getVarDecisionSlots(cal)));
 	}
 	
-	public static IntVar[] getVarDecisionSlots(Calendar cal) {
+	public IntVar[] getVarDecisionSlots(Calendar cal) {
 		List<IntVar> vars = new ArrayList<IntVar>();
-		vars.addAll(cal.getSlots().stream().map(s -> s.getVarLesson()).toList());
+		vars.addAll(cal.getSlots().stream().map(s -> getSlotVarLesson(s)).toList());
 		IntVar[] varsArr = convertListToArrayIntVar(vars);
 		return varsArr;
 	}
 	
-	public static IntVar[] convertListToArrayIntVar(List<IntVar> list){
+	public IntVar[] convertListToArrayIntVar(List<IntVar> list){
 		IntVar[] arr = new IntVar[list.size()];
 		for (int i = 0; i < list.size(); i ++) arr[i] = list.get(i);
 		return arr;
@@ -117,7 +218,7 @@ public class SolverMain {
 		cal.getTaf().getUes().get(0).getLessons().forEach(l -> l.setUe(cal.getTaf().getUes().get(0)));
 		cal.getTaf().getUes().get(1).setLessons(IntStream.range(0, 1).mapToObj(i -> new Lesson()).toList());
 		cal.getTaf().getUes().get(1).getLessons().forEach(l -> l.setUe(cal.getTaf().getUes().get(1)));
-		SolverMain.generateTaf(cal);
+		SolverMain.generateCalendar(cal);
 	}
 	
 	public static void test1() {
@@ -170,7 +271,7 @@ public class SolverMain {
 		slots.get(1).setUserUnavailabilities(unavailabilitySlot2);
 		slots.get(2).setUserUnavailabilities(unavailabilitySlot3);
 		
-		SolverMain.generateTaf(cal);
+		SolverMain.generateCalendar(cal);
 	}
 }
 /*

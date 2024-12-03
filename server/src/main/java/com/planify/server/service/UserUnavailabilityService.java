@@ -5,8 +5,10 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.planify.server.models.Slot;
+import com.planify.server.models.Synchronization;
 import com.planify.server.models.User;
 import com.planify.server.models.UserUnavailability;
 import com.planify.server.models.UserUnavailability.UserUnavailabilityId;
@@ -24,6 +26,7 @@ public class UserUnavailabilityService {
     @Autowired
     private SlotService slotService;
 
+    @Transactional
     public UserUnavailability addUserUnavailability(Slot slot, User user, boolean strict) {
         // Add userUnavailibility in the table
         UserUnavailability userUnavailability = userUnavailabilityRepository
@@ -44,6 +47,7 @@ public class UserUnavailabilityService {
         return userUnavailability;
     }
 
+    @Transactional
     public boolean deleteUserUnavailability(UserUnavailabilityId id) {
         if (userUnavailabilityRepository.existsById(id)) {
             UserUnavailability userUnavailability = userUnavailabilityRepository.findById(id).get();
@@ -72,6 +76,10 @@ public class UserUnavailabilityService {
 
     public Optional<UserUnavailability> findById(UserUnavailabilityId id) {
         return userUnavailabilityRepository.findById(id);
+    }
+
+    public List<UserUnavailability> findAll() {
+        return userUnavailabilityRepository.findAll();
     }
 
     public List<UserUnavailability> findBySlot(Slot s) {
