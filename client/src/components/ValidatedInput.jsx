@@ -1,18 +1,19 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { TextField } from "@mui/material";
+import { FormContext } from "../context/FormContext";
 
 export default function ValidatedInput({
-  label,
   name,
-  type = "text",
   required = false,
-  validate,
-  fullWidth = true,
   value: externalValue, // Valeur contrôlée (optionnelle)
   onChange: externalOnChange, // Gestion contrôlée (optionnelle)
+  defaultValue, // Valeur par défaut (optionnelle)
+  ...props
 }) {
-  const [localValue, setLocalValue] = useState("");
+  const [localValue, setLocalValue] = useState(defaultValue ?? "");
   const [error, setError] = useState("");
+
+  const validate = useContext(FormContext);
 
   // Détermine la valeur utilisée (interne ou externe)
   const isControlled = externalValue !== undefined;
@@ -23,9 +24,9 @@ export default function ValidatedInput({
   const handleValidation = (value) => {
     let validationError = "";
     if (required && !value) {
-      validationError = `${label} est requis.`;
+      validationError = `Ce champ est requis.`;
     } else if (validate) {
-      validationError = validate(value); // Appel de la fonction de validation passée en prop
+      validationError = validate(name, value); // Appel de la fonction de validation passée en prop
     }
     setError(validationError);
     return validationError;
@@ -55,14 +56,12 @@ export default function ValidatedInput({
 
   return (
     <TextField
-      label={label}
       name={name}
       value={value}
       onChange={handleChange}
       error={!!error}
       helperText={error}
-      type={type}
-      fullWidth={fullWidth}
+      {...props}
     />
   );
 }

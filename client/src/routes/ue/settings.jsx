@@ -1,16 +1,14 @@
 import {
-    Form,
     Outlet,
     redirect,
-    useNavigate,
     useOutletContext,
-    useSubmit,
 } from "react-router-dom";
-import { Box, TextField, Button, Stack } from "@mui/material";
-import LoadingButton from "@mui/lab/LoadingButton";
-import { useRef, useState } from "react";
+import ValidatedInput from "../../components/ValidatedInput";
+import ValidatedForm from "../../components/ValidatedForm";
 
 export async function action({ request, params }) {
+    //TODO: Update section with backend call
+
     const formData = await request.formData();
     const updates = Object.fromEntries(formData);
     const delay = () => {
@@ -30,22 +28,24 @@ export default function UESettings() {
     const context = useOutletContext();
 
     const ue = context.ue;
-    const navigate = useNavigate();
-    const sumbit = useSubmit();
 
-    const form = useRef(null);
-
-    const [loading, setLoading] = useState(false);
-
-    const handleSumbit = async () => {
-        setLoading(true);
-        sumbit(form.current);
+    const validateField = (name, value) => {
+        switch (name) {
+            case "name":
+                if (value.length < 3)
+                    return "Le nom doit contenir au moins 3 caractères.";
+                break;
+            default:
+                return "";
+        }
+        return ""; // Pas d'erreur
     };
+
 
     return (
         <>
-            <Form method="post" ref={form}>
-                <TextField
+            <ValidatedForm validateField={validateField}>
+                <ValidatedInput
                     name="name"
                     label="Nom"
                     defaultValue={ue.name}
@@ -53,7 +53,7 @@ export default function UESettings() {
                     fullWidth
                     required
                 />
-                <TextField
+                <ValidatedInput
                     name="description"
                     label="Description"
                     defaultValue={ue.description}
@@ -61,31 +61,8 @@ export default function UESettings() {
                     minRows={3}
                     margin="normal"
                     fullWidth
-                    required
                 />
-                <Stack
-                    spacing={2}
-                    direction={"row"}
-                    justifyContent={"flex-end"}
-                >
-                    <Button
-                        variant="outlined"
-                        color="secondary"
-                        onClick={() => navigate("..")}
-                    >
-                        Annuler
-                    </Button>
-                    <LoadingButton
-                        variant="contained"
-                        color="primary"
-                        onClick={handleSumbit}
-                        loading={loading}
-                        loadingPosition="start"
-                    >
-                        Sauvegarder
-                    </LoadingButton>
-                </Stack>
-            </Form>
+            </ValidatedForm>
             <Outlet context={context} />
         </>
     );
