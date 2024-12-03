@@ -40,6 +40,9 @@ public class User {
         return id;
     }
 
+    public User() {
+    }
+
     public User(String name, String lastName, String mail, char[] password) {
         this.name = name;
         this.lastName = lastName;
