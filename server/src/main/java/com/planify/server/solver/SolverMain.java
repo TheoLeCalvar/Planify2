@@ -11,6 +11,8 @@ import org.chocosolver.solver.Model;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.search.strategy.Search;
 import org.chocosolver.solver.variables.IntVar;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 
 import com.planify.server.models.Calendar;
 import com.planify.server.models.Day;
@@ -23,9 +25,24 @@ import com.planify.server.models.User;
 import com.planify.server.models.UserUnavailability;
 import com.planify.server.models.Week;
 import com.planify.server.service.CalendarService;
+import com.planify.server.service.LessonService;
 import com.planify.server.service.TAFService;
 
 public class SolverMain {
+	//Services
+	@Lazy
+    @Autowired
+	private CalendarService calendarService;
+	
+	@Lazy
+    @Autowired
+	private TAFService tafService;
+	
+	@Lazy
+    @Autowired
+	private LessonService lessonService;
+	
+	
 	public SolverMain() {}
 	
 	public static void generateCalendar(Calendar[] cals) {
@@ -41,7 +58,7 @@ public class SolverMain {
 	public static void generateCalendar(Calendar cal) {
 		generateCalendar(cal, new Calendar[0]);
 	}
-
+	
 	private BijectiveHashMap<Long, Integer> idMSlot;
 	private HashMap<Long, IntVar> slotVarLesson;
 	private BijectiveHashMap<Long, Integer> idMLesson;
@@ -85,8 +102,8 @@ public class SolverMain {
 	public void generateCal(Calendar cal, Calendar[] otherCalendars) {
 		Model model = new Model();
 		Solver solver = model.getSolver();
-		int nbSlots = CalendarService.getNumberOfSlot(cal);
-		int nbLessons = TAFService.getNumberOfLesson(cal.getTaf());
+		int nbSlots = calendarService.getNumberOfSlots(cal.getId());
+		int nbLessons = tafService.numberOfLessons(cal.getTaf().getId());
 		initialiseVars(model, cal, nbSlots, nbLessons);
 		setConstraints(model, cal);
 		IntVar obj = setPreferences(model, cal);
@@ -107,7 +124,7 @@ public class SolverMain {
 	
 	private void initialiseWeeks(Calendar cal) {
 		Integer idMW = 1;
-		for (Week week : CalendarService.getWeeksOrdered(cal)) {
+		for (Week week : calendarService.getWeeksSorted(cal.getId())) {
 			idMWeek.put(week.getId(), idMW);
 			idMW ++;
 		}
@@ -115,7 +132,7 @@ public class SolverMain {
 	
 	private void initialiseDays(Calendar cal) {
 		Integer idMD = 1;
-		for (Day day : CalendarService.getDaysOrdered(cal)) {
+		for (Day day : calendarService.getDaysSorted(cal.getId())) {
 			idMDay.put(day.getId(), idMD);
 			idMD ++;
 		}
@@ -123,7 +140,7 @@ public class SolverMain {
 	
 	private void initialiseSlots(Model model, Calendar cal, int nbLessons) {
 		Integer idMS = 1;
-		for (Slot slot : CalendarService.getSlotsOrdered(cal)) {
+		for (Slot slot : calendarService.getSlotsOrdered(cal.getId())) {
 			idMSlot.put(slot.getId(), idMS);
 			slotVarLesson.put(slot.getId(), model.intVar("Slot " + idMS + "-VarLesson", 0,nbLessons));
 			idMS ++;
@@ -154,7 +171,7 @@ public class SolverMain {
 	}
 	
 	private void setConstraintLinkLessonsSlots(Model model, Calendar cal) {
-		Slot[] slots = CalendarService.getSlotsOrdered(cal).stream().toArray(Slot[]::new);
+		Slot[] slots = calendarService.getSlotsOrdered(cal.getId()).stream().toArray(Slot[]::new);
 		Lesson[] lessons = cal.getTaf().getUes().stream().flatMap(u -> u.getLessons().stream()).toArray(Lesson[]::new);
 		int nbSlots = slots.length;
 		int nbLessons = lessons.length;
@@ -176,7 +193,7 @@ public class SolverMain {
 	public void setConstraintLecturerUnavailability(Model model, Calendar cal) {
 		for (UE ue : cal.getTaf().getUes())
 			for (Lesson lesson : ue.getLessons())
-				for (Slot slot : lesson.getLecturersUnavailability(cal))
+				for (Slot slot : lessonService.findLessonLecturersUnavailabilitiesByLessonAndCalendar(lesson, cal))
 					model.arithm(getLessonVarSlot(lesson), "!=", getIdMSlot(slot)).post();					
 	}
 	
@@ -206,7 +223,7 @@ public class SolverMain {
 	
 	public static void main(String[] args) {
 		//test0();
-		test1();
+		//test1();
 	}
 	
 	public static void test0() {
