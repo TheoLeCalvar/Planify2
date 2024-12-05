@@ -1,5 +1,6 @@
 package com.planify.server.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -9,6 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.planify.server.models.Calendar;
+import com.planify.server.models.Lesson;
+import com.planify.server.models.Sequencing;
 import com.planify.server.models.Synchronization;
 import com.planify.server.models.TAF;
 import com.planify.server.models.TAFManager;
@@ -84,6 +87,34 @@ public class TAFService {
 
     public List<TAF> findByName(String name) {
         return tafRepository.findByName(name);
+    }
+
+    public int numberOfLessons(Long id) {
+        if (tafRepository.existsById(id)) {
+            TAF taf = tafRepository.findById(id).get();
+            List<UE> ues = taf.getUes();
+            int n = 0;
+            for (UE ue : ues) {
+                n = n + ue.getLessons().size();
+            }
+            return n;
+        } else {
+            return -1;
+        }
+    }
+
+    public List<Lesson> getLessonsOfTAF(Long id) {
+        if (tafRepository.existsById(id)) {
+            TAF taf = tafRepository.findById(id).get();
+            List<UE> ues = taf.getUes();
+            ArrayList<Lesson> lessons = new ArrayList<Lesson>();
+            for (UE ue : ues) {
+                lessons.addAll(ue.getLessons());
+            }
+            return lessons;
+        } else {
+            return new ArrayList<Lesson>();
+        }
     }
 
 }

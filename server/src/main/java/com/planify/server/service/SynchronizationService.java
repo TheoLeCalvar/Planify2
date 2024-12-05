@@ -2,13 +2,12 @@ package com.planify.server.service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.planify.server.models.Lesson;
-import com.planify.server.models.LessonLecturer;
 import com.planify.server.models.Synchronization;
 import com.planify.server.models.Synchronization.SynchronizationId;
 import com.planify.server.repo.SynchronizationRepository;
@@ -84,6 +83,16 @@ public class SynchronizationService {
         List<Synchronization> listSync2 = synchronizationRepository.findByLesson2(lesson);
         listSync1.addAll(listSync2);
         return listSync1;
+    }
+
+    public List<Synchronization> getSynchronizationsByIdTaf(Long idTaf) {
+
+        List<Synchronization> synchronizations = findAll().stream()
+                .filter(antecedence -> (antecedence.getLesson1().getUe().getTaf().getId() == idTaf)
+                        || (antecedence.getLesson2().getUe().getTaf().getId() == idTaf))
+                .collect(Collectors.toList());
+
+        return synchronizations;
     }
 
 }

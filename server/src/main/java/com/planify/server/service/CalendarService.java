@@ -1,7 +1,11 @@
 package com.planify.server.service;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -9,8 +13,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.planify.server.models.Calendar;
+import com.planify.server.models.Day;
 import com.planify.server.models.Slot;
 import com.planify.server.models.TAF;
+import com.planify.server.models.Week;
 import com.planify.server.repo.CalendarRepository;
 
 @Service
@@ -76,6 +82,52 @@ public class CalendarService {
             return true;
         } else {
             return false;
+        }
+    }
+
+    @Transactional
+    public List<Slot> getSlotsOrdered(Long calendarId) {
+        if (calendarRepository.existsById(calendarId)) {
+            return slotService.getSlotsSorted(calendarId);
+        } else {
+            return new ArrayList<Slot>();
+        }
+    }
+
+    public int getNumberOfSlots(Long idCalendar) {
+        if (calendarRepository.existsById(idCalendar)) {
+            Calendar c = calendarRepository.findById(idCalendar).get();
+            return c.getSlots().size();
+        } else {
+            return -1;
+        }
+    }
+
+    public List<Day> getDaysSorted(Long calendarId) {
+        if (calendarRepository.existsById(calendarId)) {
+            List<Slot> slots = slotService.getSlotsSorted(calendarId);
+            List<Day> days = new ArrayList<Day>();
+            for (Slot s : slots) {
+                days.add(s.getDay());
+            }
+            Set<Day> uniqueSet = new LinkedHashSet<>(days);
+            return new ArrayList<>(uniqueSet);
+        } else {
+            return new ArrayList<Day>();
+        }
+    }
+
+    public List<Week> getWeeksSorted(Long idCalendar) {
+        if (calendarRepository.existsById(idCalendar)) {
+            List<Day> days = this.getDaysSorted(idCalendar);
+            List<Week> weeks = new ArrayList<Week>();
+            for (Day d : days) {
+                weeks.add(d.getWeek());
+            }
+            Set<Week> uniqueSet = new LinkedHashSet<>(weeks);
+            return new ArrayList<>(uniqueSet);
+        } else {
+            return new ArrayList<Week>();
         }
     }
 

@@ -1,7 +1,9 @@
 package com.planify.server.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -9,11 +11,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.planify.server.models.Antecedence;
+import com.planify.server.models.Calendar;
 import com.planify.server.models.Lesson;
 import com.planify.server.models.LessonLecturer;
 import com.planify.server.models.Sequencing;
+import com.planify.server.models.Slot;
 import com.planify.server.models.Synchronization;
 import com.planify.server.models.UE;
+import com.planify.server.models.User;
+import com.planify.server.models.UserUnavailability;
 import com.planify.server.repo.LessonRepository;
 
 @Service
@@ -68,6 +74,35 @@ public class LessonService {
     public List<LessonLecturer> findLessonLecturersByLesson(Lesson lesson) {
         List<LessonLecturer> lessonLecturers = lesson.getLessonLecturers();
         return lessonLecturers;
+    }
+
+    public List<Slot> findLessonLecturersUnavailabilitiesByLessonAndCalendar(Lesson lesson, Calendar calendar) {
+        List<LessonLecturer> lessonLecturers = findLessonLecturersByLesson(lesson);
+        List<UserUnavailability> userUnavailabilities = new ArrayList<UserUnavailability>();
+
+        for (LessonLecturer lecturer : lessonLecturers) {
+            List<UserUnavailability> unavailabilities = lecturer.getUser().getUserUnavailabilities();
+            userUnavailabilities.addAll(unavailabilities);
+        }
+
+        List<Slot> slots = userUnavailabilities.stream()
+            .filter(unavailability -> unavailability.getStrict())
+            .map(unavailability -> unavailability.getSlot())
+            .filter(slot -> slot.getCalendar() == calendar )
+            .collect(Collectors.toList());
+
+        return slots;
+    }
+
+    public List<Slot> findNotPreferedSlotsByLessonAndCalendar(Lesson lesson, Calendar calendar) {
+        List<Slot> slots = lesson.getLessonLecturers().stream()
+            .map(lecturer -> lecturer.getUser())
+            .flatMap(user -> user.getUserUnavailabilities().stream())
+            .filter(unavailability -> (!unavailability.getStrict()) && (unavailability.getSlot().getCalendar()==calendar))
+            .map(UserUnavailability::getSlot)
+            .collect(Collectors.toList());
+
+        return slots;
     }
 
     @Transactional

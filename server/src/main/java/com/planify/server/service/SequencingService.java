@@ -2,12 +2,15 @@ package com.planify.server.service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.planify.server.models.Sequencing.SequencingId;
+import com.planify.server.models.UE;
 import com.planify.server.models.Lesson;
 import com.planify.server.models.LessonLecturer;
 import com.planify.server.models.Sequencing;
@@ -78,6 +81,13 @@ public class SequencingService {
         } else {
             return false;
         }
+    }
+
+    public List<Sequencing> getSequencingOf(Long idTaf) {
+        List<Sequencing> sequencings = sequencingRepository.findAll().stream()
+                .filter(sequencing -> sequencing.getPreviousLesson().getUe().getTaf().getId() == idTaf)
+                .collect(Collectors.toList());
+        return sequencings;
     }
 
 }

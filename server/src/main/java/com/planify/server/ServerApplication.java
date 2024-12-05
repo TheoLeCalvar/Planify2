@@ -1,14 +1,11 @@
 package com.planify.server;
 
 import java.util.List;
-import java.util.Optional;
 
-import org.hibernate.Hibernate;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 
-import com.tests;
 import com.planify.server.models.*;
 import com.planify.server.models.Antecedence.AntecedenceId;
 import com.planify.server.models.LessonLecturer.LessonLecturerId;
@@ -47,6 +44,55 @@ public class ServerApplication {
 		UserService userService = context.getBean(UserService.class);
 		UserUnavailabilityService userUnavailabilityService = context.getBean(UserUnavailabilityService.class);
 		WeekService weekService = context.getBean(WeekService.class);
+
+		// Test of calendarService.getSlotsOrdered(idCalendar), getNumberOfSlots,
+		// getDaysSorted
+		tafService.addTAF("DCL");
+		List<TAF> listTafs = tafService.findByName("DCL");
+		TAF dcl = listTafs.get(0);
+		Calendar c = calendarService.addCalendar(dcl);
+		Week week1 = weekService.addWeek(1, 2025);
+		Week week2 = weekService.addWeek(2, 2025);
+		Day day11 = dayService.addDay(1, week1);
+		Day day12 = dayService.addDay(2, week1);
+		Day day21 = dayService.addDay(1, week2);
+		Day day22 = dayService.addDay(2, week2);
+		slotService.add(1, day11, c);
+		slotService.add(2, day11, c);
+		slotService.add(1, day12, c);
+		slotService.add(1, day21, c);
+		slotService.add(2, day21, c);
+		slotService.add(1, day22, c);
+		List<Slot> list = calendarService.getSlotsOrdered(c.getId());
+		for (Slot s : list) {
+			System.out.println("'Slot'" + "" + s.getDay().getWeek().getYear() + "" + s.getDay().getWeek().getNumber()
+					+ "" + s.getDay().getNumber() + "" + s.getNumber());
+		}
+		System.out.println("Nombre = " + calendarService.getNumberOfSlots(c.getId()));
+		List<Day> daysofCalendar = calendarService.getDaysSorted(c.getId());
+		for (Day day : daysofCalendar) {
+			System.out.println(day.toString());
+		}
+		List<Week> weeksOfCalendar = calendarService.getWeeksSorted(c.getId());
+		System.out.println("Les semaines:");
+		for (Week week : weeksOfCalendar) {
+			System.out.println(week.toString());
+		}
+
+		// Test of NumberOfLesson in a TAF
+		UE ue1 = ueService.addUE("UE1", dcl); // Assuming addUE adds UE linked to TAF
+		UE ue2 = ueService.addUE("UE2", dcl);
+		UE ue3 = ueService.addUE("UE3", dcl);
+		lessonService.add("Lesson1", ue1);
+		lessonService.add("Lesson2", ue1);
+		lessonService.add("Lesson3", ue2);
+		lessonService.add("Lesson4", ue2);
+		lessonService.add("Lesson5", ue3);
+		System.out.println("Number of lesson in TAF dcl = " + "" + tafService.numberOfLessons(dcl.getId()));
+		List<Lesson> lessonsOfTAF = tafService.getLessonsOfTAF(dcl.getId());
+		for (Lesson l : lessonsOfTAF) {
+			System.out.println(l.toString());
+		}
 
 		// Test of week
 		System.out.println("Test of week");

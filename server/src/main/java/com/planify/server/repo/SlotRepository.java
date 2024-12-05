@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.planify.server.models.Calendar;
@@ -11,7 +13,7 @@ import com.planify.server.models.Day;
 import com.planify.server.models.Slot;
 
 @Repository
-public interface SlotRepository extends JpaRepository<Slot,Long>{
+public interface SlotRepository extends JpaRepository<Slot, Long> {
 
     List<Slot> findAll();
 
@@ -21,10 +23,19 @@ public interface SlotRepository extends JpaRepository<Slot,Long>{
 
     List<Slot> findByCalendar(Calendar calendar);
 
+<<<<<<< HEAD
+    @Query("SELECT s FROM Slot s " +
+            "JOIN Day d ON s.day.id = d.id " +
+            "JOIN Week w ON d.week.id = w.id " +
+            "WHERE s.calendar.id = :idCalendrier " +
+            "ORDER BY w.year ASC, w.number ASC, d.number ASC, s.number ASC")
+    List<Slot> findSlotByIdCalendrierOrdered(@Param("idCalendrier") Long idCalendrier);
+=======
     List<Slot> findByDayAndCalendar(Day day, Calendar calendar);
+>>>>>>> d6d281589f148f79abfc310fe659a70e284b6218
 
     Slot save(Slot slot);
 
     void deleteById(Slot slot);
-    
+
 }

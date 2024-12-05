@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-
-import org.hibernate.annotations.LazyToOne;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -14,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.planify.server.models.Calendar;
 import com.planify.server.models.Day;
 import com.planify.server.models.GlobalUnavailability;
-import com.planify.server.models.LessonLecturer;
 import com.planify.server.models.Slot;
 import com.planify.server.models.UserUnavailability;
 import com.planify.server.models.Week;
@@ -140,6 +137,10 @@ public class SlotService {
         } else {
             return false;
         }
+    }
+
+    public List<Slot> getSlotsSorted(Long idCalendar) {
+        return slotRepository.findSlotByIdCalendrierOrdered(idCalendar);
     }
 
 }
