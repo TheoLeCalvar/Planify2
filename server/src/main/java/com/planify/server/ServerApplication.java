@@ -1,14 +1,11 @@
 package com.planify.server;
 
 import java.util.List;
-import java.util.Optional;
 
-import org.hibernate.Hibernate;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 
-import com.tests;
 import com.planify.server.models.*;
 import com.planify.server.models.Antecedence.AntecedenceId;
 import com.planify.server.models.LessonLecturer.LessonLecturerId;
@@ -19,7 +16,7 @@ import com.planify.server.models.UEManager.UEManagerId;
 import com.planify.server.models.UserUnavailability.UserUnavailabilityId;
 import com.planify.server.service.*;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = "com.planify.server")
 public class ServerApplication {
 
 	public static void main(String[] args) {
@@ -60,12 +57,12 @@ public class ServerApplication {
 		Day day12 = dayService.addDay(2, week1);
 		Day day21 = dayService.addDay(1, week2);
 		Day day22 = dayService.addDay(2, week2);
-		Slot s111 = slotService.add(1, day11, c);
-		Slot s112 = slotService.add(2, day11, c);
-		Slot s121 = slotService.add(1, day12, c);
-		Slot s211 = slotService.add(1, day21, c);
-		Slot s212 = slotService.add(2, day21, c);
-		Slot s221 = slotService.add(1, day22, c);
+		slotService.add(1, day11, c);
+		slotService.add(2, day11, c);
+		slotService.add(1, day12, c);
+		slotService.add(1, day21, c);
+		slotService.add(2, day21, c);
+		slotService.add(1, day22, c);
 		List<Slot> list = calendarService.getSlotsOrdered(c.getId());
 		for (Slot s : list) {
 			System.out.println("'Slot'" + "" + s.getDay().getWeek().getYear() + "" + s.getDay().getWeek().getNumber()

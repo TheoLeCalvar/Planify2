@@ -1,10 +1,9 @@
 package com.planify.server.service;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-
-import org.hibernate.annotations.LazyToOne;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -13,9 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.planify.server.models.Calendar;
 import com.planify.server.models.Day;
 import com.planify.server.models.GlobalUnavailability;
-import com.planify.server.models.LessonLecturer;
 import com.planify.server.models.Slot;
 import com.planify.server.models.UserUnavailability;
+import com.planify.server.models.Week;
 import com.planify.server.repo.SlotRepository;
 
 @Service
@@ -74,6 +73,33 @@ public class SlotService {
 
     public List<Slot> findAll() {
         return slotRepository.findAll();
+    }
+
+    public Day getDay(Slot slot) {
+        Day day = slot.getDay();
+        return day;
+    }
+
+    public Week getWeek(Slot slot) {
+        Day day = slot.getDay();
+        Week week = day.getWeek();
+        return week;
+    }
+
+    public List<Slot> findSlotsByDayAndCalendar(Day day, Calendar calendar) {
+        List<Slot> slots = this.slotRepository.findByDayAndCalendar(day, calendar);
+        slots.sort(Comparator.comparing(Slot::getNumber));
+        return slots;
+    }
+
+    public List<Slot> findSlotsByWeekAndCalendar(Week week, Calendar calendar) {
+        List<Day> days = week.getDays();
+        days.sort(Comparator.comparing(Day::getNumber));
+        List<Slot> slots = new ArrayList<Slot>();
+        for (Day day : days) {
+            slots.addAll(this.findSlotsByDayAndCalendar(day, calendar));
+        }
+        return slots;
     }
 
     @Transactional
