@@ -2,6 +2,7 @@ package com.planify.server.service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -52,6 +53,15 @@ public class AntecedenceService {
 
     public List<Antecedence> findAll() {
         return antecedenceRepository.findAll();
+    }
+
+    public List<Antecedence> getAntecedencesByIdTaf(Long idTaf) {
+
+        List<Antecedence> antecedences = findAll().stream()
+            .filter(antecedence -> antecedence.getPreviousLesson().getUe().getTaf().getId() == idTaf)
+            .collect(Collectors.toList());
+
+        return antecedences;
     }
 
     public boolean deleteAntecedence(AntecedenceId id) {
