@@ -2,6 +2,7 @@ package com.planify.server.service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.hibernate.annotations.LazyToOne;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -110,6 +111,10 @@ public class SlotService {
         } else {
             return false;
         }
+    }
+
+    public List<Slot> getSlotsSorted(Long idCalendar) {
+        return slotRepository.findSlotByIdCalendrierOrdered(idCalendar);
     }
 
 }
