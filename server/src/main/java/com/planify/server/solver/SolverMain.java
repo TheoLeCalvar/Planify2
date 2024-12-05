@@ -1,6 +1,5 @@
 package com.planify.server.solver;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -13,6 +12,7 @@ import org.chocosolver.solver.search.strategy.Search;
 import org.chocosolver.solver.variables.IntVar;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Component;
 
 import com.planify.server.models.Calendar;
 import com.planify.server.models.Day;
@@ -28,6 +28,7 @@ import com.planify.server.service.CalendarService;
 import com.planify.server.service.LessonService;
 import com.planify.server.service.TAFService;
 
+@Component
 public class SolverMain {
 	//Services
 	@Lazy
@@ -42,23 +43,6 @@ public class SolverMain {
     @Autowired
 	private LessonService lessonService;
 	
-	
-	public SolverMain() {}
-	
-	public static void generateCalendar(Calendar[] cals) {
-		for (Calendar cal : cals) {
-			generateCalendar(cal, Arrays.stream(cals).filter(c -> c != cal).toArray(Calendar[]::new));
-		}
-	}
-	
-	public static void generateCalendar(Calendar cal, Calendar[] otherCalendars) {
-		(new SolverMain()).generateCal(cal, otherCalendars);
-	}
-	
-	public static void generateCalendar(Calendar cal) {
-		generateCalendar(cal, new Calendar[0]);
-	}
-	
 	private BijectiveHashMap<Long, Integer> idMSlot;
 	private HashMap<Long, IntVar> slotVarLesson;
 	private BijectiveHashMap<Long, Integer> idMLesson;
@@ -66,6 +50,17 @@ public class SolverMain {
 	private BijectiveHashMap<Long, Integer> idMUe;
 	private BijectiveHashMap<Long, Integer> idMDay;
 	private BijectiveHashMap<Long, Integer> idMWeek;
+	
+
+	public SolverMain() {
+		idMSlot = new BijectiveHashMap<Long, Integer>();
+		slotVarLesson = new HashMap<Long, IntVar>();
+		idMLesson = new BijectiveHashMap<Long, Integer>();
+		lessonVarSlot = new HashMap<Long, IntVar>();
+		idMUe = new BijectiveHashMap<Long, Integer>();
+		idMDay = new BijectiveHashMap<Long, Integer>();
+		idMWeek = new BijectiveHashMap<Long, Integer>();
+	}
 	
 	public Integer getIdMSlot(Slot slot) {return idMSlot.getValue(slot.getId());}
 	public Integer[] getIdMSlot(Slot[] slots) {return IntStream.range(0, slots.length).mapToObj(i -> getIdMSlot(slots[i])).toArray(Integer[]::new);}
@@ -99,7 +94,7 @@ public class SolverMain {
 	public Long[] getIdWeek(Integer[] idMs) {return IntStream.range(0, idMs.length).mapToObj(i -> getIdWeek(idMs[i])).toArray(Long[]::new);}
 	
 	
-	public void generateCal(Calendar cal, Calendar[] otherCalendars) {
+	public void generateCal(Calendar cal) {
 		Model model = new Model();
 		Solver solver = model.getSolver();
 		int nbSlots = calendarService.getNumberOfSlots(cal.getId());
@@ -142,7 +137,7 @@ public class SolverMain {
 		Integer idMS = 1;
 		for (Slot slot : calendarService.getSlotsOrdered(cal.getId())) {
 			idMSlot.put(slot.getId(), idMS);
-			slotVarLesson.put(slot.getId(), model.intVar("Slot " + idMS + "-VarLesson", 0,nbLessons));
+			slotVarLesson.put(slot.getId(), model.intVar("Slot " + idMS + " (" + slot.getId() + ")-VarLesson", 0,nbLessons));
 			idMS ++;
 		}
 	}
@@ -167,7 +162,7 @@ public class SolverMain {
 
 	public void setConstraints(Model model, Calendar cal) {
 		setConstraintLinkLessonsSlots(model, cal);
-		/*if (cal.hasConstraint1())*/ //setConstraintLecturerUnavailability(model, cal);
+		/*if (cal.hasConstraint1())*/ setConstraintLecturerUnavailability(model, cal);
 	}
 	
 	private void setConstraintLinkLessonsSlots(Model model, Calendar cal) {
@@ -204,8 +199,8 @@ public class SolverMain {
 	}
 	
 	public void setStrategy(Solver solver, Calendar cal) {
-		//solver.setSearch(Search.minDomLBSearch(getVarDecisionSlots(cal)));
-		solver.setSearch(Search.minDomUBSearch(getVarDecisionSlots(cal)));
+		solver.setSearch(Search.minDomLBSearch(getVarDecisionSlots(cal)));
+		//solver.setSearch(Search.minDomUBSearch(getVarDecisionSlots(cal)));
 	}
 	
 	public IntVar[] getVarDecisionSlots(Calendar cal) {
@@ -222,74 +217,9 @@ public class SolverMain {
 	}
 	
 	public static void main(String[] args) {
-		//test0();
-		//test1();
-	}
-	
-	public static void test0() {
-		Calendar cal = new Calendar();
-		cal.setSlots(IntStream.range(0, 5).mapToObj(i -> new Slot()).toList());
-		cal.setTaf(new TAF());
-		cal.getTaf().setUes(IntStream.range(0, 2).mapToObj(i -> new UE()).toList());
-		cal.getTaf().getUes().get(0).setLessons(IntStream.range(0, 2).mapToObj(i -> new Lesson()).toList());
-		cal.getTaf().getUes().get(0).getLessons().forEach(l -> l.setUe(cal.getTaf().getUes().get(0)));
-		cal.getTaf().getUes().get(1).setLessons(IntStream.range(0, 1).mapToObj(i -> new Lesson()).toList());
-		cal.getTaf().getUes().get(1).getLessons().forEach(l -> l.setUe(cal.getTaf().getUes().get(1)));
-		SolverMain.generateCalendar(cal);
-	}
-	
-	public static void test1() {
-		Calendar cal = new Calendar();
-		List<Slot> slots= IntStream.range(0, 5).mapToObj(i -> new Slot()).toList();
-		cal.setSlots(slots);
-		cal.setTaf(new TAF());
-		List<UE> ues = IntStream.range(0, 2).mapToObj(i -> new UE()).toList();
-		cal.getTaf().setUes(ues);
-		List<Lesson> lessonsUe1 = IntStream.range(0, 2).mapToObj(i -> new Lesson()).toList();
-		lessonsUe1.forEach(l -> l.setUe(ues.get(0)));
-		ues.get(0).setLessons(lessonsUe1);
-		List<Lesson> lessonsUe2 = IntStream.range(0, 1).mapToObj(i -> new Lesson()).toList();
-		lessonsUe2.forEach(l -> l.setUe(ues.get(1)));
-		ues.get(1).setLessons(lessonsUe2);
-		List<User> users = IntStream.range(0, 2).mapToObj(i -> new User("a", "a", "a", new char[0])).toList();
-		List<LessonLecturer> lessonLecturers = new ArrayList<LessonLecturer>();
-		lessonLecturers.add(new LessonLecturer(users.get(0), lessonsUe1.get(0)));
-		lessonLecturers.add(new LessonLecturer(users.get(1), lessonsUe1.get(0)));
-		lessonLecturers.add(new LessonLecturer(users.get(0), lessonsUe1.get(1)));
-		lessonLecturers.add(new LessonLecturer(users.get(2), lessonsUe2.get(0)));
-		users.get(0).setLessonLecturers(IntStream.range(0, 2).mapToObj(i -> lessonLecturers.get(i * 2)).toList());
-		lessonsUe1.get(0).setLessonLecturers(IntStream.range(0, 2).mapToObj(i -> lessonLecturers.get(i)).toList());
-		users.get(1).setLessonLecturers(IntStream.range(0, 1).mapToObj(i -> lessonLecturers.get(1)).toList());
-		lessonsUe1.get(1).setLessonLecturers(IntStream.range(0, 1).mapToObj(i -> lessonLecturers.get(2)).toList());
-		users.get(2).setLessonLecturers(IntStream.range(0, 1).mapToObj(i -> lessonLecturers.get(3)).toList());
-		lessonsUe2.get(0).setLessonLecturers(IntStream.range(0, 1).mapToObj(i -> lessonLecturers.get(3)).toList());
-		List<UserUnavailability> unavailabilitySlot1 = new ArrayList<UserUnavailability>();
-		List<UserUnavailability> unavailabilitySlot2 = new ArrayList<UserUnavailability>();
-		List<UserUnavailability> unavailabilitySlot3 = new ArrayList<UserUnavailability>();
-		List<UserUnavailability> unavailabilityUser1 = new ArrayList<UserUnavailability>();
-		unavailabilityUser1.add(new UserUnavailability(slots.get(0), users.get(0), true));
-		unavailabilitySlot1.add(unavailabilityUser1.getLast());
-		unavailabilityUser1.add(new UserUnavailability(slots.get(1), users.get(0), true));
-		unavailabilitySlot2.add(unavailabilityUser1.getLast());
-		users.get(0).setUserUnavailabilities(unavailabilityUser1);
-		List<UserUnavailability> unavailabilityUser2 = new ArrayList<UserUnavailability>();
-		unavailabilityUser2.add(new UserUnavailability(slots.get(0), users.get(1), true));
-		unavailabilitySlot1.add(unavailabilityUser1.getLast());
-		unavailabilityUser2.add(new UserUnavailability(slots.get(2), users.get(1), true));
-		unavailabilitySlot3.add(unavailabilityUser1.getLast());
-		users.get(1).setUserUnavailabilities(unavailabilityUser2);
-		List<UserUnavailability> unavailabilityUser3 = new ArrayList<UserUnavailability>();
-		unavailabilityUser3.add(new UserUnavailability(slots.get(0), users.get(2), true));
-		unavailabilitySlot1.add(unavailabilityUser1.getLast());
-		unavailabilityUser3.add(new UserUnavailability(slots.get(1), users.get(2), true));
-		unavailabilitySlot2.add(unavailabilityUser1.getLast());
-		users.get(1).setUserUnavailabilities(unavailabilityUser2);
-		slots.get(0).setUserUnavailabilities(unavailabilitySlot1);
-		slots.get(1).setUserUnavailabilities(unavailabilitySlot2);
-		slots.get(2).setUserUnavailabilities(unavailabilitySlot3);
 		
-		SolverMain.generateCalendar(cal);
 	}
+	
 }
 /*
 Rust :

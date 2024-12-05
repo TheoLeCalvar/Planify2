@@ -15,10 +15,29 @@ import com.planify.server.models.TAFManager.TAFManagerId;
 import com.planify.server.models.UEManager.UEManagerId;
 import com.planify.server.models.UserUnavailability.UserUnavailabilityId;
 import com.planify.server.service.*;
+import com.planify.server.solver.SolverMain;
 
 @SpringBootApplication(scanBasePackages = "com.planify.server")
 public class ServerApplication {
-
+	
+	private static AntecedenceService antecedenceService;
+	private static BlockService blockService;
+	private static CalendarService calendarService;
+	private static DayService dayService;
+	private static GlobalUnavailabilityService globalUnavailabilityService;
+	private static LessonLecturerService lessonLecturerService;
+	private static LessonService lessonService;
+	private static SequencingService sequencingService;
+	private static SlotService slotService;
+	private static SynchronizationService synchronizationService;
+	private static TAFManagerService tafManagerService;
+	private static TAFService tafService;
+	private static UEManagerService ueManagerService;
+	private static UEService ueService;
+	private static UserService userService;
+	private static UserUnavailabilityService userUnavailabilityService;
+	private static WeekService weekService;
+	
 	public static void main(String[] args) {
 		ApplicationContext context = SpringApplication.run(ServerApplication.class, args);
 
@@ -27,24 +46,28 @@ public class ServerApplication {
 		final String GREEN = "\u001B[32m";
 
 		// Creation of the services
-		AntecedenceService antecedenceService = context.getBean(AntecedenceService.class);
-		BlockService blockService = context.getBean(BlockService.class);
-		CalendarService calendarService = context.getBean(CalendarService.class);
-		DayService dayService = context.getBean(DayService.class);
-		GlobalUnavailabilityService globalUnavailabilityService = context.getBean(GlobalUnavailabilityService.class);
-		LessonLecturerService lessonLecturerService = context.getBean(LessonLecturerService.class);
-		LessonService lessonService = context.getBean(LessonService.class);
-		SequencingService sequencingService = context.getBean(SequencingService.class);
-		SlotService slotService = context.getBean(SlotService.class);
-		SynchronizationService synchronizationService = context.getBean(SynchronizationService.class);
-		TAFManagerService tafManagerService = context.getBean(TAFManagerService.class);
-		TAFService tafService = context.getBean(TAFService.class);
-		UEManagerService ueManagerService = context.getBean(UEManagerService.class);
-		UEService ueService = context.getBean(UEService.class);
-		UserService userService = context.getBean(UserService.class);
-		UserUnavailabilityService userUnavailabilityService = context.getBean(UserUnavailabilityService.class);
-		WeekService weekService = context.getBean(WeekService.class);
-
+		antecedenceService = context.getBean(AntecedenceService.class);
+		blockService = context.getBean(BlockService.class);
+		calendarService = context.getBean(CalendarService.class);
+		dayService = context.getBean(DayService.class);
+		globalUnavailabilityService = context.getBean(GlobalUnavailabilityService.class);
+		lessonLecturerService = context.getBean(LessonLecturerService.class);
+		lessonService = context.getBean(LessonService.class);
+		sequencingService = context.getBean(SequencingService.class);
+		slotService = context.getBean(SlotService.class);
+		synchronizationService = context.getBean(SynchronizationService.class);
+		tafManagerService = context.getBean(TAFManagerService.class);
+		tafService = context.getBean(TAFService.class);
+		ueManagerService = context.getBean(UEManagerService.class);
+		ueService = context.getBean(UEService.class);
+		userService = context.getBean(UserService.class);
+		userUnavailabilityService = context.getBean(UserUnavailabilityService.class);
+		weekService = context.getBean(WeekService.class);
+		
+		
+		//testSolver(context);
+		//if (weekService != null) return; //Just to not have warnings when we want to stops tests here.
+		
 		// Test of calendarService.getSlotsOrdered(idCalendar), getNumberOfSlots,
 		// getDaysSorted
 		tafService.addTAF("DCL");
@@ -456,6 +479,58 @@ public class ServerApplication {
 			System.out.println(GREEN + "Synchronization deleted with success" + RESET);
 		}
 
+	}
+
+	private static void testSolver(ApplicationContext context) {
+		Calendar c = testSolver1();
+		
+		SolverMain solver = context.getBean(SolverMain.class);
+		
+		solver.generateCal(c);
+	}
+	
+	private static Calendar testSolver1() {
+		tafService.addTAF("DCL");
+		List<TAF> listTafs = tafService.findByName("DCL");
+		TAF dcl = listTafs.get(0);
+		Calendar c = calendarService.addCalendar(dcl);
+		Week week1 = weekService.addWeek(1, 2025);
+		Week week2 = weekService.addWeek(2, 2025);
+		Day day11 = dayService.addDay(1, week1);
+		Day day12 = dayService.addDay(2, week1);
+		Day day21 = dayService.addDay(1, week2);
+		Slot slot1 = slotService.add(1, day11, c);
+		Slot slot2 = slotService.add(2, day11, c);
+		Slot slot3 = slotService.add(1, day12, c);
+		Slot slot4 = slotService.add(1, day21, c);
+		Slot slot5 = slotService.add(2, day21, c);
+		UE ue1 = ueService.addUE("UE1", dcl);
+		UE ue2 = ueService.addUE("UE2", dcl);
+		Lesson lesson1 = lessonService.add("Lesson1", ue1);
+		Lesson lesson2 = lessonService.add("Lesson2", ue1);
+		Lesson lesson3 = lessonService.add("Lesson3", ue2);
+		
+		User jacques = userService.addUser("Jacques", "Noyé", "jacques.noye@imt-atlantique.fr", new char[]{'s', 'o', 'u', 's', ' ', 'l', '\'', 'e', 'a', 'u'});
+		User bertrand = userService.addUser("Bertrand", "Lentsch", "bertrand.lentsch@nantes.univ.fr", new char[] {'D', 'e', 'e', 'p', 'e', 'r', ' ', 'm', 'e', 'a', 'n', 'i', 'n', 'g', '!'});
+
+		System.out.println("jacques");
+		System.out.println(jacques);
+		System.out.println(jacques.getName());
+		System.out.println(jacques.getId());
+		System.out.println("plus jacques");
+		
+		lessonLecturerService.addLessonLecturer(jacques, lesson1);
+		lessonLecturerService.addLessonLecturer(jacques, lesson2);
+		lessonLecturerService.addLessonLecturer(bertrand, lesson3);
+
+		userUnavailabilityService.addUserUnavailability(slot1, bertrand, true);
+		userUnavailabilityService.addUserUnavailability(slot5, bertrand, true);
+		userUnavailabilityService.addUserUnavailability(slot4, bertrand, false);
+		userUnavailabilityService.addUserUnavailability(slot1, jacques, false);
+		userUnavailabilityService.addUserUnavailability(slot2, jacques, true);
+		userUnavailabilityService.addUserUnavailability(slot4, jacques, true);
+		
+		return c;
 	}
 
 }
