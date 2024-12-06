@@ -7,6 +7,7 @@ import {
     IconButton,
     Paper,
     Stack,
+    Tooltip,
     Typography,
 } from "@mui/material";
 import { Draggable, Droppable } from "@hello-pangea/dnd";
@@ -43,9 +44,11 @@ export default function Block({
                     </Typography>
                 }
                 <Box>
-                    <IconButton onClick={onEdit} color="primary">
-                        <EditIcon />
-                    </IconButton>
+                    <Tooltip title="Editer">
+                        <IconButton onClick={onEdit} color="primary">
+                            <EditIcon />
+                        </IconButton>
+                    </Tooltip>
                     <ConfirmationButton
                         buttonComponent={
                             <IconButton color="secondary">
@@ -53,12 +56,15 @@ export default function Block({
                             </IconButton>
                         }
                         onConfirm={onDelete}
+                        tooltip={"Supprimer"}
                         dialogTitle="Supprimer le bloc ?"
                         dialogMessage={`Êtes-vous sûr de vouloir supprimer le bloc '${block.title}' ?`}
                     />
-                    <IconButton onClick={onDuplicate} color="secondary">
-                        <FileCopyIcon />
-                    </IconButton>
+                    <Tooltip title="Dupliquer">
+                        <IconButton onClick={onDuplicate} color="secondary">
+                            <FileCopyIcon />
+                        </IconButton>
+                    </Tooltip>
                 </Box>
             </Stack>
             <Typography variant="body2" color="textSecondary" gutterBottom>

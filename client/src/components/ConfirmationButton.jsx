@@ -1,13 +1,14 @@
 // src/components/ConfirmationButton.js
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import { Button } from "@mui/material";
+import { Button, Tooltip } from "@mui/material";
 import ConfirmationDialog from "./ConfirmationDialog";
 
 const ConfirmationButton = ({
     buttonComponent,
     variant,
     buttonText = "Effectuer une action",
+    tooltip,
     buttonColor = "primary",
     dialogTitle = "Confirmation",
     dialogMessage = "Êtes-vous sûr de vouloir effectuer cette action ?",
@@ -23,17 +24,19 @@ const ConfirmationButton = ({
     return (
         <>
             {/* Bouton déclencheur */}
-            {buttonComponent
-                ? React.cloneElement(buttonComponent, { onClick: handleOpen })
-                : (
-                <Button
-                    variant={variant ?? "contained"}
-                    color={buttonColor}
-                    onClick={handleOpen}
-                >
-                    {buttonText}
-                </Button>
-            )}
+            <Tooltip title={tooltip}>
+                {buttonComponent
+                    ? React.cloneElement(buttonComponent, { onClick: handleOpen })
+                    : (
+                    <Button
+                        variant={variant ?? "contained"}
+                        color={buttonColor}
+                        onClick={handleOpen}
+                    >
+                        {buttonText}
+                    </Button>
+                )}
+            </Tooltip>
 
             {/* Popup de confirmation */}
             <ConfirmationDialog

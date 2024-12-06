@@ -1,5 +1,5 @@
 import React from "react";
-import { Paper, Typography, Stack } from "@mui/material";
+import { Paper, Typography, Stack, Tooltip } from "@mui/material";
 import { Box, IconButton } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -19,9 +19,11 @@ export default function Course({ course, onEdit, onDelete, onDuplicate }) {
             <Stack direction="row" justifyContent="space-between" alignItems="center">
                 <Typography variant="subtitle1">{course.title}</Typography>
                 <Box>
-                    <IconButton onClick={onEdit} color="primary">
-                        <EditIcon />
-                    </IconButton>
+                    <Tooltip title="Editer">
+                        <IconButton onClick={onEdit} color="primary">
+                            <EditIcon />
+                        </IconButton>
+                    </Tooltip>
                     <ConfirmationButton
                         buttonComponent={
                             <IconButton color="secondary">
@@ -30,11 +32,14 @@ export default function Course({ course, onEdit, onDelete, onDuplicate }) {
                         }
                         onConfirm={onDelete}
                         dialogTitle="Supprimer le cours ?"
+                        tooltip={"Supprimer"}
                         dialogMessage={`Êtes-vous sûr de vouloir supprimer le cours '${course.title}' ?`}
                     />
-                    <IconButton onClick={onDuplicate} color="secondary">
-                        <FileCopyIcon />
-                    </IconButton>
+                    <Tooltip title="Dupliquer">
+                        <IconButton onClick={onDuplicate} color="secondary">
+                            <FileCopyIcon />
+                        </IconButton>
+                    </Tooltip>
                 </Box>
             </Stack>
             <Typography variant="body2" color="textSecondary">
