@@ -35,7 +35,7 @@ export default function BlockDialog({ open, onClose, onSubmit, initialData, allB
 
     return (
         <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-            <DialogTitle>{initialData ? "Modifier le bloc" : "Ajouter un bloc"}</DialogTitle>
+            <DialogTitle>{initialData?.id ? "Modifier le bloc" : initialData ? "Dupliquer le bloc" : "Ajouter un bloc"}</DialogTitle>
             <DialogContent>
                 <Box sx={{ display: "flex", flexDirection: "column", gap: 2, marginTop: 1 }}>
                     <TextField

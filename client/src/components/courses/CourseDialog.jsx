@@ -28,7 +28,7 @@ export default function CourseDialog({ open, onClose, onSubmit, initialData }) {
 
     return (
         <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-            <DialogTitle>{initialData ? "Modifier le cours" : "Ajouter un cours"}</DialogTitle>
+            <DialogTitle>{initialData?.id ? "Modifier le cours" : initialData ? "Dupliquer le cours" : "Ajouter un cours"}</DialogTitle>
             <DialogContent>
                 <Box sx={{ display: "flex", flexDirection: "column", gap: 2, marginTop: 1 }}>
                     <TextField
