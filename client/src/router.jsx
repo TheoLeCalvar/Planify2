@@ -14,6 +14,7 @@ import { loader as AppBarLoader } from "./routes/layout/appBar";
 import { loader as UELoader } from "./routes/ue";
 import { loader as CoursesLoader } from "./routes/ue/courses";
 import { action as editUEAction } from "./routes/ue/settings";
+import { action as editCoursesAction } from "./routes/ue/courses";
 
 import { createBrowserRouter } from "react-router-dom";
 
@@ -57,6 +58,7 @@ export const router = createBrowserRouter([
                                             {
                                                 path: "courses",
                                                 loader: CoursesLoader,
+                                                action: editCoursesAction,
                                                 element: <Courses />,
                                             },
                                         ],

@@ -11,6 +11,7 @@ import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import Block from "./Block";
 import BlockDialog from "./BlockDialog";
 import CourseDialog from "./CourseDialog";
+import AddIcon from "@mui/icons-material/Add";
 
 
 // Détection de cycles dans les dépendances entre blocs
@@ -51,14 +52,14 @@ const hasDependencyCycle = (blocks) => {
     return null;
 };
 
-export default function BlockManager() {
-    const [blocks, setBlocks] = useState([]);
+export default function BlockManager({coursesData: blocks, setCoursesData: setBlocks, dependencyError: dependencyCycle, setDependencyError: setDependencyCycle}) {
+    //const [blocks, setBlocks] = useState([]);
     const [isDialogOpen, setDialogOpen] = useState(false);
     const [editBlock, setEditBlock] = useState(null);
     const [currentBlockId, setCurrentBlockId] = useState(null);
     const [courseDialogOpen, setCourseDialogOpen] = useState(false);
     const [editingCourse, setEditingCourse] = useState(null);
-    const [dependencyCycle, setDependencyCycle] = useState(null);
+    //const [dependencyCycle, setDependencyCycle] = useState(null);
 
     useEffect(() => {
         setDependencyCycle(hasDependencyCycle(blocks));
@@ -156,19 +157,6 @@ export default function BlockManager() {
                     })
                 );
             }
-        }
-    };
-
-    // Exporter les données en JSON
-    const handleExport = () => {
-        const cycle = hasDependencyCycle(blocks);
-        if (cycle) {
-            alert("Erreur : des cycles de dépendances ont été détectés !");
-            console.log("Cycle de dépendances :", cycle);
-        } else {
-            const json = JSON.stringify(blocks, null, 2);
-            console.log(json);
-            alert("Configuration exportée (voir console).");
         }
     };
 
@@ -287,19 +275,12 @@ export default function BlockManager() {
                 </DragDropContext>
                 <Box mt={2} textAlign="center">
                     <Button
-                        variant="contained"
+                        variant="outlined"
                         color="primary"
+                        startIcon={<AddIcon />}
                         onClick={handleAddBlock}
                     >
                         Ajouter un bloc
-                    </Button>
-                    <Button
-                        variant="contained"
-                        color="success"
-                        onClick={handleExport}
-                        sx={{ ml: 2 }}
-                    >
-                        Exporter JSON
                     </Button>
                 </Box>
             </Paper>

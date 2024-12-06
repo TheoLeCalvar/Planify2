@@ -44,6 +44,14 @@ export default function Block({
                     </Typography>
                 }
                 <Box>
+                    <Button
+                        startIcon={<AddIcon />}
+                        variant="text"
+                        onClick={() => onAddCourse(block.id)}
+                        sx={{ marginRight: 3 }}
+                    >
+                        Ajouter un cours
+                    </Button>
                     <Tooltip title="Editer">
                         <IconButton onClick={onEdit} color="primary">
                             <EditIcon />
@@ -116,16 +124,6 @@ export default function Block({
                     </Box>
                 )}
             </Droppable>
-            {/* Bouton Ajouter un cours */}
-            <Box sx={{ marginTop: 2 }}>
-                <Button
-                    startIcon={<AddIcon />}
-                    variant="outlined"
-                    onClick={() => onAddCourse(block.id)}
-                >
-                    Ajouter un cours
-                </Button>
-            </Box>
         </Paper>
     );
 }
