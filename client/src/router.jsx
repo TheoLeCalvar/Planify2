@@ -3,7 +3,7 @@ import LoginPage from "./routes/login";
 import AppBarComponent from "./routes/layout/appBar";
 import SideBar from "./routes/layout/sideBar";
 import ErrorPage from "./routes/error-page";
-import Calendar from "./routes/calendar";
+import CoursesAvailability from "./routes/coursesAvailability";
 import TAF from "./routes/taf";
 import UE from "./routes/ue";
 import Settings from "./routes/ue/settings";
@@ -15,6 +15,7 @@ import { loader as UELoader } from "./routes/ue";
 import { loader as CoursesLoader } from "./routes/ue/courses";
 import { action as editUEAction } from "./routes/ue/settings";
 import { action as editCoursesAction } from "./routes/ue/courses";
+import { action as editTAFCalendarAction } from "./routes/coursesAvailability"
 
 import { createBrowserRouter } from "react-router-dom";
 
@@ -35,12 +36,14 @@ export const router = createBrowserRouter([
                         loader: TAFLoader,
                         children: [
                             {
-                                path: "calendar",
-                                element: <Calendar />,
-                            },{
                                 path: "",
                                 element: <SideBar />,
                                 children: [
+                                    {
+                                        path: "calendar",
+                                        element: <CoursesAvailability />,
+                                        action: editTAFCalendarAction
+                                    },
                                     {
                                         path: "ue/:idUE",
                                         element: <UE />,

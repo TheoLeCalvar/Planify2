@@ -9,7 +9,7 @@
         "sideBar": {
             "status": "Statut",
             "preferences": "Préférences",
-            "lessons": "Cours",
+            "calendar": "Calendrier",
             "UE": "Unités d'Enseignement",
             "UEManager": "Responsable UE",
             "addUE": "Ajouter une UE"

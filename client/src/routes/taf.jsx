@@ -12,6 +12,8 @@ export async function loader({ params }) {
                 { id: 2, name: "UE B", responsible: "Jacques Noyé" },
                 { id: 3, name: "UE C", responsible: "Gilles Simonin" },
             ],
+            startDate: "2024-09-07",
+            endDate: "2025-03-30",
         },
         {
             id: "2",

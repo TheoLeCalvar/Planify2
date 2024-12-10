@@ -58,14 +58,14 @@ const SideBar = () => {
                     <ListItemButton sx={{ flex: "initial" }}>
                         <ListItemText primary={locale.layout.sideBar.status} />
                     </ListItemButton>
-                    <ListItemButton sx={{ flex: "initial" }}>
+                    <ListItemButton sx={{ flex: "initial" }} LinkComponent={Link} to="calendar">
                         <ListItemText
-                            primary={locale.layout.sideBar.preferences}
+                            primary={locale.layout.sideBar.calendar}
                         />
                     </ListItemButton>
                     <ListItemButton sx={{ flex: "initial" }}>
                         <ListItemText
-                            primary={locale.layout.sideBar.lessons}
+                            primary={locale.layout.sideBar.preferences}
                         />
                     </ListItemButton>
                     {/* Scrollable Courses List - Takes available space */}
