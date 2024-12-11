@@ -35,7 +35,7 @@ public class UserUnavailabilityService {
         }
 
         Slot managedSlot = slotService.findById(slot.getId())
-            .orElseThrow(() -> new RuntimeException("Slot not found"));
+                .orElseThrow(() -> new RuntimeException("Slot not found"));
 
         System.out.println("SLOT ID IN ADD USER UNAVAILABILITY :" + managedSlot.getId());
         System.out.println("SLOT ID IN ADD USER UNAVAILABILITY :" + slot.getId());
@@ -43,16 +43,14 @@ public class UserUnavailabilityService {
         UserUnavailability userUnavailability = new UserUnavailability(managedSlot, user, strict);
         userUnavailabilityRepository.save(userUnavailability);
 
-        
         System.out.println("---------------------------------------------" + slot);
-        
+
         // Add it in the user's list of unavailabilities
         List<UserUnavailability> listUser = user.getUserUnavailabilities();
         listUser.addLast(userUnavailability);
         user.setUserUnavailabilities(listUser);
         userService.save(user);
 
-        
         System.out.println("-----------------------CHECK1---------------------");
 
         // Add it in the slot's list of unavailibities
@@ -61,12 +59,10 @@ public class UserUnavailabilityService {
         slot.setUserUnavailabilities(listSlot);
         slotService.save(slot);
 
-        
         System.out.println("-----------------------CHECK2---------------------");
 
         userUnavailabilityRepository.save(userUnavailability);
 
-        
         System.out.println("-----------------------CHECK3---------------------");
         return userUnavailability;
     }
