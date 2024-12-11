@@ -2,6 +2,8 @@ import {
     createViewWeek,
   } from '@schedule-x/calendar'
 
+export const USE_MOCK_DATA = true;
+
 export const constants = {
     CALENDAR: {
         TYPES: {

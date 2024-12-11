@@ -1,4 +1,6 @@
 import { Outlet, useLoaderData } from "react-router-dom";
+import axiosInstance from "../services/axiosConfig";
+import { USE_MOCK_DATA } from "../contants";
 
 export async function loader({ params }) {
     const mockTaf = [
@@ -39,7 +41,12 @@ export async function loader({ params }) {
         },
     ];
 
-    return mockTaf[params.idTAF - 1];
+    if (USE_MOCK_DATA) {
+        return mockTaf[params.idTAF - 1];
+    }
+
+    const response = await axiosInstance.get(`/taf/${params.idTAF}`);
+    return response.data;
 }
 
 export default function TAF() {

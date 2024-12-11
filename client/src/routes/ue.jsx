@@ -8,19 +8,19 @@ export async function loader({ params }) {
             id: params.idUE,
             name: "Programmation polyglotte",
             description: "TAF is a student association.",
-            managerName: "Théo Le Calvar",
+            managers: ["Théo Le Calvar"],
         },
         {
             id: "2",
             name: "Programmation fonctionnelle",
             description: "This is another student association.",
-            managerName: "John Doe",
+            managers: ["John Doe"],
         },
         {
             id: "3",
             name: "Conférences",
             description: "Yet another student association.",
-            managerName: "Alice Brown",
+            managers: ["Alice Brown"],
         },
     ];
 

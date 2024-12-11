@@ -27,38 +27,41 @@ import { Outlet, useLoaderData } from "react-router-dom";
 import { app, layout } from "../../config/locale.json";
 import useStore from "../../hooks/store";
 import { useLocation, useNavigate } from "react-router";
-
+import axiosInstance from "../../services/axiosConfig";
+import { USE_MOCK_DATA } from "../../contants";
 
 export async function loader({ params }) {
-  
-    const mockData =
-        [
-            {
-                id: 1,
-                name: "TAF DCL",
-                description: "Développement Collaboratif de Logiciel",
-            },
-            {
-                id: 2,
-                name: "TAF EDP",
-                description: "Environnement de Développement de Projet",
-            },
-            {
-                id: 3,
-                name: "TAF GPE",
-                description: "Gestion de Projet et Entrepreneuriat",
-            },
-        ]
+    const mockData = [
+        {
+            id: 1,
+            name: "TAF DCL",
+            description: "Développement Collaboratif de Logiciel",
+        },
+        {
+            id: 2,
+            name: "TAF EDP",
+            description: "Environnement de Développement de Projet",
+        },
+        {
+            id: 3,
+            name: "TAF GPE",
+            description: "Gestion de Projet et Entrepreneuriat",
+        },
+    ];
 
-  return mockData;
+    if (USE_MOCK_DATA){
+        return mockData;
+    }
+
+    const response = await axiosInstance.get("/taf");
+    return response.data;
 }
 
 const AppBarComponent = () => {
-
     const location = useLocation();
     const tafId = location.pathname.match(/\/taf\/(\d+)/)?.[1];
 
-    const tafs = useLoaderData()
+    const tafs = useLoaderData();
     const [selectedOption, setSelectedOption] = useState(tafId);
     const [profileAnchorEl, setProfileAnchorEl] = useState(null);
     const [notificationsAnchorEl, setNotificationsAnchorEl] = useState(null);
@@ -79,7 +82,7 @@ const AppBarComponent = () => {
 
     const navigate = useNavigate();
 
-    const toggleDrawer = useStore((state) => state.toggleSideBar)
+    const toggleDrawer = useStore((state) => state.toggleSideBar);
 
     const handleProfileClick = (event) => {
         setProfileAnchorEl(event.currentTarget);
@@ -113,9 +116,11 @@ const AppBarComponent = () => {
             <AppBar position="static">
                 <Toolbar sx={{ justifyContent: "space-between" }}>
                     {/* App Title */}
-                    {tafId && <IconButton onClick={toggleDrawer} color="inherit">
-                        <MenuIcon />
-                    </IconButton>}
+                    {tafId && (
+                        <IconButton onClick={toggleDrawer} color="inherit">
+                            <MenuIcon />
+                        </IconButton>
+                    )}
                     <Typography variant="h6">{app.applicationName}</Typography>
 
                     {/* Centered Dropdown Selector */}
@@ -135,7 +140,6 @@ const AppBarComponent = () => {
                                 value={selectedOption}
                                 onChange={handleMenuSelect}
                                 label={layout.appBar.TAFSelector}
-                                
                             >
                                 {tafs.map((taf) => (
                                     <MenuItem key={taf.id} value={taf.id}>
@@ -239,7 +243,7 @@ const AppBarComponent = () => {
                     </Menu>
                 </Toolbar>
             </AppBar>
-            <Outlet/>
+            <Outlet />
         </>
     );
 };
