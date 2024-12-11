@@ -33,9 +33,9 @@ public class UEService {
     private UEManagerService ueManagerService;
 
     @Transactional
-    public UE addUE(String description, TAF taf) {
+    public UE addUE(String name, String description, TAF taf) {
         // ads ue in the UE's table
-        UE ue = new UE(description, taf);
+        UE ue = new UE(name, description, taf);
 
         // add ue in the TAF's ues
         List<UE> ues = taf.getUes();

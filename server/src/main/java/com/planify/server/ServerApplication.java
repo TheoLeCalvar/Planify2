@@ -47,7 +47,9 @@ public class ServerApplication {
 
 		// Test of calendarService.getSlotsOrdered(idCalendar), getNumberOfSlots,
 		// getDaysSorted
-		tafService.addTAF("DCL");
+		tafService.addTAF("DCL", "Développement", "2024-09-07", "2025-03-30");
+		tafService.addTAF("LOGIN", "info", "2024-09-07", "2025-03-30");
+		tafService.addTAF("TEE", "Environnement", "2024-09-07", "2025-03-30");
 		List<TAF> listTafs = tafService.findByName("DCL");
 		TAF dcl = listTafs.get(0);
 		Calendar c = calendarService.addCalendar(dcl);
@@ -79,8 +81,8 @@ public class ServerApplication {
 			System.out.println(week.toString());
 		}
 
-		ueService.addUE("MAPD", dcl);
-		ueService.addUE("Environnement du dvlpeur", dcl);
+		ueService.addUE("MAPD", "Réseau de Pétri", dcl);
+		ueService.addUE("Environnement du dvlpeur", "juridic, eco et management", dcl);
 		// User u = userService.addUser("Théo", "Le Calvar", "theo.lecalvar", null);
 		// System.out.println(u.toString());
 		// tafManagerService.addTAFManager(u, dcl);

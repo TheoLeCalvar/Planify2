@@ -36,8 +36,8 @@ public class TAFService {
     @Autowired
     private TAFManagerService tafManagerService;
 
-    public TAF addTAF(String name) {
-        TAF taf = tafRepository.save(new TAF(name));
+    public TAF addTAF(String name, String description, String beginDate, String endDate) {
+        TAF taf = tafRepository.save(new TAF(name, description, beginDate, endDate));
         return taf;
     }
 

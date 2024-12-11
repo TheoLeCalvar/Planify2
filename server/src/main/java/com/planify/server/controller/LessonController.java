@@ -1,5 +1,7 @@
 package com.planify.server.controller;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -13,6 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.MediaType;
 
 import com.planify.server.controller.returnsClass.TAFReturn;
+import com.planify.server.controller.returnsClass.TAFShort;
+import com.planify.server.controller.returnsClass.UEShort;
 import com.planify.server.models.Calendar;
 import com.planify.server.models.TAF;
 import com.planify.server.models.TAFManager;
@@ -50,6 +54,18 @@ public class LessonController {
     @Autowired
     private BlockService blockService;
 
+    // Get the list of TAF
+    @GetMapping(value = "/taf", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getTAFs() {
+        List<TAF> tafs = tafService.findAll();
+        List<TAFShort> answer = new ArrayList<TAFShort>();
+        for (TAF taf : tafs) {
+            answer.add(new TAFShort(taf.getId(), taf.getName(), taf.getDescription()));
+        }
+        return ResponseEntity.ok(answer);
+    }
+
+    // Data on a given TAF (id)
     @GetMapping(value = "/taf/{idTAF}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getTAFById(@PathVariable Long idTAF) {
         Optional<TAF> taf = tafService.findById(idTAF);
@@ -61,9 +77,12 @@ public class LessonController {
         TAFReturn tafReturn = new TAFReturn(
                 realTaf.getId(),
                 realTaf.getName(),
-                realTaf.getUes().stream().map(UE::getId).collect(Collectors.toList()),
+                realTaf.getDescription(),
+                realTaf.getUes().stream().map(ue -> new UEShort(ue)).collect(Collectors.toList()),
                 realTaf.getCalendars().stream().map(Calendar::getId).collect(Collectors.toList()),
-                realTaf.getTafManagers().stream().map(TAFManager::getId).collect(Collectors.toList()));
+                realTaf.getTafManagers().stream().map(TAFManager::getId).collect(Collectors.toList()),
+                realTaf.getBeginDate(),
+                realTaf.getEndDate());
         System.out.println(tafReturn.toString());
         return ResponseEntity.ok(tafReturn);
     }

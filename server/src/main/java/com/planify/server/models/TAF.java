@@ -19,6 +19,12 @@ public class TAF {
 
     private String name;
 
+    private String description;
+
+    private String beginDate;
+
+    private String endDate;
+
     @OneToMany(mappedBy = "taf", fetch = FetchType.EAGER)
     private List<UE> UEs = new ArrayList<>();
 
@@ -31,8 +37,11 @@ public class TAF {
     public TAF() {
     }
 
-    public TAF(String name) {
+    public TAF(String name, String description, String beginDate, String endDate) {
         this.name = name;
+        this.description = description;
+        this.beginDate = beginDate;
+        this.endDate = endDate;
     }
 
     public String toString() {
@@ -51,6 +60,30 @@ public class TAF {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getDescription() {
+        return this.description;
+    }
+
+    public void setDescription(String string) {
+        this.description = string;
+    }
+
+    public String getBeginDate() {
+        return this.beginDate;
+    }
+
+    public void setBeginDate(String string) {
+        this.beginDate = string;
+    }
+
+    public String getEndDate() {
+        return this.endDate;
+    }
+
+    public void setEndDate(String string) {
+        this.description = string;
     }
 
     public List<UE> getUes() {

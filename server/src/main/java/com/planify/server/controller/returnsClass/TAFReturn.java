@@ -14,7 +14,10 @@ public class TAFReturn {
     private String name;
 
     @JsonManagedReference
-    private List<Long> UEsId;
+    private String description;
+
+    @JsonManagedReference
+    private List<UEShort> UEs;
 
     @JsonManagedReference
     private List<Long> CalendarsId;
@@ -22,12 +25,22 @@ public class TAFReturn {
     @JsonManagedReference
     private List<TAFManagerId> TAFManagersId;
 
-    public TAFReturn(Long id, String name, List<Long> UEsId, List<Long> CalendarsId, List<TAFManagerId> TAFManagersId) {
+    @JsonManagedReference
+    private String beginDate;
+
+    @JsonManagedReference
+    private String endDate;
+
+    public TAFReturn(Long id, String name, String description, List<UEShort> UEs, List<Long> CalendarsId,
+            List<TAFManagerId> TAFManagersId, String beginDate, String endDate) {
         this.id = id;
         this.name = name;
-        this.UEsId = UEsId;
+        this.description = description;
+        this.UEs = UEs;
         this.CalendarsId = CalendarsId;
         this.TAFManagersId = TAFManagersId;
+        this.beginDate = beginDate;
+        this.endDate = endDate;
     }
 
     public String toString() {
