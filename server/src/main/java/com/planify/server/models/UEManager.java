@@ -67,6 +67,10 @@ public class UEManager {
         return user;
     }
 
+    public String getUserName() {
+        return user.getName() + " " + user.getLastName();
+    }
+
     public void setUser(User user) {
         this.user = user;
         if (this.ue != null) {

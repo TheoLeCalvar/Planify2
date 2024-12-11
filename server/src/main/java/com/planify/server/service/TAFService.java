@@ -36,8 +36,8 @@ public class TAFService {
     @Autowired
     private TAFManagerService tafManagerService;
 
-    public TAF addTAF(String name) {
-        TAF taf = tafRepository.save(new TAF(name));
+    public TAF addTAF(String name, String description, String beginDate, String endDate) {
+        TAF taf = tafRepository.save(new TAF(name, description, beginDate, endDate));
         return taf;
     }
 
@@ -51,19 +51,19 @@ public class TAFService {
             TAF taf = tafRepository.findById(id).get();
 
             // Delete the UEs of this TAF
-            List<UE> listUes = taf.getUes();
+            List<UE> listUes = new ArrayList<UE>(taf.getUes());
             for (UE ue : listUes) {
                 ueService.deleteUE(ue.getId());
             }
 
             // Delete the calendars associated to this TAF
-            List<Calendar> listCalendars = taf.getCalendars();
+            List<Calendar> listCalendars = new ArrayList<Calendar>(taf.getCalendars());
             for (Calendar c : listCalendars) {
                 calendarService.deleteCalendar(c.getId());
             }
 
             // Delete the TAFManager of this TAF
-            List<TAFManager> listManagers = taf.getTafManagers();
+            List<TAFManager> listManagers = new ArrayList<TAFManager>(taf.getTafManagers());
             for (TAFManager m : listManagers) {
                 tafManagerService.deleteTAFManager(m.getId());
             }

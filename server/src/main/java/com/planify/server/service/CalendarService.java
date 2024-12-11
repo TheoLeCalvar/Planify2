@@ -73,7 +73,7 @@ public class CalendarService {
             calendarRepository.save(calendar);
 
             // Delete the slots associated to this calendar
-            List<Slot> slots = calendar.getSlots();
+            List<Slot> slots = new ArrayList<Slot>(calendar.getSlots());
             for (Slot s : slots) {
                 slotService.deleteSlot(s.getId());
             }

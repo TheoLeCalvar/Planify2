@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,8 +19,17 @@ public class GlobalUnavailabilityService {
     @Autowired
     private GlobalUnavailabilityRepository globalUnavailabilityRepository;
 
+    @Autowired
+    @Lazy
+    private SlotService slotService;
+
+    @Transactional
     public GlobalUnavailability addGlobalUnavailability(boolean strict, Slot slot) {
         GlobalUnavailability globalUnavailability = new GlobalUnavailability(strict, slot);
+        Slot existingSlot = slotService.findById(slot.getId())
+                                  .orElseThrow(() -> new RuntimeException("Slot not found"));
+
+        globalUnavailability.setSlot(existingSlot);
         globalUnavailabilityRepository.save(globalUnavailability);
         return globalUnavailability;
     }

@@ -29,7 +29,7 @@ public interface SlotRepository extends JpaRepository<Slot, Long> {
             "WHERE s.calendar.id = :idCalendrier " +
             "ORDER BY w.year ASC, w.number ASC, d.number ASC, s.number ASC")
     List<Slot> findSlotByIdCalendrierOrdered(@Param("idCalendrier") Long idCalendrier);
-
+    
     List<Slot> findByDayAndCalendar(Day day, Calendar calendar);
 
     Slot save(Slot slot);
