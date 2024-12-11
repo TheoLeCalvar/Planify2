@@ -1,5 +1,6 @@
 package com.planify.server.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -64,7 +65,7 @@ public class UEService {
             tafService.save(taf);
 
             // Delete the lesson associated with this UE
-            List<Lesson> listLessons = ue.getLessons();
+            List<Lesson> listLessons = new ArrayList<Lesson>(ue.getLessons());
             for (Lesson l : listLessons) {
                 lessonService.delete(l.getId());
             }

@@ -28,15 +28,32 @@ public class UserUnavailabilityService {
 
     @Transactional
     public UserUnavailability addUserUnavailability(Slot slot, User user, boolean strict) {
-        // Add userUnavailibility in the table
-        UserUnavailability userUnavailability = userUnavailabilityRepository
-                .save(new UserUnavailability(slot, user, strict));
 
+        if (slot == null || slot.getId() == null) {
+            System.out.println("SLOT NULL:" + slot);
+            throw new IllegalArgumentException("Slot or Slot ID cannot be null");
+        }
+
+        Slot managedSlot = slotService.findById(slot.getId())
+            .orElseThrow(() -> new RuntimeException("Slot not found"));
+
+        System.out.println("SLOT ID IN ADD USER UNAVAILABILITY :" + managedSlot.getId());
+        System.out.println("SLOT ID IN ADD USER UNAVAILABILITY :" + slot.getId());
+        // Add userUnavailibility in the table
+        UserUnavailability userUnavailability = new UserUnavailability(managedSlot, user, strict);
+        userUnavailabilityRepository.save(userUnavailability);
+
+        
+        System.out.println("---------------------------------------------" + slot);
+        
         // Add it in the user's list of unavailabilities
         List<UserUnavailability> listUser = user.getUserUnavailabilities();
         listUser.addLast(userUnavailability);
         user.setUserUnavailabilities(listUser);
         userService.save(user);
+
+        
+        System.out.println("-----------------------CHECK1---------------------");
 
         // Add it in the slot's list of unavailibities
         List<UserUnavailability> listSlot = slot.getUserUnavailabilities();
@@ -44,6 +61,13 @@ public class UserUnavailabilityService {
         slot.setUserUnavailabilities(listSlot);
         slotService.save(slot);
 
+        
+        System.out.println("-----------------------CHECK2---------------------");
+
+        userUnavailabilityRepository.save(userUnavailability);
+
+        
+        System.out.println("-----------------------CHECK3---------------------");
         return userUnavailability;
     }
 
