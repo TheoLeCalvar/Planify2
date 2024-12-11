@@ -63,7 +63,7 @@ const SideBar = () => {
                             primary={locale.layout.sideBar.calendar}
                         />
                     </ListItemButton>
-                    <ListItemButton sx={{ flex: "initial" }}>
+                    <ListItemButton sx={{ flex: "initial" }} LinkComponent={Link} to="settings">
                         <ListItemText
                             primary={locale.layout.sideBar.preferences}
                         />

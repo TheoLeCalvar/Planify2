@@ -1,15 +1,15 @@
 import { useState } from "react";
-import Calendar from "../components/calendar/Calendar";
-import GenericWeekCalendar from "../components/calendar/GenericWeekCalendar";
+import Calendar from "../../components/calendar/Calendar";
+import GenericWeekCalendar from "../../components/calendar/GenericWeekCalendar";
 import { Tabs, Tab, Typography, Stack } from "@mui/material";
-import CalendarContextProvider from "../context/CalendarContext";
-import ImportButton from "../components/calendar/ImportButton";
-import ExportButton from "../components/calendar/ExportButton";
-import generateClassSlots from "../helper/classSlot";
-import ResetButton from "../components/calendar/ResetButton";
-import ImportExclusionButton from "../components/calendar/ImportExclusionButton";
+import CalendarContextProvider from "../../context/CalendarContext";
+import ImportButton from "../../components/calendar/ImportButton";
+import ExportButton from "../../components/calendar/ExportButton";
+import generateClassSlots from "../../helper/classSlot";
+import ResetButton from "../../components/calendar/ResetButton";
+import ImportExclusionButton from "../../components/calendar/ImportExclusionButton";
 import { useOutletContext, useLoaderData } from "react-router-dom";
-import SaveButton from "../components/calendar/SaveButton";
+import SaveButton from "../../components/calendar/SaveButton";
 
 export async function loader({ params }) {
   const mockData = null;

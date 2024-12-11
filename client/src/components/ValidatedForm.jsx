@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Form, useSubmit } from "react-router-dom";
 import { Button, Stack, Typography } from "@mui/material";
 import LoadingButton from "@mui/lab/LoadingButton";
@@ -8,6 +8,7 @@ import { FormContext } from "../context/FormContext";
 const ValidatedForm = ({ validateField, onSubmit, onCancel, children }) => {
     const [loading, setLoading] = useState(false);
     const [isFormValid, setIsFormValid] = useState(true);
+    const form = useRef(null);
     const submit = useSubmit();
 
     const handleSubmit = (e) => {
@@ -32,8 +33,8 @@ const ValidatedForm = ({ validateField, onSubmit, onCancel, children }) => {
     };
 
     return (
-        <Form method="post" onSubmit={handleSubmit}>
-            <FormContext.Provider value={validateField}>
+        <Form method="post" onSubmit={handleSubmit} ref={form}>
+            <FormContext.Provider value={{validate : validateField, form}}>
                 {children}
             </FormContext.Provider>
             {!isFormValid && (
