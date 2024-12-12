@@ -10,9 +10,12 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
 
 import "dayjs/locale/fr";
 import { Stack } from "@mui/material";
+
+dayjs.extend(customParseFormat);
 
 export async function action({ request, params }) {
     //TODO: Update section with backend call
@@ -50,9 +53,17 @@ export default function TAFSettings() {
             default:
                 return "";
             case "endDate":
-                if (value.isAfter(dayjs(otherValues.startDate))){
-                    console.log("return")
+                const compareValue = dayjs.isDayjs(value) ? value : dayjs(value, "DD/MM/YYYY");
+                if (!compareValue.isValid()){
+                    return "La date de fin n'est pas valide.";
+                }
+                if (compareValue.isBefore(dayjs(otherValues.startDate, "DD/MM/YYYY"))) {
                     return "La date de fin doit être après la date de début.";
+                }
+            case "startDate":
+                const compareValue2 = dayjs.isDayjs(value) ? value : dayjs(value, "DD/MM/YYYY");
+                if (!compareValue2.isValid()){
+                    return "La date de début n'est pas valide.";
                 }
         }
         return ""; // Pas d'erreur
