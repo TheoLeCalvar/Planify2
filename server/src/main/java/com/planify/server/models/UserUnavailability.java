@@ -3,7 +3,10 @@ package com.planify.server.models;
 import java.io.Serializable;
 import java.util.Objects;
 
+import com.planify.server.models.UserUnavailability.UserUnavailabilityId;
+
 import jakarta.annotation.Nullable;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EmbeddedId;
@@ -22,21 +25,15 @@ public class UserUnavailability {
 
     @ManyToOne
     @MapsId("idUser")
-    @JoinColumn(name = "idUser")
     private User user;
 
     @ManyToOne
     @MapsId("idSlot")
-    @JoinColumn(name = "idSlot")
     private Slot slot;
 
     @Embeddable
     public static class UserUnavailabilityId implements Serializable {
-
-        @Column(name = "idSlot")
         private Long idSlot;
-
-        @Column(name = "idUser")
         private Long idUser;
 
         public UserUnavailabilityId() {}
@@ -54,13 +51,8 @@ public class UserUnavailability {
             return idSlot.equals(that.idSlot) && idUser.equals(that.idUser);
         }
 
-        @Override
-        public int hashCode() {
-            return Objects.hash(idSlot, idUser);
-        }
 
-
-        public Long getIdSlot() {
+		public Long getIdSlot() {
             return this.idSlot;
         }
 
@@ -68,16 +60,23 @@ public class UserUnavailability {
             return this.idUser;
         }
 
+        public void setIdSlot(Long idSlot) {
+			this.idSlot = idSlot;
+		}
+
+		public void setIdUser(Long idUser) {
+			this.idUser = idUser;
+		}
     }
 
     public UserUnavailability() {
     }
 
     public UserUnavailability(Slot s, User u, boolean strict) {
+        this.id = new UserUnavailabilityId(s.getId(), u.getId()) ;
         this.slot = s;
         this.user = u;
         this.strict = strict;
-        this.id = new UserUnavailabilityId(slot.getId(), user.getId());
     }
 
     public String toString() {
@@ -89,7 +88,11 @@ public class UserUnavailability {
         return this.id;
     }
 
-    public boolean getStrict() {
+    public void setId(UserUnavailabilityId id) {
+		this.id = id;
+	}
+
+	public boolean getStrict() {
         return this.strict;
     }
 

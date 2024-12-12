@@ -5,9 +5,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import com.planify.server.models.Synchronization;
 import com.planify.server.models.UE;
 import com.planify.server.models.UEManager;
 import com.planify.server.models.User;
@@ -28,20 +26,29 @@ public class UEManagerService {
 
     public UEManager addUEManager(User user, UE ue) {
         // Add UEManager to the table
-        UEManager ueManager = ueManagerRepository.save(new UEManager(user, ue));
+        System.out.println("CHECK10");
+        UEManager ueManager = new UEManager(user, ue);
+        System.out.println(ueManager.toString());
+        System.out.println("user.id = " + "" + ueManager.getId().getIdUser());
+        System.out.println("ue.id = " + "" + ueManager.getId().getIdUE());
+        System.out.println("CHECK11");
+        ueManager = ueManagerRepository.save(ueManager);
 
+        System.out.println("CHECK12");
         // Add the UEmanager to the user's list of UEManager
         List<UEManager> ueManagers = user.getUeManagers();
         ueManagers.addLast(ueManager);
         user.setUeManagers(ueManagers);
         userService.save(user);
 
+        System.out.println("CHECK13");
         // Add the UEmanager to the ue's list of UEManager
         List<UEManager> listUE = ue.getUeManagers();
         listUE.addLast(ueManager);
         ue.setUeManagers(listUE);
         ueService.save(ue);
 
+        System.out.println("CHECK14");
         return ueManager;
     }
 
