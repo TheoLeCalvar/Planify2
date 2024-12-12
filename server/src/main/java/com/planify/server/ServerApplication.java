@@ -504,7 +504,7 @@ public class ServerApplication {
 	}
 	
 	private static Calendar testSolver1() {
-		tafService.addTAF("DCL");
+		tafService.addTAF("DCL", "", "", "");
 		List<TAF> listTafs = tafService.findByName("DCL");
 		TAF dcl = listTafs.get(0);
 		Calendar c = calendarService.addCalendar(dcl);
@@ -520,13 +520,13 @@ public class ServerApplication {
 		Slot slotDummy = slotService.add(1, day21, c2);*/		
 		Slot slot4 = slotService.add(1, day21, c);
 		Slot slot5 = slotService.add(2, day21, c);
-		UE ue1 = ueService.addUE("UE1", dcl);
-		UE ue2 = ueService.addUE("UE2", dcl);
+		UE ue1 = ueService.addUE("UE1", "", dcl);
+		UE ue2 = ueService.addUE("UE2", "", dcl);
 		Lesson lesson1 = lessonService.add("Lesson1", ue1);
 		Lesson lesson2 = lessonService.add("Lesson2", ue1);
 		Lesson lesson3 = lessonService.add("Lesson3", ue2);
 		
-		/*
+		
 		User jacques = userService.addUser("Jacques", "Noyé", "jacques.noye@imt-atlantique.fr", new char[]{'s', 'o', 'u', 's', ' ', 'l', '\'', 'e', 'a', 'u'});
 		User bertrand = userService.addUser("Bertrand", "Lentsch", "bertrand.lentsch@nantes.univ.fr", new char[] {'D', 'e', 'e', 'p', 'e', 'r', ' ', 'm', 'e', 'a', 'n', 'i', 'n', 'g', '!'});
 
@@ -546,7 +546,7 @@ public class ServerApplication {
 		userUnavailabilityService.addUserUnavailability(slot1, jacques, false);
 		userUnavailabilityService.addUserUnavailability(slot2, jacques, true);
 		userUnavailabilityService.addUserUnavailability(slot4, jacques, true);
-		*/
+		
 		return c;
 	}
 

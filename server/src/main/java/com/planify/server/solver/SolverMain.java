@@ -163,7 +163,7 @@ public class SolverMain {
 
 	public void setConstraints(Model model, Calendar cal) {
 		setConstraintLinkLessonsSlots(model, cal);
-		/*if (cal.hasConstraint1())*/ //setConstraintLecturerUnavailability(model, cal);
+		/*if (cal.hasConstraint1())*/ setConstraintLecturerUnavailability(model, cal);
 	}
 	
 	private void setConstraintLinkLessonsSlots(Model model, Calendar cal) {
