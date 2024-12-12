@@ -41,6 +41,11 @@ public class UserUnavailabilityService {
         System.out.println("SLOT ID IN ADD USER UNAVAILABILITY :" + slot.getId());
         // Add userUnavailibility in the table
         UserUnavailability userUnavailability = new UserUnavailability(managedSlot, user, strict);
+
+        System.out.println("user unavailability = " + userUnavailability.toString());
+        System.out.println("id slot de user unavailability = " + "" + userUnavailability.getId().getIdSlot());
+        System.out.println("id de user unavailability = " + "" + userUnavailability.getId());
+
         userUnavailabilityRepository.save(userUnavailability);
 
         System.out.println("---------------------------------------------" + slot);
@@ -60,8 +65,15 @@ public class UserUnavailabilityService {
         slotService.save(slot);
 
         System.out.println("-----------------------CHECK2---------------------");
+        System.out.println("user unavailability = " + userUnavailability.toString());
+        System.out.println("id slot de user unavailability = " + "" + userUnavailability.getId().getIdSlot());
+        System.out.println("id de user unavailability = " + "" + userUnavailability.getId());
 
         userUnavailabilityRepository.save(userUnavailability);
+
+        for (UserUnavailability ua : userUnavailabilityRepository.findAll()) {
+            System.out.println(ua.toString());
+        }
 
         System.out.println("-----------------------CHECK3---------------------");
         return userUnavailability;
