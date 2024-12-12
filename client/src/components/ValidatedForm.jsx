@@ -4,6 +4,7 @@ import { Button, Stack, Typography } from "@mui/material";
 import LoadingButton from "@mui/lab/LoadingButton";
 import SaveIcon from "@mui/icons-material/Save";
 import { FormContext } from "../context/FormContext";
+import dayjs from "dayjs";
 
 const ValidatedForm = ({ validateField, onSubmit, onCancel, children }) => {
     const [loading, setLoading] = useState(false);
@@ -18,8 +19,12 @@ const ValidatedForm = ({ validateField, onSubmit, onCancel, children }) => {
         const formValues = Object.fromEntries(new FormData(form));
 
         const hasErrors = Array.from(form.elements).some((element) => {
+            console.log(element)
             if (element.tagName === "INPUT" || element.tagName === "TEXTAREA") {
                 const error = validateField(element.name, element.value, formValues);
+                if (dayjs.isDayjs(dayjs(element.value, "DD/MM/YYYY"))){
+                    element.value = dayjs(element.value, "DD/MM/YYYY").format("YYYY-MM-DD");
+                }
                 error && setFormError(error);
                 return error !== "";
             }
