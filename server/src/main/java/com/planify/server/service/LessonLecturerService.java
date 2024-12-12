@@ -29,6 +29,9 @@ public class LessonLecturerService {
     public LessonLecturer addLessonLecturer(User user, Lesson lesson) {
         LessonLecturer lessonLecturer = new LessonLecturer(user, lesson);
 
+        // Save new object in repository
+        lessonLecturerRepository.save(lessonLecturer);
+        
         // Update lesson lecturers for user
         List<LessonLecturer> lessonLecturers = user.getLessonLecturers();
         lessonLecturers.addLast(lessonLecturer);
@@ -40,9 +43,7 @@ public class LessonLecturerService {
         lessonLecturers2.addLast(lessonLecturer);
         lesson.setLessonLecturers(lessonLecturers2);
         lessonService.save(lesson);
-
-        // Save new object in repository
-        lessonLecturerRepository.save(lessonLecturer);
+        
         return lessonLecturer;
     }
 
