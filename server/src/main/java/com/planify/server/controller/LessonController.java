@@ -10,10 +10,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.MediaType;
 
+import com.planify.server.controller.returnsClass.BlockShort;
 import com.planify.server.controller.returnsClass.TAFReturn;
 import com.planify.server.controller.returnsClass.TAFShort;
 import com.planify.server.controller.returnsClass.UEShort;
@@ -86,6 +89,17 @@ public class LessonController {
                 realTaf.getEndDate());
         System.out.println(tafReturn.toString());
         return ResponseEntity.ok(tafReturn);
+    }
+
+    @PutMapping(value = "/ue/{ueId}/lesson", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> putLessonInUE(@PathVariable Long ueId, @RequestBody List<BlockShort> blocks) {
+        if (blocks.isEmpty()) {
+            return ResponseEntity.ok(blocks);
+        } else {
+            for (BlockShort block: blocks) {
+                blockService.addBlock(null, null)
+            }
+        }
     }
 
 }
