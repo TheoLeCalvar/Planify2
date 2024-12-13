@@ -80,7 +80,8 @@ public class LessonController {
                 realTaf.getDescription(),
                 realTaf.getUes().stream().map(ue -> new UEShort(ue)).collect(Collectors.toList()),
                 realTaf.getCalendars().stream().map(Calendar::getId).collect(Collectors.toList()),
-                realTaf.getTafManagers().stream().map(TAFManager::getId).collect(Collectors.toList()),
+                realTaf.getTafManagers().stream().map(manager -> manager.getUser().getFullName())
+                        .collect(Collectors.toList()),
                 realTaf.getBeginDate(),
                 realTaf.getEndDate());
         System.out.println(tafReturn.toString());
