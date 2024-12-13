@@ -35,6 +35,7 @@ public class UEService {
 
     @Transactional
     public UE addUE(String name, String description, TAF taf) {
+        System.out.println("------------------------" + ueRepository.findAll());
         // ads ue in the UE's table
         UE ue = new UE(name, description, taf);
 
@@ -42,9 +43,11 @@ public class UEService {
         List<UE> ues = taf.getUes();
         ues.addLast(ue);
         taf.setUes(ues);
-        tafService.save(taf);
+        //tafService.save(taf);
 
         ueRepository.save(ue);
+        System.out.println(ueRepository.findAll());
+        System.out.println(taf.getUes());
         return ue;
     }
 

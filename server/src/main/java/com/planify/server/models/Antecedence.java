@@ -13,16 +13,14 @@ import jakarta.persistence.MapsId;
 public class Antecedence {
 
     @EmbeddedId
-    private AntecedenceId id = new AntecedenceId(this.previousLesson.getId(), this.nextLesson.getId());
+    private AntecedenceId id;
 
     @ManyToOne
     @MapsId("idPreviousLesson")
-    @JoinColumn(name = "idPreviousLesson")
     private Lesson previousLesson;
 
     @ManyToOne
     @MapsId("idNextLesson")
-    @JoinColumn(name = "idNextLesson")
     private Lesson nextLesson;
 
     // Composite Key class
@@ -35,6 +33,8 @@ public class Antecedence {
             this.idPreviousLesson = idPreviousLesson;
             this.idNextLesson = idNextLesson;
         }
+
+        public AntecedenceId() {}
 
         public Long getIdPreviousLesson() {
             return this.idPreviousLesson;
@@ -67,6 +67,7 @@ public class Antecedence {
     }
 
     public Antecedence(Lesson previousLesson, Lesson nextLesson) {
+        this.id = new AntecedenceId(previousLesson.getId(), nextLesson.getId());
         this.previousLesson = previousLesson;
         this.nextLesson = nextLesson;
     }

@@ -46,15 +46,18 @@ public class LessonService {
 
     @Transactional
     public Lesson add(String name, UE ue) {
-        Lesson lesson = new Lesson(name, ue);
+        Lesson lesson = new Lesson();
+        lesson.setName(name);
+        lesson.setUe(ue);
+        
+        lessonRepository.save(lesson);
 
         // Update lessons list for ue
         List<Lesson> lessons = ue.getLessons();
         lessons.addLast(lesson);
         ue.setLessons(lessons);
-        ueService.save(ue);
+        // ueService.save(ue);
 
-        lessonRepository.save(lesson);
         return lesson;
     }
 

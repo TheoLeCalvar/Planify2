@@ -13,17 +13,14 @@ import jakarta.persistence.MapsId;
 public class Sequencing {
 
     @EmbeddedId
-    private SequencingId id = new SequencingId(this.previousLesson.getId(), this.nextLesson.getId());
+    private SequencingId id;
 
     @ManyToOne
     @MapsId("idPreviousLesson")
-    @JoinColumn(name = "idPreviousLesson")
-
     private Lesson previousLesson;
 
     @ManyToOne
     @MapsId("idNextLesson")
-    @JoinColumn(name = "idNextLesson")
     private Lesson nextLesson;
 
     // Composite Key class
@@ -32,6 +29,8 @@ public class Sequencing {
 
         private Long idPreviousLesson;
         private Long idNextLesson;
+
+        public SequencingId() {}
 
         public SequencingId(Long idPreviousLesson, Long idNextLesson) {
             this.idPreviousLesson = idPreviousLesson;

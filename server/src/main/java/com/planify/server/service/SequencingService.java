@@ -27,18 +27,19 @@ public class SequencingService {
 
     public Sequencing add(Lesson previousLesson, Lesson nextLesson) {
         Sequencing sequencing = new Sequencing(previousLesson, nextLesson);
+        sequencingRepository.save(sequencing);
 
         // Update previous sequencings for lesson
         List<Sequencing> sequencingsAsPrevious = previousLesson.getSequencingsAsPrevious();
         sequencingsAsPrevious.addLast(sequencing);
         previousLesson.setSequencingsAsPrevious(sequencingsAsPrevious);
-        lessonService.save(previousLesson);
+        // lessonService.save(previousLesson);
 
         // Update next sequencings for lesson
         List<Sequencing> sequencingsAsNext = nextLesson.getSequencingsAsNext();
         sequencingsAsNext.addLast(sequencing);
         nextLesson.setSequencingsAsNext(sequencingsAsNext);
-        lessonService.save(nextLesson);
+        // lessonService.save(nextLesson);
 
         // Save new object in repository
         sequencingRepository.save(sequencing);
