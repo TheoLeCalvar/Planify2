@@ -24,7 +24,7 @@ const SideBar = () => {
 
     const context = useOutletContext()
 
-    const { UE: courses, id: tafID}  = useOutletContext().taf
+    const { UE: lessons, id: tafID}  = useOutletContext().taf
 
     return (
         <Box sx={{ display: "flex" }}>
@@ -68,14 +68,14 @@ const SideBar = () => {
                             primary={locale.layout.sideBar.preferences}
                         />
                     </ListItemButton>
-                    {/* Scrollable Courses List - Takes available space */}
+                    {/* Scrollable Lessons List - Takes available space */}
                     <Typography variant="h6" sx={{ mt: 2, px: 2 }}>
                         {locale.layout.sideBar.UE}
                     </Typography>
                     <Box sx={{ flexGrow: 1, overflowY: "auto", px: 2 }}>
                         <List>
-                            {courses.map((course) => (
-                                <Link to={`/taf/${tafID}/ue/${course.id}`} key={course.id}>
+                            {lessons.map((lesson) => (
+                                <Link to={`/taf/${tafID}/ue/${lesson.id}`} key={lesson.id}>
                                     <ListItem
                                         sx={{
                                             display: "flex",
@@ -83,13 +83,13 @@ const SideBar = () => {
                                         }}
                                     >
                                         <Typography variant="body1">
-                                            {course.name}
+                                            {lesson.name}
                                         </Typography>
                                         <Typography
                                             variant="body2"
                                             color="textSecondary"
                                         >
-                                            {locale.layout.sideBar.UEManager}: {course.responsible}
+                                            {locale.layout.sideBar.UEManager}: {lesson.responsible}
                                         </Typography>
                                     </ListItem>
                                 </Link>

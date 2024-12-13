@@ -11,7 +11,7 @@ import {
     Typography,
 } from "@mui/material";
 import { Draggable, Droppable } from "@hello-pangea/dnd";
-import Course from "./Course";
+import Lesson from "./Lesson";
 import FileCopyIcon from "@mui/icons-material/FileCopy";
 import ConfirmationButton from "../ConfirmationButton";
 import { useState } from "react";
@@ -22,10 +22,10 @@ export default function Block({
     onEdit,
     onDelete,
     onDuplicate,
-    onAddCourse,
-    onEditCourse,
-    onDeleteCourse,
-    onDuplicateCourse,
+    onAddLesson,
+    onEditLesson,
+    onDeleteLesson,
+    onDuplicateLesson,
 }) {
     const [isHovered, setIsHovered] = useState(false);
 
@@ -54,7 +54,7 @@ export default function Block({
                         <Button
                             startIcon={<AddIcon />}
                             variant="text"
-                            onClick={() => onAddCourse(block.id)}
+                            onClick={() => onAddLesson(block.id)}
                             sx={{ marginRight: 3 }}
                         >
                             Ajouter un cours
@@ -85,7 +85,7 @@ export default function Block({
                 <Typography variant="body2" color="textSecondary" gutterBottom>
                     {block.description || "Aucune description fournie"}
                 </Typography>
-                <Droppable droppableId={`courses-${block.id}`} type="course">
+                <Droppable droppableId={`lessons-${block.id}`} type="lesson">
                     {(provided) => (
                         <Box
                             ref={provided.innerRef}
@@ -96,10 +96,10 @@ export default function Block({
                                 border: "1px dashed gray",
                             }}
                         >
-                            {block.courses.map((course, index) => (
+                            {block.lessons.map((lesson, index) => (
                                 <Draggable
-                                    key={course.id}
-                                    draggableId={`course-${course.id}`}
+                                    key={lesson.id}
+                                    draggableId={`lesson-${lesson.id}`}
                                     index={index}
                                 >
                                     {(provided) => (
@@ -108,21 +108,21 @@ export default function Block({
                                             {...provided.draggableProps}
                                             {...provided.dragHandleProps}
                                         >
-                                            <Course
-                                                course={course}
+                                            <Lesson
+                                                lesson={lesson}
                                                 onEdit={() =>
-                                                    onEditCourse(
+                                                    onEditLesson(
                                                         block.id,
-                                                        course
+                                                        lesson
                                                     )
                                                 }
                                                 onDelete={() =>
-                                                    onDeleteCourse(course.id)
+                                                    onDeleteLesson(lesson.id)
                                                 }
                                                 onDuplicate={() =>
-                                                    onDuplicateCourse(
+                                                    onDuplicateLesson(
                                                         block.id,
-                                                        course
+                                                        lesson
                                                     )
                                                 }
                                             />

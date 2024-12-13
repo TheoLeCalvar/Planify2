@@ -24,7 +24,7 @@ export async function action({ request }) {
   return { ok: true };
 }
 
-export default function CoursesAvailability() {
+export default function LessonsAvailability() {
     const [tabIndex, setTabIndex] = useState(1);
 
     const data = useLoaderData();

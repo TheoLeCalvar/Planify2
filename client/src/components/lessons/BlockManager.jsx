@@ -10,7 +10,7 @@ import {
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import Block from "./Block";
 import BlockDialog from "./BlockDialog";
-import CourseDialog from "./CourseDialog";
+import LessonDialog from "./LessonDialog";
 import AddIcon from "@mui/icons-material/Add";
 
 
@@ -52,13 +52,13 @@ const hasDependencyCycle = (blocks) => {
     return null;
 };
 
-export default function BlockManager({coursesData: blocks, setCoursesData: setBlocks, dependencyError: dependencyCycle, setDependencyError: setDependencyCycle}) {
+export default function BlockManager({lessonsData: blocks, setLessonsData: setBlocks, dependencyError: dependencyCycle, setDependencyError: setDependencyCycle}) {
     //const [blocks, setBlocks] = useState([]);
     const [isDialogOpen, setDialogOpen] = useState(false);
     const [editBlock, setEditBlock] = useState(null);
     const [currentBlockId, setCurrentBlockId] = useState(null);
-    const [courseDialogOpen, setCourseDialogOpen] = useState(false);
-    const [editingCourse, setEditingCourse] = useState(null);
+    const [lessonDialogOpen, setLessonDialogOpen] = useState(false);
+    const [editingLesson, setEditingLesson] = useState(null);
     //const [dependencyCycle, setDependencyCycle] = useState(null);
 
     useEffect(() => {
@@ -92,13 +92,13 @@ export default function BlockManager({coursesData: blocks, setCoursesData: setBl
                 prev.map((b) => (b.id === block.id ? block : b))
             );
         } else {
-            if (block.courses){
-                block.courses = block.courses.map((course, index) => ({ ...course, id: Date.now() + index }));
+            if (block.lessons){
+                block.lessons = block.lessons.map((lesson, index) => ({ ...lesson, id: Date.now() + index }));
             }
             // Ajout d'un nouveau bloc
             setBlocks((prev) => [
                 ...prev,
-                { id: Date.now(), courses: [], ...block },
+                { id: Date.now(), lessons: [], ...block },
             ]);
         }
     };
@@ -121,37 +121,37 @@ export default function BlockManager({coursesData: blocks, setCoursesData: setBl
             const [removed] = reorderedBlocks.splice(source.index, 1);
             reorderedBlocks.splice(destination.index, 0, removed);
             setBlocks(reorderedBlocks);
-        } else if (source.droppableId.startsWith("courses-") && destination.droppableId.startsWith("courses-")) {
+        } else if (source.droppableId.startsWith("lessons-") && destination.droppableId.startsWith("lessons-")) {
             const sourceBlockId = parseInt(source.droppableId.split("-")[1], 10);
             const destinationBlockId = parseInt(destination.droppableId.split("-")[1], 10);
 
             const sourceBlock = blocks.find((block) => block.id === sourceBlockId);
             const destinationBlock = blocks.find((block) => block.id === destinationBlockId);
 
-            const sourceCourses = Array.from(sourceBlock.courses);
-            const [removed] = sourceCourses.splice(source.index, 1);
+            const sourceLessons = Array.from(sourceBlock.lessons);
+            const [removed] = sourceLessons.splice(source.index, 1);
 
             if (sourceBlockId === destinationBlockId) {
                 // Réorganisation des cours dans le même bloc
-                sourceCourses.splice(destination.index, 0, removed);
+                sourceLessons.splice(destination.index, 0, removed);
                 setBlocks((prev) =>
                     prev.map((block) =>
                         block.id === sourceBlockId
-                            ? { ...block, courses: sourceCourses }
+                            ? { ...block, lessons: sourceLessons }
                             : block
                     )
                 );
             } else {
                 // Déplacement des cours entre blocs
-                const destinationCourses = Array.from(destinationBlock.courses);
-                destinationCourses.splice(destination.index, 0, removed);
+                const destinationLessons = Array.from(destinationBlock.lessons);
+                destinationLessons.splice(destination.index, 0, removed);
 
                 setBlocks((prev) =>
                     prev.map((block) => {
                         if (block.id === sourceBlockId) {
-                            return { ...block, courses: sourceCourses };
+                            return { ...block, lessons: sourceLessons };
                         } else if (block.id === destinationBlockId) {
-                            return { ...block, courses: destinationCourses };
+                            return { ...block, lessons: destinationLessons };
                         }
                         return block;
                     })
@@ -160,47 +160,47 @@ export default function BlockManager({coursesData: blocks, setCoursesData: setBl
         }
     };
 
-    const handleAddCourse = (blockId) => {
+    const handleAddLesson = (blockId) => {
         setCurrentBlockId(blockId);
-        setEditingCourse(null);
-        setCourseDialogOpen(true);
+        setEditingLesson(null);
+        setLessonDialogOpen(true);
     };
 
-    const handleEditCourse = (blockId, course) => {
+    const handleEditLesson = (blockId, lesson) => {
         setCurrentBlockId(blockId);
-        setEditingCourse(course);
-        setCourseDialogOpen(true);
+        setEditingLesson(lesson);
+        setLessonDialogOpen(true);
     };
 
-    const handleDuplicateCourse = (blockId, course) => {
-        const { id, ...rest } = course;
+    const handleDuplicateLesson = (blockId, lesson) => {
+        const { id, ...rest } = lesson;
         setCurrentBlockId(blockId);
-        setEditingCourse(rest);
-        setCourseDialogOpen(true);
+        setEditingLesson(rest);
+        setLessonDialogOpen(true);
     };
 
-    const handleDeleteCourse = (courseId) => {
+    const handleDeleteLesson = (lessonId) => {
         setBlocks((prevBlocks) =>
             prevBlocks.map((block) => {
-                const updatedCourses = block.courses.filter(
-                    (course) => course.id !== courseId
+                const updatedLessons = block.lessons.filter(
+                    (lesson) => lesson.id !== lessonId
                 );
-                return { ...block, courses: updatedCourses };
+                return { ...block, lessons: updatedLessons };
             })
         );
     };
 
-    const handleSaveCourse = (course) => {
-        console.log(course, currentBlockId);
+    const handleSaveLesson = (lesson) => {
+        console.log(lesson, currentBlockId);
         setBlocks((prevBlocks) =>
             prevBlocks.map((block) => {
                 if (block.id === currentBlockId) {
-                    const updatedCourses = course.id
-                        ? block.courses.map((c) =>
-                              c.id === editingCourse.id ? { ...editingCourse, ...course } : c
+                    const updatedLessons = lesson.id
+                        ? block.lessons.map((c) =>
+                              c.id === editingLesson.id ? { ...editingLesson, ...lesson } : c
                           )
-                        : [...block.courses, { ...course, id: Date.now() }];
-                    return { ...block, courses: updatedCourses };
+                        : [...block.lessons, { ...lesson, id: Date.now() }];
+                    return { ...block, lessons: updatedLessons };
                 }
                 return block;
             })
@@ -259,10 +259,10 @@ export default function BlockManager({coursesData: blocks, setCoursesData: setBl
                                                     onDuplicate={
                                                         () => handleDuplicateBlock(block)
                                                     }
-                                                    onAddCourse={handleAddCourse}
-                                                    onEditCourse={handleEditCourse}
-                                                    onDeleteCourse={handleDeleteCourse}
-                                                    onDuplicateCourse={handleDuplicateCourse}
+                                                    onAddLesson={handleAddLesson}
+                                                    onEditLesson={handleEditLesson}
+                                                    onDeleteLesson={handleDeleteLesson}
+                                                    onDuplicateLesson={handleDuplicateLesson}
                                                 />
                                             </div>
                                         )}
@@ -291,11 +291,11 @@ export default function BlockManager({coursesData: blocks, setCoursesData: setBl
                 initialData={editBlock}
                 allBlocks={blocks}
             />}
-            {courseDialogOpen && <CourseDialog
-                open={courseDialogOpen}
-                onClose={() => setCourseDialogOpen(false)}
-                onSubmit={handleSaveCourse}
-                initialData={editingCourse}
+            {lessonDialogOpen && <LessonDialog
+                open={lessonDialogOpen}
+                onClose={() => setLessonDialogOpen(false)}
+                onSubmit={handleSaveLesson}
+                initialData={editingLesson}
             />}
         </Container>
     );

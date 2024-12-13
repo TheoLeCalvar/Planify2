@@ -4,7 +4,7 @@ import {
     useOutletContext,
     useFetcher,
 } from "react-router-dom";
-import BlockManager from "../../components/courses/BlockManager";
+import BlockManager from "../../components/lessons/BlockManager";
 import { useState } from "react";
 import LoadingButton from "@mui/lab/LoadingButton";
 import SaveIcon from "@mui/icons-material/Save";
@@ -17,7 +17,7 @@ export async function loader({ params }) {
             id: 1,
             title: "Bloc 1",
             description: "Description du bloc 1",
-            courses: [
+            lessons: [
                 {
                     id: 1,
                     title: "Cours 1",
@@ -35,7 +35,7 @@ export async function loader({ params }) {
             id: 2,
             title: "Bloc 2",
             description: "Description du bloc 2",
-            courses: [
+            lessons: [
                 {
                     id: 3,
                     title: "Cours 3",
@@ -53,7 +53,7 @@ export async function loader({ params }) {
             id: 3,
             title: "Bloc 3",
             description: "Description du bloc 3",
-            courses: [
+            lessons: [
                 {
                     id: 5,
                     title: "Cours 5",
@@ -100,14 +100,14 @@ export async function action({ request }) {
     return { ok: true };
 }
 
-export default function UECourses() {
+export default function UELessons() {
     const {lessons: data, users} = useLoaderData();
     const context = useOutletContext();
     const fetcher = useFetcher();
 
     const busy = fetcher.state !== "idle";
 
-    const [coursesData, setCoursesData] = useState(data ?? []);
+    const [lessonsData, setLessonsData] = useState(data ?? []);
     const [dependencyError, setDependencyError] = useState(null);
     const [lecturersList, setLecturersList] = useState(users ?? []);
 
@@ -116,8 +116,8 @@ export default function UECourses() {
             <h1>Cours</h1>
             <LessonsContext.Provider value={{lecturersList, setLecturersList}}>
                 <BlockManager
-                    coursesData={coursesData}
-                    setCoursesData={setCoursesData}
+                    lessonsData={lessonsData}
+                    setLessonsData={setLessonsData}
                     dependencyError={dependencyError}
                     setDependencyError={setDependencyError}
                 />
@@ -127,7 +127,7 @@ export default function UECourses() {
                 size="large"
                 color="primary"
                 onClick={() =>
-                    fetcher.submit(coursesData, {
+                    fetcher.submit(lessonsData, {
                         encType: "application/json",
                         method: "post",
                     })

@@ -18,7 +18,7 @@ import { useContext } from "react";
 import { LessonsContext } from "../../context/LessonsContext";
 
 
-export default function CourseDialog({ open, onClose, onSubmit, initialData }) {
+export default function LessonDialog({ open, onClose, onSubmit, initialData }) {
     const [title, setTitle] = useState(initialData?.title || "");
     const [description, setDescription] = useState(
         initialData?.description || ""

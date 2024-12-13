@@ -38,7 +38,7 @@ export default function UE() {
     const tabs = [
         { label: "Général", path: "" },
         { label: "Paramètres", path: "settings" },
-        { label: "Cours", path: "courses" },
+        { label: "Cours", path: "lessons" },
     ];
 
     // Identifier l'onglet actif basé sur l'URL

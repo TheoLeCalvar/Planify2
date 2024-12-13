@@ -9,7 +9,7 @@ import Chip from "@mui/material/Chip";
 import { LessonsContext } from "../../context/LessonsContext";
 import { useState } from "react";
 
-export default function Course({ course, onEdit, onDelete, onDuplicate }) {
+export default function Lesson({ lesson, onEdit, onDelete, onDuplicate }) {
     const [isHovered, setIsHovered] = useState(false);
     const { lecturersList } = useContext(LessonsContext);
 
@@ -32,7 +32,7 @@ export default function Course({ course, onEdit, onDelete, onDuplicate }) {
                     justifyContent="space-between"
                     alignItems="center"
                 >
-                    <Typography variant="subtitle1">{course.title}</Typography>
+                    <Typography variant="subtitle1">{lesson.title}</Typography>
                     <Box visibility={isHovered ? "visible" : "hidden"}>
                         <Tooltip title="Editer">
                             <IconButton onClick={onEdit} color="primary">
@@ -48,7 +48,7 @@ export default function Course({ course, onEdit, onDelete, onDuplicate }) {
                             onConfirm={onDelete}
                             dialogTitle="Supprimer le cours ?"
                             tooltip={"Supprimer"}
-                            dialogMessage={`Êtes-vous sûr de vouloir supprimer le cours '${course.title}' ?`}
+                            dialogMessage={`Êtes-vous sûr de vouloir supprimer le cours '${lesson.title}' ?`}
                         />
                         <Tooltip title="Dupliquer">
                             <IconButton onClick={onDuplicate} color="secondary">
@@ -58,13 +58,13 @@ export default function Course({ course, onEdit, onDelete, onDuplicate }) {
                     </Box>
                 </Stack>
                 <Typography variant="body2" color="textSecondary">
-                    {course.description || "Aucune description fournie"}
+                    {lesson.description || "Aucune description fournie"}
                 </Typography>
                 <Stack direction="row" mt={1} gap={1} alignItems={'center'}>
                     <Typography variant="body2" color="textSecondary">
                         Intervenants :
                     </Typography>
-                    {course.lecturers?.map((lecturer) => (
+                    {lesson.lecturers?.map((lecturer) => (
                         <Chip key={lecturer} label={lecturersList.find(value => value.id === lecturer).name} />
                     ))}
                 </Stack>
