@@ -16,6 +16,8 @@ public class Block {
 
     private String title;
 
+    private String description;
+
     @OneToOne
     @JoinColumn(name = "idFirstLesson")
     private Lesson firstLesson;
@@ -23,9 +25,10 @@ public class Block {
     public Block() {
     }
 
-    public Block(Lesson firstLesson, String title) {
+    public Block(Lesson firstLesson, String title, String description) {
         this.firstLesson = firstLesson;
         this.title = title;
+        this.description = description;
     }
 
     public String toString() {
@@ -54,5 +57,13 @@ public class Block {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getDescription(String description) {
+        return this.description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }
