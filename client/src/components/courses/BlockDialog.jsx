@@ -64,6 +64,7 @@ export default function BlockDialog({ open, onClose, onSubmit, initialData, allB
                                     .map((id) => allBlocks.find((block) => block.id === id)?.title)
                                     .join(", ")
                             }
+                            label="Dépendances"
                         >
                             {allBlocks
                                 .filter((block) => block.id !== initialData?.id)

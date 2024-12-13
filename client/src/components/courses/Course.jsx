@@ -1,14 +1,19 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Paper, Typography, Stack, Tooltip } from "@mui/material";
 import { Box, IconButton } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import FileCopyIcon from "@mui/icons-material/FileCopy";
 import ConfirmationButton from "../ConfirmationButton";
+import Chip from "@mui/material/Chip";
+import { LessonsContext } from "../../context/LessonsContext";
 import { useState } from "react";
 
 export default function Course({ course, onEdit, onDelete, onDuplicate }) {
     const [isHovered, setIsHovered] = useState(false);
+    const { lecturersList } = useContext(LessonsContext);
+
+
     return (
         <Box
             onMouseEnter={() => setIsHovered(true)}
@@ -55,6 +60,14 @@ export default function Course({ course, onEdit, onDelete, onDuplicate }) {
                 <Typography variant="body2" color="textSecondary">
                     {course.description || "Aucune description fournie"}
                 </Typography>
+                <Stack direction="row" mt={1} gap={1} alignItems={'center'}>
+                    <Typography variant="body2" color="textSecondary">
+                        Intervenants :
+                    </Typography>
+                    {course.lecturers?.map((lecturer) => (
+                        <Chip key={lecturer} label={lecturersList.find(value => value.id === lecturer).name} />
+                    ))}
+                </Stack>
             </Paper>
         </Box>
     );

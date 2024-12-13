@@ -9,6 +9,7 @@ import { useState } from "react";
 import LoadingButton from "@mui/lab/LoadingButton";
 import SaveIcon from "@mui/icons-material/Save";
 import { Fab } from "@mui/material";
+import { LessonsContext } from "../../context/LessonsContext";
 
 export async function loader({ params }) {
     const mockData = [
@@ -68,7 +69,28 @@ export async function loader({ params }) {
         },
     ];
 
-    return mockData;
+    const users = [{
+        id: 1,
+        name: "John Doe",
+        alreadySelected: false
+    },
+    {
+        id: 2,
+        name: "Jacques Noyé",
+        alreadySelected: true
+    },
+    {
+        id: 3,
+        name: "Foo Bar",
+        alreadySelected: true
+    },
+    {
+        id: 4,
+        name: "Baz Qux",
+        alreadySelected: false
+    }];
+
+    return {lessons: mockData, users};
 }
 
 export async function action({ request }) {
@@ -79,7 +101,7 @@ export async function action({ request }) {
 }
 
 export default function UECourses() {
-    const data = useLoaderData();
+    const {lessons: data, users} = useLoaderData();
     const context = useOutletContext();
     const fetcher = useFetcher();
 
@@ -87,16 +109,19 @@ export default function UECourses() {
 
     const [coursesData, setCoursesData] = useState(data ?? []);
     const [dependencyError, setDependencyError] = useState(null);
+    const [lecturersList, setLecturersList] = useState(users ?? []);
 
     return (
         <>
             <h1>Cours</h1>
-            <BlockManager
-                coursesData={coursesData}
-                setCoursesData={setCoursesData}
-                dependencyError={dependencyError}
-                setDependencyError={setDependencyError}
-            />
+            <LessonsContext.Provider value={{lecturersList, setLecturersList}}>
+                <BlockManager
+                    coursesData={coursesData}
+                    setCoursesData={setCoursesData}
+                    dependencyError={dependencyError}
+                    setDependencyError={setDependencyError}
+                />
+            </LessonsContext.Provider>
             <Fab
                 variant="extended"
                 size="large"
