@@ -5,6 +5,7 @@ import java.io.Serializable;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
@@ -15,21 +16,22 @@ public class UEManager {
     @EmbeddedId
     private UEManagerId id;
 
-    @ManyToOne
     @MapsId("idUser")
-    @JoinColumn(name = "idUser")
+    @ManyToOne
     private User user;
 
-    @ManyToOne
     @MapsId("idUE")
-    @JoinColumn(name = "idUE")
+    @ManyToOne
     private UE ue;
 
     @Embeddable
-    public class UEManagerId implements Serializable {
+    static public class UEManagerId implements Serializable {
 
         private Long idUser;
         private Long idUE;
+
+        public UEManagerId() {
+        }
 
         public UEManagerId(Long idUser, Long idUE) {
             this.idUser = idUser;
@@ -55,6 +57,12 @@ public class UEManager {
         this.id = new UEManagerId(user.getId(), ue.getId());
     }
 
+    public UEManager(UEManagerId id, User user, UE ue) {
+        this.user = user;
+        this.ue = ue;
+        this.id = id;
+    }
+
     public String toString() {
         return "UE Manager \n Manager: " + this.user.getName() + "\n UE: " + this.ue.getDescription();
     }
@@ -65,6 +73,10 @@ public class UEManager {
 
     public User getUser() {
         return user;
+    }
+
+    public String getUserName() {
+        return user.getName() + " " + user.getLastName();
     }
 
     public void setUser(User user) {

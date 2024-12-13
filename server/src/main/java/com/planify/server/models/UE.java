@@ -19,6 +19,8 @@ public class UE {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String name;
+
     private String description;
 
     @ManyToOne
@@ -34,7 +36,8 @@ public class UE {
     public UE() {
     }
 
-    public UE(String description, TAF taf) {
+    public UE(String name, String description, TAF taf) {
+        this.name = name;
         this.description = description;
         this.taf = taf;
     }
@@ -45,6 +48,14 @@ public class UE {
 
     public Long getId() {
         return this.id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getDescription() {

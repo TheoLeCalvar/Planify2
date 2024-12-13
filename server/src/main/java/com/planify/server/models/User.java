@@ -36,7 +36,7 @@ public class User {
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     private List<TAFManager> tafManagers = new ArrayList<>();
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 

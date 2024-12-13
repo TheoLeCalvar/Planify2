@@ -1,5 +1,6 @@
 package com.planify.server.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,9 +34,9 @@ public class UEService {
     private UEManagerService ueManagerService;
 
     @Transactional
-    public UE addUE(String description, TAF taf) {
+    public UE addUE(String name, String description, TAF taf) {
         // ads ue in the UE's table
-        UE ue = new UE(description, taf);
+        UE ue = new UE(name, description, taf);
 
         // add ue in the TAF's ues
         List<UE> ues = taf.getUes();
@@ -64,7 +65,7 @@ public class UEService {
             tafService.save(taf);
 
             // Delete the lesson associated with this UE
-            List<Lesson> listLessons = ue.getLessons();
+            List<Lesson> listLessons = new ArrayList<Lesson>(ue.getLessons());
             for (Lesson l : listLessons) {
                 lessonService.delete(l.getId());
             }

@@ -1,7 +1,13 @@
 package com.planify.server.models;
 
 import java.io.Serializable;
+import java.util.Objects;
 
+import com.planify.server.models.UserUnavailability.UserUnavailabilityId;
+
+import jakarta.annotation.Nullable;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
@@ -11,34 +17,42 @@ import jakarta.persistence.MapsId;
 
 @Entity
 public class UserUnavailability {
-
+    
     @EmbeddedId
-    private UserUnavailabilityId id = new UserUnavailabilityId(this.slot.getId(), this.user.getId());
+    private UserUnavailabilityId id;
 
     private boolean strict;
 
     @ManyToOne
     @MapsId("idUser")
-    @JoinColumn(name = "idUser")
     private User user;
 
     @ManyToOne
     @MapsId("idSlot")
-    @JoinColumn(name = "idSlot")
     private Slot slot;
 
     @Embeddable
-    public class UserUnavailabilityId implements Serializable {
-
+    public static class UserUnavailabilityId implements Serializable {
         private Long idSlot;
         private Long idUser;
+
+        public UserUnavailabilityId() {}
 
         public UserUnavailabilityId(Long idSlot, Long idUser) {
             this.idSlot = idSlot;
             this.idUser = idUser;
         }
 
-        public Long getIdSlot() {
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            UserUnavailabilityId that = (UserUnavailabilityId) o;
+            return idSlot.equals(that.idSlot) && idUser.equals(that.idUser);
+        }
+
+
+		public Long getIdSlot() {
             return this.idSlot;
         }
 
@@ -46,12 +60,20 @@ public class UserUnavailability {
             return this.idUser;
         }
 
+        public void setIdSlot(Long idSlot) {
+			this.idSlot = idSlot;
+		}
+
+		public void setIdUser(Long idUser) {
+			this.idUser = idUser;
+		}
     }
 
     public UserUnavailability() {
     }
 
     public UserUnavailability(Slot s, User u, boolean strict) {
+        this.id = new UserUnavailabilityId(s.getId(), u.getId()) ;
         this.slot = s;
         this.user = u;
         this.strict = strict;
@@ -66,7 +88,11 @@ public class UserUnavailability {
         return this.id;
     }
 
-    public boolean getStrict() {
+    public void setId(UserUnavailabilityId id) {
+		this.id = id;
+	}
+
+	public boolean getStrict() {
         return this.strict;
     }
 

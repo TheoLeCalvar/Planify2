@@ -108,6 +108,7 @@ public class SolverMain {
 		else solver.findSolution();
 		System.out.println(model);
 		solver.printShortStatistics();
+		System.out.println(makeSolutionString(cal));
 	}
 	
 	private void initialiseVars(Model model, Calendar cal, int nbSlots, int nbLessons) {
@@ -236,6 +237,15 @@ public class SolverMain {
 		IntVar[] arr = new IntVar[list.size()];
 		for (int i = 0; i < list.size(); i ++) arr[i] = list.get(i);
 		return arr;
+	}
+	
+	public String makeSolutionString(Calendar cal) {
+		StringBuilder res = new StringBuilder();
+		res.append("{\"slots\":[");
+		cal.getSlots().stream().forEach(s -> res.append("{\"id\":" + s.getId() + (getSlotVarLesson(s).getValue() != 0 ? ",\"lessonId\":" + this.getIdLesson(getSlotVarLesson(s).getValue()) :  "") + "},"));
+		res.deleteCharAt(res.length()-1);
+		res.append("]}");
+		return res.toString();
 	}
 	
 	public static void main(String[] args) {

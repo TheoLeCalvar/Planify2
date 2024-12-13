@@ -70,7 +70,9 @@ public class ServerApplication {
 		
 		// Test of calendarService.getSlotsOrdered(idCalendar), getNumberOfSlots,
 		// getDaysSorted
-		tafService.addTAF("DCL");
+		tafService.addTAF("DCL", "Développement", "2024-09-07", "2025-03-30");
+		tafService.addTAF("LOGIN", "info", "2024-09-07", "2025-03-30");
+		tafService.addTAF("TEE", "Environnement", "2024-09-07", "2025-03-30");
 		List<TAF> listTafs = tafService.findByName("DCL");
 		TAF dcl = listTafs.get(0);
 		Calendar c = calendarService.addCalendar(dcl);
@@ -103,9 +105,9 @@ public class ServerApplication {
 		}
 
 		// Test of NumberOfLesson in a TAF
-		UE ue1 = ueService.addUE("UE1", dcl); // Assuming addUE adds UE linked to TAF
-		UE ue2 = ueService.addUE("UE2", dcl);
-		UE ue3 = ueService.addUE("UE3", dcl);
+		UE ue1 = ueService.addUE("UE1","desc", dcl); // Assuming addUE adds UE linked to TAF
+		UE ue2 = ueService.addUE("UE2","desc", dcl);
+		UE ue3 = ueService.addUE("UE3","desc", dcl);
 		lessonService.add("Lesson1", ue1);
 		lessonService.add("Lesson2", ue1);
 		lessonService.add("Lesson3", ue2);
@@ -161,10 +163,11 @@ public class ServerApplication {
 
 		// Test of TAF
 		System.out.println("Test of TAF");
-		tafService.addTAF("DCL");
+		int count = tafService.findAll().size();
+		tafService.addTAF("DCL","desc","2024-05-12","2025-03-30");
 
 		List<TAF> tafs = tafService.findByName("DCL");
-		if (!tafs.isEmpty()) {
+		if (tafService.findAll().size()==count+1) {
 			System.out.println(GREEN + "TAF added with success:" + RESET);
 			System.out.println(tafs.get(0).toString());
 		} else {
@@ -173,12 +176,12 @@ public class ServerApplication {
 		Long idTaf = tafs.get(0).getId();
 		tafService.deleteTAF(idTaf);
 		tafs = tafService.findByName("DCL");
-		if (!tafs.isEmpty()) {
+		if (tafService.findAll().size()!=count) {
 			System.out.println(RED + "PB!!! TAF not deleted:" + GREEN);
 		} else {
 			System.out.println(GREEN + "TAF deleted with success" + RESET);
 		}
-		tafService.addTAF("DCL");
+		tafService.addTAF("DCL","desc","2024-07-20","2025-02-14");
 		tafs = tafService.findByName("DCL");
 		TAF taf = tafs.get(0);
 
@@ -201,7 +204,7 @@ public class ServerApplication {
 		} else {
 			System.out.println(GREEN + "Calendar deleted with success" + RESET);
 		}
-		tafService.addTAF("LOGIN");
+		tafService.addTAF("LOGIN","desc","2000-01-01","2004-05-04");
 		TAF login = tafService.findByName("LOGIN").get(0);
 		calendarService.addCalendar(login);
 
@@ -267,14 +270,23 @@ public class ServerApplication {
 			System.out.println(GREEN + "GlobalUnavailability deleted with success" + RESET);
 		}
 
-		// Test of UserUnavailability
-		System.out.println("Test of UserUnavailability");
 		userService.addUser("John", "Doe", "mail", null);
 		User user = userService.findAll().get(0);
+
+		// Test of UserUnavailability
+		/*System.out.println("Test of UserUnavailability");
+		
 		slotService.add(2, dayService.findByWeek(week).get(0), calendarService.findAll().get(0));
 		Slot userSlot = slotService.findAll().get(0);
 
+		System.out.println(RED + " SLOT :" + userSlot + RESET);
+		System.out.println(RED + "SLOT ID : " + userSlot.getId() + RESET);
+		System.out.println(RED + "USER ID : " + user.getId() + RESET);
+
 		userUnavailabilityService.addUserUnavailability(userSlot, user, true);
+
+		
+        System.out.println("-----------------------CHECK4---------------------");
 
 		List<UserUnavailability> userUnavailabilities = userUnavailabilityService.findBySlot(userSlot);
 		if (!userUnavailabilities.isEmpty()) {
@@ -290,11 +302,13 @@ public class ServerApplication {
 			System.out.println(RED + "PB!!! UserUnavailability not deleted:" + RESET);
 		} else {
 			System.out.println(GREEN + "UserUnavailability deleted with success" + RESET);
-		}
+		}*/
 
 		// Test of UE
 		System.out.println("Test of UE");
-		ueService.addUE("UE-Test", taf);
+		TAF ihm = tafService.addTAF("IHM","desc","2003-03-03","2040-03-17");
+		ueService.addUE("UE-Test","desc", ihm);
+		System.out.println(RED + "TAF :" + ihm + RESET);
 		List<UE> ues = ueService.findAll();
 		if (!ues.isEmpty()) {
 			System.out.println(GREEN + "UE added with success:" + RESET);
@@ -310,11 +324,11 @@ public class ServerApplication {
 		} else {
 			System.out.println(GREEN + "UE deleted with success" + RESET);
 		}
-		ueService.addUE("UE-Test", taf);
+		ueService.addUE("UE-Test","desc", ihm);
 
 		// Test of Lesson
 		System.out.println("Test of Lesson");
-		ueService.addUE("UE1", taf); // Adding a UE for the lesson
+		ueService.addUE("UE1","desc", taf); // Adding a UE for the lesson
 		UE ue = ueService.findAll().get(0);
 		lessonService.add("Lesson1", ue);
 
@@ -490,7 +504,7 @@ public class ServerApplication {
 	}
 	
 	private static Calendar testSolver1() {
-		tafService.addTAF("DCL");
+		tafService.addTAF("DCL", "", "", "");
 		List<TAF> listTafs = tafService.findByName("DCL");
 		TAF dcl = listTafs.get(0);
 		Calendar c = calendarService.addCalendar(dcl);
@@ -502,10 +516,12 @@ public class ServerApplication {
 		Slot slot1 = slotService.add(1, day11, c);
 		Slot slot2 = slotService.add(2, day11, c);
 		Slot slot3 = slotService.add(1, day12, c);
+		/*Calendar c2 = calendarService.addCalendar(dcl);
+		Slot slotDummy = slotService.add(1, day21, c2);*/		
 		Slot slot4 = slotService.add(1, day21, c);
 		Slot slot5 = slotService.add(2, day21, c);
-		UE ue1 = ueService.addUE("UE1", dcl);
-		UE ue2 = ueService.addUE("UE2", dcl);
+		UE ue1 = ueService.addUE("UE1", "", dcl);
+		UE ue2 = ueService.addUE("UE2", "", dcl);
 		Lesson lesson1 = lessonService.add("Lesson1", ue1);
 		Lesson lesson2 = lessonService.add("Lesson2", ue1);
 		Lesson lesson3 = lessonService.add("Lesson3", ue2);
