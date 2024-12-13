@@ -100,6 +100,35 @@ public class LessonController {
                 blockService.addBlock(null, null)
             }
         }
+
+    // Data on a given UE (id)
+    @GetMapping(value = "/ue/{ueId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getUEById(@PathVariable Long ueId) {
+        Optional<UE> ue = ueService.findById(ueId);
+        if (ue.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorResponse("No UE with this id was found", 404));
+        }
+        UE realUe = ue.get();
+        UEShort ueReturn = new UEShort(realUe);
+        System.out.println(realUe.toString());
+        return ResponseEntity.ok(ueReturn);
+    }
+
+    // Lessons for a given UE (ID)
+    @GetMapping(value = "/ue/{ueId}/lesson", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getUELessonsById(@PathVariable Long ueId) {
+        Optional<UE> ue = ueService.findById(ueId);
+        if (ue.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorResponse("No UE with this id was found", 404));
+        }
+        UE realUe = ue.get();
+
+        UEShort ueReturn = new UEShort(realUe);
+        System.out.println(realUe.toString());
+        return ResponseEntity.ok(ueReturn);
+
     }
 
 }

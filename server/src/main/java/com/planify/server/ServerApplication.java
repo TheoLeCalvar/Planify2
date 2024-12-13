@@ -392,7 +392,7 @@ public class ServerApplication {
 		System.out.println("Test of Block");
 		UE ueBlock = ueService.addUE("ue block", "description", ihm);
 		Lesson lessonBlock = lessonService.add("lesson block", ueBlock);
-		Block block = blockService.addBlock("Block1", lessonBlock);
+		Block block = blockService.addBlock("Block1", lessonBlock, "description block");
 		List<Block> blocks = blockService.findAll();
 		if (!blocks.isEmpty()) {
 			System.out.println(GREEN + "Block added with success:" + RESET);
