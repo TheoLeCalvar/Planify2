@@ -9,6 +9,7 @@ import java.util.stream.IntStream;
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.search.strategy.Search;
+import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -162,7 +163,8 @@ public class SolverMain {
 
 	public void setConstraints(Model model, Calendar cal) {
 		setConstraintLinkLessonsSlots(model, cal);
-		/*if (cal.hasConstraint1())*/ setConstraintLecturerUnavailability(model, cal);
+		/*if (cal.hasConstraint1())*/ //setConstraintLecturerUnavailability(model, cal);
+		 setConstraintLecturerPreferences(model, cal);
 	}
 	
 	private void setConstraintLinkLessonsSlots(Model model, Calendar cal) {
@@ -192,15 +194,35 @@ public class SolverMain {
 					model.arithm(getLessonVarSlot(lesson), "!=", getIdMSlot(slot)).post();					
 	}
 	
+	public IntVar setConstraintLecturerPreferences(Model model, Calendar cal) {
+		
+		IntVar notPreferredAllocations = model.intVar("NotPreferredAllocations", 0, Integer.MAX_VALUE);
+		ArrayList<IntVar> isNotPreferredVars = new ArrayList<IntVar>();
+
+		for (UE ue : cal.getTaf().getUes()) {
+		    for (Lesson lesson : ue.getLessons()) {
+		    	
+		    	for (Slot slot : lessonService.findNotPreferedSlotsByLessonAndCalendar(lesson, cal)) {
+		    		BoolVar isNotPreferredVar = model.boolVar("NotPreferred_" + lesson.getId() + "_" + slot.getId());
+		    		model.reification(isNotPreferredVar, model.arithm(getLessonVarSlot(lesson), "=", getIdMSlot(slot)));
+		    		isNotPreferredVars.add(isNotPreferredVar);
+		    	}		    	
+		    }		    
+		}   
+		model.sum(isNotPreferredVars.stream().toArray(IntVar[]::new), "=", notPreferredAllocations).post();
+		return notPreferredAllocations;
+	}
+	
 	
 	public IntVar setPreferences(Model model, Calendar cal) {
-		
-		return null;
+		return setConstraintLecturerPreferences( model, cal);
+		//return null;
 	}
 	
 	public void setStrategy(Solver solver, Calendar cal) {
 		solver.setSearch(Search.minDomLBSearch(getVarDecisionSlots(cal)));
 		//solver.setSearch(Search.minDomUBSearch(getVarDecisionSlots(cal)));
+		
 	}
 	
 	public IntVar[] getVarDecisionSlots(Calendar cal) {

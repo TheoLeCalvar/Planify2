@@ -65,8 +65,8 @@ public class ServerApplication {
 		weekService = context.getBean(WeekService.class);
 		
 		
-		//testSolver(context);
-		//if (weekService != null) return; //Just to not have warnings when we want to stops tests here.
+		testSolver(context);
+		if (weekService != null) return; //Just to not have warnings when we want to stops tests here.
 		
 		// Test of calendarService.getSlotsOrdered(idCalendar), getNumberOfSlots,
 		// getDaysSorted
@@ -510,6 +510,7 @@ public class ServerApplication {
 		Lesson lesson2 = lessonService.add("Lesson2", ue1);
 		Lesson lesson3 = lessonService.add("Lesson3", ue2);
 		
+		/*//indisponibilidade dos prfs test
 		User jacques = userService.addUser("Jacques", "Noyé", "jacques.noye@imt-atlantique.fr", new char[]{'s', 'o', 'u', 's', ' ', 'l', '\'', 'e', 'a', 'u'});
 		User bertrand = userService.addUser("Bertrand", "Lentsch", "bertrand.lentsch@nantes.univ.fr", new char[] {'D', 'e', 'e', 'p', 'e', 'r', ' ', 'm', 'e', 'a', 'n', 'i', 'n', 'g', '!'});
 
@@ -529,8 +530,9 @@ public class ServerApplication {
 		userUnavailabilityService.addUserUnavailability(slot1, jacques, false);
 		userUnavailabilityService.addUserUnavailability(slot2, jacques, true);
 		userUnavailabilityService.addUserUnavailability(slot4, jacques, true);
-		
+		*/
 		return c;
+		
 	}
 
 }
