@@ -82,9 +82,9 @@ public class ServerApplication {
 		}
 
 		// Test of NumberOfLesson in a TAF
-		UE ue1 = ueService.addUE("UE1","desc", dcl); // Assuming addUE adds UE linked to TAF
-		UE ue2 = ueService.addUE("UE2","desc", dcl);
-		UE ue3 = ueService.addUE("UE3","desc", dcl);
+		UE ue1 = ueService.addUE("UE1", "desc", dcl); // Assuming addUE adds UE linked to TAF
+		UE ue2 = ueService.addUE("UE2", "desc", dcl);
+		UE ue3 = ueService.addUE("UE3", "desc", dcl);
 		lessonService.add("Lesson1", ue1);
 		lessonService.add("Lesson2", ue1);
 		lessonService.add("Lesson3", ue2);
@@ -141,10 +141,10 @@ public class ServerApplication {
 		// Test of TAF
 		System.out.println("Test of TAF");
 		int count = tafService.findAll().size();
-		tafService.addTAF("DCL","desc","2024-05-12","2025-03-30");
+		tafService.addTAF("DCL", "desc", "2024-05-12", "2025-03-30");
 
 		List<TAF> tafs = tafService.findByName("DCL");
-		if (tafService.findAll().size()==count+1) {
+		if (tafService.findAll().size() == count + 1) {
 			System.out.println(GREEN + "TAF added with success:" + RESET);
 			System.out.println(tafs.get(0).toString());
 		} else {
@@ -153,12 +153,12 @@ public class ServerApplication {
 		Long idTaf = tafs.get(0).getId();
 		tafService.deleteTAF(idTaf);
 		tafs = tafService.findByName("DCL");
-		if (tafService.findAll().size()!=count) {
+		if (tafService.findAll().size() != count) {
 			System.out.println(RED + "PB!!! TAF not deleted:" + GREEN);
 		} else {
 			System.out.println(GREEN + "TAF deleted with success" + RESET);
 		}
-		tafService.addTAF("DCL","desc","2024-07-20","2025-02-14");
+		tafService.addTAF("DCL", "desc", "2024-07-20", "2025-02-14");
 		tafs = tafService.findByName("DCL");
 		TAF taf = tafs.get(0);
 
@@ -181,7 +181,7 @@ public class ServerApplication {
 		} else {
 			System.out.println(GREEN + "Calendar deleted with success" + RESET);
 		}
-		tafService.addTAF("LOGIN","desc","2000-01-01","2004-05-04");
+		tafService.addTAF("LOGIN", "desc", "2000-01-01", "2004-05-04");
 		TAF login = tafService.findByName("LOGIN").get(0);
 		calendarService.addCalendar(login);
 
@@ -252,7 +252,7 @@ public class ServerApplication {
 
 		// Test of UserUnavailability
 		System.out.println("Test of UserUnavailability");
-		
+
 		slotService.add(2, dayService.findByWeek(week).get(0), calendarService.findAll().get(0));
 		Slot userSlot = slotService.findAll().get(0);
 
@@ -262,8 +262,7 @@ public class ServerApplication {
 
 		userUnavailabilityService.addUserUnavailability(userSlot, user, true);
 
-		
-        System.out.println("-----------------------CHECK4---------------------");
+		System.out.println("-----------------------CHECK4---------------------");
 
 		List<UserUnavailability> userUnavailabilities = userUnavailabilityService.findBySlot(userSlot);
 		if (!userUnavailabilities.isEmpty()) {
@@ -286,11 +285,11 @@ public class ServerApplication {
 		List<UE> ues = ueService.findAll();
 		int countUes = ues.size();
 		System.out.println(RED + "LIST UES :" + ues + countUes + RESET);
-		TAF ihm = tafService.addTAF("IHM","desc","2003-03-03","2040-03-17");
-		UE ue = ueService.addUE("UE-Test-uetest","desc", ihm);
+		TAF ihm = tafService.addTAF("IHM", "desc", "2003-03-03", "2040-03-17");
+		UE ue = ueService.addUE("UE-Test-uetest", "desc", ihm);
 		System.out.println(RED + "TAF :" + ihm + RESET);
-		
-		if (countUes+1==ueService.findAll().size()) {
+
+		if (countUes + 1 == ueService.findAll().size()) {
 			System.out.println(GREEN + "UE added with success:" + RESET);
 			System.out.println(ueService.findAll());
 		} else {
@@ -298,17 +297,17 @@ public class ServerApplication {
 		}
 		ueService.deleteUE(ue.getId());
 		ues = ueService.findAll();
-		
+
 		if (countUes != ueService.findAll().size()) {
 			System.out.println(RED + "PB!!! UE not deleted:" + RESET);
 		} else {
 			System.out.println(GREEN + "UE deleted with success" + RESET);
 		}
-		ueService.addUE("UE-abc","description", ihm);
+		ue = ueService.addUE("UE-abc", "description", ihm);
 
 		// Test of Lesson
 		System.out.println("Test of Lesson");
-		UE ue_2 = ueService.addUE("UE1","desc", ihm); // Adding a UE for the lesson
+		UE ue_2 = ueService.addUE("UE1", "desc", ihm); // Adding a UE for the lesson
 		System.out.println(RED + "UE :" + ue_2 + RESET);
 		Lesson lesson = lessonService.add("Lesson1", ue_2);
 
@@ -350,7 +349,7 @@ public class ServerApplication {
 		}
 
 		// Test of UEManager
-		/*System.out.println("Test of UEManager");
+		System.out.println("Test of UEManager");
 		ueManagerService.addUEManager(user, ue);
 
 		List<UEManager> ueManagers = ueManagerService.findAll();
@@ -387,10 +386,10 @@ public class ServerApplication {
 			System.out.println(RED + "PB!!! TAFManager not deleted:" + RESET);
 		} else {
 			System.out.println(GREEN + "TAFManager deleted with success" + RESET);
-		}*/
+		}
 
 		// Test of Block
-		System.out.println("Test of Block"); 
+		System.out.println("Test of Block");
 		UE ueBlock = ueService.addUE("ue block", "description", ihm);
 		Lesson lessonBlock = lessonService.add("lesson block", ueBlock);
 		Block block = blockService.addBlock("Block1", lessonBlock);
@@ -409,16 +408,15 @@ public class ServerApplication {
 			System.out.println(GREEN + "Block deleted with success" + RESET);
 		}
 
-
 		System.out.println(RED + " UE 2 : " + ue_2 + RESET);
-		
+
 		Lesson lessonSequencing1 = lessonService.add("name1", ue_2);
 		Lesson lessonSequencing2 = lessonService.add("name2", ue_2);
 
 		// Test of Antecedence
 		System.out.println("Test of Antecedence");
-		//lessonService.add("Lesson3", ue);
-		//Lesson lesson2 = lessonService.findAll().get(1);
+		// lessonService.add("Lesson3", ue);
+		// Lesson lesson2 = lessonService.findAll().get(1);
 
 		antecedenceService.addAntecedence(lessonSequencing1, lessonSequencing2);
 
