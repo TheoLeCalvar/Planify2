@@ -31,8 +31,44 @@ export default function Lesson({ lesson, onEdit, onDelete, onDuplicate }) {
                     justifyContent="space-between"
                     alignItems="center"
                 >
-                    <Typography variant="subtitle1">{lesson.title}</Typography>
-                    <Box visibility={isHovered ? "visible" : "hidden"}>
+                    {/* Titre du cours */}
+                    <Typography variant="subtitle1" sx={{ flexGrow: 1 }}>
+                        {lesson.title}
+                    </Typography>
+
+                    {/* Liste des intervenants */}
+                    {lesson.lecturers?.length > 0 && (
+                        <Stack
+                            direction="row"
+                            gap={1}
+                            alignItems="center"
+                            sx={{ flexGrow: 0, marginLeft: "auto" }} // Pousse la liste des intervenants le plus à droite
+                        >
+                            <Typography variant="body2" color="textSecondary">
+                                Intervenants :
+                            </Typography>
+                            {lesson.lecturers?.map((lecturer) => (
+                                <Chip
+                                    key={lecturer}
+                                    label={
+                                        lecturersList.find(
+                                            (value) => value.id === lecturer
+                                        )?.name
+                                    }
+                                />
+                            ))}
+                        </Stack>
+                    )}
+
+                    {/* Boutons d'action (éditer, supprimer, dupliquer) */}
+                    <Box
+                        visibility={isHovered ? "visible" : "hidden"}
+                        sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            marginLeft: "16px",
+                        }}
+                    >
                         <Tooltip title="Editer">
                             <IconButton onClick={onEdit} color="primary">
                                 <EditIcon />
@@ -56,26 +92,10 @@ export default function Lesson({ lesson, onEdit, onDelete, onDuplicate }) {
                         </Tooltip>
                     </Box>
                 </Stack>
+
                 <Typography variant="body2" color="textSecondary">
                     {lesson.description || "Aucune description fournie"}
                 </Typography>
-                {lesson.lecturers?.length > 0 && (
-                    <Stack direction="row" mt={1} gap={1} alignItems={"center"}>
-                        <Typography variant="body2" color="textSecondary">
-                            Intervenants :
-                        </Typography>
-                        {lesson.lecturers?.map((lecturer) => (
-                            <Chip
-                                key={lecturer}
-                                label={
-                                    lecturersList.find(
-                                        (value) => value.id === lecturer
-                                    ).name
-                                }
-                            />
-                        ))}
-                    </Stack>
-                )}
             </Paper>
         </Box>
     );
