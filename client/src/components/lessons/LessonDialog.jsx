@@ -32,10 +32,6 @@ export default function LessonDialog({ open, onClose, onSubmit, initialData }) {
             alert("Le titre est obligatoire.");
             return;
         }
-        if (lecturers.length === 0) {
-            alert("Veuillez sélectionner au moins un intervenant.");
-            return;
-        }
         setLecturersList((prev) => {
             return prev.map(lecturer => {
                 if (lecturers.includes(lecturer.id)) {

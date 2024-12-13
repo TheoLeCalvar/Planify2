@@ -13,7 +13,6 @@ export default function Lesson({ lesson, onEdit, onDelete, onDuplicate }) {
     const [isHovered, setIsHovered] = useState(false);
     const { lecturersList } = useContext(LessonsContext);
 
-
     return (
         <Box
             onMouseEnter={() => setIsHovered(true)}
@@ -60,14 +59,23 @@ export default function Lesson({ lesson, onEdit, onDelete, onDuplicate }) {
                 <Typography variant="body2" color="textSecondary">
                     {lesson.description || "Aucune description fournie"}
                 </Typography>
-                <Stack direction="row" mt={1} gap={1} alignItems={'center'}>
-                    <Typography variant="body2" color="textSecondary">
-                        Intervenants :
-                    </Typography>
-                    {lesson.lecturers?.map((lecturer) => (
-                        <Chip key={lecturer} label={lecturersList.find(value => value.id === lecturer).name} />
-                    ))}
-                </Stack>
+                {lesson.lecturers?.length > 0 && (
+                    <Stack direction="row" mt={1} gap={1} alignItems={"center"}>
+                        <Typography variant="body2" color="textSecondary">
+                            Intervenants :
+                        </Typography>
+                        {lesson.lecturers?.map((lecturer) => (
+                            <Chip
+                                key={lecturer}
+                                label={
+                                    lecturersList.find(
+                                        (value) => value.id === lecturer
+                                    ).name
+                                }
+                            />
+                        ))}
+                    </Stack>
+                )}
             </Paper>
         </Box>
     );
