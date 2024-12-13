@@ -22,11 +22,13 @@ export async function loader({ params }) {
                     id: 1,
                     title: "Cours 1",
                     description: "Description du cours 1",
+                    lecturers: [1, 2]
                 },
                 {
                     id: 2,
                     title: "Cours 2",
                     description: "Description du cours 2",
+                    lecturers: [1]
                 },
             ],
             dependencies: [],
@@ -40,11 +42,13 @@ export async function loader({ params }) {
                     id: 3,
                     title: "Cours 3",
                     description: "Description du cours 3",
+                    lecturers: [3]
                 },
                 {
                     id: 4,
                     title: "Cours 4",
                     description: "Description du cours 4",
+                    lecturers: [3, 4]
                 },
             ],
             dependencies: [1],
