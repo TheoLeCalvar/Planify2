@@ -36,13 +36,13 @@ public class LessonLecturerService {
         List<LessonLecturer> lessonLecturers = user.getLessonLecturers();
         lessonLecturers.addLast(lessonLecturer);
         user.setLessonLecturers(lessonLecturers);
-        userService.save(user);
+        //userService.save(user);
 
         // Update lesson lecturers for lesson
         List<LessonLecturer> lessonLecturers2 = lesson.getLessonLecturers();
         lessonLecturers2.addLast(lessonLecturer);
         lesson.setLessonLecturers(lessonLecturers2);
-        lessonService.save(lesson);
+        //lessonService.save(lesson);
         
         return lessonLecturer;
     }

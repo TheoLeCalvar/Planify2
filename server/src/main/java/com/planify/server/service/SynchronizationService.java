@@ -30,13 +30,13 @@ public class SynchronizationService {
         List<Synchronization> list1 = lesson1.getSynchronizations1();
         list1.add(synchronization);
         lesson1.setSynchronizations1(list1);
-        lessonService.save(lesson1);
+        //lessonService.save(lesson1);
 
         // Add synchronization in the synchronization of the lesson 2
         List<Synchronization> list2 = lesson2.getSynchronizations2();
         list2.add(synchronization);
         lesson2.setSynchronizations2(list2);
-        lessonService.save(lesson2);
+        //lessonService.save(lesson2);
 
         return synchronization;
     }
@@ -54,14 +54,14 @@ public class SynchronizationService {
             List<Synchronization> list1 = lesson1.getSynchronizations1();
             list1.remove(sync);
             lesson1.setSynchronizations1(list1);
-            lessonService.save(lesson1);
+            //lessonService.save(lesson1);
 
             // Delete sync in the lesson2 list
             Lesson lesson2 = sync.getLesson2();
             List<Synchronization> list2 = lesson2.getSynchronizations2();
             list2.remove(sync);
             lesson2.setSynchronizations1(list2);
-            lessonService.save(lesson2);
+            //lessonService.save(lesson2);
 
             // Delete sync in the Synchronization's table
             synchronizationRepository.deleteById(id);

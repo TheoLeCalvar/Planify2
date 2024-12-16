@@ -3,6 +3,7 @@ package com.planify.server.models;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -25,7 +26,7 @@ public class TAF {
 
     private String endDate;
 
-    @OneToMany(mappedBy = "taf", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "taf", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<UE> UEs = new ArrayList<>();
 
     @OneToMany(mappedBy = "taf", fetch = FetchType.EAGER)

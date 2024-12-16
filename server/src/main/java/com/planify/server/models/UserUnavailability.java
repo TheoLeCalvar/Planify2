@@ -3,15 +3,9 @@ package com.planify.server.models;
 import java.io.Serializable;
 import java.util.Objects;
 
-import com.planify.server.models.UserUnavailability.UserUnavailabilityId;
-
-import jakarta.annotation.Nullable;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
 
@@ -23,16 +17,17 @@ public class UserUnavailability {
 
     private boolean strict;
 
-    @ManyToOne
+    
     @MapsId("idUser")
+    @ManyToOne
     private User user;
 
-    @ManyToOne
     @MapsId("idSlot")
+    @ManyToOne
     private Slot slot;
 
     @Embeddable
-    public static class UserUnavailabilityId implements Serializable {
+    static public class UserUnavailabilityId implements Serializable {
         private Long idSlot;
         private Long idUser;
 
@@ -51,8 +46,13 @@ public class UserUnavailability {
             return idSlot.equals(that.idSlot) && idUser.equals(that.idUser);
         }
 
+        @Override
+        public int hashCode() {
+            return Objects.hash(idSlot, idUser);
+        }
 
-		public Long getIdSlot() {
+
+        public Long getIdSlot() {
             return this.idSlot;
         }
 

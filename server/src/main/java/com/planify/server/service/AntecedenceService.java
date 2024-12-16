@@ -24,6 +24,7 @@ public class AntecedenceService {
 
     public Antecedence addAntecedence(Lesson previousLesson, Lesson nextLesson) {
         Antecedence antecedence = new Antecedence(previousLesson, nextLesson);
+        antecedenceRepository.save(antecedence);
 
         // Update previous antecedences for lesson
         List<Antecedence> antecedencesAsPrevious = previousLesson.getAntecedencesAsPrevious();

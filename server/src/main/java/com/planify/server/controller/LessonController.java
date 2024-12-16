@@ -80,11 +80,42 @@ public class LessonController {
                 realTaf.getDescription(),
                 realTaf.getUes().stream().map(ue -> new UEShort(ue)).collect(Collectors.toList()),
                 realTaf.getCalendars().stream().map(Calendar::getId).collect(Collectors.toList()),
-                realTaf.getTafManagers().stream().map(TAFManager::getId).collect(Collectors.toList()),
+                realTaf.getTafManagers().stream().map(manager -> manager.getUser().getFullName())
+                        .collect(Collectors.toList()),
                 realTaf.getBeginDate(),
                 realTaf.getEndDate());
         System.out.println(tafReturn.toString());
         return ResponseEntity.ok(tafReturn);
+    }
+
+    // Data on a given UE (id)
+    @GetMapping(value = "/ue/{ueId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getUEById(@PathVariable Long ueId) {
+        Optional<UE> ue = ueService.findById(ueId);
+        if (ue.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorResponse("No UE with this id was found", 404));
+        }
+        UE realUe = ue.get();
+        UEShort ueReturn = new UEShort(realUe);
+        System.out.println(realUe.toString());
+        return ResponseEntity.ok(ueReturn);
+    }
+
+    // Lessons for a given UE (ID)
+    @GetMapping(value = "/ue/{ueId}/lesson", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getUELessonsById(@PathVariable Long ueId) {
+        Optional<UE> ue = ueService.findById(ueId);
+        if (ue.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorResponse("No UE with this id was found", 404));
+        }
+        UE realUe = ue.get();
+
+        
+        UEShort ueReturn = new UEShort(realUe);
+        System.out.println(realUe.toString());
+        return ResponseEntity.ok(ueReturn);
     }
 
 }

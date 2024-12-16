@@ -3,6 +3,7 @@ package com.planify.server.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.hibernate.proxy.HibernateProxy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,19 +30,19 @@ public class TAFManagerService {
     @Transactional
     public TAFManager addTAFManager(User user, TAF taf) {
         // Add TAFManager to the table
-        TAFManager tafManager = tafManagerRepository.save(new TAFManager(user, taf));
+        TAFManager tafManager = new TAFManager(user, taf);
+        tafManagerRepository.save(tafManager);
 
         // Add the TAFManager to the user's list of TAFManager
         List<TAFManager> tafManagers = user.getTafManagers();
         tafManagers.addLast(tafManager);
         user.setTafManagers(tafManagers);
-        userService.save(user);
+        System.out.println(tafManager.getId());
 
         // Add the TAFManager to the TAF's list of TafManager
         List<TAFManager> tafManagers2 = taf.getTafManagers();
         tafManagers2.addLast(tafManager);
         taf.setTafManagers(tafManagers2);
-        tafService.save(taf);
 
         return tafManager;
     }

@@ -39,14 +39,14 @@ public class UEManagerService {
         List<UEManager> ueManagers = user.getUeManagers();
         ueManagers.addLast(ueManager);
         user.setUeManagers(ueManagers);
-        userService.save(user);
+        // userService.save(user);
 
         System.out.println("CHECK13");
         // Add the UEmanager to the ue's list of UEManager
         List<UEManager> listUE = ue.getUeManagers();
         listUE.addLast(ueManager);
         ue.setUeManagers(listUE);
-        ueService.save(ue);
+        // ueService.save(ue);
 
         System.out.println("CHECK14");
         return ueManager;

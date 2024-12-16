@@ -1,9 +1,12 @@
 package com.planify.server.models;
 
 import java.io.Serializable;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
@@ -12,23 +15,24 @@ import jakarta.persistence.MapsId;
 public class TAFManager {
 
     @EmbeddedId
-    private TAFManagerId id = new TAFManagerId(this.user.getId(), this.taf.getId());
+    private TAFManagerId id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @MapsId("idUser")
-    @JoinColumn(name = "idUser")
     private User user;
 
     @ManyToOne
     @MapsId("idTAF")
-    @JoinColumn(name = "idTAF")
     private TAF taf;
 
     @Embeddable
-    public class TAFManagerId implements Serializable {
+    static public class TAFManagerId implements Serializable {
 
         private Long idUser;
         private Long idTAF;
+
+        public TAFManagerId() {
+        }
 
         public TAFManagerId(Long idUser, Long idTAF) {
             this.idUser = idUser;
@@ -49,9 +53,11 @@ public class TAFManager {
     }
 
     public TAFManager(User user, TAF taf) {
+        this.id = new TAFManagerId(user.getId(), taf.getId());
         this.user = user;
         this.taf = taf;
-        this.id = new TAFManagerId(user.getId(), taf.getId());
+
+        System.out.println("Fin Constructeur");
     }
 
     public String toString() {
@@ -60,6 +66,10 @@ public class TAFManager {
 
     public TAFManagerId getId() {
         return id;
+    }
+
+    public void setId(TAFManagerId id) {
+        this.id = id;
     }
 
     public User getUser() {

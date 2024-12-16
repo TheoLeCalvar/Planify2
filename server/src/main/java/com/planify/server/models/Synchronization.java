@@ -12,23 +12,23 @@ import jakarta.persistence.MapsId;
 public class Synchronization {
 
     @EmbeddedId
-    private SynchronizationId id = new SynchronizationId(this.lesson1.getId(), this.lesson2.getId());
+    private SynchronizationId id;
 
     @ManyToOne
     @MapsId("idLessonTAF1")
-    @JoinColumn(name = "idLessonTAF1")
     private Lesson lesson1;
 
     @ManyToOne
     @MapsId("idLessonTAF2")
-    @JoinColumn(name = "idLessonTAF2")
     private Lesson lesson2;
 
     @Embeddable
-    public class SynchronizationId implements Serializable {
+    public static class SynchronizationId implements Serializable {
 
         private Long idLessonTAF1;
         private Long idLessonTAF2;
+
+        public SynchronizationId() {}
 
         public SynchronizationId(Long idLessonTAF1, Long idLessonTAF2) {
             this.idLessonTAF1 = idLessonTAF1;
@@ -49,12 +49,13 @@ public class Synchronization {
     }
 
     public Synchronization(Lesson lesson1, Lesson lesson2) {
+        this.id = new SynchronizationId(lesson1.getId(),lesson2.getId());
         this.lesson1 = lesson1;
         this.lesson2 = lesson2;
     }
 
     public String toString() {
-        return "Synchronozation \n Lesson: " + this.lesson1.getId() + "\n And Lesson: " + "" + this.lesson2.getId();
+        return "Synchronization \n Lesson: " + this.lesson1.getId() + "\n And Lesson: " + "" + this.lesson2.getId();
     }
 
     public SynchronizationId getId() {

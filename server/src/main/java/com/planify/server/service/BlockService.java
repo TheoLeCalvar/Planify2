@@ -17,8 +17,8 @@ public class BlockService {
     @Autowired
     private BlockRepository blockRepository;
 
-    public Block addBlock(String title, Lesson lesson) {
-        Block block = new Block(lesson, title);
+    public Block addBlock(String title, Lesson lesson, String description) {
+        Block block = new Block(lesson, title, description);
         blockRepository.save(block);
         return block;
     }
