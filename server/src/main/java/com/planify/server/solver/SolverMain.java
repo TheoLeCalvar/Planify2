@@ -13,29 +13,22 @@ import org.chocosolver.solver.search.strategy.Search;
 import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.util.tools.ArrayUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Component;
 
 import com.planify.server.models.Calendar;
 import com.planify.server.models.Day;
 import com.planify.server.models.Lesson;
-import com.planify.server.models.LessonLecturer;
 import com.planify.server.models.Slot;
+import com.planify.server.models.Synchronization;
 import com.planify.server.models.TAF;
 import com.planify.server.models.UE;
-import com.planify.server.models.User;
-import com.planify.server.models.UserUnavailability;
 import com.planify.server.models.Week;
-import com.planify.server.service.CalendarService;
-import com.planify.server.service.LessonService;
-import com.planify.server.service.TAFService;
 
 
 public class SolverMain {
 	//Services
 	static SolverServices services;
 	
+	private Calendar cal;
 	private BijectiveHashMap<Long, Integer> idMSlot;
 	private HashMap<Long, IntVar> slotVarLesson;
 	private HashMap<Long, IntVar> slotVarUe;
@@ -50,7 +43,8 @@ public class SolverMain {
 	
 	private HashMap<Long, Integer> IdMSlotGlobal;
 
-	public SolverMain() {
+	public SolverMain(Calendar cal) {
+		this.cal = cal;
 		idMSlot = new BijectiveHashMap<Long, Integer>();
 		slotVarLesson = new HashMap<Long, IntVar>();
 		slotVarUe = new HashMap<Long, IntVar>();
@@ -63,6 +57,8 @@ public class SolverMain {
 		idMDay = new BijectiveHashMap<Long, Integer>();
 		idMWeek = new BijectiveHashMap<Long, Integer>();
 	}
+	
+	public Calendar getCal() {return this.cal;};
 	
 	public Integer getIdMSlot(Slot slot) {return idMSlot.getValue(slot.getId());}
 	public Integer[] getIdMSlot(Slot[] slots) {return IntStream.range(0, slots.length).mapToObj(i -> getIdMSlot(slots[i])).toArray(Integer[]::new);}
@@ -117,54 +113,57 @@ public class SolverMain {
 	public static void generateCal(Calendar cal) {
 		Model model = new Model();
 		Solver solver = model.getSolver();
-		SolverMain solMain = new SolverMain();
-		int nbSlots = solMain.getNumberOfSlots(cal);
-		int nbLessons = solMain.getNumberOfLessons(cal.getTaf());
-		solMain.initialiseVars(model, cal, nbSlots, nbLessons);
-		solMain.setConstraints(model, cal);
-		IntVar obj = solMain.setPreferences(model, cal);
+		SolverMain solMain = new SolverMain(cal);
+		int nbSlots = solMain.getNumberOfSlots();
+		int nbLessons = solMain.getNumberOfLessons();
+		solMain.initialiseVars(model, nbSlots, nbLessons);
+		solMain.setConstraints(model);
+		IntVar obj = solMain.setPreferences(model);
 		setStrategy(solMain, solver, cal);
 		Solution solution;
 		if (obj != null) solution = solver.findOptimalSolution(obj, false);
 		else solution = solver.findSolution();
 		System.out.println(model);
 		solver.printShortStatistics();
-		System.out.println(solMain.makeSolutionString(cal, solution));
+		System.out.println(solMain.makeSolutionString(solution));
 	}
 	
 	public static void generateCals(Calendar[] cals) {
+		System.out.println("Yo");
 		Model model = new Model();
 		Solver solver = model.getSolver();
 		IntVar[] objs = new IntVar[cals.length];
 		SolverMain[] solMains = new SolverMain[cals.length];
+		System.out.println("Yo1");
 		HashMap<Long, Integer> idToIdMGlobal = getIdToIdMGlobalCals(cals);
+		System.out.println("Yo2");
 		for (int i = 0; i < cals.length; i ++) {
-			SolverMain solMain = new SolverMain();
+			System.out.println("Ya" + i);
+			SolverMain solMain = new SolverMain(cals[i]);
 			solMains[i] = solMain;
-			Calendar cal = cals[i];
-			int nbSlots = solMain.getNumberOfSlots(cal);
-			int nbLessons = solMain.getNumberOfLessons(cal.getTaf());
-			solMain.initialiseVars(model, cal, nbSlots, nbLessons, idToIdMGlobal);
-			solMain.setConstraints(model, cal);
-			IntVar obj = solMain.setPreferences(model, cal);
+			int nbSlots = solMain.getNumberOfSlots();
+			int nbLessons = solMain.getNumberOfLessons();
+			solMain.initialiseVars(model, nbSlots, nbLessons, idToIdMGlobal);
+			solMain.setConstraints(model);
+			IntVar obj = solMain.setPreferences(model);
 			objs[i] = obj != null ? obj : model.intVar(0);
 		}
-		//setSynchronisationConstraints(model, cals);
+		setSynchronisationConstraints(model, solMains);
 		IntVar globObj = model.sum("globObj", objs);
 		setStrategy(solMains, solver, cals);
 		Solution solution = solver.findOptimalSolution(globObj, false);
 		System.out.println(model);
 		solver.printShortStatistics();
 		for (int i = 0; i < cals.length; i ++)
-			System.out.println(cals[i].getTaf() + " : " + solMains[i].makeSolutionString(cals[i], solution));
+			System.out.println(solMains[i].showSolutionsDebug(solution));
 	}
 	
-	private void initialiseVars(Model model, Calendar cal, int nbSlots, int nbLessons, HashMap<Long, Integer> idToIdMGlobal) {
-		initialiseVars(model, cal, nbSlots, nbLessons);
-		initialiseSync(model, cal, idToIdMGlobal);
+	private void initialiseVars(Model model, int nbSlots, int nbLessons, HashMap<Long, Integer> idToIdMGlobal) {
+		initialiseVars(model, nbSlots, nbLessons);
+		initialiseSync(model, idToIdMGlobal);
 	}
 	
-	private void initialiseSync(Model model, Calendar cal, HashMap<Long, Integer> idToIdMGlobal) {
+	private void initialiseSync(Model model, HashMap<Long, Integer> idToIdMGlobal) {
 		this.IdMSlotGlobal = idToIdMGlobal;
 		int[] valGlobs = getValsSlotGlobal(services.getCalendarService().getSlotsOrdered(cal.getId()).toArray(Slot[]::new));
 		for (UE ue : cal.getTaf().getUes())
@@ -179,15 +178,15 @@ public class SolverMain {
 		return vals.stream().mapToInt(i -> (int) i).toArray();
 	}
 
-	private void initialiseVars(Model model, Calendar cal, int nbSlots, int nbLessons) {
-		initialiseWeeks(cal);
-		initialiseDays(cal);
-		initialiseSlots(model, cal, nbLessons);
-		initialiseUes(cal.getTaf());
-		initialiseLessons(model, cal.getTaf(), nbSlots);
+	private void initialiseVars(Model model, int nbSlots, int nbLessons) {
+		initialiseWeeks();
+		initialiseDays();
+		initialiseSlots(model, nbLessons);
+		initialiseUes();
+		initialiseLessons(model, nbSlots);
 	}
 	
-	private void initialiseWeeks(Calendar cal) {
+	private void initialiseWeeks() {
 		Integer idMW = 1;
 		for (Week week : services.getCalendarService().getWeeksSorted(cal.getId())) {
 			idMWeek.put(week.getId(), idMW);
@@ -195,7 +194,7 @@ public class SolverMain {
 		}
 	}
 	
-	private void initialiseDays(Calendar cal) {
+	private void initialiseDays() {
 		Integer idMD = 1;
 		for (Day day : services.getCalendarService().getDaysSorted(cal.getId())) {
 			idMDay.put(day.getId(), idMD);
@@ -203,7 +202,7 @@ public class SolverMain {
 		}
 	}
 	
-	private void initialiseSlots(Model model, Calendar cal, int nbLessons) {
+	private void initialiseSlots(Model model, int nbLessons) {
 		Integer idMS = 1;
 		for (Slot slot : services.getCalendarService().getSlotsOrdered(cal.getId())) {
 			idMSlot.put(slot.getId(), idMS);
@@ -212,17 +211,17 @@ public class SolverMain {
 		}
 	}
 	
-	private void initialiseUes(TAF taf) {
+	private void initialiseUes() {
 		Integer idMU = 1;
-		for (UE ue : taf.getUes()) {
+		for (UE ue : cal.getTaf().getUes()) {
 			idMUe.put(ue.getId(), idMU);
 			idMU ++;
 		}
 	}
 	
-	private void initialiseLessons(Model model, TAF taf, int nbSlots) {
+	private void initialiseLessons(Model model, int nbSlots) {
 		Integer idML = 1;
-		for (UE ue : taf.getUes())
+		for (UE ue : cal.getTaf().getUes())
 			for (Lesson lesson : ue.getLessons()) {
 				idMLesson.put(lesson.getId(), idML);
 				lessonVarSlot.put(lesson.getId(), model.intVar(nameLesson(lesson) + "-VarSlot", 1, nbSlots));
@@ -230,12 +229,12 @@ public class SolverMain {
 			}
 	}
 	
-	public int getNumberOfSlots(Calendar cal) {
+	public int getNumberOfSlots() {
 		return services.getCalendarService().getNumberOfSlots(cal.getId());
 	}
 	
-	public int getNumberOfLessons(TAF taf) {
-		return services.getTafService().numberOfLessons(taf.getId());
+	public int getNumberOfLessons() {
+		return services.getTafService().numberOfLessons(cal.getTaf().getId());
 	}
 	
 	public static int getNumberOfSlots(HashMap<Long, Integer> idToIdMGlob) {
@@ -252,29 +251,37 @@ public class SolverMain {
 		int[] iSlots = new int[cals.length];
 		int[] lengthSlots = slots.stream().mapToInt(s -> s.size()).toArray();
 		Integer idMGlob = 1;
+		System.out.println(Arrays.toString(lengthSlots));
 		while (testiLengths(iSlots, lengthSlots)) {
+			System.out.println(Arrays.toString(iSlots));
 			List<Integer> iMins = new ArrayList<Integer>();
-			for (int i = 1; i < cals.length; i ++) {
+			for (int i = 0; i < cals.length; i ++) {
+				System.out.println(i);
 				if (iSlots[i] < lengthSlots[i]) {
 					if (iMins.size() == 0) {
+						System.out.println("Nothing in : " + iSlots[i]);
 						iMins.add(i);
 					}
 					else {
 						int comparison = slots.get(i).get(iSlots[i]).compareTo(slots.get(iMins.get(0)).get(iSlots[iMins.get(0)]));
 						if (comparison < 0) {
+							System.out.println("Lower " + iSlots[i]);
 							iMins.clear();
 							iMins.add(i);
 						}
 						if (comparison == 0) {
+							System.out.println("Equal " + iSlots[i]);
 							iMins.add(i);
 						}
 					}
 				}
 			}
+			System.out.println("a");
 			for (int i : iMins) {
 				idToIdMGlob.put(slots.get(i).get(iSlots[i]).getId(), idMGlob);
 				iSlots[i] ++;
 			}
+			System.out.println("b");
 			idMGlob ++;
 		}
 		return idToIdMGlob;
@@ -287,15 +294,14 @@ public class SolverMain {
 		return false;
 	}
 
-	public void setConstraints(Model model, Calendar cal) {
-		setConstraintLinkLessonsSlots(model, cal);
-		if (this.IdMSlotGlobal != null) setConstraintLinkSlotGlobalDayWeek(model, cal, true, false, false);
-		/*if (cal.hasConstraintGlobalUnavailability()*/ setConstraintGlobalUnavailability(model, cal);
-		/*if (cal.hasConstraint1())*/ setConstraintLecturerUnavailability(model, cal);
-		 setConstraintLecturerPreferences(model, cal);
+	public void setConstraints(Model model) {
+		setConstraintLinkLessonsSlots(model);
+		if (this.IdMSlotGlobal != null) setConstraintLinkSlotGlobalDayWeek(model, true, false, false);
+		/*if (cal.hasConstraintGlobalUnavailability()*/ setConstraintGlobalUnavailability(model);
+		/*if (cal.hasConstraint1())*/ setConstraintLecturerUnavailability(model);
 	}
 	
-	private void setConstraintLinkLessonsSlots(Model model, Calendar cal) {
+	private void setConstraintLinkLessonsSlots(Model model) {
 		Slot[] slots = services.getCalendarService().getSlotsOrdered(cal.getId()).stream().toArray(Slot[]::new);
 		Lesson[] lessons = cal.getTaf().getUes().stream().flatMap(u -> u.getLessons().stream()).toArray(Lesson[]::new);
 		int nbSlots = slots.length;
@@ -315,7 +321,7 @@ public class SolverMain {
 		model.keySort(slotsV, lessonsV, sortedSlotsV, 1).post();
 	}
 	
-	private void setConstraintLinkSlotGlobalDayWeek(Model model, Calendar cal, boolean global, boolean day, boolean week) {
+	private void setConstraintLinkSlotGlobalDayWeek(Model model, boolean global, boolean day, boolean week) {
 		Slot[] slots = services.getCalendarService().getSlotsOrdered(cal.getId()).stream().toArray(Slot[]::new);
 		Lesson[] lessons = cal.getTaf().getUes().stream().flatMap(u -> u.getLessons().stream()).toArray(Lesson[]::new);
 		int nbSlots = slots.length;
@@ -339,16 +345,22 @@ public class SolverMain {
 			sortedLessonsV.add(sLV);
 		}
 		
-		if (global) addGlobalListsConstraintLink(model, cal, lessons, slots, lessonsV, sortedLessonsV);
-		if (day) addDayListsConstraintLink(model, cal, lessons, slots, lessonsV, sortedLessonsV);
-		if (week) addWeekListsConstraintLink(model, cal, lessons, slots, lessonsV, sortedLessonsV);
+		if (global) addGlobalListsConstraintLink(model, lessons, slots, lessonsV, sortedLessonsV);
+		if (day) addDayListsConstraintLink(model, lessons, slots, lessonsV, sortedLessonsV);
+		if (week) addWeekListsConstraintLink(model, lessons, slots, lessonsV, sortedLessonsV);
 		
 		IntVar[] permutations = model.intVarArray(nbSlots, 1, nbSlots);
+
+		System.out.println("lessonsV " + lessonsV);
+		System.out.println("sortedLessonsV " + sortedLessonsV);
 		
-		model.keySort(lessonsV.toArray(IntVar[][]::new), permutations, sortedLessonsV.toArray(IntVar[][]::new), 1).post();
+		model.keySort(lessonsV.stream().map(lV -> lV.toArray(IntVar[]::new)).toArray(IntVar[][]::new),
+						permutations,
+						sortedLessonsV.stream().map(sLV -> sLV.toArray(IntVar[]::new)).toArray(IntVar[][]::new),
+						1).post();
 	}
 	
-	private void addGlobalListsConstraintLink(Model model, Calendar cal, Lesson[] lessons, Slot[] slots, List<List<IntVar>> lessonsV, List<List<IntVar>> sortedLessonsV) {
+	private void addGlobalListsConstraintLink(Model model, Lesson[] lessons, Slot[] slots, List<List<IntVar>> lessonsV, List<List<IntVar>> sortedLessonsV) {
 		for (int i = 0; i < lessons.length; i ++) {
 			lessonsV.get(i).add(getLessonVarSlotGlobal(lessons[i]));
 			sortedLessonsV.get(i).add(model.intVar(getIdMSlotGlobal(slots[i])));
@@ -360,7 +372,7 @@ public class SolverMain {
 		}
 	}
 	
-	private void addDayListsConstraintLink(Model model, Calendar cal, Lesson[] lessons, Slot[] slots, List<List<IntVar>> lessonsV, List<List<IntVar>> sortedLessonsV) {
+	private void addDayListsConstraintLink(Model model, Lesson[] lessons, Slot[] slots, List<List<IntVar>> lessonsV, List<List<IntVar>> sortedLessonsV) {
 		for (int i = 0; i < lessons.length; i ++) {
 			lessonsV.get(i).add(getLessonVarDay(lessons[i]));
 			sortedLessonsV.get(i).add(model.intVar(getIdMDay(slots[i].getDay())));
@@ -372,7 +384,7 @@ public class SolverMain {
 		}
 	}
 	
-	private void addWeekListsConstraintLink(Model model, Calendar cal, Lesson[] lessons, Slot[] slots, List<List<IntVar>> lessonsV, List<List<IntVar>> sortedLessonsV) {
+	private void addWeekListsConstraintLink(Model model, Lesson[] lessons, Slot[] slots, List<List<IntVar>> lessonsV, List<List<IntVar>> sortedLessonsV) {
 		for (int i = 0; i < lessons.length; i ++) {
 			lessonsV.get(i).add(getLessonVarWeek(lessons[i]));
 			sortedLessonsV.get(i).add(model.intVar(getIdMWeek(slots[i].getDay().getWeek())));
@@ -383,23 +395,44 @@ public class SolverMain {
 			sortedLessonsV.get(i).add(model.intVar(getIdMWeek(slots[i].getDay().getWeek())));
 		}
 	}
+	
+	public static void setSynchronisationConstraints(Model model, SolverMain[] solMains) {
+		for (int i = 0; i < solMains.length - 1; i ++) {
+			for (Synchronization sync : services.getSynchronizationService().getSynchronizationsByIdTaf(solMains[i].getCal().getTaf().getId()))
+				if (sync.getLesson1().getUe().getTaf().getId() == solMains[i].getCal().getTaf().getId())
+					model.arithm(solMains[i].getLessonVarSlotGlobal(sync.getLesson1()), "=", getSolMainTaf(solMains, sync.getLesson2().getUe().getTaf()).getLessonVarSlotGlobal(sync.getLesson2())).post();
+		}
+	}
+	
+	public static SolverMain getSolMainTaf(SolverMain[] solMains, TAF taf) {
+		for (SolverMain solMain : solMains)
+			if (solMain.getCal().getTaf().getId() == taf.getId())
+				return solMain;
+		return null;
+	}
 
-	public void setConstraintGlobalUnavailability(Model model, Calendar cal) {
+	public void setConstraintGlobalUnavailability(Model model) {
 		for (Slot slot : services.getCalendarService().getSlotsOrdered(cal.getId()))
 			if (services.getGlobalUnavailabilityService().findBySlot(slot).filter(g -> g.getStrict()).isPresent())
 				model.arithm(this.getSlotVarLesson(slot), "=", 0).post();
 	}
 
-	public void setConstraintLecturerUnavailability(Model model, Calendar cal) {
+	public void setConstraintLecturerUnavailability(Model model) {
 		for (UE ue : cal.getTaf().getUes())
 			for (Lesson lesson : ue.getLessons())
 				for (Slot slot : services.getLessonService().findLessonLecturersUnavailabilitiesByLessonAndCalendar(lesson, cal))
 					model.arithm(getLessonVarSlot(lesson), "!=", getIdMSlot(slot)).post();					
 	}
 	
-	public IntVar setConstraintLecturerPreferences(Model model, Calendar cal) {
+	
+	public IntVar setPreferences(Model model) {
+		return setPreferencesLecturers(model);
+		//return null;
+	}
+	
+	public IntVar setPreferencesLecturers(Model model) {
 		
-		IntVar notPreferredAllocations = model.intVar("NotPreferredAllocations", 0, Integer.MAX_VALUE);
+		//IntVar notPreferredAllocations = model.intVar("NotPreferredAllocations", 0, Integer.MAX_VALUE);
 		ArrayList<IntVar> isNotPreferredVars = new ArrayList<IntVar>();
 
 		for (UE ue : cal.getTaf().getUes()) {
@@ -409,38 +442,31 @@ public class SolverMain {
 		    		BoolVar isNotPreferredVar = model.boolVar("NotPreferred_" + lesson.getId() + "_" + slot.getId());
 		    		model.reification(isNotPreferredVar, model.arithm(getLessonVarSlot(lesson), "=", getIdMSlot(slot)));
 		    		isNotPreferredVars.add(isNotPreferredVar);
-		    	}		    	
+		    	}
 		    }		    
 		}   
-		model.sum(isNotPreferredVars.stream().toArray(IntVar[]::new), "=", notPreferredAllocations).post();
-		return notPreferredAllocations;
-	}
-	
-	
-	public IntVar setPreferences(Model model, Calendar cal) {
-		return setConstraintLecturerPreferences( model, cal);
-		//return null;
+		return model.sum("NotPreferredAllocations", isNotPreferredVars.stream().toArray(IntVar[]::new));
 	}
 	
 	public static void setStrategy(SolverMain solMain, Solver solver, Calendar cal) {
-		IntVar[] decisionVars = solMain.getDecisionVars(cal);
+		IntVar[] decisionVars = solMain.getDecisionVars();
 		solver.setSearch(Search.minDomLBSearch(decisionVars));
 		//solver.setSearch(Search.minDomUBSearch(decisionVars));
 	}
 	
 	public static void setStrategy(SolverMain[] solMains, Solver solver, Calendar[] cals) {
 		IntVar[] decisionVars = ArrayUtils.flatten(IntStream.range(0, cals.length).
-									mapToObj(i -> solMains[i].getDecisionVars(cals[i])).toArray(IntVar[][]::new));  
+									mapToObj(i -> solMains[i].getDecisionVars()).toArray(IntVar[][]::new));  
 		solver.setSearch(Search.minDomLBSearch(decisionVars));
 		//solver.setSearch(Search.minDomUBSearch(getVarDecisionSlots(cal)));
 		
 	}
 	
-	public IntVar[] getDecisionVars(Calendar cal) {
-		return getVarDecisionSlots(cal);
+	public IntVar[] getDecisionVars() {
+		return getVarDecisionSlots();
 	}
 	
-	public IntVar[] getVarDecisionSlots(Calendar cal) {
+	public IntVar[] getVarDecisionSlots() {
 		List<IntVar> vars = new ArrayList<IntVar>();
 		vars.addAll(cal.getSlots().stream().map(s -> getSlotVarLesson(s)).toList());
 		IntVar[] varsArr = convertListToArrayIntVar(vars);
@@ -468,12 +494,32 @@ public class SolverMain {
 		return "Lesson " + idMLesson.getValue(lesson.getId()) + " (" + lesson.getId() + ")";
 	}
 	
-	public String makeSolutionString(Calendar cal, Solution solution) {
+	public String makeSolutionString(Solution solution) {
 		StringBuilder res = new StringBuilder();
 		res.append("{\"slots\":[");
 		cal.getSlots().stream().forEach(s -> res.append("{\"id\":" + s.getId() + (solution.getIntVal(getSlotVarLesson(s)) != 0 ? ",\"lessonId\":" + this.getIdLesson(solution.getIntVal(getSlotVarLesson(s))) :  "") + "},"));
 		res.deleteCharAt(res.length()-1);
 		res.append("]}");
+		return res.toString();
+	}
+	
+	public String showSolutionsDebug(Solution solution) {
+		StringBuilder res = new StringBuilder();
+		res.append(cal.getTaf().getName() + "\r\n");
+		res.append("Slots : [");
+		cal.getSlots().forEach(s -> res.append("{id : " + s.getId() + 
+												(IdMSlotGlobal != null ? ", idGlob : " + getIdMSlotGlobal(s) : "") +
+												(solution.getIntVal(getSlotVarLesson(s)) != 0 ? ", lessonId : " + this.getIdLesson(solution.getIntVal(getSlotVarLesson(s))) :  "") +
+												"},"));
+		res.deleteCharAt(res.length() - 1);
+		res.append("]\r\n");
+		res.append("Lessons : [");
+		cal.getTaf().getUes().forEach(u -> u.getLessons().forEach(l -> res.append("{id : " + l.getId() +
+																					", slotId : " + this.getIdSlot(solution.getIntVal(getLessonVarSlot(l))) +
+																					(IdMSlotGlobal != null ? ", idGlobVar : " + solution.getIntVal(getLessonVarSlotGlobal(l)) : "") +
+																					"},")));
+		res.deleteCharAt(res.length() - 1);
+		res.append("]");
 		return res.toString();
 	}
 	

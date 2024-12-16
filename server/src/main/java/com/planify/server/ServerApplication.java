@@ -509,8 +509,9 @@ public class ServerApplication {
 	}
 
 	private static void testSolver(ApplicationContext context) {
-		//testSolver1(context);
-		testSolver2(context);
+		testSolver1(context);
+		//testSolver2(context);
+		//testSolver3(context);
 	}
 	
 	private static void testSolver1(ApplicationContext context) {
@@ -525,6 +526,34 @@ public class ServerApplication {
 		Calendar[] cals = new Calendar[] {calendarSolver1(), calendarSolver2()};
 		
 		synchronizationService.addSynchronization(cals[0].getTaf().getUes().get(0).getLessons().get(0), cals[1].getTaf().getUes().get(1).getLessons().get(0));
+		
+		SolverServices solverServices = context.getBean(SolverServices.class);
+		SolverMain.setServices(solverServices);
+		SolverMain.generateCals(cals);
+	}
+	
+	private static void testSolver3(ApplicationContext context) {
+		TAF taf1 = tafService.addTAF("taf1", null, null, null);
+		TAF taf2 = tafService.addTAF("taf2", null, null, null);
+		Calendar cal1 = calendarService.addCalendar(taf1);
+		Calendar cal2 = calendarService.addCalendar(taf2);
+		Calendar[] cals = new Calendar[] {cal1, cal2};
+		
+		Week week = weekService.addWeek(5, 2025);
+		Day day = dayService.addDay(1, week);
+		Slot slot11 = slotService.add(1, day, cal1);
+		Slot slot12 = slotService.add(2, day, cal1);
+		Slot slot13 = slotService.add(3, day, cal1);
+		Slot slot23 = slotService.add(3, day, cal2);
+		Slot slot24 = slotService.add(4, day, cal2);
+		
+		UE ue1 = ueService.addUE("1", null, taf1);
+		UE ue2 = ueService.addUE("2", null, taf2);
+		
+		Lesson lesson1 = lessonService.add("1", ue1);
+		Lesson lesson2 = lessonService.add("2", ue2);
+		
+		synchronizationService.addSynchronization(lesson1, lesson2);
 		
 		SolverServices solverServices = context.getBean(SolverServices.class);
 		SolverMain.setServices(solverServices);
@@ -557,7 +586,6 @@ public class ServerApplication {
 		globalUnavailabilityService.addGlobalUnavailability(true, slot3);
 		globalUnavailabilityService.addGlobalUnavailability(true, slot2);
 		
-		/*//indisponibilidade dos prfs test
 		User jacques = userService.addUser("Jacques", "Noyé", "jacques.noye@imt-atlantique.fr", new char[]{'s', 'o', 'u', 's', ' ', 'l', '\'', 'e', 'a', 'u'});
 		User bertrand = userService.addUser("Bertrand", "Lentsch", "bertrand.lentsch@nantes.univ.fr", new char[] {'D', 'e', 'e', 'p', 'e', 'r', ' ', 'm', 'e', 'a', 'n', 'i', 'n', 'g', '!'});
 		
@@ -566,12 +594,12 @@ public class ServerApplication {
 		lessonLecturerService.addLessonLecturer(bertrand, lesson3);
 
 		userUnavailabilityService.addUserUnavailability(slot1, bertrand, true);
-		userUnavailabilityService.addUserUnavailability(slot5, bertrand, true);
+		userUnavailabilityService.addUserUnavailability(slot5, bertrand, false);
 		userUnavailabilityService.addUserUnavailability(slot4, bertrand, false);
 		userUnavailabilityService.addUserUnavailability(slot1, jacques, false);
 		userUnavailabilityService.addUserUnavailability(slot3, jacques, true);
-		userUnavailabilityService.addUserUnavailability(slot4, jacques, true);
-		*/
+		userUnavailabilityService.addUserUnavailability(slot4, jacques, false);
+		
 		return c;
 		
 	}
@@ -587,10 +615,10 @@ public class ServerApplication {
 		Slot slot1 = slotService.add(1, day11, c);
 		Slot slot2 = slotService.add(2, day11, c);
 		Slot slot3 = slotService.add(1, day12, c);
+		Slot slot4 = slotService.add(2, day12, c);
 		/*Calendar c2 = calendarService.addCalendar(dcl);
 		Slot slotDummy = slotService.add(1, day21, c2);*/		
-		Slot slot4 = slotService.add(1, day21, c);
-		Slot slot5 = slotService.add(2, day21, c);
+		Slot slot5 = slotService.add(1, day21, c);
 		UE ue1 = ueService.addUE("UE1", "", login);
 		UE ue2 = ueService.addUE("UE2", "", login);
 		Lesson lesson1 = lessonService.add("Lesson1", ue1);
@@ -616,5 +644,5 @@ public class ServerApplication {
 		
 		return c;
 	}
-
+	
 }

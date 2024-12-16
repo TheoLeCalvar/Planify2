@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import com.planify.server.service.CalendarService;
 import com.planify.server.service.GlobalUnavailabilityService;
 import com.planify.server.service.LessonService;
+import com.planify.server.service.SynchronizationService;
 import com.planify.server.service.TAFService;
 
 @Component
@@ -26,6 +27,10 @@ public class SolverServices {
 	@Lazy
 	@Autowired
 	private GlobalUnavailabilityService globalUnavailabilityService;
+	
+	@Lazy
+	@Autowired
+	private SynchronizationService synchronizationService;
 
 	public SolverServices() {}
 	
@@ -43,5 +48,9 @@ public class SolverServices {
 	
 	public GlobalUnavailabilityService getGlobalUnavailabilityService() {
 		return globalUnavailabilityService;
+	}
+
+	public SynchronizationService getSynchronizationService() {
+		return synchronizationService;
 	}
 }
