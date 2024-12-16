@@ -16,6 +16,7 @@ import com.planify.server.models.UEManager.UEManagerId;
 import com.planify.server.models.UserUnavailability.UserUnavailabilityId;
 import com.planify.server.service.*;
 import com.planify.server.solver.SolverMain;
+import com.planify.server.solver.SolverServices;
 
 @SpringBootApplication(scanBasePackages = "com.planify.server")
 public class ServerApplication {
@@ -496,14 +497,29 @@ public class ServerApplication {
 	}
 
 	private static void testSolver(ApplicationContext context) {
-		Calendar c = testSolver1();
-		
-		SolverMain solver = context.getBean(SolverMain.class);
-		
-		solver.generateCal(c);
+		//testSolver1(context);
+		testSolver2(context);
 	}
 	
-	private static Calendar testSolver1() {
+	private static void testSolver1(ApplicationContext context) {
+		Calendar c = calendarSolver1();
+		
+		SolverServices solverServices = context.getBean(SolverServices.class);
+		SolverMain.setServices(solverServices);
+		SolverMain.generateCal(c);
+	}
+	
+	private static void testSolver2(ApplicationContext context) {
+		Calendar[] cals = new Calendar[] {calendarSolver1(), calendarSolver2()};
+		
+		synchronizationService.addSynchronization(cals[0].getTaf().getUes().get(0).getLessons().get(0), cals[1].getTaf().getUes().get(1).getLessons().get(0));
+		
+		SolverServices solverServices = context.getBean(SolverServices.class);
+		SolverMain.setServices(solverServices);
+		SolverMain.generateCals(cals);
+	}
+	
+	private static Calendar calendarSolver1() {
 		tafService.addTAF("DCL", "", "", "");
 		List<TAF> listTafs = tafService.findByName("DCL");
 		TAF dcl = listTafs.get(0);
@@ -525,16 +541,13 @@ public class ServerApplication {
 		Lesson lesson1 = lessonService.add("Lesson1", ue1);
 		Lesson lesson2 = lessonService.add("Lesson2", ue1);
 		Lesson lesson3 = lessonService.add("Lesson3", ue2);
+
+		globalUnavailabilityService.addGlobalUnavailability(true, slot3);
+		globalUnavailabilityService.addGlobalUnavailability(true, slot2);
 		
 		
 		User jacques = userService.addUser("Jacques", "Noyé", "jacques.noye@imt-atlantique.fr", new char[]{'s', 'o', 'u', 's', ' ', 'l', '\'', 'e', 'a', 'u'});
 		User bertrand = userService.addUser("Bertrand", "Lentsch", "bertrand.lentsch@nantes.univ.fr", new char[] {'D', 'e', 'e', 'p', 'e', 'r', ' ', 'm', 'e', 'a', 'n', 'i', 'n', 'g', '!'});
-
-		System.out.println("jacques");
-		System.out.println(jacques);
-		System.out.println(jacques.getName());
-		System.out.println(jacques.getId());
-		System.out.println("plus jacques");
 		
 		lessonLecturerService.addLessonLecturer(jacques, lesson1);
 		lessonLecturerService.addLessonLecturer(jacques, lesson2);
@@ -544,8 +557,49 @@ public class ServerApplication {
 		userUnavailabilityService.addUserUnavailability(slot5, bertrand, true);
 		userUnavailabilityService.addUserUnavailability(slot4, bertrand, false);
 		userUnavailabilityService.addUserUnavailability(slot1, jacques, false);
-		userUnavailabilityService.addUserUnavailability(slot2, jacques, true);
+		userUnavailabilityService.addUserUnavailability(slot3, jacques, true);
 		userUnavailabilityService.addUserUnavailability(slot4, jacques, true);
+		
+		return c;
+	}
+	
+	private static Calendar calendarSolver2() {
+		TAF login = tafService.addTAF("Login*", "", "", "");
+		Calendar c = calendarService.addCalendar(login);
+		Week week1 = weekService.findByNumber(1).get(0);
+		Week week2 = weekService.findByNumber(2).get(0);
+		Day day11 = dayService.findByWeek(week1).get(0);
+		Day day12 = dayService.findByWeek(week1).get(1);
+		Day day21 = dayService.findByWeek(week2).get(0);
+		Slot slot1 = slotService.add(1, day11, c);
+		Slot slot2 = slotService.add(2, day11, c);
+		Slot slot3 = slotService.add(1, day12, c);
+		/*Calendar c2 = calendarService.addCalendar(dcl);
+		Slot slotDummy = slotService.add(1, day21, c2);*/		
+		Slot slot4 = slotService.add(1, day21, c);
+		Slot slot5 = slotService.add(2, day21, c);
+		UE ue1 = ueService.addUE("UE1", "", login);
+		UE ue2 = ueService.addUE("UE2", "", login);
+		Lesson lesson1 = lessonService.add("Lesson1", ue1);
+		Lesson lesson2 = lessonService.add("Lesson2", ue1);
+		Lesson lesson3 = lessonService.add("Lesson3", ue2);
+		
+		
+		User helene = userService.addUser("Hélène", "Coullon", "jacques.noye@imt-atlantique.fr", new char[]{});
+		User bertrand = userService.findById((long) 1).get();
+		
+		System.out.println(bertrand);
+		
+		lessonLecturerService.addLessonLecturer(helene, lesson1);
+		lessonLecturerService.addLessonLecturer(helene, lesson2);
+		lessonLecturerService.addLessonLecturer(bertrand, lesson3);
+
+		userUnavailabilityService.addUserUnavailability(slot1, bertrand, true);
+		userUnavailabilityService.addUserUnavailability(slot5, bertrand, true);
+		userUnavailabilityService.addUserUnavailability(slot4, bertrand, false);
+		userUnavailabilityService.addUserUnavailability(slot1, helene, false);
+		userUnavailabilityService.addUserUnavailability(slot5, helene, true);
+		userUnavailabilityService.addUserUnavailability(slot2, helene, true);
 		
 		return c;
 	}
