@@ -28,7 +28,6 @@ import com.planify.server.models.Calendar;
 import com.planify.server.models.Lesson;
 import com.planify.server.models.Sequencing;
 import com.planify.server.models.TAF;
-import com.planify.server.models.TAFManager;
 import com.planify.server.models.UE;
 import com.planify.server.service.AntecedenceService;
 import com.planify.server.service.BlockService;

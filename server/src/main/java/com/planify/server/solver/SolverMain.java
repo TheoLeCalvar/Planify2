@@ -110,7 +110,7 @@ public class SolverMain {
 		SolverMain.services = services;
 	}
 	
-	public static void generateCal(Calendar cal) {
+	public static String generateCal(Calendar cal) {
 		Model model = new Model();
 		Solver solver = model.getSolver();
 		SolverMain solMain = new SolverMain(cal);
@@ -126,6 +126,7 @@ public class SolverMain {
 		System.out.println(model);
 		solver.printShortStatistics();
 		System.out.println(solMain.makeSolutionString(solution));
+		return solMain.makeSolutionString(solution);
 	}
 	
 	public static void generateCals(Calendar[] cals) {

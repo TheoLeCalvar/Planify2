@@ -42,6 +42,8 @@ public class ServerApplication {
 	public static void main(String[] args) {
 		ApplicationContext context = SpringApplication.run(ServerApplication.class, args);
 
+		SolverMain.setServices(context.getBean(SolverServices.class));
+
 		final String RESET = "\u001B[0m";
 		final String RED = "\u001B[31m";
 		final String GREEN = "\u001B[32m";
@@ -572,8 +574,8 @@ public class ServerApplication {
 		UE ue1 = ueService.addUE("1", null, taf1);
 		UE ue2 = ueService.addUE("2", null, taf2);
 		
-		Lesson lesson1 = lessonService.add("1", ue1);
-		Lesson lesson2 = lessonService.add("2", ue2);
+		Lesson lesson1 = lessonService.add("1","string", ue1);
+		Lesson lesson2 = lessonService.add("2","a", ue2);
 		
 		synchronizationService.addSynchronization(lesson1, lesson2);
 		
@@ -601,9 +603,9 @@ public class ServerApplication {
 		Slot slot5 = slotService.add(2, day21, c);
 		UE ue1 = ueService.addUE("UE1", "", dcl);
 		UE ue2 = ueService.addUE("UE2", "", dcl);
-		Lesson lesson1 = lessonService.add("Lesson1", ue1);
-		Lesson lesson2 = lessonService.add("Lesson2", ue1);
-		Lesson lesson3 = lessonService.add("Lesson3", ue2);
+		Lesson lesson1 = lessonService.add("Lesson1", "description 1", ue1);
+		Lesson lesson2 = lessonService.add("Lesson2", "description 2", ue1);
+		Lesson lesson3 = lessonService.add("Lesson3", "description 3", ue2);
 
 		globalUnavailabilityService.addGlobalUnavailability(true, slot3);
 		globalUnavailabilityService.addGlobalUnavailability(true, slot2);
@@ -643,9 +645,9 @@ public class ServerApplication {
 		Slot slot5 = slotService.add(1, day21, c);
 		UE ue1 = ueService.addUE("UE1", "", login);
 		UE ue2 = ueService.addUE("UE2", "", login);
-		Lesson lesson1 = lessonService.add("Lesson1", ue1);
-		Lesson lesson2 = lessonService.add("Lesson2", ue1);
-		Lesson lesson3 = lessonService.add("Lesson3", ue2);
+		Lesson lesson1 = lessonService.add("Lesson1", "description 1", ue1);
+		Lesson lesson2 = lessonService.add("Lesson2", "description 2", ue1);
+		Lesson lesson3 = lessonService.add("Lesson3", "description 3", ue2);
 		
 		
 		User helene = userService.addUser("Hélène", "Coullon", "jacques.noye@imt-atlantique.fr", new char[]{});
