@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Configuration globale de l'instance Axios
 const axiosInstance = axios.create({
-  baseURL: 'http://localhost:8080/api',
+  baseURL: `${import.meta.env.VITE_API_URL}/api`,
   timeout: 10000, // Timeout pour les requêtes
 });
 

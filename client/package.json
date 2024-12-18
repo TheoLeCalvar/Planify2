@@ -32,6 +32,7 @@
   },
   "scripts": {
     "start": "vite",
+    "start-data": "cross-env VITE_USE_MOCK=false vite",
     "build": "vite build",
     "server": "vite preview"
   },
@@ -52,5 +53,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3"
   }
 }
