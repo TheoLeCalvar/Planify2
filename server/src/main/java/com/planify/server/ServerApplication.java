@@ -42,6 +42,8 @@ public class ServerApplication {
 	public static void main(String[] args) {
 		ApplicationContext context = SpringApplication.run(ServerApplication.class, args);
 
+		SolverMain.setServices(context.getBean(SolverServices.class));
+
 		final String RESET = "\u001B[0m";
 		final String RED = "\u001B[31m";
 		final String GREEN = "\u001B[32m";
@@ -507,6 +509,26 @@ public class ServerApplication {
 		System.out.println(RED + "Lesson Sync list 2 :" + lessonSequencing2.getSynchronizations2() + RESET);
 
 		System.out.println(ueService.findAll().get(0).getId());
+
+		// Test api/ue/{ueid}/lesson
+		Lesson lessonUe5_1 = lessonService.add("name", "description lesson UE 5 1", ue);
+		Lesson lessonUe5_2 = lessonService.add("name", "description lesson UE 5 2", ue);
+		Lesson lessonUe5_3 = lessonService.add("name", "description lesson UE 5 3", ue);
+		Lesson lessonUe5_4 = lessonService.add("name", "description lesson UE 5 4", ue);
+		Lesson lessonUe5_5 = lessonService.add("name", "description lesson UE 5 5", ue);
+		Lesson lessonUe5_6 = lessonService.add("name", "description lesson UE 5 6", ue);
+
+		Block blockUe5_1 = blockService.addBlock("title block", lessonUe5_1, "description block UE5 1");
+		Block blockUe5_2 = blockService.addBlock("title block", lessonUe5_4, "description block UE5 2");
+		Block blockUe5_3 = blockService.addBlock("title block", lessonUe5_6, "description block UE5 3");
+
+		sequencingService.add(lessonUe5_1, lessonUe5_2);
+		sequencingService.add(lessonUe5_2, lessonUe5_3);
+		sequencingService.add(lessonUe5_4, lessonUe5_5);
+
+		antecedenceService.addAntecedence(lessonUe5_3, lessonUe5_4);
+		antecedenceService.addAntecedence(lessonUe5_5, lessonUe5_6);
+
 
 	}
 
