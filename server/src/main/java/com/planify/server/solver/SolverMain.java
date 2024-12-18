@@ -426,10 +426,16 @@ public class SolverMain {
 	
 	
 	public IntVar setPreferences(Model model) {
-		return setPreferencesLecturers(model);
-		//return null;
+		ArrayList<IntVar> preferences = new ArrayList<IntVar>();
+		/*if (preferencesGlobal)*/ preferences.add(setPreferencesGlobal(model));
+		/*if (preferencesLecturers)*/ preferences.add(setPreferencesLecturers(model));
+		return model.sum("Preferences", preferences.stream().filter(v -> v != null).toArray(IntVar[]::new));
 	}
 	
+	private IntVar setPreferencesGlobal(Model model) {
+		return null;
+	}
+
 	public IntVar setPreferencesLecturers(Model model) {
 		
 		//IntVar notPreferredAllocations = model.intVar("NotPreferredAllocations", 0, Integer.MAX_VALUE);
