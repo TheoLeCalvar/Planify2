@@ -13,9 +13,9 @@ public class WebConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         System.out.println("🚀 CORS configuration is being loaded!");
         registry.addMapping("/**") // Toutes les routes de l'application
-                .allowedOrigins("http://localhost:5173") // Origines autorisées
+                .allowedOrigins("*") // Origines autorisées
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Méthodes HTTP autorisées
-                .allowedHeaders("*") // Tous les headers autorisés
-                .allowCredentials(true); // Autoriser les cookies ou identifiants
+                .allowedHeaders("*"); // Tous les headers autorisés
+                //.allowCredentials(true); // Autoriser les cookies ou identifiants
     }
 }
