@@ -20,6 +20,8 @@ public class Lesson {
 
     private String name;
 
+    private String description;
+
     @ManyToOne
     @JoinColumn(name = "idUE")
     private UE ue;
@@ -48,9 +50,10 @@ public class Lesson {
     public Lesson() {
     }
 
-    public Lesson(String name, UE ue) {
+    public Lesson(String name, String description, UE ue) {
         this.name = name;
         this.ue = ue;
+        this.description = description;
     }
 
     public String toString() {
@@ -67,6 +70,14 @@ public class Lesson {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getDescription() {
+        return this.description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public UE getUe() {

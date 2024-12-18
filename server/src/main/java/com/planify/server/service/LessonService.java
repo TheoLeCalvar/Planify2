@@ -45,11 +45,12 @@ public class LessonService {
     private SynchronizationService synchronizationService;
 
     @Transactional
-    public Lesson add(String name, UE ue) {
+    public Lesson add(String name, String description, UE ue) {
         Lesson lesson = new Lesson();
         lesson.setName(name);
         lesson.setUe(ue);
-        
+        lesson.setDescription(description);
+
         lessonRepository.save(lesson);
 
         // Update lessons list for ue
@@ -89,21 +90,22 @@ public class LessonService {
         }
 
         List<Slot> slots = userUnavailabilities.stream()
-            .filter(unavailability -> unavailability.getStrict())
-            .map(unavailability -> unavailability.getSlot())
-            .filter(slot -> slot.getCalendar() == calendar )
-            .collect(Collectors.toList());
+                .filter(unavailability -> unavailability.getStrict())
+                .map(unavailability -> unavailability.getSlot())
+                .filter(slot -> slot.getCalendar() == calendar)
+                .collect(Collectors.toList());
 
         return slots;
     }
 
     public List<Slot> findNotPreferedSlotsByLessonAndCalendar(Lesson lesson, Calendar calendar) {
         List<Slot> slots = lesson.getLessonLecturers().stream()
-            .map(lecturer -> lecturer.getUser())
-            .flatMap(user -> user.getUserUnavailabilities().stream())
-            .filter(unavailability -> (!unavailability.getStrict()) && (unavailability.getSlot().getCalendar()==calendar))
-            .map(UserUnavailability::getSlot)
-            .collect(Collectors.toList());
+                .map(lecturer -> lecturer.getUser())
+                .flatMap(user -> user.getUserUnavailabilities().stream())
+                .filter(unavailability -> (!unavailability.getStrict())
+                        && (unavailability.getSlot().getCalendar() == calendar))
+                .map(UserUnavailability::getSlot)
+                .collect(Collectors.toList());
 
         return slots;
     }
