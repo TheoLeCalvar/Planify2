@@ -29,4 +29,24 @@ public class BlockShort {
         this.dependencies = dependencies;
     }
 
+    public Long getId() {
+        return this.id;
+    }
+
+    public String getTitle() {
+        return this.title;
+    }
+
+    public String getDescription() {
+        return this.description;
+    }
+
+    public List<LessonShort> getLessons() {
+        return this.lessons;
+    }
+
+    public List<Long> getDependencies() {
+        return this.dependencies;
+    }
+
 }

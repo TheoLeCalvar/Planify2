@@ -109,11 +109,11 @@ public class ServerApplication {
 		UE ue1 = ueService.addUE("UE1", "desc", dcl); // Assuming addUE adds UE linked to TAF
 		UE ue2 = ueService.addUE("UE2", "desc", dcl);
 		UE ue3 = ueService.addUE("UE3", "desc", dcl);
-		lessonService.add("Lesson1", ue1);
-		lessonService.add("Lesson2", ue1);
-		lessonService.add("Lesson3", ue2);
-		lessonService.add("Lesson4", ue2);
-		lessonService.add("Lesson5", ue3);
+		lessonService.add("Lesson1", "description", ue1);
+		lessonService.add("Lesson2", "description", ue1);
+		lessonService.add("Lesson3", "description", ue2);
+		lessonService.add("Lesson4", "description", ue2);
+		lessonService.add("Lesson5", "description", ue3);
 		System.out.println("Number of lesson in TAF dcl = " + "" + tafService.numberOfLessons(dcl.getId()));
 		List<Lesson> lessonsOfTAF = tafService.getLessonsOfTAF(dcl.getId());
 		for (Lesson l : lessonsOfTAF) {
@@ -333,7 +333,7 @@ public class ServerApplication {
 		System.out.println("Test of Lesson");
 		UE ue_2 = ueService.addUE("UE1", "desc", ihm); // Adding a UE for the lesson
 		System.out.println(RED + "UE :" + ue_2 + RESET);
-		Lesson lesson = lessonService.add("Lesson1", ue_2);
+		Lesson lesson = lessonService.add("Lesson1", "description", ue_2);
 
 		List<Lesson> lessons = lessonService.findAll();
 		if (!lessons.isEmpty()) {
@@ -352,7 +352,7 @@ public class ServerApplication {
 
 		// Test of LessonLecturer
 		System.out.println("Test of LessonLecturer");
-		Lesson lesson1 = lessonService.add("name lesson 1", ue_2);
+		Lesson lesson1 = lessonService.add("name lesson 1", "description", ue_2);
 
 		lessonLecturerService.addLessonLecturer(user, lesson1);
 
@@ -415,7 +415,7 @@ public class ServerApplication {
 		// Test of Block
 		System.out.println("Test of Block");
 		UE ueBlock = ueService.addUE("ue block", "description", ihm);
-		Lesson lessonBlock = lessonService.add("lesson block", ueBlock);
+		Lesson lessonBlock = lessonService.add("lesson block", "description", ueBlock);
 		Block block = blockService.addBlock("Block1", lessonBlock, "description block");
 		List<Block> blocks = blockService.findAll();
 		if (!blocks.isEmpty()) {
@@ -434,8 +434,8 @@ public class ServerApplication {
 
 		System.out.println(RED + " UE 2 : " + ue_2 + RESET);
 
-		Lesson lessonSequencing1 = lessonService.add("name1", ue_2);
-		Lesson lessonSequencing2 = lessonService.add("name2", ue_2);
+		Lesson lessonSequencing1 = lessonService.add("name1", "description", ue_2);
+		Lesson lessonSequencing2 = lessonService.add("name2", "description", ue_2);
 
 		// Test of Antecedence
 		System.out.println("Test of Antecedence");
@@ -505,6 +505,8 @@ public class ServerApplication {
 		System.out.println(RED + "Lesson Antecedence list 2 :" + lessonSequencing2.getAntecedencesAsNext() + RESET);
 		System.out.println(RED + "Lesson Sync list 1 :" + lessonSequencing1.getSynchronizations1() + RESET);
 		System.out.println(RED + "Lesson Sync list 2 :" + lessonSequencing2.getSynchronizations2() + RESET);
+
+		System.out.println(ueService.findAll().get(0).getId());
 
 	}
 

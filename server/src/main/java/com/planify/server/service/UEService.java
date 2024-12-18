@@ -43,7 +43,7 @@ public class UEService {
         List<UE> ues = taf.getUes();
         ues.addLast(ue);
         taf.setUes(ues);
-        //tafService.save(taf);
+        // tafService.save(taf);
 
         ueRepository.save(ue);
         System.out.println(ueRepository.findAll());
@@ -97,4 +97,7 @@ public class UEService {
         return ueRepository.findAll();
     }
 
+    public boolean existsById(Long id) {
+        return ueRepository.existsById(id);
+    }
 }

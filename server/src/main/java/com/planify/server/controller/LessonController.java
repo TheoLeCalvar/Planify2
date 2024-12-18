@@ -1,7 +1,9 @@
 package com.planify.server.controller;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -10,14 +12,19 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.MediaType;
 
+import com.planify.server.controller.returnsClass.BlockShort;
+import com.planify.server.controller.returnsClass.LessonShort;
 import com.planify.server.controller.returnsClass.TAFReturn;
 import com.planify.server.controller.returnsClass.TAFShort;
 import com.planify.server.controller.returnsClass.UEShort;
 import com.planify.server.models.Calendar;
+import com.planify.server.models.Lesson;
 import com.planify.server.models.TAF;
 import com.planify.server.models.TAFManager;
 import com.planify.server.models.UE;
@@ -88,6 +95,56 @@ public class LessonController {
         return ResponseEntity.ok(tafReturn);
     }
 
+    @PutMapping(value = "/ue/{ueId}/lesson", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> putLessonInUE(@PathVariable Long ueId, @RequestBody List<BlockShort> blocks) {
+        if (blocks.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorResponse("The body is empty", 404));
+        } else {
+            if (ueService.existsById(ueId)) {
+                // Get the blocks' UE
+                UE ue = ueService.findById(ueId).get();
+
+                // Stock the last lesson of each block so that we can order the lessons later
+                Map<Long, Lesson> lastLessonOfBlocks = new HashMap<>();
+
+                for (BlockShort block : blocks) {
+
+                    // Put the lessons of the block in the DB
+                    List<Lesson> reaLessons = new ArrayList<Lesson>();
+                    for (LessonShort lesson : block.getLessons()) {
+                        Lesson realLesson = lessonService.add(lesson.getTitle(), lesson.getDescription(), ue);
+                        reaLessons.add(realLesson);
+                    }
+
+                    // Add the block to the DB
+                    blockService.addBlock(block.getTitle(), reaLessons.get(0), block.getDescription());
+
+                    // Add the antecedence for lesson in two differents block
+                    for (Long anteriorBlock : block.getDependencies()) {
+                        Lesson anteriorLesson = lastLessonOfBlocks.get(anteriorBlock);
+                        antecedenceService.addAntecedence(anteriorLesson, reaLessons.get(0));
+                    }
+
+                    // Add the antecedence and the sequencing for the lessons in a same block
+                    for (int i = 0; i < reaLessons.size() - 1; i++) {
+                        antecedenceService.addAntecedence(reaLessons.get(i), reaLessons.get(i + 1));
+                        sequencingService.add(reaLessons.get(i), reaLessons.get(i + 1));
+                    }
+
+                    lastLessonOfBlocks.put(block.getId(), reaLessons.get(reaLessons.size()));
+                }
+
+                return ResponseEntity.ok(blocks);
+
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(new ErrorResponse("No UE with this id was found", 404));
+            }
+
+        }
+    }
+
     // Data on a given UE (id)
     @GetMapping(value = "/ue/{ueId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getUEById(@PathVariable Long ueId) {
@@ -112,10 +169,10 @@ public class LessonController {
         }
         UE realUe = ue.get();
 
-        
         UEShort ueReturn = new UEShort(realUe);
         System.out.println(realUe.toString());
         return ResponseEntity.ok(ueReturn);
+
     }
 
 }
