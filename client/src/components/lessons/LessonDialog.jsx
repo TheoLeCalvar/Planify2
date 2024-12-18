@@ -13,10 +13,11 @@ import {
     Chip,
     InputLabel,
     FormLabel,
+    Typography,
+    Stack,
 } from "@mui/material";
 import { useContext } from "react";
 import { LessonsContext } from "../../context/LessonsContext";
-
 
 export default function LessonDialog({ open, onClose, onSubmit, initialData }) {
     const [title, setTitle] = useState(initialData?.title || "");
@@ -25,7 +26,8 @@ export default function LessonDialog({ open, onClose, onSubmit, initialData }) {
     );
     const [lecturers, setLecturers] = useState(initialData?.lecturers || []);
 
-    const {lecturersList: options, setLecturersList} = useContext(LessonsContext);
+    const { lecturersList: options, setLecturersList } =
+        useContext(LessonsContext);
 
     const handleSave = () => {
         if (!title.trim()) {
@@ -33,15 +35,15 @@ export default function LessonDialog({ open, onClose, onSubmit, initialData }) {
             return;
         }
         setLecturersList((prev) => {
-            return prev.map(lecturer => {
+            return prev.map((lecturer) => {
                 if (lecturers.includes(lecturer.id)) {
                     return {
                         ...lecturer,
-                        alreadySelected: true
-                    }
+                        alreadySelected: true,
+                    };
                 }
                 return lecturer;
-            })
+            });
         });
         onSubmit({
             id: initialData?.id,
@@ -88,12 +90,24 @@ export default function LessonDialog({ open, onClose, onSubmit, initialData }) {
                     <FormControl fullWidth>
                         <Autocomplete
                             multiple
-                            options={options.sort((a, b) => b.alreadySelected - a.alreadySelected) }
-                            groupBy={(option) => option.alreadySelected ? "Intervenants de cette TAF" : "Toutes les personnes"}
+                            options={options.sort(
+                                (a, b) => b.alreadySelected - a.alreadySelected
+                            )}
+                            groupBy={(option) =>
+                                option.alreadySelected
+                                    ? "Intervenants de cette TAF"
+                                    : "Toutes les personnes"
+                            }
                             disableCloseOnSelect
                             value={lecturers}
                             getOptionLabel={(option) => option.name}
-                            onChange={(e, value) => setLecturers(value.map(lecturer => lecturer.id || lecturer))}
+                            onChange={(e, value) =>
+                                setLecturers(
+                                    value.map(
+                                        (lecturer) => lecturer.id || lecturer
+                                    )
+                                )
+                            }
                             isOptionEqualToValue={(option, value) =>
                                 option.id === value
                             }
@@ -101,26 +115,32 @@ export default function LessonDialog({ open, onClose, onSubmit, initialData }) {
                                 console.log(option);
                                 const { key, ...other } = props;
                                 return (
-                                <li key={key} {...other}>
-                                    <Checkbox
-                                        checked={selected}
-                                        style={{ marginRight: 8 }}
-                                    />
-                                    {option.name}
-                                </li>
-                            )}}
+                                    <li key={key} {...other}>
+                                        <Checkbox
+                                            checked={selected}
+                                            style={{ marginRight: 8 }}
+                                        />
+                                        {option.name}
+                                    </li>
+                                );
+                            }}
                             renderTags={(value, getTagProps) =>
                                 value.map((option, index) => {
                                     console.log(value);
-                                    const { key, ...tagProps } = getTagProps({ index });
-                                    const lecturer = options.find((opt) => opt.id === option);
+                                    const { key, ...tagProps } = getTagProps({
+                                        index,
+                                    });
+                                    const lecturer = options.find(
+                                        (opt) => opt.id === option
+                                    );
                                     return (
-                                    <Chip
-                                        key={lecturer.id}
-                                        label={lecturer.name}
-                                        {...tagProps}
-                                    />
-                                )})
+                                        <Chip
+                                            key={lecturer.id}
+                                            label={lecturer.name}
+                                            {...tagProps}
+                                        />
+                                    );
+                                })
                             }
                             renderInput={(params) => (
                                 <TextField
@@ -129,6 +149,16 @@ export default function LessonDialog({ open, onClose, onSubmit, initialData }) {
                                     placeholder="Sélectionnez des personnes..."
                                 />
                             )}
+                            noOptionsText={
+                                <Stack gap={1} alignItems={"center"}>
+                                    <Typography variant="body2">
+                                        Aucun intervenant trouvé.
+                                    </Typography>
+                                    <Button color="primary" variant="contained">
+                                        Créer un nouvel intervenant
+                                    </Button>
+                                </Stack>
+                            }
                         />
                     </FormControl>
                 </Box>
