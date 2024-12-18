@@ -3,10 +3,11 @@ services:
     build:
       context: ./client
       dockerfile: Dockerfile
+      args:
+        VITE_API_URL: "http://localhost:8080"
+        VITE_USE_MOCK: "false"
     ports:
       - "80:80" # Expose port 80 of the container to port 3000 on the host
-    environment:
-      - API_URL=http://server:8080 # URL de l'API du serveur
     depends_on:
       - server
 
