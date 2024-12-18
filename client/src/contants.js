@@ -2,7 +2,7 @@ import {
     createViewWeek,
   } from '@schedule-x/calendar'
 
-export const USE_MOCK_DATA = true;
+export const USE_MOCK_DATA = import.meta.env.VITE_USE_MOCK === 'true';
 
 export const constants = {
     CALENDAR: {
