@@ -13,7 +13,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 
 @Entity
-public class Slot {
+public class Slot implements Comparable<Slot> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -80,5 +80,17 @@ public class Slot {
     public void setUserUnavailabilities(List<UserUnavailability> list) {
         this.userUnavailabilities = list;
     }
+
+	@Override
+	public int compareTo(Slot o) {
+		int thisDay = this.getDayInt();
+		int oDay = o.getDayInt();
+		if (thisDay != oDay) return thisDay - oDay;
+		return this.getNumber() - o.getNumber();
+	}
+	
+	public int getDayInt() {
+		return this.getDay().getWeek().getYear() * 53 * 7 + this.getDay().getWeek().getNumber() * 7 + this.getDay().getNumber();
+	}
 
 }
