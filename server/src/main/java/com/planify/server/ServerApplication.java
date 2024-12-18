@@ -552,8 +552,8 @@ public class ServerApplication {
 		UE ue1 = ueService.addUE("1", null, taf1);
 		UE ue2 = ueService.addUE("2", null, taf2);
 		
-		Lesson lesson1 = lessonService.add("1", ue1);
-		Lesson lesson2 = lessonService.add("2", ue2);
+		Lesson lesson1 = lessonService.add("1", null, ue1);
+		Lesson lesson2 = lessonService.add("2", null, ue2);
 		
 		synchronizationService.addSynchronization(lesson1, lesson2);
 		
@@ -581,9 +581,9 @@ public class ServerApplication {
 		Slot slot5 = slotService.add(2, day21, c);
 		UE ue1 = ueService.addUE("UE1", "", dcl);
 		UE ue2 = ueService.addUE("UE2", "", dcl);
-		Lesson lesson1 = lessonService.add("Lesson1", ue1);
-		Lesson lesson2 = lessonService.add("Lesson2", ue1);
-		Lesson lesson3 = lessonService.add("Lesson3", ue2);
+		Lesson lesson1 = lessonService.add("Lesson1", null, ue1);
+		Lesson lesson2 = lessonService.add("Lesson2", null, ue1);
+		Lesson lesson3 = lessonService.add("Lesson3", null, ue2);
 
 		globalUnavailabilityService.addGlobalUnavailability(true, slot3);
 		globalUnavailabilityService.addGlobalUnavailability(true, slot2);
@@ -623,9 +623,9 @@ public class ServerApplication {
 		Slot slot5 = slotService.add(1, day21, c);
 		UE ue1 = ueService.addUE("UE1", "", login);
 		UE ue2 = ueService.addUE("UE2", "", login);
-		Lesson lesson1 = lessonService.add("Lesson1", ue1);
-		Lesson lesson2 = lessonService.add("Lesson2", ue1);
-		Lesson lesson3 = lessonService.add("Lesson3", ue2);
+		Lesson lesson1 = lessonService.add("Lesson1", null, ue1);
+		Lesson lesson2 = lessonService.add("Lesson2", null, ue1);
+		Lesson lesson3 = lessonService.add("Lesson3", null, ue2);
 		
 		
 		User helene = userService.addUser("Hélène", "Coullon", "jacques.noye@imt-atlantique.fr", new char[]{});
