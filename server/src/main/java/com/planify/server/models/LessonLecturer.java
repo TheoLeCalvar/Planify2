@@ -32,10 +32,10 @@ public class LessonLecturer {
     public static class LessonLecturerId implements Serializable {
         private Long idUser;
         private Long idLesson;
-        
+
         public LessonLecturerId() {
         }
-        
+
         public LessonLecturerId(long idUser, long idLesson) {
             this.idUser = idUser;
             this.idLesson = idLesson;
@@ -48,20 +48,23 @@ public class LessonLecturer {
         public Long getIdLesson() {
             return this.idLesson;
         }
-        
+
         public void setIdUser(Long idUser) {
-        	this.idUser = idUser;
+            this.idUser = idUser;
         }
-        
+
         public void setIdLesson(Long idLesson) {
-        	this.idLesson = idLesson;
+            this.idLesson = idLesson;
         }
-        
+
         @Override
         public boolean equals(Object obj) {
-            if (obj == this) return true;
-            if (!(obj instanceof LessonLecturerId)) return false;
-            if (obj == null) return false;
+            if (obj == this)
+                return true;
+            if (!(obj instanceof LessonLecturerId))
+                return false;
+            if (obj == null)
+                return false;
             LessonLecturerId pk = (LessonLecturerId) obj;
             return pk.idUser == this.idUser && pk.idLesson == this.idLesson;
         }
@@ -84,7 +87,7 @@ public class LessonLecturer {
         return this.id;
     }
 
-	public User getUser() {
+    public User getUser() {
         return this.user;
     }
 
@@ -93,14 +96,19 @@ public class LessonLecturer {
     }
 
     public void setId(LessonLecturerId id) {
-		this.id = id;
-	}
+        this.id = id;
+    }
 
-	public void setUser(User user) {
-		this.user = user;
-	}
+    public void setUser(User user) {
+        this.user = user;
+    }
 
-	public void setLesson(Lesson lesson) {
-		this.lesson = lesson;
-	}
+    public void setLesson(Lesson lesson) {
+        this.lesson = lesson;
+    }
+
+    public TAF getTAF() {
+        return this.getLesson().getUe().getTaf();
+    }
+
 }
