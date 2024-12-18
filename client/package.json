@@ -1,0 +1,56 @@
+{
+  "name": "client",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@bitnoi.se/react-scheduler": "^0.3.1",
+    "@emotion/react": "^11.13.3",
+    "@emotion/styled": "^11.13.0",
+    "@hello-pangea/dnd": "^17.0.0",
+    "@mui/icons-material": "^6.1.10",
+    "@mui/lab": "^6.0.0-beta.17",
+    "@mui/material": "^6.1.5",
+    "@mui/x-date-pickers": "^7.23.1",
+    "@schedule-x/events-service": "^2.4.1",
+    "@schedule-x/react": "^2.4.1",
+    "@schedule-x/theme-default": "^2.4.1",
+    "@testing-library/jest-dom": "^5.17.0",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
+    "@vitejs/plugin-react-swc": "^3.7.1",
+    "axios": "^1.7.9",
+    "dayjs": "^1.11.13",
+    "ical.js": "^2.1.0",
+    "react": "^18.3.1",
+    "react-big-calendar": "^1.15.0",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.28.0",
+    "react-toastify": "^10.0.6",
+    "vite": "^5.4.11",
+    "web-vitals": "^2.1.4",
+    "zustand": "^5.0.1"
+  },
+  "scripts": {
+    "start": "vite",
+    "build": "vite build",
+    "server": "vite preview"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
