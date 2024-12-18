@@ -23,8 +23,10 @@ import com.planify.server.controller.returnsClass.LessonShort;
 import com.planify.server.controller.returnsClass.TAFReturn;
 import com.planify.server.controller.returnsClass.TAFShort;
 import com.planify.server.controller.returnsClass.UEShort;
+import com.planify.server.models.Block;
 import com.planify.server.models.Calendar;
 import com.planify.server.models.Lesson;
+import com.planify.server.models.Sequencing;
 import com.planify.server.models.TAF;
 import com.planify.server.models.TAFManager;
 import com.planify.server.models.UE;
@@ -169,9 +171,58 @@ public class LessonController {
         }
         UE realUe = ue.get();
 
-        UEShort ueReturn = new UEShort(realUe);
-        System.out.println(realUe.toString());
-        return ResponseEntity.ok(ueReturn);
+        // Find blocks linked to lesson to this UE
+        // for each block find all lessons linked thanks to antecedences
+        // create blockshort and lesson short each time
+
+        List<Lesson> lessons = realUe.getLessons();
+        List<Block> blocks = blockService.findAll().stream()
+            .filter(block -> lessons.contains(block.getFirstLesson()))
+            .collect(Collectors.toList());
+        List<BlockShort> blockShorts = new ArrayList<>();
+        List<Long> blockDependenciesSave = new ArrayList<>();
+
+        for (Block block : blocks) {
+            List<Long> blockDependencies = new ArrayList<>();
+            blockDependencies.addAll(blockDependenciesSave);
+            Lesson currentLesson = block.getFirstLesson();
+            List<LessonShort> lessonShorts = new ArrayList<>();
+            LessonShort currentLessonShort = new LessonShort(
+                currentLesson.getId(),
+                currentLesson.getName(),
+                currentLesson.getDescription(),
+                currentLesson.getLessonLecturers().stream().map(lecturer -> lecturer.getId())
+                    .collect(Collectors.toList()));
+            lessonShorts.add(currentLessonShort);
+            while (!currentLesson.getSequencingsAsPrevious().isEmpty()) {
+                // Adding lesson to list until there are no more lessons in this block
+                Sequencing sequencing = currentLesson.getSequencingsAsPrevious().getFirst();
+                currentLesson = sequencing.getNextLesson();
+                currentLessonShort = new LessonShort(
+                    currentLesson.getId(),
+                    currentLesson.getName(),
+                    currentLesson.getDescription(),
+                    currentLesson.getLessonLecturers().stream().map(lecturer -> lecturer.getId())
+                        .collect(Collectors.toList()));
+                lessonShorts.add(currentLessonShort);
+            }
+
+            System.out.println("BLOCK LESSON :" + block.getId() + lessonShorts);
+            // Adding Block to list
+            blockDependencies.add(block.getId());
+            blockDependenciesSave = blockDependencies;
+            System.out.println("DEPENDENCIES :" + blockDependencies);
+            BlockShort blockShort = new BlockShort(
+                block.getId(),
+                block.getTitle(),
+                block.getDescription(), 
+                lessonShorts, 
+                blockDependencies);
+            blockShorts.add(blockShort);
+        }
+
+        System.out.println(blockShorts.toString());
+        return ResponseEntity.ok(blockShorts);
 
     }
 

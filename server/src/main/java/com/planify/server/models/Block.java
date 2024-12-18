@@ -59,7 +59,7 @@ public class Block {
         this.title = title;
     }
 
-    public String getDescription(String description) {
+    public String getDescription() {
         return this.description;
     }
 
