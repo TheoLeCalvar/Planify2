@@ -11,20 +11,28 @@ import {
     Typography,
     Button,
     CssBaseline,
+    Stack,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { Link, Outlet, useOutletContext } from "react-router-dom";
 import locale from "../../config/locale.json";
 import useStore from "../../hooks/store";
+import axiosInstance from "../../services/axiosConfig";
 
 const drawerWidth = 250; // Width of the sidebar
 
 const SideBar = () => {
-    const isOpen = useStore((state) => state.sideBarOpen)
+    const isOpen = useStore((state) => state.sideBarOpen);
 
-    const context = useOutletContext()
+    const context = useOutletContext();
 
-    const { UE: lessons, id: tafID}  = useOutletContext().taf
+    const { UE: lessons, id: tafID } = useOutletContext().taf;
+
+    const handleGenerateCalendar = async () => {
+        const response = await axiosInstance.get(`/solver/run/${tafID}`);
+        return response.data;
+    }
+        
 
     return (
         <Box sx={{ display: "flex" }}>
@@ -58,12 +66,20 @@ const SideBar = () => {
                     <ListItemButton sx={{ flex: "initial" }}>
                         <ListItemText primary={locale.layout.sideBar.status} />
                     </ListItemButton>
-                    <ListItemButton sx={{ flex: "initial" }} LinkComponent={Link} to="calendar">
+                    <ListItemButton
+                        sx={{ flex: "initial" }}
+                        LinkComponent={Link}
+                        to="calendar"
+                    >
                         <ListItemText
                             primary={locale.layout.sideBar.calendar}
                         />
                     </ListItemButton>
-                    <ListItemButton sx={{ flex: "initial" }} LinkComponent={Link} to="settings">
+                    <ListItemButton
+                        sx={{ flex: "initial" }}
+                        LinkComponent={Link}
+                        to="settings"
+                    >
                         <ListItemText
                             primary={locale.layout.sideBar.preferences}
                         />
@@ -75,7 +91,10 @@ const SideBar = () => {
                     <Box sx={{ flexGrow: 1, overflowY: "auto", px: 2 }}>
                         <List>
                             {lessons.map((lesson) => (
-                                <Link to={`/taf/${tafID}/ue/${lesson.id}`} key={lesson.id}>
+                                <Link
+                                    to={`/taf/${tafID}/ue/${lesson.id}`}
+                                    key={lesson.id}
+                                >
                                     <ListItem
                                         sx={{
                                             display: "flex",
@@ -89,7 +108,8 @@ const SideBar = () => {
                                             variant="body2"
                                             color="textSecondary"
                                         >
-                                            {locale.layout.sideBar.UEManager}: {lesson.responsible}
+                                            {locale.layout.sideBar.UEManager}:{" "}
+                                            {lesson.responsible}
                                         </Typography>
                                     </ListItem>
                                 </Link>
@@ -99,13 +119,22 @@ const SideBar = () => {
 
                     {/* Add Button */}
                     <Box sx={{ p: 2 }}>
-                        <Button
-                            variant="contained"
-                            startIcon={<AddIcon />}
-                            sx={{ width: "100%" }}
-                        >
-                            {locale.layout.sideBar.addUE}
-                        </Button>
+                        <Stack spacing={2}>
+                            <Button
+                                onClick={handleGenerateCalendar}
+                                variant="outlined"
+                                sx={{ width: "100%" }}
+                            >
+                                Générer le calendrier
+                            </Button>
+                            <Button
+                                variant="contained"
+                                startIcon={<AddIcon />}
+                                sx={{ width: "100%" }}
+                            >
+                                {locale.layout.sideBar.addUE}
+                            </Button>
+                        </Stack>
                     </Box>
                 </Box>
             </Drawer>
@@ -124,7 +153,7 @@ const SideBar = () => {
                     //marginLeft: isOpen ? `${drawerWidth}px` : 0,
                 }}
             >
-                <Outlet context={context}/>
+                <Outlet context={context} />
             </Box>
         </Box>
     );
