@@ -26,7 +26,7 @@ public class TAFReturn {
     private List<String> managers;
 
     @JsonManagedReference
-    private String beginDate;
+    private String startDate;
 
     @JsonManagedReference
     private String endDate;
@@ -39,7 +39,7 @@ public class TAFReturn {
         this.UE = UEs;
         this.CalendarsId = CalendarsId;
         this.managers = managers;
-        this.beginDate = beginDate;
+        this.startDate = beginDate;
         this.endDate = endDate;
     }
 
