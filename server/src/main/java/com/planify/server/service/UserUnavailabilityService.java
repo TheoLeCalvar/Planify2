@@ -29,7 +29,7 @@ public class UserUnavailabilityService {
     @Transactional
     public UserUnavailability addUserUnavailability(Slot slot, User user, boolean strict) {
 
-        if (slot == null || slot.getId() == null) {
+    	if (slot == null || slot.getId() == null) {
             System.out.println("SLOT NULL:" + slot);
             throw new IllegalArgumentException("Slot or Slot ID cannot be null");
         }
