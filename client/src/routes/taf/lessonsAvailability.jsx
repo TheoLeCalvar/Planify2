@@ -10,6 +10,8 @@ import ResetButton from "../../components/calendar/ResetButton";
 import ImportExclusionButton from "../../components/calendar/ImportExclusionButton";
 import { useOutletContext, useLoaderData } from "react-router-dom";
 import SaveButton from "../../components/calendar/SaveButton";
+import { USE_MOCK_DATA } from "../../contants";
+import axiosInstance from "../../services/axiosConfig";
 
 export async function loader({ params }) {
   const mockData = null;
@@ -17,11 +19,18 @@ export async function loader({ params }) {
   return mockData;
 }
 
-export async function action({ request }) {
+export async function action({ request, params }) {
   let data = await request.json();
-  console.log(data);
-  await new Promise((res) => setTimeout(res, 1000));
-  return { ok: true };
+
+  if (USE_MOCK_DATA) {
+    console.log(data);
+    await new Promise((res) => setTimeout(res, 1000));
+    return { ok: true };
+  }
+
+  const result = await axiosInstance.put(`/taf/${params.idTAF}/availability`, data);
+  return { ok: result.status === 200 };
+
 }
 
 export default function LessonsAvailability() {

@@ -3,7 +3,6 @@ import React from 'react'
 import { useContext } from 'react'
 import { CalendarContext } from '../../context/CalendarContext'
 
-import generateClassSlots from '../../helper/classSlot'
 import { constants } from '../../contants'
 import locale from '../../config/locale.json'
 
@@ -29,6 +28,7 @@ export default function Calendar() {
  
   const calendar = useCalendarApp({
     ...constants.SCHEDULE_GENERAL_CONFIG,
+    selectedDate: initialEvents[0].start.split(" ")[0],
     events: initialEvents,
     callbacks: {
       onEventClick

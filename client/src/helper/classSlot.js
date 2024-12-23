@@ -17,7 +17,7 @@ export default function generateClassSlots(startDate, endDate){
             slots.forEach((slot, index) => {
                 events.push(JSONToCalendarEvent({
                     id: currentId.toString(),
-                    inWeekId: currentDate.day().toString() + '_' + index.toString(),
+                    inWeekId: currentDate.day().toString() + '_' + (index + 1).toString(),
                     title: `Créneau ${index + 1}`,
                     start: currentDate.format(`YYYY-MM-DD ${slot.start}`),
                     end: currentDate.format(`YYYY-MM-DD ${slot.end}`),

@@ -10,7 +10,7 @@ export function JSONToCalendarEvent(event){
     return {
         id: event.id,
         inWeekId: event.inWeekId,
-        title: event.title,
+        title: "Créneau " + event.inWeekId.split("_")[1],
         start: event.start,
         end: event.end,
         status: event.status,
@@ -25,7 +25,6 @@ export function CalendarEventToJSON(event){
     return {
         id: event.id,
         inWeekId: event.inWeekId,
-        title: event.title,
         start: event.start,
         end: event.end,
         status: event.status
@@ -33,7 +32,7 @@ export function CalendarEventToJSON(event){
 }
 
 export function convertCalendarToGeneric(events){
-    const genericInitialEvents = events.filter(
+    const genericInitialEvents = structuredClone(events).filter(
         (v, i, a) => a.findIndex((t) => t.inWeekId === v.inWeekId) === i
     );
 
