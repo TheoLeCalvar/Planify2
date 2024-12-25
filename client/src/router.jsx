@@ -13,6 +13,7 @@ import { loader as TAFLoader } from "./routes/taf";
 import { loader as AppBarLoader } from "./routes/layout/appBar";
 import { loader as UELoader } from "./routes/ue";
 import { loader as LessonsLoader } from "./routes/ue/lessons";
+import { loader as LessonsAvailabilityLoader } from "./routes/taf/lessonsAvailability";
 import { action as editUEAction } from "./routes/ue/settings";
 import { action as editLessonsAction } from "./routes/ue/lessons";
 import { action as editTAFCalendarAction } from "./routes/taf/lessonsAvailability"
@@ -44,7 +45,8 @@ export const router = createBrowserRouter([
                                     {
                                         path: "calendar",
                                         element: <LessonsAvailability />,
-                                        action: editTAFCalendarAction
+                                        action: editTAFCalendarAction,
+                                        loader: LessonsAvailabilityLoader
                                     },
                                     {
                                         path: "settings",
