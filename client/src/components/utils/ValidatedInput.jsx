@@ -83,6 +83,7 @@ export default function ValidatedInput({
         onChange={handleChange}
         error={!!error}
         helperText={error}
+        required={required}
         {...props}
       />)}
     </>

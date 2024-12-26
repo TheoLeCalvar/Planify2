@@ -18,6 +18,7 @@ import { action as editUEAction } from "./routes/ue/settings";
 import { action as editLessonsAction } from "./routes/ue/lessons";
 import { action as editTAFCalendarAction } from "./routes/taf/lessonsAvailability"
 import { action as editTAFSettingsAction } from "./routes/taf/settings";
+import { action as createNewUserAction } from "./components/createUser"
 
 import { createBrowserRouter } from "react-router-dom";
 import TAFSettings from "./routes/taf/settings";
@@ -72,6 +73,12 @@ export const router = createBrowserRouter([
                                                 loader: LessonsLoader,
                                                 action: editLessonsAction,
                                                 element: <Lessons />,
+                                                children: [
+                                                    {
+                                                        path: "createUser",
+                                                        action: createNewUserAction,
+                                                    }
+                                                ]
                                             },
                                         ],
                                     }

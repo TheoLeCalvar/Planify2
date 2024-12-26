@@ -18,6 +18,7 @@ import {
 } from "@mui/material";
 import { useContext } from "react";
 import { LessonsContext } from "../../context/LessonsContext";
+import CreateUser from "../createUser";
 
 export default function LessonDialog({ open, onClose, onSubmit, initialData }) {
     const [title, setTitle] = useState(initialData?.title || "");
@@ -25,6 +26,8 @@ export default function LessonDialog({ open, onClose, onSubmit, initialData }) {
         initialData?.description || ""
     );
     const [lecturers, setLecturers] = useState(initialData?.lecturers || []);
+
+    const [openNewUser, setOpenNewUser] = useState(false);
 
     const { lecturersList: options, setLecturersList } =
         useContext(LessonsContext);
@@ -112,7 +115,6 @@ export default function LessonDialog({ open, onClose, onSubmit, initialData }) {
                                 option.id === value
                             }
                             renderOption={(props, option, { selected }) => {
-                                console.log(option);
                                 const { key, ...other } = props;
                                 return (
                                     <li key={key} {...other}>
@@ -126,7 +128,6 @@ export default function LessonDialog({ open, onClose, onSubmit, initialData }) {
                             }}
                             renderTags={(value, getTagProps) =>
                                 value.map((option, index) => {
-                                    console.log(value);
                                     const { key, ...tagProps } = getTagProps({
                                         index,
                                     });
@@ -154,7 +155,13 @@ export default function LessonDialog({ open, onClose, onSubmit, initialData }) {
                                     <Typography variant="body2">
                                         Aucun intervenant trouvé.
                                     </Typography>
-                                    <Button color="primary" variant="contained">
+                                    <Button
+                                        color="primary"
+                                        variant="contained"
+                                        onClick={() => {
+                                            setOpenNewUser(true);
+                                        }}
+                                    >
                                         Créer un nouvel intervenant
                                     </Button>
                                 </Stack>
@@ -175,6 +182,18 @@ export default function LessonDialog({ open, onClose, onSubmit, initialData }) {
                     Enregistrer
                 </Button>
             </DialogActions>
+            <Dialog open={openNewUser} onClose={() => setOpenNewUser(false)}>
+                <DialogTitle>
+                    Créer un nouvel utilisateur
+                </DialogTitle>
+                <DialogContent>
+                    <CreateUser
+                        onCancel={() => {
+                            setOpenNewUser(false);
+                        }}
+                    />
+                </DialogContent>
+            </Dialog>
         </Dialog>
     );
 }

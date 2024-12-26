@@ -191,7 +191,6 @@ export default function BlockManager({lessonsData: blocks, setLessonsData: setBl
     };
 
     const handleSaveLesson = (lesson) => {
-        console.log(lesson, currentBlockId);
         setBlocks((prevBlocks) =>
             prevBlocks.map((block) => {
                 if (block.id === currentBlockId) {

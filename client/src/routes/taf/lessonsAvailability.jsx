@@ -23,7 +23,6 @@ export async function action({ request, params }) {
   let data = await request.json();
 
   if (USE_MOCK_DATA) {
-    console.log(data);
     await new Promise((res) => setTimeout(res, 1000));
     return { ok: true };
   }
