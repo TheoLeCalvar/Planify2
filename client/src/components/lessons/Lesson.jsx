@@ -4,7 +4,7 @@ import { Box, IconButton } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import FileCopyIcon from "@mui/icons-material/FileCopy";
-import ConfirmationButton from "../ConfirmationButton";
+import ConfirmationButton from "../utils/ConfirmationButton";
 import Chip from "@mui/material/Chip";
 import { LessonsContext } from "../../context/LessonsContext";
 import { useState } from "react";

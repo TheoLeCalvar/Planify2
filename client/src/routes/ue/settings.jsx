@@ -4,8 +4,8 @@ import {
     useNavigate,
     useOutletContext,
 } from "react-router-dom";
-import ValidatedInput from "../../components/ValidatedInput";
-import ValidatedForm from "../../components/ValidatedForm";
+import ValidatedInput from "../../components/utils/ValidatedInput";
+import ValidatedForm from "../../components/utils/ValidatedForm";
 
 export async function action({ request, params }) {
     //TODO: Update section with backend call

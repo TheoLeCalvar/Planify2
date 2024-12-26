@@ -3,7 +3,7 @@ import { useContext } from "react";
 import { CalendarContext } from "../../context/CalendarContext";
 
 import { convertCalendarToGeneric } from "../../helper/calendarEvent";
-import ConfirmationButton from "../ConfirmationButton";
+import ConfirmationButton from "../utils/ConfirmationButton";
 
 import { toast } from "react-toastify";
 

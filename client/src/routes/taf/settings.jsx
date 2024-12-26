@@ -4,8 +4,8 @@ import {
     useNavigate,
     useOutletContext,
 } from "react-router-dom";
-import ValidatedInput from "../../components/ValidatedInput";
-import ValidatedForm from "../../components/ValidatedForm";
+import ValidatedInput from "../../components/utils/ValidatedInput";
+import ValidatedForm from "../../components/utils/ValidatedForm";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";

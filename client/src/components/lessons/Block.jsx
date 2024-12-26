@@ -13,7 +13,7 @@ import {
 import { Draggable, Droppable } from "@hello-pangea/dnd";
 import Lesson from "./Lesson";
 import FileCopyIcon from "@mui/icons-material/FileCopy";
-import ConfirmationButton from "../ConfirmationButton";
+import ConfirmationButton from "../utils/ConfirmationButton";
 import { useState } from "react";
 
 export default function Block({

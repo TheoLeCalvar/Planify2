@@ -2,7 +2,7 @@ import importCalendar from '../../helper/importCalendar'
 import { constants } from '../../contants'
 import { useContext } from 'react'
 import { CalendarContext } from '../../context/CalendarContext'
-import ConfirmationButton from "../ConfirmationButton";
+import ConfirmationButton from "../utils/ConfirmationButton";
 
 export default function ImportButton(){
 

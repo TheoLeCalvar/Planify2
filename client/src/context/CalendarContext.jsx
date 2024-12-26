@@ -1,6 +1,6 @@
 import {act, createContext , useMemo} from "react";
 import { createEventsServicePlugin } from '@schedule-x/events-service';
-import ConfirmationDialog from "../components/ConfirmationDialog";
+import ConfirmationDialog from "../components/utils/ConfirmationDialog";
 
 import { useState } from "react";
 import { JSONToCalendarEvent } from "../helper/calendarEvent";
