@@ -26,7 +26,7 @@ import com.planify.server.models.Week;
 
 public class SolverMain {
 	//Services
-	static SolverServices services;
+	private static SolverServices services;
 	
 	private Calendar cal;
 	private BijectiveHashMap<Long, Integer> idMSlot;
@@ -43,7 +43,7 @@ public class SolverMain {
 	
 	private HashMap<Long, Integer> IdMSlotGlobal;
 
-	public SolverMain(Calendar cal) {
+	private SolverMain(Calendar cal) {
 		this.cal = cal;
 		idMSlot = new BijectiveHashMap<Long, Integer>();
 		slotVarLesson = new HashMap<Long, IntVar>();
@@ -58,53 +58,53 @@ public class SolverMain {
 		idMWeek = new BijectiveHashMap<Long, Integer>();
 	}
 	
-	public Calendar getCal() {return this.cal;};
+	private Calendar getCal() {return this.cal;};
 	
-	public Integer getIdMSlot(Slot slot) {return idMSlot.getValue(slot.getId());}
-	public Integer[] getIdMSlot(Slot[] slots) {return IntStream.range(0, slots.length).mapToObj(i -> getIdMSlot(slots[i])).toArray(Integer[]::new);}
-	public Long getIdSlot(Integer idM) {return idMSlot.getKey(idM);}
-	public Long[] getIdSlot(Integer[] idMs) {return IntStream.range(0, idMs.length).mapToObj(i -> getIdSlot(idMs[i])).toArray(Long[]::new);}
+	private Integer getIdMSlot(Slot slot) {return idMSlot.getValue(slot.getId());}
+	private Integer[] getIdMSlot(Slot[] slots) {return IntStream.range(0, slots.length).mapToObj(i -> getIdMSlot(slots[i])).toArray(Integer[]::new);}
+	private Long getIdSlot(Integer idM) {return idMSlot.getKey(idM);}
+	private Long[] getIdSlot(Integer[] idMs) {return IntStream.range(0, idMs.length).mapToObj(i -> getIdSlot(idMs[i])).toArray(Long[]::new);}
 	
-	public IntVar getSlotVarLesson(Slot slot) {return slotVarLesson.get(slot.getId());}
-	public IntVar[] getSlotVarLesson(Slot[] slots) {return IntStream.range(0, slots.length).mapToObj(i -> getSlotVarLesson(slots[i])).toArray(IntVar[]::new);}
+	private IntVar getSlotVarLesson(Slot slot) {return slotVarLesson.get(slot.getId());}
+	private IntVar[] getSlotVarLesson(Slot[] slots) {return IntStream.range(0, slots.length).mapToObj(i -> getSlotVarLesson(slots[i])).toArray(IntVar[]::new);}
 	
-	public IntVar getSlotVarUe(Slot slot) {return slotVarUe.get(slot.getId());}
-	public IntVar[] getSlotVarUe(Slot[] slots) {return IntStream.range(0, slots.length).mapToObj(i -> getSlotVarUe(slots[i])).toArray(IntVar[]::new);}
+	private IntVar getSlotVarUe(Slot slot) {return slotVarUe.get(slot.getId());}
+	private IntVar[] getSlotVarUe(Slot[] slots) {return IntStream.range(0, slots.length).mapToObj(i -> getSlotVarUe(slots[i])).toArray(IntVar[]::new);}
 	
-	public Integer getIdMLesson(Lesson lesson) {return idMLesson.getValue(lesson.getId());}
-	public Integer[] getIdMLesson(Lesson[] lessons) {return IntStream.range(0, lessons.length).mapToObj(i -> getIdMLesson(lessons[i])).toArray(Integer[]::new);}
-	public Long getIdLesson(Integer idM) {return idMLesson.getKey(idM);}
-	public Long[] getIdLesson(Integer[] idMs) {return IntStream.range(0, idMs.length).mapToObj(i -> getIdLesson(idMs[i])).toArray(Long[]::new);}
+	private Integer getIdMLesson(Lesson lesson) {return idMLesson.getValue(lesson.getId());}
+	private Integer[] getIdMLesson(Lesson[] lessons) {return IntStream.range(0, lessons.length).mapToObj(i -> getIdMLesson(lessons[i])).toArray(Integer[]::new);}
+	private Long getIdLesson(Integer idM) {return idMLesson.getKey(idM);}
+	private Long[] getIdLesson(Integer[] idMs) {return IntStream.range(0, idMs.length).mapToObj(i -> getIdLesson(idMs[i])).toArray(Long[]::new);}
 	
-	public IntVar getLessonVarSlot(Lesson lesson) {return lessonVarSlot.get(lesson.getId());}
-	public IntVar[] getLessonVarSlot(Lesson[] lessons) {return IntStream.range(0, lessons.length).mapToObj(i -> getLessonVarSlot(lessons[i])).toArray(IntVar[]::new);}
+	private IntVar getLessonVarSlot(Lesson lesson) {return lessonVarSlot.get(lesson.getId());}
+	private IntVar[] getLessonVarSlot(Lesson[] lessons) {return IntStream.range(0, lessons.length).mapToObj(i -> getLessonVarSlot(lessons[i])).toArray(IntVar[]::new);}
 
-	public IntVar getLessonVarSlotGlobal(Lesson lesson) {return lessonVarSlotGlobal.get(lesson.getId());}
-	public IntVar[] getLessonVarSlotGlobal(Lesson[] lessons) {return IntStream.range(0, lessons.length).mapToObj(i -> getLessonVarSlotGlobal(lessons[i])).toArray(IntVar[]::new);}
+	private IntVar getLessonVarSlotGlobal(Lesson lesson) {return lessonVarSlotGlobal.get(lesson.getId());}
+	private IntVar[] getLessonVarSlotGlobal(Lesson[] lessons) {return IntStream.range(0, lessons.length).mapToObj(i -> getLessonVarSlotGlobal(lessons[i])).toArray(IntVar[]::new);}
 	
-	public IntVar getLessonVarDay(Lesson lesson) {return lessonVarDay.get(lesson.getId());}
-	public IntVar[] getLessonVarDay(Lesson[] lessons) {return IntStream.range(0, lessons.length).mapToObj(i -> getLessonVarDay(lessons[i])).toArray(IntVar[]::new);}
+	private IntVar getLessonVarDay(Lesson lesson) {return lessonVarDay.get(lesson.getId());}
+	private IntVar[] getLessonVarDay(Lesson[] lessons) {return IntStream.range(0, lessons.length).mapToObj(i -> getLessonVarDay(lessons[i])).toArray(IntVar[]::new);}
 	
-	public IntVar getLessonVarWeek(Lesson lesson) {return lessonVarWeek.get(lesson.getId());}
-	public IntVar[] getLessonVarWeek(Lesson[] lessons) {return IntStream.range(0, lessons.length).mapToObj(i -> getLessonVarWeek(lessons[i])).toArray(IntVar[]::new);}
+	private IntVar getLessonVarWeek(Lesson lesson) {return lessonVarWeek.get(lesson.getId());}
+	private IntVar[] getLessonVarWeek(Lesson[] lessons) {return IntStream.range(0, lessons.length).mapToObj(i -> getLessonVarWeek(lessons[i])).toArray(IntVar[]::new);}
 	
-	public Integer getIdMUe(UE ue) {return idMUe.getValue(ue.getId());}
-	public Integer[] getIdMUe(UE[] ues) {return IntStream.range(0, ues.length).mapToObj(i -> getIdMUe(ues[i])).toArray(Integer[]::new);}
-	public Long getIdUe(Integer idM) {return idMUe.getKey(idM);}
-	public Long[] getIdUe(Integer[] idMs) {return IntStream.range(0, idMs.length).mapToObj(i -> getIdUe(idMs[i])).toArray(Long[]::new);}
+	private Integer getIdMUe(UE ue) {return idMUe.getValue(ue.getId());}
+	private Integer[] getIdMUe(UE[] ues) {return IntStream.range(0, ues.length).mapToObj(i -> getIdMUe(ues[i])).toArray(Integer[]::new);}
+	private Long getIdUe(Integer idM) {return idMUe.getKey(idM);}
+	private Long[] getIdUe(Integer[] idMs) {return IntStream.range(0, idMs.length).mapToObj(i -> getIdUe(idMs[i])).toArray(Long[]::new);}
 	
-	public Integer getIdMDay(Day day) {return idMDay.getValue(day.getId());}
-	public Integer[] getIdMDay(Day[] days) {return IntStream.range(0, days.length).mapToObj(i -> getIdMDay(days[i])).toArray(Integer[]::new);}
-	public Long getIdDay(Integer idM) {return idMDay.getKey(idM);}
-	public Long[] getIdDay(Integer[] idMs) {return IntStream.range(0, idMs.length).mapToObj(i -> getIdDay(idMs[i])).toArray(Long[]::new);}
+	private Integer getIdMDay(Day day) {return idMDay.getValue(day.getId());}
+	private Integer[] getIdMDay(Day[] days) {return IntStream.range(0, days.length).mapToObj(i -> getIdMDay(days[i])).toArray(Integer[]::new);}
+	private Long getIdDay(Integer idM) {return idMDay.getKey(idM);}
+	private Long[] getIdDay(Integer[] idMs) {return IntStream.range(0, idMs.length).mapToObj(i -> getIdDay(idMs[i])).toArray(Long[]::new);}
 	
-	public Integer getIdMWeek(Week week) {return idMWeek.getValue(week.getId());}
-	public Integer[] getIdMWeek(Week[] weeks) {return IntStream.range(0, weeks.length).mapToObj(i -> getIdMWeek(weeks[i])).toArray(Integer[]::new);}
-	public Long getIdWeek(Integer idM) {return idMWeek.getKey(idM);}
-	public Long[] getIdWeek(Integer[] idMs) {return IntStream.range(0, idMs.length).mapToObj(i -> getIdWeek(idMs[i])).toArray(Long[]::new);}
+	private Integer getIdMWeek(Week week) {return idMWeek.getValue(week.getId());}
+	private Integer[] getIdMWeek(Week[] weeks) {return IntStream.range(0, weeks.length).mapToObj(i -> getIdMWeek(weeks[i])).toArray(Integer[]::new);}
+	private Long getIdWeek(Integer idM) {return idMWeek.getKey(idM);}
+	private Long[] getIdWeek(Integer[] idMs) {return IntStream.range(0, idMs.length).mapToObj(i -> getIdWeek(idMs[i])).toArray(Long[]::new);}
 	
-	public Integer getIdMSlotGlobal(Slot slot) {return IdMSlotGlobal.get(slot.getId());}
-	public Integer[] getIdMSlotGlobal(Slot[] slots) {return IntStream.range(0, slots.length).mapToObj(i -> getIdMSlotGlobal(slots[i])).toArray(Integer[]::new);}
+	private Integer getIdMSlotGlobal(Slot slot) {return IdMSlotGlobal.get(slot.getId());}
+	private Integer[] getIdMSlotGlobal(Slot[] slots) {return IntStream.range(0, slots.length).mapToObj(i -> getIdMSlotGlobal(slots[i])).toArray(Integer[]::new);}
 	
 	public static void setServices(SolverServices services) {
 		SolverMain.services = services;
@@ -230,21 +230,21 @@ public class SolverMain {
 			}
 	}
 	
-	public int getNumberOfSlots() {
+	private int getNumberOfSlots() {
 		return services.getCalendarService().getNumberOfSlots(cal.getId());
 	}
 	
-	public int getNumberOfLessons() {
+	private int getNumberOfLessons() {
 		return services.getTafService().numberOfLessons(cal.getTaf().getId());
 	}
 	
-	public static int getNumberOfSlots(HashMap<Long, Integer> idToIdMGlob) {
+	/*private static int getNumberOfSlots(HashMap<Long, Integer> idToIdMGlob) {
 		int max = 0;
 		for (Integer iVal : idToIdMGlob.values())
 			if (max < iVal)
 				max = iVal;
 		return max;
-	}
+	}*/
 	
 	private static HashMap<Long, Integer> getIdToIdMGlobalCals(Calendar[] cals){
 		HashMap<Long, Integer> idToIdMGlob = new HashMap<Long, Integer>();
@@ -295,7 +295,7 @@ public class SolverMain {
 		return false;
 	}
 
-	public void setConstraints(Model model) {
+	private void setConstraints(Model model) {
 		setConstraintLinkLessonsSlots(model);
 		if (this.IdMSlotGlobal != null) setConstraintLinkSlotGlobalDayWeek(model, true, false, false);
 		/*if (cal.hasConstraintGlobalUnavailability()*/ setConstraintGlobalUnavailability(model);
@@ -397,7 +397,7 @@ public class SolverMain {
 		}
 	}
 	
-	public static void setSynchronisationConstraints(Model model, SolverMain[] solMains) {
+	private static void setSynchronisationConstraints(Model model, SolverMain[] solMains) {
 		for (int i = 0; i < solMains.length - 1; i ++) {
 			for (Synchronization sync : services.getSynchronizationService().getSynchronizationsByIdTaf(solMains[i].getCal().getTaf().getId()))
 				if (sync.getLesson1().getUe().getTaf().getId() == solMains[i].getCal().getTaf().getId())
@@ -412,13 +412,13 @@ public class SolverMain {
 		return null;
 	}
 
-	public void setConstraintGlobalUnavailability(Model model) {
+	private void setConstraintGlobalUnavailability(Model model) {
 		for (Slot slot : services.getCalendarService().getSlotsOrdered(cal.getId()))
 			if (services.getGlobalUnavailabilityService().findBySlot(slot).filter(g -> g.getStrict()).isPresent())
 				model.arithm(this.getSlotVarLesson(slot), "=", 0).post();
 	}
 
-	public void setConstraintLecturerUnavailability(Model model) {
+	private void setConstraintLecturerUnavailability(Model model) {
 		for (UE ue : cal.getTaf().getUes())
 			for (Lesson lesson : ue.getLessons())
 				for (Slot slot : services.getLessonService().findLessonLecturersUnavailabilitiesByLessonAndCalendar(lesson, cal))
@@ -426,7 +426,7 @@ public class SolverMain {
 	}
 	
 	
-	public IntVar setPreferences(Model model) {
+	private IntVar setPreferences(Model model) {
 		ArrayList<IntVar> preferences = new ArrayList<IntVar>();
 		/*if (preferencesGlobal)*/ preferences.add(setPreferencesGlobal(model));
 		/*if (preferencesLecturers)*/ preferences.add(setPreferencesLecturers(model));
@@ -437,7 +437,7 @@ public class SolverMain {
 		return null;
 	}
 
-	public IntVar setPreferencesLecturers(Model model) {
+	private IntVar setPreferencesLecturers(Model model) {
 		
 		//IntVar notPreferredAllocations = model.intVar("NotPreferredAllocations", 0, Integer.MAX_VALUE);
 		ArrayList<IntVar> isNotPreferredVars = new ArrayList<IntVar>();
@@ -455,13 +455,13 @@ public class SolverMain {
 		return model.sum("NotPreferredAllocations", isNotPreferredVars.stream().toArray(IntVar[]::new));
 	}
 	
-	public static void setStrategy(SolverMain solMain, Solver solver, Calendar cal) {
+	private static void setStrategy(SolverMain solMain, Solver solver, Calendar cal) {
 		IntVar[] decisionVars = solMain.getDecisionVars();
 		solver.setSearch(Search.minDomLBSearch(decisionVars));
 		//solver.setSearch(Search.minDomUBSearch(decisionVars));
 	}
 	
-	public static void setStrategy(SolverMain[] solMains, Solver solver, Calendar[] cals) {
+	private static void setStrategy(SolverMain[] solMains, Solver solver, Calendar[] cals) {
 		IntVar[] decisionVars = ArrayUtils.flatten(IntStream.range(0, cals.length).
 									mapToObj(i -> solMains[i].getDecisionVars()).toArray(IntVar[][]::new));  
 		solver.setSearch(Search.minDomLBSearch(decisionVars));
@@ -469,39 +469,39 @@ public class SolverMain {
 		
 	}
 	
-	public IntVar[] getDecisionVars() {
+	private IntVar[] getDecisionVars() {
 		return getVarDecisionSlots();
 	}
 	
-	public IntVar[] getVarDecisionSlots() {
+	private IntVar[] getVarDecisionSlots() {
 		List<IntVar> vars = new ArrayList<IntVar>();
 		vars.addAll(cal.getSlots().stream().map(s -> getSlotVarLesson(s)).toList());
 		IntVar[] varsArr = convertListToArrayIntVar(vars);
 		return varsArr;
 	}
 	
-	public IntVar[] convertListToArrayIntVar(List<IntVar> list){
+	private IntVar[] convertListToArrayIntVar(List<IntVar> list){
 		IntVar[] arr = new IntVar[list.size()];
 		for (int i = 0; i < list.size(); i ++) arr[i] = list.get(i);
 		return arr;
 	}
 	
-	public int[] getArrayInt(Integer[] tbl) {
+	private int[] getArrayInt(Integer[] tbl) {
 		int[] tblRes = new int[tbl.length];
 		for (int i = 0; i < tbl.length; i ++)
 			tblRes[i] = tbl[i].intValue();
 		return tblRes;
 	}
 	
-	public String nameSlot(Slot slot) {
+	private String nameSlot(Slot slot) {
 		return "Slot " + idMSlot.getValue(slot.getId()) + " (" + slot.getId() + ")";
 	}
 	
-	public String nameLesson(Lesson lesson) {
+	private String nameLesson(Lesson lesson) {
 		return "Lesson " + idMLesson.getValue(lesson.getId()) + " (" + lesson.getId() + ")";
 	}
 	
-	public String makeSolutionString(Solution solution) {
+	private String makeSolutionString(Solution solution) {
 		StringBuilder res = new StringBuilder();
 		res.append("{\"slots\":[");
 		cal.getSlots().stream().forEach(s -> res.append("{\"id\":" + s.getId() + (solution.getIntVal(getSlotVarLesson(s)) != 0 ? ",\"lessonId\":" + this.getIdLesson(solution.getIntVal(getSlotVarLesson(s))) :  "") + "},"));
@@ -510,7 +510,7 @@ public class SolverMain {
 		return res.toString();
 	}
 	
-	public String showSolutionsDebug(Solution solution) {
+	private String showSolutionsDebug(Solution solution) {
 		StringBuilder res = new StringBuilder();
 		res.append(cal.getTaf().getName() + "\r\n");
 		res.append("Slots : [");
