@@ -176,8 +176,8 @@ public class LessonController {
 
         List<Lesson> lessons = realUe.getLessons();
         List<Block> blocks = blockService.findAll().stream()
-            .filter(block -> lessons.contains(block.getFirstLesson()))
-            .collect(Collectors.toList());
+                .filter(block -> lessons.contains(block.getFirstLesson()))
+                .collect(Collectors.toList());
         List<BlockShort> blockShorts = new ArrayList<>();
         List<Long> blockDependenciesSave = new ArrayList<>();
 
@@ -187,22 +187,22 @@ public class LessonController {
             Lesson currentLesson = block.getFirstLesson();
             List<LessonShort> lessonShorts = new ArrayList<>();
             LessonShort currentLessonShort = new LessonShort(
-                currentLesson.getId(),
-                currentLesson.getName(),
-                currentLesson.getDescription(),
-                currentLesson.getLessonLecturers().stream().map(lecturer -> lecturer.getId())
-                    .collect(Collectors.toList()));
+                    currentLesson.getId(),
+                    currentLesson.getName(),
+                    currentLesson.getDescription(),
+                    currentLesson.getLessonLecturers().stream().map(lecturer -> lecturer.getId())
+                            .collect(Collectors.toList()));
             lessonShorts.add(currentLessonShort);
             while (!currentLesson.getSequencingsAsPrevious().isEmpty()) {
                 // Adding lesson to list until there are no more lessons in this block
                 Sequencing sequencing = currentLesson.getSequencingsAsPrevious().getFirst();
                 currentLesson = sequencing.getNextLesson();
                 currentLessonShort = new LessonShort(
-                    currentLesson.getId(),
-                    currentLesson.getName(),
-                    currentLesson.getDescription(),
-                    currentLesson.getLessonLecturers().stream().map(lecturer -> lecturer.getId())
-                        .collect(Collectors.toList()));
+                        currentLesson.getId(),
+                        currentLesson.getName(),
+                        currentLesson.getDescription(),
+                        currentLesson.getLessonLecturers().stream().map(lecturer -> lecturer.getId())
+                                .collect(Collectors.toList()));
                 lessonShorts.add(currentLessonShort);
             }
 
@@ -212,17 +212,32 @@ public class LessonController {
             blockDependenciesSave = blockDependencies;
             System.out.println("DEPENDENCIES :" + blockDependencies);
             BlockShort blockShort = new BlockShort(
-                block.getId(),
-                block.getTitle(),
-                block.getDescription(), 
-                lessonShorts, 
-                blockDependencies);
+                    block.getId(),
+                    block.getTitle(),
+                    block.getDescription(),
+                    lessonShorts,
+                    blockDependencies);
             blockShorts.add(blockShort);
         }
 
         System.out.println(blockShorts.toString());
         return ResponseEntity.ok(blockShorts);
 
+    }
+
+    @PutMapping(value = "/ue/{ueId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> modifyUE(@PathVariable Long ueId, @RequestBody UEShort newUE) {
+        Optional<UE> oue = ueService.findById(ueId);
+        if (oue.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorResponse("No UE with this id was found", 404));
+        }
+
+        UE ue = oue.get();
+        ue.setName(newUE.getName());
+        ue.setDescription(newUE.getDescription());
+        ueService.save(ue);
+        return ResponseEntity.ok(ue);
     }
 
 }
