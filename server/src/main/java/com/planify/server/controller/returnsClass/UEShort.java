@@ -35,4 +35,12 @@ public class UEShort {
         this.managers = ue.getUeManagers().stream().map(UEManager::getUserName).collect(Collectors.toList());
     }
 
+    public String getName() {
+        return this.name;
+    }
+
+    public String getDescription() {
+        return this.description;
+    }
+
 }
