@@ -8,14 +8,26 @@ public class UserShort {
     private Long id;
 
     @JsonManagedReference
-    private String name;
+    private String fullname;
+
+    @JsonManagedReference
+    private String firstname;
+
+    @JsonManagedReference
+    private String lastname;
+
+    @JsonManagedReference
+    private String email;
 
     @JsonManagedReference
     private boolean alreadySelected;
 
     public UserShort(Long id, String name, boolean alreadySelected) {
         this.id = id;
-        this.name = name;
+        this.fullname = name;
+        this.email = "";
+        this.firstname = "";
+        this.lastname = "";
         this.alreadySelected = alreadySelected;
     }
 
@@ -23,8 +35,20 @@ public class UserShort {
         return this.id;
     }
 
-    public String getName() {
-        return this.name;
+    public String getFullName() {
+        return this.fullname;
+    }
+
+    public String getFirstName() {
+        return this.firstname;
+    }
+
+    public String getLastName() {
+        return this.lastname;
+    }
+
+    public String getEmail() {
+        return this.email;
     }
 
     public boolean getAlreadySelected() {

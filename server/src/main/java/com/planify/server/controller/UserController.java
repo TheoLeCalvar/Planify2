@@ -12,10 +12,12 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import com.planify.server.controller.returnsClass.UserShort;
 import com.planify.server.models.LessonLecturer;
@@ -66,6 +68,18 @@ public class UserController {
             }
         }
         return ResponseEntity.ok(answers);
+    }
+
+    @PostMapping
+    public ResponseEntity<String> createUser(@RequestBody UserShort userRequest) {
+        Optional<User> user = userService.findById(userRequest.getId());
+
+        if (user.isPresent()) {
+            return ResponseEntity.status(209).body("User already exists");
+        }
+        userService.addUser(userRequest.getFirstName(), userRequest.getLastName(), userRequest.getEmail(),
+                "not implemented".toCharArray());
+        return ResponseEntity.ok("User created !");
     }
 
 }
