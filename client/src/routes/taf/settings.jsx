@@ -11,9 +11,11 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
+import axiosInstance from "../../services/axiosConfig";
 
 import "dayjs/locale/fr";
 import { Stack } from "@mui/material";
+import { USE_MOCK_DATA } from "../../contants";
 
 dayjs.extend(customParseFormat);
 
@@ -22,16 +24,23 @@ export async function action({ request, params }) {
 
     const formData = await request.formData();
     const updates = Object.fromEntries(formData);
-    const delay = () => {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                resolve("Résolu après 2 secondes");
-            }, 2000); // 2000 millisecondes = 2 secondes
-        });
-    };
 
-    await delay();
-    console.log(updates);
+    if (USE_MOCK_DATA) {
+        const delay = () => {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    resolve("Résolu après 2 secondes");
+                }, 2000); // 2000 millisecondes = 2 secondes
+            });
+        };
+
+        await delay();
+        console.log(updates);
+    }
+    else {
+        const response = await axiosInstance.put(`/taf/${params.idTAF}`, updates);
+    }
+
     return redirect("..");
 }
 
@@ -53,16 +62,24 @@ export default function TAFSettings() {
             default:
                 return "";
             case "endDate":
-                const compareValue = dayjs.isDayjs(value) ? value : dayjs(value, "DD/MM/YYYY");
-                if (!compareValue.isValid()){
+                const compareValue = dayjs.isDayjs(value)
+                    ? value
+                    : dayjs(value, "DD/MM/YYYY");
+                if (!compareValue.isValid()) {
                     return "La date de fin n'est pas valide.";
                 }
-                if (compareValue.isBefore(dayjs(otherValues.startDate, "DD/MM/YYYY"))) {
+                if (
+                    compareValue.isBefore(
+                        dayjs(otherValues.startDate, "DD/MM/YYYY")
+                    )
+                ) {
                     return "La date de fin doit être après la date de début.";
                 }
             case "startDate":
-                const compareValue2 = dayjs.isDayjs(value) ? value : dayjs(value, "DD/MM/YYYY");
-                if (!compareValue2.isValid()){
+                const compareValue2 = dayjs.isDayjs(value)
+                    ? value
+                    : dayjs(value, "DD/MM/YYYY");
+                if (!compareValue2.isValid()) {
                     return "La date de début n'est pas valide.";
                 }
         }
@@ -98,19 +115,20 @@ export default function TAFSettings() {
                     adapterLocale="fr"
                 >
                     <Stack direction="row" spacing={2}>
-                        <ValidatedInput name="startDate" label="Date de début des cours">
-                            <DatePicker
-                                minDate={minDate}
-                                maxDate={maxDate}
-                            />
+                        <ValidatedInput
+                            name="startDate"
+                            label="Date de début des cours"
+                            defaultValue={dayjs(taf.startDate, "YYYY-MM-DD")}
+                        >
+                            <DatePicker minDate={minDate} maxDate={maxDate} />
                         </ValidatedInput>
-                        <ValidatedInput name="endDate" label="Date de fin des cours">
-                            <DatePicker
-                                minDate={minDate}
-                                maxDate={maxDate}
-                            />
+                        <ValidatedInput
+                            name="endDate"
+                            label="Date de fin des cours"
+                            defaultValue={dayjs(taf.endDate, "YYYY-MM-DD")}
+                        >
+                            <DatePicker minDate={minDate} maxDate={maxDate} />
                         </ValidatedInput>
-                        
                     </Stack>
                 </LocalizationProvider>
             </ValidatedForm>

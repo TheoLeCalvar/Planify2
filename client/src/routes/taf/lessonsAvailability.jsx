@@ -15,6 +15,10 @@ import axiosInstance from "../../services/axiosConfig";
 
 export async function loader({ params }) {
 
+  if (USE_MOCK_DATA) {
+    return null
+  }
+
   const response = await axiosInstance.get(`/taf/${params.idTAF}/availability`);
   return response.data;
 }

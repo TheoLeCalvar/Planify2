@@ -6,22 +6,30 @@ import {
 } from "react-router-dom";
 import ValidatedInput from "../../components/utils/ValidatedInput";
 import ValidatedForm from "../../components/utils/ValidatedForm";
+import { USE_MOCK_DATA } from "../../contants";
+import axiosInstance from "../../services/axiosConfig";
 
 export async function action({ request, params }) {
     //TODO: Update section with backend call
 
     const formData = await request.formData();
     const updates = Object.fromEntries(formData);
-    const delay = () => {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                resolve("Résolu après 2 secondes");
-            }, 2000); // 2000 millisecondes = 2 secondes
-        });
-    };
 
-    await delay();
-    console.log(updates);
+    if (USE_MOCK_DATA) {
+        const delay = () => {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    resolve("Résolu après 2 secondes");
+                }, 2000); // 2000 millisecondes = 2 secondes
+            });
+        };
+
+        await delay();
+        console.log(updates);
+    } else {
+        const response = await axiosInstance.put(`/ue/${params.idUE}`, updates);
+    }
+
     return redirect("..");
 }
 
@@ -45,8 +53,7 @@ export default function UESettings() {
 
     const onCancel = () => {
         navigate("..");
-    }
-
+    };
 
     return (
         <>
