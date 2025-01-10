@@ -70,7 +70,7 @@ public class UserController {
         return ResponseEntity.ok(answers);
     }
 
-    @PostMapping
+    @PostMapping(value = "users")
     public ResponseEntity<String> createUser(@RequestBody UserShort userRequest) {
         Optional<User> user = userService.findById(userRequest.getId());
 
