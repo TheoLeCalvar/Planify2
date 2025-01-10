@@ -7,19 +7,15 @@ import com.planify.server.models.LessonLecturer.LessonLecturerId;
 
 public class LessonShort {
 
-    @JsonManagedReference
     private Long id;
 
-    @JsonManagedReference
     private String title;
 
-    @JsonManagedReference
     private String description;
 
-    @JsonManagedReference
-    private List<LessonLecturerId> lecturers;
+    private List<Long> lecturers;
 
-    public LessonShort(Long id, String title, String description, List<LessonLecturerId> lecturers) {
+    public LessonShort(Long id, String title, String description, List<Long> lecturers) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -30,12 +26,32 @@ public class LessonShort {
         return this.id;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public String getTitle() {
         return this.title;
     }
 
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
     public String getDescription() {
         return this.description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public List<Long> getLecturers() {
+        return this.lecturers;
+    }
+
+    public void setLecturers(List<Long> lects) {
+        this.lecturers = lects;
     }
 
 }

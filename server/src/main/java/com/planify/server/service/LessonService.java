@@ -160,4 +160,8 @@ public class LessonService {
         }
     }
 
+    public List<Lesson> findByUE() {
+        return lessonRepository.findByUe(null);
+    }
+
 }

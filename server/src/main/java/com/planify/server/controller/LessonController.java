@@ -29,13 +29,16 @@ import com.planify.server.models.Lesson;
 import com.planify.server.models.Sequencing;
 import com.planify.server.models.TAF;
 import com.planify.server.models.UE;
+import com.planify.server.models.User;
 import com.planify.server.service.AntecedenceService;
 import com.planify.server.service.BlockService;
+import com.planify.server.service.LessonLecturerService;
 import com.planify.server.service.LessonService;
 import com.planify.server.service.SequencingService;
 import com.planify.server.service.SynchronizationService;
 import com.planify.server.service.TAFService;
 import com.planify.server.service.UEService;
+import com.planify.server.service.UserService;
 
 @RestController
 @RequestMapping("/api")
@@ -61,6 +64,16 @@ public class LessonController {
 
     @Autowired
     private BlockService blockService;
+
+    @Autowired
+    private LessonLecturerService lessonLecturerService;
+
+    @Autowired
+    private UserService userService;
+
+    final String RESET = "\u001B[0m";
+    final String RED = "\u001B[31m";
+    final String GREEN = "\u001B[32m";
 
     // Get the list of TAF
     @GetMapping(value = "/taf", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -96,8 +109,21 @@ public class LessonController {
         return ResponseEntity.ok(tafReturn);
     }
 
+    // Add the lessons to the UE
     @PutMapping(value = "/ue/{ueId}/lesson", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> putLessonInUE(@PathVariable Long ueId, @RequestBody List<BlockShort> blocks) {
+        // Check if the UE exists
+        if (!ueService.existsById(ueId)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorResponse("UE not found", 404));
+        }
+
+        // Delete the previous lessons of the UE
+        List<Lesson> oldLessons = lessonService.findByUE();
+
+        // HERRRRRRE !!!!!!!!
+
+        // Add the lessons and their impacts
         if (blocks.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ErrorResponse("The body is empty", 404));
@@ -116,15 +142,36 @@ public class LessonController {
                     for (LessonShort lesson : block.getLessons()) {
                         Lesson realLesson = lessonService.add(lesson.getTitle(), lesson.getDescription(), ue);
                         reaLessons.add(realLesson);
+
+                        // Save the lecturers of the lesson
+                        if (!(lesson.getLecturers() == null)) {
+                            for (Long lecturerId : lesson.getLecturers()) {
+                                Optional<User> user = userService.findById(lecturerId);
+                                if (user.isEmpty()) {
+                                    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                            .body(new ErrorResponse("The user " + Long.toString(lecturerId)
+                                                    + " is not found. (Lecturer of lesson: " + lesson.getTitle() + ")",
+                                                    404));
+                                }
+                                lessonLecturerService.addLessonLecturer(user.get(), realLesson);
+                            }
+                        }
+
                     }
+
+                    System.out.println(GREEN + "Lessons of block " + block.getTitle() + " have been added" + RESET);
 
                     // Add the block to the DB
                     blockService.addBlock(block.getTitle(), reaLessons.get(0), block.getDescription());
+
+                    System.out.println(GREEN + "Block " + block.getTitle() + " has been added" + RESET);
 
                     // Add the antecedence for lesson in two differents block
                     for (Long anteriorBlock : block.getDependencies()) {
                         Lesson anteriorLesson = lastLessonOfBlocks.get(anteriorBlock);
                         antecedenceService.addAntecedence(anteriorLesson, reaLessons.get(0));
+                        System.out.println(GREEN + "Antecedence of Lessons between " + Long.toString(anteriorBlock)
+                                + " and " + block.getTitle() + " has been added" + RESET);
                     }
 
                     // Add the antecedence and the sequencing for the lessons in a same block
@@ -133,7 +180,10 @@ public class LessonController {
                         sequencingService.add(reaLessons.get(i), reaLessons.get(i + 1));
                     }
 
-                    lastLessonOfBlocks.put(block.getId(), reaLessons.get(reaLessons.size()));
+                    System.out.println(GREEN + "Antecedence and Sequencing in the " + block.getTitle()
+                            + " have been added" + RESET);
+
+                    lastLessonOfBlocks.put(block.getId(), reaLessons.get(reaLessons.size() - 1));
                 }
 
                 return ResponseEntity.ok(blocks);
@@ -190,7 +240,7 @@ public class LessonController {
                     currentLesson.getId(),
                     currentLesson.getName(),
                     currentLesson.getDescription(),
-                    currentLesson.getLessonLecturers().stream().map(lecturer -> lecturer.getId())
+                    currentLesson.getLessonLecturers().stream().map(lecturer -> lecturer.getId().getIdUser())
                             .collect(Collectors.toList()));
             lessonShorts.add(currentLessonShort);
             while (!currentLesson.getSequencingsAsPrevious().isEmpty()) {
@@ -201,7 +251,7 @@ public class LessonController {
                         currentLesson.getId(),
                         currentLesson.getName(),
                         currentLesson.getDescription(),
-                        currentLesson.getLessonLecturers().stream().map(lecturer -> lecturer.getId())
+                        currentLesson.getLessonLecturers().stream().map(lecturer -> lecturer.getId().getIdUser())
                                 .collect(Collectors.toList()));
                 lessonShorts.add(currentLessonShort);
             }

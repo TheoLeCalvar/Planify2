@@ -1,5 +1,6 @@
 package com.planify.server.controller.returnsClass;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -41,6 +42,17 @@ public class TAFReturn {
         this.managers = managers;
         this.startDate = beginDate;
         this.endDate = endDate;
+    }
+
+    public TAFReturn() {
+        this.id = (long) -1;
+        this.name = "";
+        this.description = "";
+        this.UE = new ArrayList<>();
+        this.CalendarsId = new ArrayList<>();
+        this.managers = new ArrayList<>();
+        this.startDate = "";
+        this.endDate = "";
     }
 
     public String toString() {
