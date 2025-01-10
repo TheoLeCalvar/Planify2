@@ -8,7 +8,7 @@ public class UserShort {
     private Long id;
 
     @JsonManagedReference
-    private String fullname;
+    private String name;
 
     @JsonManagedReference
     private String firstname;
@@ -24,7 +24,7 @@ public class UserShort {
 
     public UserShort(Long id, String name, boolean alreadySelected) {
         this.id = id;
-        this.fullname = name;
+        this.name = name;
         this.email = "";
         this.firstname = "";
         this.lastname = "";
@@ -36,7 +36,7 @@ public class UserShort {
     }
 
     public String getFullName() {
-        return this.fullname;
+        return this.name;
     }
 
     public String getFirstName() {
