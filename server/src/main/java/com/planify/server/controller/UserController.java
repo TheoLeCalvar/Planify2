@@ -70,16 +70,21 @@ public class UserController {
         return ResponseEntity.ok(answers);
     }
 
-    @PostMapping(value = "users")
-    public ResponseEntity<String> createUser(@RequestBody UserShort userRequest) {
-        Optional<User> user = userService.findById(userRequest.getId());
+    @PostMapping(value = "users", consumes = "application/json", produces = "application/json")
+    public ResponseEntity<?> createUser(@RequestBody UserShort userRequest) {
+        List<User> users = userService.findAll();
+        boolean exists = users.stream().anyMatch(user -> user.getName().equals(userRequest.getFirstName())
+                && user.getLastName().equals(userRequest.getLastName()));
 
-        if (user.isPresent()) {
+        if (exists) {
             return ResponseEntity.status(209).body("User already exists");
         }
-        userService.addUser(userRequest.getFirstName(), userRequest.getLastName(), userRequest.getEmail(),
+        System.out.println(userRequest.getFirstName());
+        System.out.println(userRequest.getLastName());
+        User u = userService.addUser(userRequest.getFirstName(), userRequest.getLastName(), userRequest.getEmail(),
                 "not implemented".toCharArray());
-        return ResponseEntity.ok("User created !");
+        return ResponseEntity.ok(u);
+        // "User created !"
     }
 
 }
