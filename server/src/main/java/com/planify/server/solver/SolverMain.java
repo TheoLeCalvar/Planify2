@@ -297,7 +297,7 @@ public class SolverMain {
 
 	private void setConstraints(Model model) {
 		setConstraintLinkLessonsSlots(model);
-		if (this.IdMSlotGlobal != null) setConstraintLinkSlotGlobalDayWeek(model, true, false, false);
+		setConstraintLinkSlotGlobalDayWeek(model, this.IdMSlotGlobal != null, false, false);
 		/*if (cal.hasConstraintGlobalUnavailability()*/ setConstraintGlobalUnavailability(model);
 		/*if (cal.hasConstraint1())*/ setConstraintLecturerUnavailability(model);
 	}
@@ -323,6 +323,7 @@ public class SolverMain {
 	}
 	
 	private void setConstraintLinkSlotGlobalDayWeek(Model model, boolean global, boolean day, boolean week) {
+		if (!(global || day || week)) return;
 		Slot[] slots = services.getCalendarService().getSlotsOrdered(cal.getId()).stream().toArray(Slot[]::new);
 		Lesson[] lessons = cal.getTaf().getUes().stream().flatMap(u -> u.getLessons().stream()).toArray(Lesson[]::new);
 		int nbSlots = slots.length;

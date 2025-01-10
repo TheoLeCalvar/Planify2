@@ -1,5 +1,6 @@
 package com.planify.server;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.boot.SpringApplication;
@@ -533,9 +534,10 @@ public class ServerApplication {
 	}
 
 	private static void testSolver(ApplicationContext context) {
-		testSolver1(context);
+		//testSolver1(context);
 		//testSolver2(context);
 		//testSolver3(context);
+		testSolverDCLNS1(context);
 	}
 	
 	private static void testSolver1(ApplicationContext context) {
@@ -582,6 +584,14 @@ public class ServerApplication {
 		SolverServices solverServices = context.getBean(SolverServices.class);
 		SolverMain.setServices(solverServices);
 		SolverMain.generateCals(cals);
+	}
+	
+	private static void testSolverDCLNS1(ApplicationContext context) {
+		Calendar c = calendarSolverDCLNS1();
+		
+		SolverServices solverServices = context.getBean(SolverServices.class);
+		SolverMain.setServices(solverServices);
+		SolverMain.generateCal(c);
 	}
 	
 	private static Calendar calendarSolver1() {
@@ -667,6 +677,115 @@ public class ServerApplication {
 		userUnavailabilityService.addUserUnavailability(slot2, helene, true);
 		
 		return c;
+	}
+	
+	private static Calendar calendarSolverDCLNS1() {
+		TAF dcl = tafService.addTAF("DCL-S1", "", "", "");
+		Calendar cal = calendarService.addCalendar(dcl);
+		List<Day> mardis = new ArrayList<Day>();
+		for (int i = 37; i < 52; i ++) {
+			Week week = weekService.addWeek(i, 2025);
+			for (int j = 1; j < 3; j ++) {
+				Day day = dayService.addDay(j, week);
+				if (j == 1) mardis.add(day);
+				for (int k = 0; k < 7; k ++) {
+					slotService.add(k, day, cal);
+				}
+			}
+		}
+		//7th week is unavailable.
+		calendarService.getWeeksSorted(cal.getId()).get(6).getDays().stream().flatMap(d -> d.getSlots().stream()).forEach(s -> globalUnavailabilityService.addGlobalUnavailability(true, s));
+		
+		UE mapd = ueService.addUE("MAPD", "", dcl);
+		UE idl = ueService.addUE("IDL", "", dcl);
+		UE eco = ueService.addUE("ECO", "", dcl);
+		
+		User intervenant1 = userService.addUser("Intervenant1", "1", "i1@imt-atlantique.fr", new char[] {});
+		User intervenant2 = userService.addUser("Intervenant2", "2", "i2@imt-atlantique.fr", new char[] {});
+		User intervenant3 = userService.addUser("Intervenant3", "3", "i3@imt-atlantique.fr", new char[] {});
+		User intervenant4 = userService.addUser("Intervenant4", "4", "i4@imt-atlantique.fr", new char[] {});
+		User intervenant5 = userService.addUser("Intervenant5", "5", "i5@imt-atlantique.fr", new char[] {});
+		
+		for (Day mardi : mardis)
+			for (Slot slot : mardi.getSlots())
+				userUnavailabilityService.addUserUnavailability(slot, intervenant4, true);
+		
+		
+		List<Lesson> mapdCours = createOrderedTypeLesson(10, "C", mapd);
+		List<Lesson> mapdFilRouge = createOrderedTypeLesson(11, "F", mapd);
+		List<Lesson> mapdTP = createOrderedTypeLesson(9, "T", mapd);
+		List<Lesson> mapdDS = createOrderedTypeLesson(2, "DS", mapd);
+		
+		antecedenceService.addAntecedence(mapdCours.get(0), mapdTP.get(0));
+		antecedenceService.addAntecedence(mapdCours.get(1), mapdFilRouge.get(0));
+		antecedenceService.addAntecedence(mapdCours.get(2), mapdTP.get(1));
+		antecedenceService.addAntecedence(mapdCours.get(3), mapdTP.get(2));
+		antecedenceService.addAntecedence(mapdCours.get(4), mapdFilRouge.get(6));
+		antecedenceService.addAntecedence(mapdCours.get(5), mapdTP.get(4));
+		antecedenceService.addAntecedence(mapdCours.get(7), mapdTP.get(6));
+		antecedenceService.addAntecedence(mapdCours.get(8), mapdTP.get(7));
+		antecedenceService.addAntecedence(mapdCours.get(9), mapdDS.get(0));
+		antecedenceService.addAntecedence(mapdFilRouge.get(10), mapdDS.get(0));
+		antecedenceService.addAntecedence(mapdTP.get(8), mapdDS.get(0));
+		
+		sequencingService.add(mapdDS.get(0), mapdDS.get(1));
+
+		addIntervenantToTypeLesson(new int[] {0,1,2,4,6,9}, mapdCours, intervenant1);
+		addIntervenantToTypeLesson(new int[] {0,1}, mapdTP, intervenant1);
+		addIntervenantToTypeLesson(new int[] {0,1,5}, mapdFilRouge, intervenant1);
+
+		addIntervenantToTypeLesson(new int[] {2,3,4,6,7,8}, mapdFilRouge, intervenant2);
+
+		addIntervenantToTypeLesson(new int[] {3,5,7,8}, mapdCours, intervenant3);
+		addIntervenantToTypeLesson(new int[] {2,3,4,5,6,7,8}, mapdTP, intervenant3);
+		addIntervenantToTypeLesson(new int[] {9,10}, mapdFilRouge, intervenant3);
+		
+		List<Lesson> ecoCours = createOrderedTypeLesson(30, "C", eco);
+		List<Lesson> ecoDS = createOrderedTypeLesson(2, "DS", eco);
+		antecedenceService.addAntecedence(ecoCours.getLast(), ecoDS.getFirst());
+		sequencingService.add(ecoDS.get(0), ecoDS.get(1));
+
+		addIntervenantToAllTypeLesson(ecoCours, intervenant4);
+		addIntervenantToAllTypeLesson(ecoDS, intervenant4);
+
+		List<Lesson> idlCours = createOrderedTypeLesson(14, "C", idl);
+		List<Lesson> idlSynchro = createOrderedTypeLesson(16, "S", idl);
+		List<Lesson> idlDS = createOrderedTypeLesson(2, "DS", idl);
+
+		antecedenceService.addAntecedence(idlSynchro.get(3), idlCours.get(0));
+		antecedenceService.addAntecedence(idlCours.get(3), idlSynchro.get(4));
+		antecedenceService.addAntecedence(idlCours.get(12), idlSynchro.get(10));
+		antecedenceService.addAntecedence(idlSynchro.get(15), idlDS.get(0));
+		antecedenceService.addAntecedence(idlCours.get(13), idlDS.get(0));
+
+		addIntervenantToAllTypeLesson(idlCours, intervenant2);
+		addIntervenantToAllTypeLesson(idlCours, intervenant5);
+		addIntervenantToAllTypeLesson(idlSynchro, intervenant2);
+		addIntervenantToAllTypeLesson(idlSynchro, intervenant5);
+		addIntervenantToAllTypeLesson(idlDS, intervenant2);
+		addIntervenantToAllTypeLesson(idlDS, intervenant5);
+		
+		
+		
+		return cal;
+	}
+	
+	private static List<Lesson> createOrderedTypeLesson(int nb, String name, UE ue){
+		List<Lesson> lCours = new ArrayList<Lesson>();
+		for (int i = 0; i < nb; i ++) {
+			Lesson cours = lessonService.add(name + i, "", ue);
+			if (i != 0) antecedenceService.addAntecedence(lCours.getLast(), cours);
+			lCours.add(cours);
+		}
+		return lCours;
+	}
+	private static void addIntervenantToTypeLesson(int[] iLessons, List<Lesson> lessons, User user) {
+		for (int i : iLessons)
+			lessonLecturerService.addLessonLecturer(user, lessons.get(i));
+	}
+	private static void addIntervenantToAllTypeLesson(List<Lesson> lessons, User user) {
+		for (Lesson lesson : lessons)
+			lessonLecturerService.addLessonLecturer(user, lesson);
 	}
 	
 }
