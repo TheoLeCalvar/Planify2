@@ -9,16 +9,12 @@ import com.planify.server.models.UEManager;
 
 public class UEShort {
 
-    @JsonManagedReference
     private Long id;
 
-    @JsonManagedReference
     private String name;
 
-    @JsonManagedReference
     private String description;
 
-    @JsonManagedReference
     private List<String> managers;
 
     public UEShort(Long id, String name, String description, List<String> managers) {

@@ -225,6 +225,7 @@ public class LessonController {
 
     }
 
+    // Modify an UE
     @PutMapping(value = "/ue/{ueId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> modifyUE(@PathVariable Long ueId, @RequestBody UEShort newUE) {
         Optional<UE> oue = ueService.findById(ueId);
