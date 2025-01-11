@@ -66,12 +66,22 @@ public class DayService {
         List<Day> allDays = this.dayRepository.findAll();
         List<Slot> slots = new ArrayList<Slot>();
         for (Day day : allDays) {
-            Slot slot = day.getSlots().getLast();
-            if (slot.getCalendar() == calendar) {
-                slots.add(slot);
-            }
+        	Slot lastSlot = null;
+        	for (Slot slot : day.getSlots())
+	            if (slot.getCalendar().getId() == calendar.getId() && (lastSlot == null || lastSlot.compareTo(slot) < 0)) {
+	                lastSlot = slot;
+	            }
+        	if (lastSlot != null) slots.add(lastSlot);
         }
         return slots;
+    }
+    
+    public List<Slot> findSlotsDayByCalendar(Day day, Calendar calendar) {
+    	List<Slot> slots = new ArrayList<Slot>();
+    	for (Slot slot : day.getSlots())
+    		if (slot.getCalendar().getId() == calendar.getId())
+    			slots.add(slot);
+    	return slots;
     }
 
     @Transactional

@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import com.planify.server.service.CalendarService;
+import com.planify.server.service.DayService;
 import com.planify.server.service.GlobalUnavailabilityService;
 import com.planify.server.service.LessonService;
 import com.planify.server.service.SynchronizationService;
@@ -31,6 +32,10 @@ public class SolverServices {
 	@Lazy
 	@Autowired
 	private SynchronizationService synchronizationService;
+	
+	@Lazy
+	@Autowired
+	private DayService dayService;
 
 	public SolverServices() {}
 	
@@ -52,5 +57,9 @@ public class SolverServices {
 
 	public SynchronizationService getSynchronizationService() {
 		return synchronizationService;
+	}
+	
+	public DayService getDayService() {
+		return dayService;
 	}
 }

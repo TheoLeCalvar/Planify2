@@ -534,18 +534,16 @@ public class ServerApplication {
 	}
 
 	private static void testSolver(ApplicationContext context) {
-		//testSolver1(context);
+		//testSolver1(context, calendarSolverOneDay());
 		//testSolver2(context);
 		//testSolver3(context);
 		testSolverDCLNS1(context);
 	}
 	
-	private static void testSolver1(ApplicationContext context) {
-		Calendar c = calendarSolver1();
-		
+	private static void testSolver1(ApplicationContext context, Calendar cal) {		
 		SolverServices solverServices = context.getBean(SolverServices.class);
 		SolverMain.setServices(solverServices);
-		SolverMain.generateCal(c);
+		SolverMain.generateCal(cal);
 	}
 	
 	private static void testSolver2(ApplicationContext context) {
@@ -677,6 +675,35 @@ public class ServerApplication {
 		userUnavailabilityService.addUserUnavailability(slot2, helene, true);
 		
 		return c;
+	}
+	
+	private static Calendar calendarSolverOneDay() {
+		TAF dcl = tafService.addTAF("DCL-Day", "", "", "");
+		Calendar cal = calendarService.addCalendar(dcl);
+		Week week = weekService.addWeek(0, 2022);
+		Day day = dayService.addDay(0, week);
+		List<Slot> slots = new ArrayList<Slot>();
+		for (int i = 0; i < 7; i ++)
+			slots.add(slotService.add(i, day, cal));
+		
+		UE ue1 = ueService.addUE("UE-1", "", dcl);
+		UE ue2 = ueService.addUE("UE-2", "", dcl);
+
+		User user1 = userService.addUser("user-1", "1", "1", new char[] {});
+		User user2 = userService.addUser("user-2", "2", "2", new char[] {});
+		
+		List<Lesson> lessonsUE1 = createOrderedTypeLesson(2,"UE1-C", ue1);
+		List<Lesson> lessonsUE2 = createOrderedTypeLesson(2, "UE2-C", ue2);
+
+		addIntervenantToAllTypeLesson(lessonsUE1, user1);
+		addIntervenantToAllTypeLesson(lessonsUE2, user2);
+
+		userUnavailabilityService.addUserUnavailability(slots.get(6), user2, true);
+		userUnavailabilityService.addUserUnavailability(slots.get(4), user2, false);
+		userUnavailabilityService.addUserUnavailability(slots.get(5), user1, true);
+		userUnavailabilityService.addUserUnavailability(slots.get(2), user1, true);
+		
+		return cal;
 	}
 	
 	private static Calendar calendarSolverDCLNS1() {
