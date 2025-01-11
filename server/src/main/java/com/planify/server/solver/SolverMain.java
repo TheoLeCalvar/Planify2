@@ -305,6 +305,7 @@ public class SolverMain {
 		setConstraintLinkSlotGlobalDayWeek(model, this.IdMSlotGlobal != null, false, false);
 		/*if (cal.hasConstraintGlobalUnavailability()*/ setConstraintGlobalUnavailability(model);
 		/*if (cal.hasConstraint1())*/ setConstraintLecturerUnavailability(model);
+		/*if (cal.hasConstraint())*/ setConstraintLunchBreak(model);
 		/*if (cal.hasConstraint())*/ setConstraintNoInterweaving(model);
 	}
 	
@@ -434,12 +435,32 @@ public class SolverMain {
 					model.arithm(getLessonVarSlot(lesson), "!=", getIdMSlot(slot)).post();					
 	}
 	
+	private void setConstraintLunchBreak(Model model) {
+		for (Day day : services.getCalendarService().getDaysSorted(cal.getId())) {
+			List<Slot> possibleSlotsForLunchTime = new ArrayList<Slot>();
+			for (Slot slot: services.getDayService().findSlotsDayByCalendar(day, cal)) {
+				if (slot.getNumber() == 2 || slot.getNumber() == 3)
+					possibleSlotsForLunchTime.add(slot);
+			}
+			if (possibleSlotsForLunchTime != null) {
+				boolean lunchBreakAlreadyFixed = false;
+				for (Slot slot : possibleSlotsForLunchTime)
+					if (services.getGlobalUnavailabilityService().findBySlot(slot).filter(g -> g.getStrict()).isPresent())
+						lunchBreakAlreadyFixed = true;
+				if (!lunchBreakAlreadyFixed) {
+					IntVar count = model.intVar("Count Lunch Day-" + day.getId(),1, possibleSlotsForLunchTime.size());
+					model.count(0, possibleSlotsForLunchTime.stream().map(s -> getSlotVarLesson(s)).toArray(IntVar[]::new), count).post();
+				}
+			}
+		}
+	}
+	
 	private void setConstraintNoInterweaving(Model model) {
 		HashMap<Long, FiniteAutomaton> automatons = new HashMap<Long,FiniteAutomaton>();
 		int nbUe = cal.getTaf().getUes().size();
 		for (UE ue : cal.getTaf().getUes()) {
 			String ueString = "<" + getIdMUe(ue) + ">";
-			automatons.put(ue.getId(), new FiniteAutomaton("[^" + ueString + "]*" + ueString + "*[^" + ueString + "]*", 0, nbUe));
+			automatons.put(ue.getId(), new FiniteAutomaton("[^" + ueString + "]*[" + ueString + "|0]*[^" + ueString + "]*", 0, nbUe));
 		}
 		for (Day day : services.getCalendarService().getDaysSorted(cal.getId())) {
 			System.out.println(services.getDayService().findSlotsDayByCalendar(day, cal));
@@ -484,8 +505,8 @@ public class SolverMain {
 	
 	private static void setStrategy(SolverMain solMain, Solver solver, Calendar cal) {
 		IntVar[] decisionVars = solMain.getDecisionVars();
-		solver.setSearch(Search.minDomLBSearch(decisionVars));
-		//solver.setSearch(Search.minDomUBSearch(decisionVars));
+		//solver.setSearch(Search.minDomLBSearch(decisionVars));
+		solver.setSearch(Search.minDomUBSearch(decisionVars));
 	}
 	
 	private static void setStrategy(SolverMain[] solMains, Solver solver, Calendar[] cals) {

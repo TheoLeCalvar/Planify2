@@ -703,6 +703,8 @@ public class ServerApplication {
 		userUnavailabilityService.addUserUnavailability(slots.get(5), user1, true);
 		userUnavailabilityService.addUserUnavailability(slots.get(2), user1, true);
 		
+		//globalUnavailabilityService.addGlobalUnavailability(true, slots.get(3));
+		
 		return cal;
 	}
 	
