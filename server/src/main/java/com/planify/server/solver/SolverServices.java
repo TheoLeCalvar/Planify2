@@ -8,6 +8,7 @@ import com.planify.server.service.CalendarService;
 import com.planify.server.service.DayService;
 import com.planify.server.service.GlobalUnavailabilityService;
 import com.planify.server.service.LessonService;
+import com.planify.server.service.SequencingService;
 import com.planify.server.service.SynchronizationService;
 import com.planify.server.service.TAFService;
 
@@ -36,6 +37,10 @@ public class SolverServices {
 	@Lazy
 	@Autowired
 	private DayService dayService;
+	
+	@Lazy
+	@Autowired
+	private SequencingService sequencingService;
 
 	public SolverServices() {}
 	
@@ -61,5 +66,9 @@ public class SolverServices {
 	
 	public DayService getDayService() {
 		return dayService;
+	}
+	
+	public SequencingService getSequencingService() {
+		return sequencingService;
 	}
 }

@@ -534,10 +534,10 @@ public class ServerApplication {
 	}
 
 	private static void testSolver(ApplicationContext context) {
-		//testSolver1(context, calendarSolverOneDay());
+		testSolver1(context, calendarSolverOneDay());
 		//testSolver2(context);
 		//testSolver3(context);
-		testSolverDCLNS1(context);
+		//testSolverDCLNS1(context);
 	}
 	
 	private static void testSolver1(ApplicationContext context, Calendar cal) {		
@@ -692,18 +692,21 @@ public class ServerApplication {
 		User user1 = userService.addUser("user-1", "1", "1", new char[] {});
 		User user2 = userService.addUser("user-2", "2", "2", new char[] {});
 		
-		List<Lesson> lessonsUE1 = createOrderedTypeLesson(2,"UE1-C", ue1);
+		List<Lesson> lessonsUE1 = createOrderedTypeLesson(3,"UE1-C", ue1);
 		List<Lesson> lessonsUE2 = createOrderedTypeLesson(2, "UE2-C", ue2);
 
 		addIntervenantToAllTypeLesson(lessonsUE1, user1);
 		addIntervenantToAllTypeLesson(lessonsUE2, user2);
 
+		sequencingService.add(lessonsUE1.get(0), lessonsUE1.get(1));
+		sequencingService.add(lessonsUE1.get(1), lessonsUE1.get(2));
+		
 		userUnavailabilityService.addUserUnavailability(slots.get(6), user2, true);
 		userUnavailabilityService.addUserUnavailability(slots.get(4), user2, false);
 		userUnavailabilityService.addUserUnavailability(slots.get(5), user1, true);
-		userUnavailabilityService.addUserUnavailability(slots.get(2), user1, true);
+		userUnavailabilityService.addUserUnavailability(slots.get(2), user1, false);
 		
-		//globalUnavailabilityService.addGlobalUnavailability(true, slots.get(3));
+		globalUnavailabilityService.addGlobalUnavailability(true, slots.get(3));
 		
 		return cal;
 	}

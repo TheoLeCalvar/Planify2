@@ -18,6 +18,7 @@ import org.chocosolver.util.tools.ArrayUtils;
 import com.planify.server.models.Calendar;
 import com.planify.server.models.Day;
 import com.planify.server.models.Lesson;
+import com.planify.server.models.Sequencing;
 import com.planify.server.models.Slot;
 import com.planify.server.models.Synchronization;
 import com.planify.server.models.TAF;
@@ -243,14 +244,6 @@ public class SolverMain {
 		return services.getTafService().numberOfLessons(cal.getTaf().getId());
 	}
 	
-	/*private static int getNumberOfSlots(HashMap<Long, Integer> idToIdMGlob) {
-		int max = 0;
-		for (Integer iVal : idToIdMGlob.values())
-			if (max < iVal)
-				max = iVal;
-		return max;
-	}*/
-	
 	private static HashMap<Long, Integer> getIdToIdMGlobalCals(Calendar[] cals){
 		HashMap<Long, Integer> idToIdMGlob = new HashMap<Long, Integer>();
 		List<List<Slot>> slots = IntStream.range(0, cals.length).mapToObj(i -> services.getCalendarService().getSlotsOrdered(cals[i].getId())).toList();
@@ -303,10 +296,12 @@ public class SolverMain {
 	private void setConstraints(Model model) {
 		setConstraintLinkLessonsSlots(model, true);
 		setConstraintLinkSlotGlobalDayWeek(model, this.IdMSlotGlobal != null, false, false);
+		//setConstraintSequences(model);
 		/*if (cal.hasConstraintGlobalUnavailability()*/ setConstraintGlobalUnavailability(model);
 		/*if (cal.hasConstraint1())*/ setConstraintLecturerUnavailability(model);
 		/*if (cal.hasConstraint())*/ setConstraintLunchBreak(model);
 		/*if (cal.hasConstraint())*/ setConstraintNoInterweaving(model);
+		setConstraintSequences(model);
 	}
 	
 	private void setConstraintLinkLessonsSlots(Model model, boolean ue) {
@@ -404,6 +399,48 @@ public class SolverMain {
 		for (int i = lessons.length; i < slots.length; i ++) {
 			lessonsV.get(i).add(model.intVar(valsWeeks));
 			sortedLessonsV.get(i).add(model.intVar(getIdMWeek(slots[i].getDay().getWeek())));
+		}
+	}
+	
+	private void setConstraintSequences(Model model) {
+		List<Sequencing> sequences = services.getSequencingService().getSequencingOf(cal.getTaf().getId());
+		List<List<Lesson>> aglomerateSequences = new ArrayList<List<Lesson>>();
+		while (sequences.size() > 0) {
+			Sequencing firstSequencing = sequences.removeFirst();
+			Lesson previous = firstSequencing.getPreviousLesson();
+			Lesson next = firstSequencing.getNextLesson();
+			aglomerateSequences.add(new ArrayList<Lesson>());
+			while (previous != null) {
+				aglomerateSequences.getLast().add(0, previous);
+				int i;
+				for (i = 0; i < sequences.size() && sequences.get(i).getNextLesson().getId() != previous.getId(); i ++);
+				if (i != sequences.size()) previous = sequences.remove(i).getPreviousLesson();
+				else previous = null;
+			}
+			while (next != null) {
+				aglomerateSequences.getLast().add(next);
+				int i;
+				for (i = 0; i < sequences.size() && sequences.get(i).getPreviousLesson().getId() != next.getId(); i ++);
+				if (i != sequences.size()) next = sequences.remove(i).getNextLesson();
+				else next = null;
+			}
+		}
+		System.out.println("Sequencings : " + aglomerateSequences);
+		for (Day day : services.getCalendarService().getDaysSorted(cal.getId())) {
+			List<Slot> slots = services.getDayService().findSlotsDayByCalendarSorted(day, cal);
+			Integer[] idMSlots = getIdMSlot(slots.stream().toArray(Slot[]::new));
+			for (List<Lesson> sequence : aglomerateSequences) {
+				int lengthSequence = sequence.size();
+				for (int iLesson = 0; iLesson < lengthSequence - 1; iLesson ++)
+					model.arithm(getLessonVarSlot(sequence.get(iLesson + 1)), "=", getLessonVarSlot(sequence.get(iLesson)), "+", 1).post();
+				
+				for (int iLesson = 0; iLesson < lengthSequence; iLesson ++) {
+					for (int iSlotBegin = 0; iSlotBegin < iLesson; iSlotBegin ++)
+						model.arithm(getLessonVarSlot(sequence.get(iLesson)), "!=", idMSlots[iSlotBegin]).post();
+					for (int iSlotEnd = idMSlots.length - 1; iSlotEnd > idMSlots.length - lengthSequence + iLesson; iSlotEnd --)
+						model.arithm(getLessonVarSlot(sequence.get(iLesson)), "!=", idMSlots[iSlotEnd]).post();
+				}
+			}
 		}
 	}
 	
@@ -514,7 +551,6 @@ public class SolverMain {
 									mapToObj(i -> solMains[i].getDecisionVars()).toArray(IntVar[][]::new));  
 		solver.setSearch(Search.minDomLBSearch(decisionVars));
 		//solver.setSearch(Search.minDomUBSearch(getVarDecisionSlots(cal)));
-		
 	}
 	
 	private IntVar[] getDecisionVars() {

@@ -83,6 +83,15 @@ public class DayService {
     			slots.add(slot);
     	return slots;
     }
+    
+    public List<Slot> findSlotsDayByCalendarSorted(Day day, Calendar calendar) {
+    	List<Slot> slots = new ArrayList<Slot>();
+    	for (Slot slot : day.getSlots())
+    		if (slot.getCalendar().getId() == calendar.getId())
+    			slots.add(slot);
+    	slots.sort(null);
+    	return slots;
+    }
 
     @Transactional
     public boolean deleteDay(Long id) {

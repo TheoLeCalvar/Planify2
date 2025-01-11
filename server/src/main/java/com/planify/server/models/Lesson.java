@@ -57,7 +57,7 @@ public class Lesson {
     }
 
     public String toString() {
-        return "Lesson " + Long.toString(this.id) + "\n Name: " + this.name + "\n UE: " + this.ue.getDescription();
+        return "Lesson " + Long.toString(this.id) + "\n Name: " + this.name + "\n UE: " + this.ue.getName();
     }
 
     public long getId() {
