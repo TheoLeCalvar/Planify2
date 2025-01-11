@@ -23,9 +23,11 @@ import com.planify.server.controller.returnsClass.LessonShort;
 import com.planify.server.controller.returnsClass.TAFReturn;
 import com.planify.server.controller.returnsClass.TAFShort;
 import com.planify.server.controller.returnsClass.UEShort;
+import com.planify.server.models.Antecedence;
 import com.planify.server.models.Block;
 import com.planify.server.models.Calendar;
 import com.planify.server.models.Lesson;
+import com.planify.server.models.LessonLecturer;
 import com.planify.server.models.Sequencing;
 import com.planify.server.models.TAF;
 import com.planify.server.models.UE;
@@ -113,15 +115,25 @@ public class LessonController {
     @PutMapping(value = "/ue/{ueId}/lesson", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> putLessonInUE(@PathVariable Long ueId, @RequestBody List<BlockShort> blocks) {
         // Check if the UE exists
+
         if (!ueService.existsById(ueId)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ErrorResponse("UE not found", 404));
         }
 
-        // Delete the previous lessons of the UE
-        List<Lesson> oldLessons = lessonService.findByUE();
-
-        // HERRRRRRE !!!!!!!!
+        System.out.println(GREEN + lessonService.findByUE(ueService.findById(ueId).get()) + RESET);
+        /*
+         * // Delete the previous lessons of the UE
+         * List<Lesson> oldLessons =
+         * lessonService.findByUE(ueService.findById(ueId).get());
+         * if (!(oldLessons == null || oldLessons.isEmpty())) {
+         * oldLessons.forEach(lesson -> {
+         * lessonService.deleteDependencies(lesson);
+         * lessonService.delete(lesson.getId());
+         * });
+         * }
+         */
+        System.out.println(GREEN + lessonService.findByUE(ueService.findById(ueId).get()) + RESET);
 
         // Add the lessons and their impacts
         if (blocks.isEmpty()) {
@@ -288,7 +300,29 @@ public class LessonController {
         ue.setName(newUE.getName());
         ue.setDescription(newUE.getDescription());
         ueService.save(ue);
-        return ResponseEntity.ok(ue);
+        return ResponseEntity.ok("UE modified");
+    }
+
+    // Modify an TAF
+    @PutMapping(value = "/taf/{tafId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> modifyTAF(@PathVariable Long tafId, @RequestBody TAFShort newTaf) {
+        Optional<TAF> otaf = tafService.findById(tafId);
+        if (otaf.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorResponse("No TAF with this id was found", 404));
+        }
+
+        TAF taf = otaf.get();
+        System.out.println(GREEN + "Name = " + newTaf.getName() + RESET);
+        System.out.println(GREEN + "Description = " + newTaf.getDescription() + RESET);
+        System.out.println(GREEN + "Start Date = " + newTaf.getStartDate() + RESET);
+        System.out.println(GREEN + "End Date = " + newTaf.getEndDate() + RESET);
+        taf.setName(newTaf.getName());
+        taf.setDescription(newTaf.getDescription());
+        taf.setBeginDate(newTaf.getStartDate());
+        taf.setEndDate(newTaf.getEndDate());
+        tafService.save(taf);
+        return ResponseEntity.ok("Taf mofified");
     }
 
 }

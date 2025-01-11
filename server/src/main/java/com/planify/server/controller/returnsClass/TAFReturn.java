@@ -8,13 +8,10 @@ import com.planify.server.models.TAFManager.TAFManagerId;
 
 public class TAFReturn {
 
-    @JsonManagedReference
     private Long id;
 
-    @JsonManagedReference
     private String name;
 
-    @JsonManagedReference
     private String description;
 
     @JsonManagedReference
@@ -26,10 +23,8 @@ public class TAFReturn {
     @JsonManagedReference
     private List<String> managers;
 
-    @JsonManagedReference
     private String startDate;
 
-    @JsonManagedReference
     private String endDate;
 
     public TAFReturn(Long id, String name, String description, List<UEShort> UEs, List<Long> CalendarsId,
@@ -58,6 +53,38 @@ public class TAFReturn {
     public String toString() {
         String string = "TAFReturn: + \n id = " + "" + id + "\n name = " + name + "\n UE = ";
         return string;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return this.description;
+    }
+
+    public void setDescription(String desc) {
+        this.description = desc;
+    }
+
+    public String getEndDate() {
+        return this.endDate;
+    }
+
+    public void setEndDate(String date) {
+        this.endDate = date;
+    }
+
+    public String getStartDate() {
+        return this.startDate;
+    }
+
+    public void setStartDate(String date) {
+        this.startDate = date;
     }
 
 }

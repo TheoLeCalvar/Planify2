@@ -44,6 +44,10 @@ public class LessonService {
     @Autowired
     private SynchronizationService synchronizationService;
 
+    @Lazy
+    @Autowired
+    private LessonLecturerService lessonLecturerService;
+
     @Transactional
     public Lesson add(String name, String description, UE ue) {
         Lesson lesson = new Lesson();
@@ -160,8 +164,19 @@ public class LessonService {
         }
     }
 
-    public List<Lesson> findByUE() {
-        return lessonRepository.findByUe(null);
+    public List<Lesson> findByUE(UE ue) {
+        return lessonRepository.findByUe(ue);
+    }
+
+    public void deleteDependencies(Lesson lesson) {
+        lesson.getAntecedencesAsNext().forEach(a -> antecedenceService.deleteAntecedence(a.getId()));
+        lesson.getAntecedencesAsPrevious().forEach(a -> antecedenceService.deleteAntecedence(a.getId()));
+        lesson.getSequencingsAsNext().forEach(s -> sequencingService.delete(s.getId()));
+        lesson.getSequencingsAsPrevious().forEach(s -> sequencingService.delete(s.getId()));
+        if (lesson.getLessonLecturers() != null) {
+            List<LessonLecturer> lecturers = new ArrayList<>(lesson.getLessonLecturers());
+            lecturers.forEach(ll -> lessonLecturerService.deleteLessonLecturer(ll.getId()));
+        }
     }
 
 }

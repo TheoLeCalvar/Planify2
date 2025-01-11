@@ -83,8 +83,7 @@ public class UserController {
         System.out.println(userRequest.getLastName());
         User u = userService.addUser(userRequest.getFirstName(), userRequest.getLastName(), userRequest.getEmail(),
                 "not implemented".toCharArray());
-        return ResponseEntity.ok(u);
-        // "User created !"
+        return ResponseEntity.ok("User created !");
     }
 
 }
