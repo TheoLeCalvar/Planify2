@@ -5,7 +5,7 @@ import {
     useFetcher,
 } from "react-router-dom";
 import BlockManager from "../../components/lessons/BlockManager";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import LoadingButton from "@mui/lab/LoadingButton";
 import SaveIcon from "@mui/icons-material/Save";
 import { Fab } from "@mui/material";
@@ -133,6 +133,11 @@ export default function UELessons() {
     const [lessonsData, setLessonsData] = useState(data ?? []);
     const [dependencyError, setDependencyError] = useState(null);
     const [lecturersList, setLecturersList] = useState(users ?? []);
+
+    useEffect(() => {
+        setLecturersList(users);
+    }
+    , [users]);
 
     return (
         <>
