@@ -534,10 +534,10 @@ public class ServerApplication {
 	}
 
 	private static void testSolver(ApplicationContext context) {
-		testSolver1(context, calendarSolverOneDay());
+		//testSolver1(context, calendarSolverTestMinMaxUeWeek());
 		//testSolver2(context);
 		//testSolver3(context);
-		//testSolverDCLNS1(context);
+		testSolverDCLNS1(context);
 	}
 	
 	private static void testSolver1(ApplicationContext context, Calendar cal) {		
@@ -708,6 +708,30 @@ public class ServerApplication {
 		
 		globalUnavailabilityService.addGlobalUnavailability(true, slots.get(3));
 		
+		return cal;
+	}
+	
+	private static Calendar calendarSolverTestMinMaxUeWeek() {
+		TAF dcl = tafService.addTAF("DCL-Day", "", "", "");
+		Calendar cal = calendarService.addCalendar(dcl);
+		List<Week> weeks = new ArrayList<Week>();
+		List<List<Day>> days = new ArrayList<List<Day>>();
+		List<List<List<Slot>>> slots = new ArrayList<List<List<Slot>>>();
+		for (int i = 0; i < 5; i ++) {
+			weeks.add(weekService.addWeek(i, 2022));
+			days.add(new ArrayList<Day>());
+			slots.add(new ArrayList<List<Slot>>());
+			for (int j = 0; j < 3; j ++) {
+				days.getLast().add(dayService.addDay(j, weeks.getLast()));
+				slots.getLast().add(new ArrayList<Slot>());
+				for (int k = 0; k < 7; k ++)
+					slots.getLast().getLast().add(slotService.add(k, days.getLast().getLast(), cal));
+			}
+		}
+		UE ue = ueService.addUE("UE", "", dcl);
+		List<Lesson> lessons = new ArrayList<Lesson>();
+		for (int l = 0; l < 7; l ++)
+			lessons.add(lessonService.add("Lesson " + l, "", ue));
 		return cal;
 	}
 	

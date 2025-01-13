@@ -42,6 +42,7 @@ public class SolverMain {
 	private BijectiveHashMap<Long, Integer> idMUe;
 	private BijectiveHashMap<Long, Integer> idMDay;
 	private BijectiveHashMap<Long, Integer> idMWeek;
+	private List<IntVar> countsDebug;
 	
 	private HashMap<Long, Integer> IdMSlotGlobal;
 
@@ -58,6 +59,7 @@ public class SolverMain {
 		idMUe = new BijectiveHashMap<Long, Integer>();
 		idMDay = new BijectiveHashMap<Long, Integer>();
 		idMWeek = new BijectiveHashMap<Long, Integer>();
+		countsDebug = new ArrayList<IntVar>();
 	}
 	
 	private Calendar getCal() {return this.cal;};
@@ -125,7 +127,7 @@ public class SolverMain {
 		Solution solution;
 		if (obj != null) solution = solver.findOptimalSolution(obj, false);
 		else solution = solver.findSolution();
-		//System.out.println(model);
+		System.out.println(model);
 		solver.printShortStatistics();
 		System.out.println(solMain.showSolutionsDebug(solution));
 		System.out.println(solMain.makeSolutionString(solution));
@@ -296,12 +298,12 @@ public class SolverMain {
 	private void setConstraints(Model model) {
 		setConstraintLinkLessonsSlots(model, true);
 		setConstraintLinkSlotGlobalDayWeek(model, this.IdMSlotGlobal != null, false, false);
-		//setConstraintSequences(model);
+		setConstraintSequences(model);
 		/*if (cal.hasConstraintGlobalUnavailability()*/ setConstraintGlobalUnavailability(model);
 		/*if (cal.hasConstraint1())*/ setConstraintLecturerUnavailability(model);
 		/*if (cal.hasConstraint())*/ setConstraintLunchBreak(model);
 		/*if (cal.hasConstraint())*/ setConstraintNoInterweaving(model);
-		setConstraintSequences(model);
+		/*if (cal.hesConstraint()*/ setConstraintMinMaxLessonUeInWeek(model); //Idée pour essayer d'améliorer les performances si besoin : essayer de faire l'optimisation sur les variables du nombre de cours de l'UE considéré.
 	}
 	
 	private void setConstraintLinkLessonsSlots(Model model, boolean ue) {
@@ -324,6 +326,22 @@ public class SolverMain {
 			if (ue) sortedSlotsV[i][1] = model.intVar("SortedSlotsVUe" + i, getIdMUe(services.getLessonService().findById(getIdLesson(i - nbSlots + nbLessons + 1)).get().getUe()));
 		}
 		model.keySort(slotsV, lessonsV, sortedSlotsV, 1).post();
+	}
+	
+	private void setConstraintLinkSlotGlobalDayWeek2(Model model, boolean global, boolean day, boolean week) {
+		if (!(global || day || week)) return;
+		List<Slot> slots = services.getCalendarService().getSlotsOrdered(cal.getId());
+		int[] globInt = new int[] {};
+		if (global) globInt = slots.stream().mapToInt(s -> getIdMSlotGlobal(s)).toArray();
+		int[] dayInt = new int[] {};
+		if (day) dayInt = slots.stream().mapToInt(s -> getIdMDay(s.getDay())).toArray();
+		int[] weekInt = new int[] {};
+		if (week) weekInt = slots.stream().mapToInt(s -> getIdMWeek(s.getDay().getWeek())).toArray();
+		for (Lesson lesson : services.getTafService().getLessonsOfTAF(cal.getTaf().getId())) {
+			if (global) model.element(getLessonVarSlot(lesson), globInt, getLessonVarSlotGlobal(lesson)).post();
+			if (day) model.element(getLessonVarSlot(lesson), dayInt, getLessonVarDay(lesson)).post();
+			if (week) model.element(getLessonVarSlot(lesson), weekInt, getLessonVarWeek(lesson)).post();
+		}
 	}
 	
 	private void setConstraintLinkSlotGlobalDayWeek(Model model, boolean global, boolean day, boolean week) {
@@ -425,7 +443,7 @@ public class SolverMain {
 				else next = null;
 			}
 		}
-		System.out.println("Sequencings : " + aglomerateSequences);
+		//System.out.println("Sequencings : " + aglomerateSequences);
 		for (Day day : services.getCalendarService().getDaysSorted(cal.getId())) {
 			List<Slot> slots = services.getDayService().findSlotsDayByCalendarSorted(day, cal);
 			Integer[] idMSlots = getIdMSlot(slots.stream().toArray(Slot[]::new));
@@ -500,14 +518,32 @@ public class SolverMain {
 			automatons.put(ue.getId(), new FiniteAutomaton("[^" + ueString + "]*[" + ueString + "|0]*[^" + ueString + "]*", 0, nbUe));
 		}
 		for (Day day : services.getCalendarService().getDaysSorted(cal.getId())) {
-			System.out.println(services.getDayService().findSlotsDayByCalendar(day, cal));
+			//System.out.println(services.getDayService().findSlotsDayByCalendar(day, cal));
 			IntVar[] varsDay = services.getDayService().findSlotsDayByCalendar(day, cal).stream().map(s -> getSlotVarUe(s)).toArray(IntVar[]::new);
-			System.out.println(Arrays.deepToString(varsDay));
+			//System.out.println(Arrays.deepToString(varsDay));
 			if (varsDay.length > 0)
 				for (UE ue : cal.getTaf().getUes()) {
-					System.out.println(getIdMUe(ue));
+					//System.out.println(getIdMUe(ue));
 					model.regular(varsDay, automatons.get(ue.getId())).post();
 				}
+		}
+	}
+	
+	private void setConstraintMinMaxLessonUeInWeek(Model model) {
+		for (Week week : services.getCalendarService().getWeeksSorted(cal.getId())) {
+			IntVar[] varSlots = getSlotVarUe(services.getSlotService().findSlotsByWeekAndCalendar(week, cal).stream().toArray(Slot[]::new));
+			for (UE ue : cal.getTaf().getUes()) {
+				int min = 2;
+				int max = 4;
+				int[] valsCnt = new int[max - min + 2];
+				valsCnt[0] = 0;
+				for (int i = 1; i <= max - min + 1; i ++)
+					valsCnt[i] = min + i - 1;
+				//System.out.println(valsCnt[valsCnt.length - 1]);
+				IntVar cnt = model.intVar("Cnt min max " + ue.getName() + ", Week :" + week.getNumber(), valsCnt);
+				model.count(getIdMUe(ue), varSlots, cnt).post();
+				countsDebug.add(cnt);
+			}
 		}
 	}
 	
@@ -612,6 +648,9 @@ public class SolverMain {
 																					"},")));
 		res.deleteCharAt(res.length() - 1);
 		res.append("]");
+		res.append("]\r\n");
+		countsDebug.forEach(c -> res.append(c.getName() + " " +  solution.getIntVal(c) + ";"));
+		
 		return res.toString();
 	}
 	
