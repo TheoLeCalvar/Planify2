@@ -14,6 +14,7 @@ import { loader as AppBarLoader } from "./routes/layout/appBar";
 import { loader as UELoader } from "./routes/ue";
 import { loader as LessonsLoader } from "./routes/ue/lessons";
 import { loader as LessonsAvailabilityLoader } from "./routes/taf/lessonsAvailability";
+import { loader as TAFResultsLoader } from "./routes/taf/planning";
 import { action as editUEAction } from "./routes/ue/settings";
 import { action as editLessonsAction } from "./routes/ue/lessons";
 import { action as editTAFCalendarAction } from "./routes/taf/lessonsAvailability"
@@ -22,6 +23,8 @@ import { action as createNewUserAction } from "./components/createUser"
 
 import { createBrowserRouter } from "react-router-dom";
 import TAFSettings from "./routes/taf/settings";
+import TAFResults from "./routes/taf/results";
+import TAFPlanning from "./routes/taf/planning";
 
 export const router = createBrowserRouter([
     {
@@ -53,6 +56,17 @@ export const router = createBrowserRouter([
                                         path: "settings",
                                         element: <TAFSettings />,
                                         action: editTAFSettingsAction
+                                    },
+                                    {
+                                        path: "results",
+                                        element: <TAFResults />,
+                                        children: [
+                                            {
+                                                path: ":idPlanning",
+                                                element: <TAFPlanning />,
+                                                loader: TAFResultsLoader
+                                            }
+                                        ]
                                     },
                                     {
                                         path: "ue/:idUE",

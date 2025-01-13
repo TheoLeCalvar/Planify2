@@ -17,6 +17,16 @@ export async function loader({ params }) {
                 ],
                 startDate: "2024-09-07",
                 endDate: "2025-03-30",
+                resultPlannings: [
+                    {
+                        id : 1,
+                        date: "2024-09-07",
+                    },
+                    {
+                        id : 2,
+                        date: "2024-09-14",
+                    }
+                ]
             },
             {
                 id: "2",
@@ -28,6 +38,7 @@ export async function loader({ params }) {
                     { id: 5, name: "UE E", responsible: "John Smith" },
                     { id: 6, name: "UE F", responsible: "Alice Johnson" },
                 ],
+                resultPlannings: []
             },
             {
                 id: "3",
@@ -39,6 +50,7 @@ export async function loader({ params }) {
                     { id: 8, name: "UE H", responsible: "Charlie Davis" },
                     { id: 9, name: "UE I", responsible: "Diana Evans" },
                 ],
+                resultPlannings: []
             },
         ];
 

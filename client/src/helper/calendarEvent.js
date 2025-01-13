@@ -21,6 +21,37 @@ export function JSONToCalendarEvent(event){
     }
 }
 
+
+export function JSONToPlanningEvent(event){
+    return {
+        id: event.id,
+        title: event.UE + " - " + event.title,
+        description: event.description,
+        start: event.start,
+        end: event.end,
+        people: event.lecturers,
+        calendarId: event.uniqueUEId.toString()
+    }
+}
+
+export function assignUniqueUDId(events) {
+    // Créer un mapping entre UE et un identifiant unique
+    const ueToIdMap = {};
+    let currentId = 1;
+
+    // Itérer sur la liste des événements et associer un ID unique à chaque UE
+    events.forEach(event => {
+        if (!ueToIdMap[event.UE]) {
+            ueToIdMap[event.UE] = currentId;
+            currentId++;
+        }
+        // Ajouter l'ID unique dans l'événement
+        event.uniqueUEId = ueToIdMap[event.UE];
+    });
+
+    return events;
+}
+
 export function CalendarEventToJSON(event){
     return {
         id: event.id,
