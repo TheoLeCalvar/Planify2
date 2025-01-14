@@ -155,7 +155,11 @@ public class LessonService {
             for (Synchronization s : s2) {
                 synchronizationService.deleteSynchronization(s.getId());
             }
-
+            
+            System.out.println("Lesson : " + lesson);
+            //Delete the lessonLecturer of the lesson
+            lesson.getLessonLecturers().forEach(ll -> lessonLecturerService.deleteLessonLecturerFromLesson(ll.getId()));
+            
             // Delete the lesson in the lesson's table
             lessonRepository.deleteById(id);
             return true;
@@ -174,7 +178,7 @@ public class LessonService {
         lesson.getSequencingsAsNext().forEach(s -> sequencingService.delete(s.getId()));
         lesson.getSequencingsAsPrevious().forEach(s -> sequencingService.delete(s.getId()));
         if (lesson.getLessonLecturers() != null) {
-            List<LessonLecturer> lecturers = new ArrayList<>(lesson.getLessonLecturers());
+            List<LessonLecturer> lecturers = new ArrayList<LessonLecturer>(lesson.getLessonLecturers());
             lecturers.forEach(ll -> lessonLecturerService.deleteLessonLecturer(ll.getId()));
         }
     }

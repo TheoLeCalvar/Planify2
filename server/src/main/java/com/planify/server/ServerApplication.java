@@ -67,8 +67,22 @@ public class ServerApplication {
 		userUnavailabilityService = context.getBean(UserUnavailabilityService.class);
 		weekService = context.getBean(WeekService.class);
 		
+		System.out.println("Test !!!!!!!!!!!!!!");
+		TAF taf0 = tafService.addTAF(GREEN, RESET, RED, GREEN);
+		UE ue0 = ueService.addUE(RED, GREEN, taf0);
+		Lesson lesson0 = lessonService.add(RED, GREEN, ue0);
+		User user0 = userService.addUser(RESET, RED, GREEN, new char[] {});
+		LessonLecturer lessonLecturer0 = lessonLecturerService.addLessonLecturer(user0, lesson0);
+		lessonService.delete(lesson0.getId());
+		Lesson lesson00 = lessonService.add(RED, GREEN, ue0);
+		LessonLecturer lessonLecturer1 = lessonLecturerService.addLessonLecturer(user0, lesson00);
+		System.out.println("Nb lecturers : " + lesson00.getLessonLecturers().size());
+		lessonLecturerService.deleteLessonLecturer(lessonLecturer1.getId());
+		System.out.println("Nb lecturers : " + lesson00.getLessonLecturers().size());
+		System.out.println("Nb lecturers : " + lessonService.findById(lesson00.getId()).get().getLessonLecturers().size());
+		System.out.println("Fin Test !!!!!!!!!!");
 		
-		testSolver(context);
+		//testSolver(context);
 		if (weekService != null) return; //Just to not have warnings when we want to stops tests here.
 		
 		// Test of calendarService.getSlotsOrdered(idCalendar), getNumberOfSlots,
