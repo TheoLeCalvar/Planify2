@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.planify.server.models.Antecedence;
+import com.planify.server.models.Block;
 import com.planify.server.models.Calendar;
 import com.planify.server.models.Lesson;
 import com.planify.server.models.LessonLecturer;
@@ -47,6 +48,10 @@ public class LessonService {
     @Lazy
     @Autowired
     private LessonLecturerService lessonLecturerService;
+
+    @Lazy
+    @Autowired
+    private BlockService blockService;
 
     @Transactional
     public Lesson add(String name, String description, UE ue) {
@@ -120,6 +125,15 @@ public class LessonService {
 
             Lesson lesson = lessonRepository.findById(id).get();
 
+            // Delete the block if the lesson is the first of one
+            List<Block> blocks = blockService.findByFirstLesson(lesson);
+            if (blocks != null && !blocks.isEmpty()) {
+                while (!blocks.isEmpty()) {
+                    Block block = blocks.remove(0);
+                    blockService.deleteBlock(block.getId());
+                }
+            }
+
             // Update lessons list for ue
             List<Lesson> lessons = lesson.getUe().getLessons();
             lessons.remove(lesson);
@@ -128,38 +142,56 @@ public class LessonService {
             // Changing the order of the lessons
             List<Antecedence> listWhereLessonIsPrevious = lesson.getAntecedencesAsPrevious();
             List<Antecedence> listWhereLessonsIsNext = lesson.getAntecedencesAsNext();
-            for (Antecedence a : listWhereLessonIsPrevious) {
-                antecedenceService.deleteAntecedence(a.getId());
+            if (listWhereLessonIsPrevious != null && !listWhereLessonIsPrevious.isEmpty()) {
+                while (!listWhereLessonIsPrevious.isEmpty()) {
+                    Antecedence a = listWhereLessonIsPrevious.removeFirst();
+                    antecedenceService.deleteAntecedence(a.getId());
+                }
             }
-            for (Antecedence a : listWhereLessonsIsNext) {
-                antecedenceService.deleteAntecedence(a.getId());
+            if (listWhereLessonsIsNext != null && !listWhereLessonsIsNext.isEmpty()) {
+                while (!listWhereLessonsIsNext.isEmpty()) {
+                    Antecedence a = listWhereLessonsIsNext.removeFirst();
+                    antecedenceService.deleteAntecedence(a.getId());
+                }
             }
 
             // Changing the sequencing of the lesson
             // Changing the order of the lessons
             List<Sequencing> listPrevious = lesson.getSequencingsAsPrevious();
             List<Sequencing> listNext = lesson.getSequencingsAsNext();
-            for (Sequencing s : listPrevious) {
-                sequencingService.delete(s.getId());
+            if (listPrevious != null && !listPrevious.isEmpty()) {
+                while (!listPrevious.isEmpty()) {
+                    Sequencing s = listPrevious.removeFirst();
+                    sequencingService.delete(s.getId());
+                }
             }
-            for (Sequencing s : listNext) {
-                sequencingService.delete(s.getId());
+            if (listNext != null && !listNext.isEmpty()) {
+                while (!listNext.isEmpty()) {
+                    Sequencing s = listNext.removeFirst();
+                    sequencingService.delete(s.getId());
+                }
             }
 
             // Delete the synchronization of this lesson
             List<Synchronization> s1 = lesson.getSynchronizations1();
             List<Synchronization> s2 = lesson.getSynchronizations2();
-            for (Synchronization s : s1) {
-                synchronizationService.deleteSynchronization(s.getId());
+            if (s1 != null & !s1.isEmpty()) {
+                while (!s1.isEmpty()) {
+                    Synchronization s = s1.removeFirst();
+                    synchronizationService.deleteSynchronization(s.getId());
+                }
             }
-            for (Synchronization s : s2) {
-                synchronizationService.deleteSynchronization(s.getId());
+            if (s2 != null && !s2.isEmpty()) {
+                while (!s2.isEmpty()) {
+                    Synchronization s = s2.removeFirst();
+                    synchronizationService.deleteSynchronization(s.getId());
+                }
             }
-            
+
             System.out.println("Lesson : " + lesson);
-            //Delete the lessonLecturer of the lesson
+            // Delete the lessonLecturer of the lesson
             lesson.getLessonLecturers().forEach(ll -> lessonLecturerService.deleteLessonLecturerFromLesson(ll.getId()));
-            
+
             // Delete the lesson in the lesson's table
             lessonRepository.deleteById(id);
             return true;

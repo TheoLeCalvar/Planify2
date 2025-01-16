@@ -121,19 +121,24 @@ public class LessonController {
                     .body(new ErrorResponse("UE not found", 404));
         }
 
-        System.out.println(GREEN + lessonService.findByUE(ueService.findById(ueId).get()) + RESET);
-        /*
-         * // Delete the previous lessons of the UE
-         * List<Lesson> oldLessons =
-         * lessonService.findByUE(ueService.findById(ueId).get());
-         * if (!(oldLessons == null || oldLessons.isEmpty())) {
-         * oldLessons.forEach(lesson -> {
-         * lessonService.deleteDependencies(lesson);
-         * lessonService.delete(lesson.getId());
-         * });
-         * }
-         */
-        System.out.println(GREEN + lessonService.findByUE(ueService.findById(ueId).get()) + RESET);
+        // Get the blocks' UE
+        UE ue = ueService.findById(ueId).get();
+
+        List<Lesson> oldLessons = ue.getLessons();
+        System.out.println(RED);
+        System.out.println(oldLessons);
+        System.out.println(RESET);
+        if (!oldLessons.isEmpty()) {
+            System.out.println("Dans if");
+            boolean b = !oldLessons.isEmpty();
+            while (b) {
+                Lesson oldLesson = oldLessons.removeFirst();
+                lessonService.delete(oldLesson.getId());
+                b = !oldLessons.isEmpty();
+            }
+        }
+
+        System.out.println(ue.getLessons());
 
         // Add the lessons and their impacts
         if (blocks.isEmpty()) {
@@ -141,8 +146,6 @@ public class LessonController {
                     .body(new ErrorResponse("The body is empty", 404));
         } else {
             if (ueService.existsById(ueId)) {
-                // Get the blocks' UE
-                UE ue = ueService.findById(ueId).get();
 
                 // Stock the last lesson of each block so that we can order the lessons later
                 Map<Long, Lesson> lastLessonOfBlocks = new HashMap<>();
