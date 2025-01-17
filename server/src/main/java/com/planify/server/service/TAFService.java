@@ -89,6 +89,10 @@ public class TAFService {
         return tafRepository.findByName(name);
     }
 
+    public boolean existsById(Long id) {
+        return tafRepository.existsById(id);
+    }
+
     public int numberOfLessons(Long id) {
         if (tafRepository.existsById(id)) {
             TAF taf = tafRepository.findById(id).get();
