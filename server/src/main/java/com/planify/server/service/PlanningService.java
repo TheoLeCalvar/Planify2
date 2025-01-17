@@ -55,8 +55,8 @@ public class PlanningService {
         for (Result result: results) {
             Optional<Slot> oSlot = slotService.findById(result.getId());
             Slot slot = oSlot.orElseThrow(() -> new IllegalArgumentException("The Slot does not exist"));
-            LocalDateTime start = LocalDateTime.now(); // TO CHANGE
-            LocalDateTime end = LocalDateTime.now(); // TO CHANGE
+            LocalDateTime start = slot.getStart();
+            LocalDateTime end = slot.getEnd();
             Optional<Lesson> oLesson = lessonService.findById(result.getIdLesson());
             Lesson lesson = oLesson.orElseThrow(() -> new IllegalArgumentException("The Lesson does not exist"));
             String ue = lesson.getUe().getName();

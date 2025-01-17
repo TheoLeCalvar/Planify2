@@ -76,7 +76,10 @@ public class ServerApplication {
 		Planning planning = planningService.addPlanning(calendar);
 		System.out.println(planning.toString());
 
-		Slot slot = slotService.add(1, dayService.addDay(1, weekService.addWeek(1, 2025)),calendar );
+		Slot slot = slotService.add(1, dayService.addDay(1, weekService.addWeek(1, 2025)),calendar);
+		slot.setEnd(LocalDateTime.of(2025,1,17,18,0));
+		slot.setStart(LocalDateTime.of(2025,1,17,15,0));
+		slotService.save(slot);
 
 		Lesson lesson = lessonService.add("cours 1", "début petrinet", ueService.addUE("MAPD", "petrinet", taf));
 

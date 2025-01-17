@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.planify.server.models.TAFManager.TAFManagerId;
+import com.planify.server.models.Planning;
 
 public class TAFReturn {
 
@@ -27,8 +27,10 @@ public class TAFReturn {
 
     private String endDate;
 
+    private List<PlanningReturn> resultPlanning;
+
     public TAFReturn(Long id, String name, String description, List<UEShort> UEs, List<Long> CalendarsId,
-            List<String> managers, String beginDate, String endDate) {
+                     List<String> managers, String beginDate, String endDate, List<PlanningReturn> plannings) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -37,6 +39,7 @@ public class TAFReturn {
         this.managers = managers;
         this.startDate = beginDate;
         this.endDate = endDate;
+        this.resultPlanning = plannings;
     }
 
     public TAFReturn() {
@@ -48,6 +51,7 @@ public class TAFReturn {
         this.managers = new ArrayList<>();
         this.startDate = "";
         this.endDate = "";
+        this.resultPlanning = new ArrayList<>();
     }
 
     public String toString() {
@@ -87,4 +91,11 @@ public class TAFReturn {
         this.startDate = date;
     }
 
+    public List<PlanningReturn> getResultPlanning() {
+        return resultPlanning;
+    }
+
+    public void setResultPlanning(List<PlanningReturn> resultPlanning) {
+        this.resultPlanning = resultPlanning;
+    }
 }

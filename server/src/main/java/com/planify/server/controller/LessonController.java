@@ -11,6 +11,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.planify.server.controller.returnsClass.*;
+import com.planify.server.models.*;
+import com.planify.server.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,41 +24,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.MediaType;
-
-import com.planify.server.controller.returnsClass.AvailabilityEnum;
-import com.planify.server.controller.returnsClass.BlockShort;
-import com.planify.server.controller.returnsClass.LessonShort;
-import com.planify.server.controller.returnsClass.SlotShort;
-import com.planify.server.controller.returnsClass.TAFReturn;
-import com.planify.server.controller.returnsClass.TAFShort;
-import com.planify.server.controller.returnsClass.UEShort;
-import com.planify.server.models.Antecedence;
-import com.planify.server.models.Block;
-import com.planify.server.models.Calendar;
-import com.planify.server.models.Day;
-import com.planify.server.models.GlobalUnavailability;
-import com.planify.server.models.Lesson;
-import com.planify.server.models.LessonLecturer;
-import com.planify.server.models.Sequencing;
-import com.planify.server.models.Slot;
-import com.planify.server.models.TAF;
-import com.planify.server.models.UE;
-import com.planify.server.models.User;
-import com.planify.server.models.Week;
-import com.planify.server.service.AntecedenceService;
-import com.planify.server.service.BlockService;
-import com.planify.server.service.LessonLecturerService;
-import com.planify.server.service.CalendarService;
-import com.planify.server.service.DayService;
-import com.planify.server.service.GlobalUnavailabilityService;
-import com.planify.server.service.LessonService;
-import com.planify.server.service.SequencingService;
-import com.planify.server.service.SlotService;
-import com.planify.server.service.SynchronizationService;
-import com.planify.server.service.TAFService;
-import com.planify.server.service.UEService;
-import com.planify.server.service.UserService;
-import com.planify.server.service.WeekService;
 
 @RestController
 @RequestMapping("/api")
@@ -107,6 +75,9 @@ public class LessonController {
     @Autowired
     private CalendarService calendarService;
 
+    @Autowired
+    private PlanningService planningService;
+
 
     // Get the list of TAF
     @GetMapping(value = "/taf", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -128,6 +99,20 @@ public class LessonController {
                     .body(new ErrorResponse("No TAF with this id was found", 404));
         }
         TAF realTaf = taf.get();
+        List<PlanningReturn> resultPlanning = new ArrayList<PlanningReturn>();
+        List<Calendar> calendars = realTaf.getCalendars();
+        if (calendars!=null && !calendars.isEmpty()) {
+            for (Calendar calendar : calendars) {
+                List<Planning> plannings = planningService.findByCalendar(calendar);
+                if (plannings!=null) {
+                    for (Planning planning : plannings) {
+                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                        String formatted = planning.getTimestamp().format(formatter);
+                        resultPlanning.add(new PlanningReturn(planning.getId(), formatted));
+                    }
+                }
+            }
+        }
         TAFReturn tafReturn = new TAFReturn(
                 realTaf.getId(),
                 realTaf.getName(),
@@ -137,7 +122,8 @@ public class LessonController {
                 realTaf.getTafManagers().stream().map(manager -> manager.getUser().getFullName())
                         .collect(Collectors.toList()),
                 realTaf.getBeginDate(),
-                realTaf.getEndDate());
+                realTaf.getEndDate(),
+                resultPlanning);
         System.out.println(tafReturn.toString());
         return ResponseEntity.ok(tafReturn);
     }
