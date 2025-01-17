@@ -1,11 +1,16 @@
 package com.planify.server;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.planify.server.controller.returnsClass.AvailabilityEnum;
+import com.planify.server.controller.returnsClass.SlotShort;
 import com.planify.server.models.*;
 import com.planify.server.models.Antecedence.AntecedenceId;
 import com.planify.server.models.LessonLecturer.LessonLecturerId;
@@ -38,6 +43,7 @@ public class ServerApplication {
 	private static UserService userService;
 	private static UserUnavailabilityService userUnavailabilityService;
 	private static WeekService weekService;
+	private static ObjectMapper objectMapper;
 	
 	public static void main(String[] args) {
 		ApplicationContext context = SpringApplication.run(ServerApplication.class, args);
@@ -99,12 +105,13 @@ public class ServerApplication {
 		Day day12 = dayService.addDay(2, week1);
 		Day day21 = dayService.addDay(1, week2);
 		Day day22 = dayService.addDay(2, week2);
-		slotService.add(1, day11, c);
-		slotService.add(2, day11, c);
-		slotService.add(1, day12, c);
-		slotService.add(1, day21, c);
-		slotService.add(2, day21, c);
-		slotService.add(1, day22, c);
+		LocalDateTime time = LocalDateTime.now();
+		slotService.add(1, day11, c, time, time);
+		slotService.add(2, day11, c, time, time);
+		slotService.add(1, day12, c, time, time);
+		slotService.add(1, day21, c, time, time);
+		slotService.add(2, day21, c, time, time);
+		slotService.add(1, day22, c, time, time);
 		List<Slot> list = calendarService.getSlotsOrdered(c.getId());
 		for (Slot s : list) {
 			System.out.println("'Slot'" + "" + s.getDay().getWeek().getYear() + "" + s.getDay().getWeek().getNumber()
@@ -608,13 +615,14 @@ public class ServerApplication {
 		Day day11 = dayService.addDay(1, week1);
 		Day day12 = dayService.addDay(2, week1);
 		Day day21 = dayService.addDay(1, week2);
-		Slot slot1 = slotService.add(1, day11, c);
-		Slot slot2 = slotService.add(2, day11, c);
-		Slot slot3 = slotService.add(1, day12, c);
+		LocalDateTime time = LocalDateTime.now();
+		Slot slot1 = slotService.add(1, day11, c, time, time);
+		Slot slot2 = slotService.add(2, day11, c, time, time);
+		Slot slot3 = slotService.add(1, day12, c, time, time);
 		/*Calendar c2 = calendarService.addCalendar(dcl);
 		Slot slotDummy = slotService.add(1, day21, c2);*/		
-		Slot slot4 = slotService.add(1, day21, c);
-		Slot slot5 = slotService.add(2, day21, c);
+		Slot slot4 = slotService.add(1, day21, c, time, time);
+		Slot slot5 = slotService.add(2, day21, c, time, time);
 		UE ue1 = ueService.addUE("UE1", "", dcl);
 		UE ue2 = ueService.addUE("UE2", "", dcl);
 		Lesson lesson1 = lessonService.add("Lesson1", "description 1", ue1);
@@ -650,13 +658,14 @@ public class ServerApplication {
 		Day day11 = dayService.findByWeek(week1).get(0);
 		Day day12 = dayService.findByWeek(week1).get(1);
 		Day day21 = dayService.findByWeek(week2).get(0);
-		Slot slot1 = slotService.add(1, day11, c);
-		Slot slot2 = slotService.add(2, day11, c);
-		Slot slot3 = slotService.add(1, day12, c);
-		Slot slot4 = slotService.add(2, day12, c);
+		LocalDateTime time = LocalDateTime.now();
+		Slot slot1 = slotService.add(1, day11, c, time, time);
+		Slot slot2 = slotService.add(2, day11, c, time, time);
+		Slot slot3 = slotService.add(1, day12, c, time, time);
+		Slot slot4 = slotService.add(2, day12, c, time, time);
 		/*Calendar c2 = calendarService.addCalendar(dcl);
 		Slot slotDummy = slotService.add(1, day21, c2);*/		
-		Slot slot5 = slotService.add(1, day21, c);
+		Slot slot5 = slotService.add(1, day21, c, time, time);
 		UE ue1 = ueService.addUE("UE1", "", login);
 		UE ue2 = ueService.addUE("UE2", "", login);
 		Lesson lesson1 = lessonService.add("Lesson1", "description 1", ue1);
@@ -682,5 +691,7 @@ public class ServerApplication {
 		
 		return c;
 	}
+
+	
 	
 }

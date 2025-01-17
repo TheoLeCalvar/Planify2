@@ -1,5 +1,6 @@
 package com.planify.server.service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -45,6 +46,31 @@ public class SlotService {
                 .orElseThrow(() -> new RuntimeException("Calendar not found"));
 
         Slot slot = new Slot(number, day, calendar);
+
+        // Update slot list for days
+        List<Slot> slots = day.getSlots();
+        slots.addLast(slot);
+        day.setSlots(slots);
+        dayService.save(day);
+
+        // Update slot list for calendar
+        List<Slot> slots2 = calendar.getSlots();
+        slots2.addLast(slot);
+        calendar.setSlots(slots2);
+        calendarService.save(calendar);
+
+        slotRepository.save(slot);
+        return slot;
+    }
+
+    @Transactional
+    public Slot add(int number, Day day, Calendar calendar, LocalDateTime start, LocalDateTime end) {
+        Day dayDB = dayService.findById(day.getId())
+                .orElseThrow(() -> new RuntimeException("Day not found"));
+        Calendar calendarDB = calendarService.findById(calendar.getId())
+                .orElseThrow(() -> new RuntimeException("Calendar not found"));
+
+        Slot slot = new Slot(number, day, calendar, start, end);
 
         // Update slot list for days
         List<Slot> slots = day.getSlots();

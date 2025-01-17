@@ -1,8 +1,12 @@
 package com.planify.server.controller;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.WeekFields;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -18,29 +22,40 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.MediaType;
 
+import com.planify.server.controller.returnsClass.AvailabilityEnum;
 import com.planify.server.controller.returnsClass.BlockShort;
 import com.planify.server.controller.returnsClass.LessonShort;
+import com.planify.server.controller.returnsClass.SlotShort;
 import com.planify.server.controller.returnsClass.TAFReturn;
 import com.planify.server.controller.returnsClass.TAFShort;
 import com.planify.server.controller.returnsClass.UEShort;
 import com.planify.server.models.Antecedence;
 import com.planify.server.models.Block;
 import com.planify.server.models.Calendar;
+import com.planify.server.models.Day;
+import com.planify.server.models.GlobalUnavailability;
 import com.planify.server.models.Lesson;
 import com.planify.server.models.LessonLecturer;
 import com.planify.server.models.Sequencing;
+import com.planify.server.models.Slot;
 import com.planify.server.models.TAF;
 import com.planify.server.models.UE;
 import com.planify.server.models.User;
+import com.planify.server.models.Week;
 import com.planify.server.service.AntecedenceService;
 import com.planify.server.service.BlockService;
 import com.planify.server.service.LessonLecturerService;
+import com.planify.server.service.CalendarService;
+import com.planify.server.service.DayService;
+import com.planify.server.service.GlobalUnavailabilityService;
 import com.planify.server.service.LessonService;
 import com.planify.server.service.SequencingService;
+import com.planify.server.service.SlotService;
 import com.planify.server.service.SynchronizationService;
 import com.planify.server.service.TAFService;
 import com.planify.server.service.UEService;
 import com.planify.server.service.UserService;
+import com.planify.server.service.WeekService;
 
 @RestController
 @RequestMapping("/api")
@@ -76,6 +91,22 @@ public class LessonController {
     final String RESET = "\u001B[0m";
     final String RED = "\u001B[31m";
     final String GREEN = "\u001B[32m";
+
+    @Autowired  
+    private SlotService slotService;
+
+    @Autowired
+    private GlobalUnavailabilityService globalUnavailabilityService;
+
+    @Autowired
+    private DayService dayService;
+
+    @Autowired
+    private WeekService weekService;
+
+    @Autowired
+    private CalendarService calendarService;
+
 
     // Get the list of TAF
     @GetMapping(value = "/taf", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -326,6 +357,150 @@ public class LessonController {
         taf.setEndDate(newTaf.getEndDate());
         tafService.save(taf);
         return ResponseEntity.ok("Taf mofified");
+    }
+
+    @PutMapping(value = "/taf/{tafId}/availability", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> putSlotInTaf(@PathVariable Long tafId, @RequestBody List<SlotShort> slots) {
+        if (slots.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorResponse("The body is empty", 404));
+        } else {
+            if (tafService.existsById(tafId)) {
+                // Get the slots' TAF
+                TAF taf = tafService.findById(tafId).get();
+
+                // Defining date time formatter
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
+                // Finding first week and counting weeks to differentiate them
+                SlotShort firstSlot = slots.getFirst();
+
+                LocalDateTime firstSlotStart = LocalDateTime.parse(firstSlot.getStart(), formatter);
+
+                WeekFields weekFields = WeekFields.of(Locale.getDefault());
+                int currentWeekCount = firstSlotStart.get(weekFields.weekOfYear());
+                int weekCount = 1;
+
+                ResponseEntity<?> responseEntity = getSlotByTafId(tafId);
+                if (responseEntity.getStatusCode().value()==200) {
+                    List<SlotShort> slotShorts = (List<SlotShort>) responseEntity.getBody();
+                    SlotShort slotShort = slotShorts.getFirst();
+                    Optional<Slot> relatedSlot = slotService.findById(Long.parseLong(slotShort.getId()));
+                    if (relatedSlot.isPresent()) {
+                        Calendar relatedCalendar = relatedSlot.get().getCalendar();
+                        calendarService.deleteCalendar(relatedCalendar.getId());
+                    }
+                }
+                
+                Calendar calendar = new Calendar(taf);
+                calendarService.save(calendar);
+                Integer year = firstSlotStart.getYear();
+                Week currentWeek = new Week(weekCount, year);
+                weekService.save(currentWeek);
+
+                String[] parts = firstSlot.getInWeekId().split("_");
+                int dayCount = Integer.parseInt(parts[0]);
+                Day currentDay = new Day(dayCount, currentWeek);
+                dayService.save(currentDay);
+
+                for (SlotShort slot : slots) {
+
+                    // Converting start date to LocalDataTime
+                    LocalDateTime currentSlotStart = LocalDateTime.parse(slot.getStart(), formatter);
+                    LocalDateTime currentSlotEnd = LocalDateTime.parse(slot.getEnd(), formatter);
+
+                    // Looking day number and slot number
+                    parts = slot.getInWeekId().split("_");
+
+                    // Change of week (and day)
+                    if (currentSlotStart.get(weekFields.weekOfYear()) != currentWeekCount) {
+                        currentWeekCount = currentSlotStart.get(weekFields.weekOfYear());
+                        weekCount++;
+                        currentWeek = new Week(weekCount, year);
+                        weekService.save(currentWeek);
+
+                        dayCount = Integer.parseInt(parts[0]);
+                        currentDay = new Day(dayCount, currentWeek);
+                        dayService.save(currentDay);
+                    }
+                    // Change of day
+                    else if (Integer.parseInt(parts[0]) != dayCount) {
+                        dayCount = Integer.parseInt(parts[0]);
+                        currentDay = new Day(dayCount, currentWeek);
+                        dayService.save(currentDay);
+                    }
+
+                    Slot newSlot = slotService.add(Integer.parseInt(parts[1]), currentDay, calendar, currentSlotStart, currentSlotEnd);
+                    slotService.save(newSlot);
+                    
+                    // Unavailable slot
+                    if (slot.getStatus() == AvailabilityEnum.UNAVAILABLE) {
+                        GlobalUnavailability globalUnavailability = globalUnavailabilityService.addGlobalUnavailability(true, newSlot);
+                        globalUnavailabilityService.save(globalUnavailability);
+                    }
+
+                    // Unpreferred slot
+                    if (slot.getStatus() == AvailabilityEnum.UNPREFERRED) {
+                        GlobalUnavailability globalUnavailability = globalUnavailabilityService.addGlobalUnavailability(false, newSlot);
+                        globalUnavailabilityService.save(globalUnavailability);
+                    }
+                }
+
+                return ResponseEntity.ok(slots);
+
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(new ErrorResponse("No TAF with this id was found", 404));
+            }
+
+        }
+    }
+
+    @GetMapping(value = "/taf/{tafId}/availability", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getSlotByTafId(@PathVariable Long tafId) {
+        Optional<TAF> taf = tafService.findById(tafId);
+        if (taf.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorResponse("No TAF with this id was found", 404));
+        }
+        TAF realTaf = taf.get();
+
+        if (realTaf.getCalendars().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorResponse("No calendars for this taf were found", 204));
+        }
+        Calendar calendar = realTaf.getCalendars().getLast();
+        if (calendar.getSlots().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorResponse("No slots for this taf were found", 204));
+        }
+        List<Slot> slots = calendar.getSlots();
+        List<SlotShort> slotShorts = new ArrayList<>();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
+        for (Slot slot : slots) {
+            String inWeekId = slot.getDay().getNumber() + "_" + slot.getNumber();
+            SlotShort slotShort = new SlotShort(slot.getId().toString(), 
+                inWeekId, slot.getStart().format(formatter), 
+                slot.getEnd().format(formatter), 
+                AvailabilityEnum.AVAILABLE);
+            Optional<GlobalUnavailability> optGlobalUnavailability = globalUnavailabilityService.findBySlot(slot);
+            if (optGlobalUnavailability.isPresent()) {
+                GlobalUnavailability globalUnavailability = optGlobalUnavailability.get();
+                if (globalUnavailability.getStrict()) {
+                    slotShort.setStatus(AvailabilityEnum.UNAVAILABLE);
+                }
+                else {
+                    slotShort.setStatus(AvailabilityEnum.UNPREFERRED);
+                }
+            }
+            slotShorts.add(slotShort);
+            
+        }
+
+        System.out.println(slotShorts.toString());
+        return ResponseEntity.ok(slotShorts);
+
     }
 
 }
