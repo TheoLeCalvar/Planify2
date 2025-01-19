@@ -6,19 +6,14 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 public class BlockShort {
 
-    @JsonManagedReference
     private Long id;
 
-    @JsonManagedReference
     private String title;
 
-    @JsonManagedReference
     private String description;
 
-    @JsonManagedReference
     private List<LessonShort> lessons;
 
-    @JsonManagedReference
     private List<Long> dependencies;
 
     public BlockShort(Long id, String title, String description, List<LessonShort> lessons, List<Long> dependencies) {
@@ -33,20 +28,40 @@ public class BlockShort {
         return this.id;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public String getTitle() {
         return this.title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getDescription() {
         return this.description;
     }
 
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public List<LessonShort> getLessons() {
         return this.lessons;
     }
 
+    public void setLessons(List<LessonShort> lessons) {
+        this.lessons = lessons;
+    }
+
     public List<Long> getDependencies() {
         return this.dependencies;
+    }
+
+    public void setDependencies(List<Long> dep) {
+        this.dependencies = dep;
     }
 
 }
