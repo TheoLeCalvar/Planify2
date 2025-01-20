@@ -135,6 +135,26 @@ public class SolverMain {
 		return solMain.makeSolution(solution);
 	}
 	
+	public static String generateCalString(Calendar cal) {
+		Model model = new Model();
+		Solver solver = model.getSolver();
+		SolverMain solMain = new SolverMain(cal);
+		int nbSlots = solMain.getNumberOfSlots();
+		int nbLessons = solMain.getNumberOfLessons();
+		solMain.initialiseVars(model, nbSlots, nbLessons, true, false, false);
+		solMain.setConstraints(model);
+		IntVar obj = solMain.setPreferences(model);
+		setStrategy(solMain, solver, cal);
+		Solution solution;
+		if (obj != null) solution = solver.findOptimalSolution(obj, false);
+		else solution = solver.findSolution();
+		System.out.println(model);
+		solver.printShortStatistics();
+		System.out.println(solMain.showSolutionsDebug(solution));
+		System.out.println(solMain.makeSolutionString(solution));
+		return solMain.makeSolutionString(solution);
+	}
+	
 	public static void generateCals(Calendar[] cals) {
 		System.out.println("Yo");
 		Model model = new Model();

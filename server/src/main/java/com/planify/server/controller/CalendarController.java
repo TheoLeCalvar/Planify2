@@ -49,7 +49,7 @@ public class CalendarController {
 
         Calendar calendar = realTaf.getCalendars().getFirst();
 
-        String result = SolverMain.generateCal(calendar);
+        String result = SolverMain.generateCalString(calendar);
 
         return ResponseEntity.ok(result);
     }
