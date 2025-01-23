@@ -349,7 +349,7 @@ public class LessonController {
     public ResponseEntity<?> putSlotInTaf(@PathVariable Long tafId, @RequestBody List<SlotShort> slots) {
         if (slots.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ErrorResponse("The body is empty", 404));
+                    .body(new ErrorResponse("The body is empty", 400));
         } else {
             if (tafService.existsById(tafId)) {
                 // Get the slots' TAF
@@ -452,12 +452,12 @@ public class LessonController {
         TAF realTaf = taf.get();
 
         if (realTaf.getCalendars().isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            return ResponseEntity.status(HttpStatus.NO_CONTENT)
                     .body(new ErrorResponse("No calendars for this taf were found", 204));
         }
         Calendar calendar = realTaf.getCalendars().getLast();
         if (calendar.getSlots().isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            return ResponseEntity.status(HttpStatus.NO_CONTENT)
                     .body(new ErrorResponse("No slots for this taf were found", 204));
         }
         List<Slot> slots = calendar.getSlots();
