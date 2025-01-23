@@ -12,6 +12,7 @@ import { useOutletContext, useLoaderData } from "react-router-dom";
 import SaveButton from "../../components/calendar/SaveButton";
 import { USE_MOCK_DATA } from "../../contants";
 import axiosInstance from "../../services/axiosConfig";
+import { JSONToCalendarEvent } from "../../helper/calendarEvent";
 
 export async function loader({ params }) {
 
@@ -46,10 +47,10 @@ export default function LessonsAvailability() {
         setTabIndex(newValue);
     };
 
-    const initialEvents = data ?? generateClassSlots(
+    const initialEvents = typeof data === "string" ? generateClassSlots(
         context.taf.startDate,
         context.taf.endDate
-    );
+    ) : data.map(JSONToCalendarEvent);
 
     return (
       <div>
