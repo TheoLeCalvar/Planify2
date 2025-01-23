@@ -59,6 +59,38 @@ public class TAFReturn {
         return string;
     }
 
+    public List<UEShort> getUE() {
+        return UE;
+    }
+
+    public void setUE(List<UEShort> UE) {
+        this.UE = UE;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public List<Long> getCalendarsId() {
+        return CalendarsId;
+    }
+
+    public void setCalendarsId(List<Long> calendarsId) {
+        CalendarsId = calendarsId;
+    }
+
+    public List<String> getManagers() {
+        return managers;
+    }
+
+    public void setManagers(List<String> managers) {
+        this.managers = managers;
+    }
+
     public String getName() {
         return this.name;
     }
