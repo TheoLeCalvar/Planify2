@@ -53,8 +53,9 @@ public class CalendarController {
         TAF realTaf = taf.get();
 
         Calendar calendar = realTaf.getCalendars().getFirst();
+        Planning planning = calendar.getPlannings().getFirst();
 
-        String result = SolverMain.generateCal(calendar);
+        String result = SolverMain.generatePlanningString(planning);
 
         return ResponseEntity.ok(result);
     }
