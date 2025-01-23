@@ -6,8 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.planify.server.controller.returnsClass.PlanningReturn;
-import com.planify.server.models.Planning;
-import com.planify.server.models.ScheduledLesson;
+import com.planify.server.models.*;
 import com.planify.server.service.PlanningService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,8 +18,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.planify.server.controller.returnsClass.TAFShort;
-import com.planify.server.models.Calendar;
-import com.planify.server.models.TAF;
 import com.planify.server.service.CalendarService;
 import com.planify.server.service.TAFService;
 import com.planify.server.solver.SolverMain;
@@ -53,9 +50,9 @@ public class CalendarController {
         TAF realTaf = taf.get();
 
         Calendar calendar = realTaf.getCalendars().getFirst();
-        Planning planning = calendar.getPlannings().getFirst();
+        Planning planning = planningService.addPlanning(calendar);
 
-        String result = SolverMain.generatePlanningString(planning);
+        List<Result> result = SolverMain.generatePlanning(planning);
 
         return ResponseEntity.ok(result);
     }

@@ -23,6 +23,10 @@ public class PlanningService {
     @Autowired
     private  LessonService lessonService;
 
+    final String RESET = "\u001B[0m";
+    final String RED = "\u001B[31m";
+    final String GREEN = "\u001B[32m";
+
     public Planning addPlanning(Calendar calendar) {
         Planning planning = new Planning(calendar);
         planningRepository.save(planning);
@@ -51,6 +55,7 @@ public class PlanningService {
     }
 
     public void addScheduledLessons(Planning planning, List<Result> results) throws IllegalArgumentException {
+        System.out.println(GREEN + "dans add scheduled lesson" + RESET);
         List<ScheduledLesson> scheduledLessons = new ArrayList<>();
         for (Result result: results) {
             Optional<Slot> oSlot = slotService.findById(result.getId());
@@ -69,6 +74,7 @@ public class PlanningService {
             ScheduledLesson scheduledLesson = new ScheduledLesson(result.getIdLesson(), start, end, ue, title, description, lecturers);
             scheduledLessons.add(scheduledLesson);
         }
+        System.out.println(RED + scheduledLessons + RESET);
         planning.setScheduledLessons(scheduledLessons);
         planningRepository.save(planning);
     }
