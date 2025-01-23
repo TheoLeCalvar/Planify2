@@ -26,4 +26,12 @@ public class Result {
     public void setIdLesson(Long idLesson) {
         this.idLesson = idLesson;
     }
+
+    @Override
+    public String toString() {
+        return "Result{" +
+                "id=" + id +
+                ", idLesson=" + idLesson +
+                '}';
+    }
 }

@@ -58,6 +58,7 @@ public class PlanningService {
         System.out.println(GREEN + "dans add scheduled lesson" + RESET);
         List<ScheduledLesson> scheduledLessons = new ArrayList<>();
         for (Result result: results) {
+            System.out.println(result.toString());
             Optional<Slot> oSlot = slotService.findById(result.getId());
             Slot slot = oSlot.orElseThrow(() -> new IllegalArgumentException("The Slot does not exist"));
             LocalDateTime start = slot.getStart();
