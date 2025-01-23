@@ -1,5 +1,6 @@
 package com.planify.server;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,6 +40,7 @@ public class ServerApplication {
 	private static UserService userService;
 	private static UserUnavailabilityService userUnavailabilityService;
 	private static WeekService weekService;
+	private static PlanningService planningService;
 	
 	public static void main(String[] args) {
 		ApplicationContext context = SpringApplication.run(ServerApplication.class, args);
@@ -67,9 +69,45 @@ public class ServerApplication {
 		userService = context.getBean(UserService.class);
 		userUnavailabilityService = context.getBean(UserUnavailabilityService.class);
 		weekService = context.getBean(WeekService.class);
+		planningService = context.getBean(PlanningService.class);
+
+		TAF taf = tafService.addTAF("LOGIN", "Polyglotte", "début", "fin");
+		Calendar calendar = calendarService.addCalendar(taf);
+		Planning planning = planningService.addPlanning(calendar);
+		System.out.println(planning.toString());
+
+		Slot slot = slotService.add(1, dayService.addDay(1, weekService.addWeek(1, 2025)),calendar);
+		slot.setEnd(LocalDateTime.of(2025,1,17,18,0));
+		slot.setStart(LocalDateTime.of(2025,1,17,15,0));
+		slotService.save(slot);
+
+		Lesson lesson = lessonService.add("cours 1", "début petrinet", ueService.addUE("MAPD", "petrinet", taf));
+
+		List<Result> results = new ArrayList<>();
+		results.add(new Result(slot.getId(), lesson.getId()));
+		planningService.addScheduledLessons(planning, results);
+		List<ScheduledLesson> scheduledLessons = planning.getScheduledLessons();
+		for (ScheduledLesson sl: scheduledLessons) {
+			System.out.println(sl.toString());
+		}
+
 		
+		/*System.out.println("Test !!!!!!!!!!!!!!");
+		TAF taf0 = tafService.addTAF(GREEN, RESET, RED, GREEN);
+		UE ue0 = ueService.addUE(RED, GREEN, taf0);
+		Lesson lesson0 = lessonService.add(RED, GREEN, ue0);
+		User user0 = userService.addUser(RESET, RED, GREEN, new char[] {});
+		LessonLecturer lessonLecturer0 = lessonLecturerService.addLessonLecturer(user0, lesson0);
+		lessonService.delete(lesson0.getId());
+		Lesson lesson00 = lessonService.add(RED, GREEN, ue0);
+		LessonLecturer lessonLecturer1 = lessonLecturerService.addLessonLecturer(user0, lesson00);
+		System.out.println("Nb lecturers : " + lesson00.getLessonLecturers().size());
+		lessonLecturerService.deleteLessonLecturer(lessonLecturer1.getId());
+		System.out.println("Nb lecturers : " + lesson00.getLessonLecturers().size());
+		System.out.println("Nb lecturers : " + lessonService.findById(lesson00.getId()).get().getLessonLecturers().size());
+		System.out.println("Fin Test !!!!!!!!!!");
 		
-		testSolver(context);
+		//testSolver(context);
 		if (weekService != null) return; //Just to not have warnings when we want to stops tests here.
 		
 		// Test of calendarService.getSlotsOrdered(idCalendar), getNumberOfSlots,
@@ -605,8 +643,8 @@ public class ServerApplication {
 		Slot slot1 = slotService.add(1, day11, c);
 		Slot slot2 = slotService.add(2, day11, c);
 		Slot slot3 = slotService.add(1, day12, c);
-		/*Calendar c2 = calendarService.addCalendar(dcl);
-		Slot slotDummy = slotService.add(1, day21, c2);*/		
+		*//*Calendar c2 = calendarService.addCalendar(dcl);
+		Slot slotDummy = slotService.add(1, day21, c2);*//*
 		Slot slot4 = slotService.add(1, day21, c);
 		Slot slot5 = slotService.add(2, day21, c);
 		UE ue1 = ueService.addUE("UE1", "", dcl);
@@ -648,8 +686,8 @@ public class ServerApplication {
 		Slot slot2 = slotService.add(2, day11, c);
 		Slot slot3 = slotService.add(1, day12, c);
 		Slot slot4 = slotService.add(2, day12, c);
-		/*Calendar c2 = calendarService.addCalendar(dcl);
-		Slot slotDummy = slotService.add(1, day21, c2);*/		
+		*//*Calendar c2 = calendarService.addCalendar(dcl);
+		Slot slotDummy = slotService.add(1, day21, c2);*//*
 		Slot slot5 = slotService.add(1, day21, c);
 		UE ue1 = ueService.addUE("UE1", "", login);
 		UE ue2 = ueService.addUE("UE2", "", login);
@@ -674,7 +712,7 @@ public class ServerApplication {
 		userUnavailabilityService.addUserUnavailability(slot5, helene, true);
 		userUnavailabilityService.addUserUnavailability(slot2, helene, true);
 		
-		return c;
+		return c;*/
 	}
 	
 	private static Calendar calendarSolverOneDay() {

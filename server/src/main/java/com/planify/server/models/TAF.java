@@ -84,7 +84,7 @@ public class TAF {
     }
 
     public void setEndDate(String string) {
-        this.description = string;
+        this.endDate = string;
     }
 
     public List<UE> getUes() {

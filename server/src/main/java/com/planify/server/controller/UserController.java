@@ -12,8 +12,12 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import com.planify.server.controller.returnsClass.UserShort;
 import com.planify.server.models.LessonLecturer;
@@ -45,8 +49,8 @@ public class UserController {
     private TAFService tafService;
 
     // Get the list of the users
-    @GetMapping(value = "/users&tafId={tafId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getTAFById(@PathVariable Long tafId) {
+    @RequestMapping(value = "users", method = RequestMethod.GET)
+    public ResponseEntity<?> getTAFById(@RequestParam("tafId") Long tafId) {
         Optional<TAF> taf = tafService.findById(tafId);
         if (taf.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -58,12 +62,28 @@ public class UserController {
             List<TAF> tafs = (user.getLessonLecturers()).stream().map(LessonLecturer::getTAF).filter(x -> x.equals(taf))
                     .collect(Collectors.toList());
             if (!tafs.isEmpty()) {
-                answers.add(new UserShort(user.getId(), user.getName(), true));
+                answers.add(new UserShort(user.getId(), user.getFullName(), true));
             } else {
-                answers.add(new UserShort(user.getId(), user.getName(), false));
+                answers.add(new UserShort(user.getId(), user.getFullName(), false));
             }
         }
         return ResponseEntity.ok(answers);
+    }
+
+    @PostMapping(value = "users", consumes = "application/json", produces = "application/json")
+    public ResponseEntity<?> createUser(@RequestBody UserShort userRequest) {
+        List<User> users = userService.findAll();
+        boolean exists = users.stream().anyMatch(user -> user.getName().equals(userRequest.getFirstName())
+                && user.getLastName().equals(userRequest.getLastName()));
+
+        if (exists) {
+            return ResponseEntity.status(209).body("User already exists");
+        }
+        System.out.println(userRequest.getFirstName());
+        System.out.println(userRequest.getLastName());
+        User u = userService.addUser(userRequest.getFirstName(), userRequest.getLastName(), userRequest.getEmail(),
+                "not implemented".toCharArray());
+        return ResponseEntity.ok("User created !");
     }
 
 }

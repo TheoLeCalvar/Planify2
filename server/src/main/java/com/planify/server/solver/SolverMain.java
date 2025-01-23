@@ -18,6 +18,7 @@ import org.chocosolver.util.tools.ArrayUtils;
 import com.planify.server.models.Calendar;
 import com.planify.server.models.Day;
 import com.planify.server.models.Lesson;
+import com.planify.server.models.Result;
 import com.planify.server.models.Sequencing;
 import com.planify.server.models.Slot;
 import com.planify.server.models.Synchronization;
@@ -114,7 +115,27 @@ public class SolverMain {
 		SolverMain.services = services;
 	}
 	
-	public static String generateCal(Calendar cal) {
+	public static List<Result> generateCal(Calendar cal) {
+		Model model = new Model();
+		Solver solver = model.getSolver();
+		SolverMain solMain = new SolverMain(cal);
+		int nbSlots = solMain.getNumberOfSlots();
+		int nbLessons = solMain.getNumberOfLessons();
+		solMain.initialiseVars(model, nbSlots, nbLessons, true, false, false);
+		solMain.setConstraints(model);
+		IntVar obj = solMain.setPreferences(model);
+		setStrategy(solMain, solver, cal);
+		Solution solution;
+		if (obj != null) solution = solver.findOptimalSolution(obj, false);
+		else solution = solver.findSolution();
+		System.out.println(model);
+		solver.printShortStatistics();
+		System.out.println(solMain.showSolutionsDebug(solution));
+		System.out.println(solMain.makeSolutionString(solution));
+		return solMain.makeSolution(solution);
+	}
+	
+	public static String generateCalString(Calendar cal) {
 		Model model = new Model();
 		Solver solver = model.getSolver();
 		SolverMain solMain = new SolverMain(cal);
@@ -650,6 +671,14 @@ public class SolverMain {
 	
 	private String nameLesson(Lesson lesson) {
 		return "Lesson " + idMLesson.getValue(lesson.getId()) + " (" + lesson.getId() + ")";
+	}
+	
+	private List<Result> makeSolution(Solution solution) {
+		List<Result> results = new ArrayList<Result>();
+		for (Slot s : cal.getSlots())
+			if (solution.getIntVal(getSlotVarLesson(s)) != 0)
+				results.add(new Result(s.getId(), Long.valueOf(solution.getIntVal(getSlotVarLesson(s)))));
+		return results;
 	}
 	
 	private String makeSolutionString(Solution solution) {

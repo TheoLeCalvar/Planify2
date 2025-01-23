@@ -1,9 +1,13 @@
 package com.planify.server.controller;
 
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import com.planify.server.controller.returnsClass.PlanningReturn;
+import com.planify.server.models.Planning;
+import com.planify.server.service.PlanningService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -31,6 +35,9 @@ public class CalendarController {
     @Autowired
     private CalendarService calendarService;
 
+    @Autowired
+    private PlanningService planningService;
+
     @GetMapping(value = "/solver/run/{idTaf}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> runSolverMain(@PathVariable Long idTaf) {
         Optional<TAF> taf = tafService.findById(idTaf);
@@ -42,9 +49,34 @@ public class CalendarController {
 
         Calendar calendar = realTaf.getCalendars().getFirst();
 
-        String result = SolverMain.generateCal(calendar);
+        String result = SolverMain.generateCalString(calendar);
 
         return ResponseEntity.ok(result);
+    }
+
+    @GetMapping(value = "/solver/history/{idTaf}", produces = MediaType.APPLICATION_JSON_VALUE )
+    public ResponseEntity<?> getCalendarHistory(@PathVariable Long idTaf) {
+        Optional<TAF> taf = tafService.findById(idTaf);
+        if (taf.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorResponse("No TAF with this id was found", 404));
+        }
+        List<PlanningReturn> answer = new ArrayList<PlanningReturn>();
+        List<Calendar> calendars = taf.get().getCalendars();
+        if (calendars!=null && !calendars.isEmpty()) {
+            for (Calendar calendar : calendars) {
+                List<Planning> plannings = planningService.findByCalendar(calendar);
+                if (plannings!=null) {
+                    for (Planning planning : plannings) {
+                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                        String formatted = planning.getTimestamp().format(formatter);
+                        answer.add(new PlanningReturn(planning.getId(), formatted));
+                    }
+                }
+            }
+        }
+        return ResponseEntity.ok(answer);
+
     }
 
 }

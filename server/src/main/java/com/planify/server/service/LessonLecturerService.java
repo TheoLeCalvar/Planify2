@@ -82,6 +82,34 @@ public class LessonLecturerService {
 
             return true;
         } else {
+        	System.out.println("Not Found !!!!");
+            return false;
+        }
+    }
+    
+    public boolean deleteLessonLecturerFromLesson(LessonLecturerId id) {
+    	
+    	if (lessonLecturerRepository.existsById(id)) {
+            LessonLecturer lessonLecturer = lessonLecturerRepository.findById(id).get();
+
+            // Update lesson lecturers for user
+            List<LessonLecturer> lessonLecturers = lessonLecturer.getUser().getLessonLecturers();
+            lessonLecturers.remove(lessonLecturer);
+            lessonLecturer.getUser().setLessonLecturers(lessonLecturers);
+            userService.save(lessonLecturer.getUser());
+            
+            // Update lesson lecturers for lesson
+            /*System.out.println("Lesson : " + lessonLecturer.getLesson());
+            List<LessonLecturer> lessonLecturers2 = lessonLecturer.getLesson().getLessonLecturers();
+            lessonLecturers2.remove(lessonLecturer);
+            lessonLecturer.getLesson().setLessonLecturers(lessonLecturers2);
+            lessonService.save(lessonLecturer.getLesson());*/
+            
+            // Then delete it
+            lessonLecturerRepository.deleteById(id);
+
+            return true;
+        } else {
             return false;
         }
     }
