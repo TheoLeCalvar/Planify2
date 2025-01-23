@@ -50,7 +50,7 @@ public class PlanningService {
         }
     }
 
-    public void addScheduledLessons(Planning planning, List<Result> results) {
+    public void addScheduledLessons(Planning planning, List<Result> results) throws IllegalArgumentException {
         List<ScheduledLesson> scheduledLessons = new ArrayList<>();
         for (Result result: results) {
             Optional<Slot> oSlot = slotService.findById(result.getId());
@@ -66,10 +66,11 @@ public class PlanningService {
                     .stream()
                     .map(ll -> ll.getUser().getFullName())
                     .toList();
-            ScheduledLesson scheduledLesson = new ScheduledLesson(start, end, ue, title, description, lecturers);
+            ScheduledLesson scheduledLesson = new ScheduledLesson(result.getIdLesson(), start, end, ue, title, description, lecturers);
             scheduledLessons.add(scheduledLesson);
         }
         planning.setScheduledLessons(scheduledLessons);
+        planningRepository.save(planning);
     }
 
 }

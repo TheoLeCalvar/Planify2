@@ -68,6 +68,7 @@ public class Planning {
         return "Planning " + id +
                 " { timestamp=" + timestamp +
                 ", calendar=" + calendar.getId() +
+                ", scheduledLesson= " + scheduledLessons +
                 '}';
     }
 }

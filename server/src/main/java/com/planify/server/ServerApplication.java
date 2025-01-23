@@ -74,7 +74,7 @@ public class ServerApplication {
 		TAF taf = tafService.addTAF("LOGIN", "Polyglotte", "début", "fin");
 		Calendar calendar = calendarService.addCalendar(taf);
 		Planning planning = planningService.addPlanning(calendar);
-		System.out.println(planning.toString());
+		System.out.println(GREEN + planning.toString() + RESET);
 
 		Slot slot = slotService.add(1, dayService.addDay(1, weekService.addWeek(1, 2025)),calendar);
 		slot.setEnd(LocalDateTime.of(2025,1,17,18,0));
@@ -88,8 +88,9 @@ public class ServerApplication {
 		planningService.addScheduledLessons(planning, results);
 		List<ScheduledLesson> scheduledLessons = planning.getScheduledLessons();
 		for (ScheduledLesson sl: scheduledLessons) {
-			System.out.println(sl.toString());
+			System.out.println(GREEN + sl.toString() + RESET);
 		}
+
 
 		
 		/*System.out.println("Test !!!!!!!!!!!!!!");

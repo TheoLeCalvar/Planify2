@@ -7,6 +7,7 @@ import java.util.Optional;
 
 import com.planify.server.controller.returnsClass.PlanningReturn;
 import com.planify.server.models.Planning;
+import com.planify.server.models.ScheduledLesson;
 import com.planify.server.service.PlanningService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -37,6 +38,10 @@ public class CalendarController {
 
     @Autowired
     private PlanningService planningService;
+
+    final String RESET = "\u001B[0m";
+    final String RED = "\u001B[31m";
+    final String GREEN = "\u001B[32m";
 
     @GetMapping(value = "/solver/run/{idTaf}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> runSolverMain(@PathVariable Long idTaf) {
@@ -77,6 +82,17 @@ public class CalendarController {
         }
         return ResponseEntity.ok(answer);
 
+    }
+
+    @GetMapping(value = "/solver/result/{planningId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getPlanning(@PathVariable Long planningId) {
+        Optional<Planning> optionalPlanning = planningService.findById(planningId);
+        if (optionalPlanning.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorResponse("No planning with this id was found", 404));
+        }
+        List<ScheduledLesson> scheduledLessons = optionalPlanning.get().getScheduledLessons();
+        return ResponseEntity.ok(scheduledLessons);
     }
 
 }
