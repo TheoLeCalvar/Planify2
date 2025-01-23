@@ -106,10 +106,10 @@ public class ServerApplication {
 		System.out.println("Nb lecturers : " + lesson00.getLessonLecturers().size());
 		System.out.println("Nb lecturers : " + lessonService.findById(lesson00.getId()).get().getLessonLecturers().size());
 		System.out.println("Fin Test !!!!!!!!!!");
-		
-		//testSolver(context);
+		*/
+		testSolver(context);
 		if (weekService != null) return; //Just to not have warnings when we want to stops tests here.
-		
+		/*
 		// Test of calendarService.getSlotsOrdered(idCalendar), getNumberOfSlots,
 		// getDaysSorted
 		tafService.addTAF("DCL", "Développement", "2024-09-07", "2025-03-30");
@@ -568,14 +568,14 @@ public class ServerApplication {
 		antecedenceService.addAntecedence(lessonUe5_3, lessonUe5_4);
 		antecedenceService.addAntecedence(lessonUe5_5, lessonUe5_6);
 
-
+*/
 	}
 
 	private static void testSolver(ApplicationContext context) {
-		//testSolver1(context, calendarSolverTestMinMaxUeWeek());
+		testSolver1(context, test());
 		//testSolver2(context);
 		//testSolver3(context);
-		testSolverDCLNS1(context);
+		//testSolverDCLNS1(context);
 	}
 	
 	private static void testSolver1(ApplicationContext context, Calendar cal) {		
@@ -643,8 +643,8 @@ public class ServerApplication {
 		Slot slot1 = slotService.add(1, day11, c);
 		Slot slot2 = slotService.add(2, day11, c);
 		Slot slot3 = slotService.add(1, day12, c);
-		*//*Calendar c2 = calendarService.addCalendar(dcl);
-		Slot slotDummy = slotService.add(1, day21, c2);*//*
+		Calendar c2 = calendarService.addCalendar(dcl);
+		Slot slotDummy = slotService.add(1, day21, c2);
 		Slot slot4 = slotService.add(1, day21, c);
 		Slot slot5 = slotService.add(2, day21, c);
 		UE ue1 = ueService.addUE("UE1", "", dcl);
@@ -686,8 +686,8 @@ public class ServerApplication {
 		Slot slot2 = slotService.add(2, day11, c);
 		Slot slot3 = slotService.add(1, day12, c);
 		Slot slot4 = slotService.add(2, day12, c);
-		*//*Calendar c2 = calendarService.addCalendar(dcl);
-		Slot slotDummy = slotService.add(1, day21, c2);*//*
+		/*Calendar c2 = calendarService.addCalendar(dcl);
+		Slot slotDummy = slotService.add(1, day21, c2);*/
 		Slot slot5 = slotService.add(1, day21, c);
 		UE ue1 = ueService.addUE("UE1", "", login);
 		UE ue2 = ueService.addUE("UE2", "", login);
@@ -712,7 +712,7 @@ public class ServerApplication {
 		userUnavailabilityService.addUserUnavailability(slot5, helene, true);
 		userUnavailabilityService.addUserUnavailability(slot2, helene, true);
 		
-		return c;*/
+		return c;
 	}
 	
 	private static Calendar calendarSolverOneDay() {
@@ -771,6 +771,39 @@ public class ServerApplication {
 		for (int l = 0; l < 7; l ++)
 			lessons.add(lessonService.add("Lesson " + l, "", ue));
 		return cal;
+	}
+	
+	private static Calendar test() {
+		TAF login = tafService.addTAF("Login*", "", "", "");
+		Calendar c = calendarService.addCalendar(login);
+		Week week1 = weekService.addWeek(1, 2025);
+		Week week2 = weekService.addWeek(2, 2025);
+		Day day11 = dayService.addDay(1, week1);
+		Day day12 = dayService.addDay(2, week1);
+		Day day21 = dayService.addDay(1, week2);
+		Slot slot1 = slotService.add(1, day11, c);
+		Slot slot2 = slotService.add(2, day11, c);
+		Slot slot3 = slotService.add(1, day12, c);
+		Slot slot4 = slotService.add(2, day12, c);
+		
+		
+		UE ue1 = ueService.addUE("UE1", "", login);
+		UE ue2 = ueService.addUE("UE2", "", login);
+		Lesson lesson1 = lessonService.add("Lesson1", null, ue1);
+		Lesson lesson2 = lessonService.add("Lesson2", null, ue1);
+		Lesson lesson3 = lessonService.add("Lesson3", null, ue2);
+		
+		User helene = userService.addUser("Hélène", "Coullon", "jacques.noye@imt-atlantique.fr", new char[]{});
+		
+		lessonLecturerService.addLessonLecturer(helene, lesson1);
+		lessonLecturerService.addLessonLecturer(helene, lesson2);
+		lessonLecturerService.addLessonLecturer(helene, lesson3);
+		
+		
+		antecedenceService.addAntecedence(lesson2, lesson3);
+		antecedenceService.addAntecedence(lesson3, lesson1);
+		
+		return c;
 	}
 	
 	private static Calendar calendarSolverDCLNS1() {

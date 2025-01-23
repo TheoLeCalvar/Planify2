@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
+import com.planify.server.service.AntecedenceService;
 import com.planify.server.service.CalendarService;
 import com.planify.server.service.DayService;
 import com.planify.server.service.GlobalUnavailabilityService;
@@ -12,6 +13,7 @@ import com.planify.server.service.SequencingService;
 import com.planify.server.service.SlotService;
 import com.planify.server.service.SynchronizationService;
 import com.planify.server.service.TAFService;
+import com.planify.server.service.UserService;
 
 @Component
 public class SolverServices {
@@ -46,6 +48,14 @@ public class SolverServices {
 	@Lazy
 	@Autowired
 	private SlotService slotService;
+	
+	@Lazy
+	@Autowired
+	private AntecedenceService antecedenceService;
+	
+	@Lazy
+	@Autowired
+	private UserService userService;
 
 	public SolverServices() {}
 	
@@ -79,5 +89,13 @@ public class SolverServices {
 	
 	public SlotService getSlotService() {
 		return slotService;
+	}
+
+	public AntecedenceService getAntecedenceService() {
+		return antecedenceService;
+	}
+
+	public UserService getUserService() {
+		return userService;
 	}
 }

@@ -15,15 +15,18 @@ import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.util.tools.ArrayUtils;
 
+import com.planify.server.models.Antecedence;
 import com.planify.server.models.Calendar;
 import com.planify.server.models.Day;
 import com.planify.server.models.Lesson;
+import com.planify.server.models.LessonLecturer;
 import com.planify.server.models.Result;
 import com.planify.server.models.Sequencing;
 import com.planify.server.models.Slot;
 import com.planify.server.models.Synchronization;
 import com.planify.server.models.TAF;
 import com.planify.server.models.UE;
+import com.planify.server.models.User;
 import com.planify.server.models.Week;
 
 
@@ -319,12 +322,13 @@ public class SolverMain {
 	private void setConstraints(Model model) {
 		setConstraintLinkLessonsSlots(model, true);
 		setConstraintLinkSlotGlobalDayWeek(model, this.IdMSlotGlobal != null, false, false);
-		setConstraintSequences(model);
-		/*if (cal.hasConstraintGlobalUnavailability()*/ setConstraintGlobalUnavailability(model);
-		/*if (cal.hasConstraint1())*/ setConstraintLecturerUnavailability(model);
-		/*if (cal.hasConstraint())*/ setConstraintLunchBreak(model);
-		/*if (cal.hasConstraint())*/ setConstraintNoInterweaving(model);
-		/*if (cal.hesConstraint()*/ setConstraintMinMaxLessonUeInWeek(model); //Idée pour essayer d'améliorer les performances si besoin : essayer de faire l'optimisation sur les variables du nombre de cours de l'UE considéré.
+		//setConstraintSequences(model);
+		setAntecedenceConstraints(model);
+		/*if (cal.hasConstraintGlobalUnavailability()*/ //setConstraintGlobalUnavailability(model);
+		/*if (cal.hasConstraint1())*/ //setConstraintLecturerUnavailability(model);
+		/*if (cal.hasConstraint())*/ //setConstraintLunchBreak(model);
+		/*if (cal.hasConstraint())*/ //setConstraintNoInterweaving(model);
+		/*if (cal.hesConstraint()*/ //setConstraintMinMaxLessonUeInWeek(model); //Idée pour essayer d'améliorer les performances si besoin : essayer de faire l'optimisation sur les variables du nombre de cours de l'UE considéré.
 	}
 	
 	private void setConstraintLinkLessonsSlots(Model model, boolean ue) {
@@ -483,15 +487,15 @@ public class SolverMain {
 		}
 	}
 	
-	private void setAntecedenceConstraints (Model model) {
+	private void setAntecedenceConstraints(Model model) {
 		 List<Antecedence> antecedences = services.getAntecedenceService().getAntecedencesByIdTaf(cal.getTaf().getId());
 		    
 		    for (Antecedence antecedence : antecedences) {
 		        Lesson previousLesson = antecedence.getPreviousLesson();
 		        Lesson nextLesson = antecedence.getNextLesson();
 		        
-		        int previousSlot = getLessonVarSlot(previousLesson);
-		        int nextSlot = getLessonVarSlot(nextLesson);
+		        IntVar previousSlot = getLessonVarSlot(previousLesson);
+		        IntVar nextSlot = getLessonVarSlot(nextLesson);
 
 		        model.arithm(nextSlot, ">", previousSlot).post();
 		    }
@@ -595,7 +599,8 @@ public class SolverMain {
 
 	    for (UE ue : cal.getTaf().getUes()) {
 	        for (Lesson lesson : ue.getLessons()) {
-	            for (User lecturer : lesson.getLecturers()) {
+	            for (LessonLecturer lessonLecturer : lesson.getLessonLecturers()) {
+	            	User lecturer = lessonLecturer.getUser();
 	                List<Slot> notPreferredSlots = services.getUserService().getNotPreferedSlotsByUserAndCalendar(lecturer, cal);
 
 	                for (Slot notPreferredSlot : notPreferredSlots) {
@@ -607,7 +612,7 @@ public class SolverMain {
 	            }
 	        }
 	    }
-	    return model.sum("GlobalPreferences", globalPreference ns.stream().toArray(IntVar[]::new));
+	    return model.sum("GlobalPreferences", globalPreferences.stream().toArray(IntVar[]::new));
 	}
 
 	private IntVar setPreferencesLecturers(Model model) {
