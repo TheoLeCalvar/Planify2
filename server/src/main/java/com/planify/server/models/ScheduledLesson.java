@@ -13,11 +13,11 @@ public class ScheduledLesson {
 
     private Long id;
 
-    @JsonFormat(pattern = "yyyy-MM-dd hh:mm")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime start; // date of the start of the lesson
 
     @Column(name = "\"end\"")
-    @JsonFormat(pattern = "yyyy-MM-dd hh:mm")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime end; // date of the end of the lesson
 
     private String UE; // name of the UE
