@@ -25,7 +25,7 @@ export function JSONToCalendarEvent(event){
 export function JSONToPlanningEvent(event){
     return {
         id: event.id,
-        title: event.UE + " - " + event.title,
+        title: event.ue + " - " + event.title,
         description: event.description,
         start: event.start,
         end: event.end,
@@ -41,12 +41,12 @@ export function assignUniqueUDId(events) {
 
     // Itérer sur la liste des événements et associer un ID unique à chaque UE
     events.forEach(event => {
-        if (!ueToIdMap[event.UE]) {
-            ueToIdMap[event.UE] = currentId;
+        if (!ueToIdMap[event.ue]) {
+            ueToIdMap[event.ue] = currentId;
             currentId++;
         }
         // Ajouter l'ID unique dans l'événement
-        event.uniqueUEId = ueToIdMap[event.UE];
+        event.uniqueUEId = ueToIdMap[event.ue];
     });
 
     return events;

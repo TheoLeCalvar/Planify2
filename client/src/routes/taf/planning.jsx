@@ -79,7 +79,7 @@ export async function loader({ params }) {
     }
 
     const response = await axiosInstance.get(
-        `/api/solver/result/${params.idPlanning}`
+        `/solver/result/${params.idPlanning}`
     );
     return response.data;
 }

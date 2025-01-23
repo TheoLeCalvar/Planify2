@@ -26,7 +26,7 @@ const SideBar = () => {
 
     const context = useOutletContext();
 
-    const { UE: lessons, id: tafID, resultPlannings } = useOutletContext().taf;
+    const { UE: lessons, id: tafID, resultPlanning } = useOutletContext().taf;
 
     const handleGenerateCalendar = async () => {
         const response = await axiosInstance.get(`/solver/run/${tafID}`);
@@ -119,7 +119,7 @@ const SideBar = () => {
                     {/* Add Button */}
                     <Box sx={{ p: 2 }}>
                         <Stack spacing={2}>
-                            {resultPlannings?.length > 0 && (
+                            {resultPlanning?.length > 0 && (
                                 <Link to={`/taf/${tafID}/results`}>
                                     <Button
                                         variant="outlined"

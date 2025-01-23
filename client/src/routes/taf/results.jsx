@@ -9,7 +9,7 @@ export default function TAFResults() {
     const context = useOutletContext();
     const taf = context.taf;
 
-    const options = taf?.resultPlannings ?? [];
+    const options = taf?.resultPlanning ?? [];
 
     const { idPlanning } = useParams();
 
@@ -58,7 +58,7 @@ export default function TAFResults() {
                     >
                         {options.map((option) => (
                             <MenuItem key={option.id} value={option.id}>
-                                {option.date}
+                                {option.timestamp}
                             </MenuItem>
                         ))}
                     </Select>
