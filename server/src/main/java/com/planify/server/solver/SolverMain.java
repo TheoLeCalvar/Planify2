@@ -462,6 +462,21 @@ public class SolverMain {
 		}
 	}
 	
+	private void setAntecedenceConstraints (Model model) {
+		 List<Antecedence> antecedences = services.getAntecedenceService().getAntecedencesByIdTaf(cal.getTaf().getId());
+		    
+		    for (Antecedence antecedence : antecedences) {
+		        Lesson previousLesson = antecedence.getPreviousLesson();
+		        Lesson nextLesson = antecedence.getNextLesson();
+		        
+		        int previousSlot = getLessonVarSlot(previousLesson);
+		        int nextSlot = getLessonVarSlot(nextLesson);
+
+		        model.arithm(nextSlot, ">", previousSlot).post();
+		    }
+	}
+	
+	
 	private static void setSynchronisationConstraints(Model model, SolverMain[] solMains) {
 		for (int i = 0; i < solMains.length - 1; i ++) {
 			for (Synchronization sync : services.getSynchronizationService().getSynchronizationsByIdTaf(solMains[i].getCal().getTaf().getId()))
@@ -555,7 +570,23 @@ public class SolverMain {
 	}
 	
 	private IntVar setPreferencesGlobal(Model model) {
-		return null;
+	    ArrayList<IntVar> globalPreferences = new ArrayList<IntVar>();
+
+	    for (UE ue : cal.getTaf().getUes()) {
+	        for (Lesson lesson : ue.getLessons()) {
+	            for (User lecturer : lesson.getLecturers()) {
+	                List<Slot> notPreferredSlots = services.getUserService().getNotPreferedSlotsByUserAndCalendar(lecturer, cal);
+
+	                for (Slot notPreferredSlot : notPreferredSlots) {
+	                    BoolVar isNotPreferredVar = model.boolVar("GlobalNotPreferred_" + lesson.getId() + "_" + notPreferredSlot.getId());
+	                    
+	                    model.reification(isNotPreferredVar, model.arithm(getLessonVarSlot(lesson), "=", getIdMSlot(notPreferredSlot)));
+	                    globalPreferences.add(isNotPreferredVar);
+	                }
+	            }
+	        }
+	    }
+	    return model.sum("GlobalPreferences", globalPreference ns.stream().toArray(IntVar[]::new));
 	}
 
 	private IntVar setPreferencesLecturers(Model model) {
