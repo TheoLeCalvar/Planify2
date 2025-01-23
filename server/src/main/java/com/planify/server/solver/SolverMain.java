@@ -329,9 +329,9 @@ public class SolverMain {
 		setConstraintAntecedences(model);
 		/*if (planning.hasConstraintGlobalUnavailability()*/ setConstraintGlobalUnavailability(model);
 		/*if (planning.hasConstraint1())*/ setConstraintLecturerUnavailability(model);
-		/*if (planning.hasConstraint())*/ setConstraintLunchBreak(model);
+		/*if (planning.hasConstraint())*/ //setConstraintLunchBreak(model);
 		/*if (planning.hasConstraint())*/ setConstraintNoInterweaving(model);
-		/*if (planning.hesConstraint()*/ setConstraintMinMaxLessonUeInWeek(model); //Idée pour essayer d'améliorer les performances si besoin : essayer de faire l'optimisation sur les variables du nombre de cours de l'UE considéré.
+		/*if (planning.hesConstraint()*/ //setConstraintMinMaxLessonUeInWeek(model); //Idée pour essayer d'améliorer les performances si besoin : essayer de faire l'optimisation sur les variables du nombre de cours de l'UE considéré.
 	}
 	
 	private void setConstraintLinkLessonsSlots(Model model, boolean ue) {
@@ -685,7 +685,7 @@ public class SolverMain {
 		List<Result> results = new ArrayList<Result>();
 		for (Slot s : planning.getCalendar().getSlots())
 			if (solution.getIntVal(getSlotVarLesson(s)) != 0)
-				results.add(new Result(s.getId(), Long.valueOf(solution.getIntVal(getSlotVarLesson(s)))));
+				results.add(new Result(s.getId(), getIdLesson(solution.getIntVal(getSlotVarLesson(s)))));
 		return results;
 	}
 	
