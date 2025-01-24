@@ -384,6 +384,8 @@ public class LessonController {
                 int currentWeekCount = firstSlotStart.get(weekFields.weekOfYear());
                 int weekCount = 1;
 
+                Calendar calendar = null;
+
                 ResponseEntity<?> responseEntity = getSlotByTafId(tafId);
                 if (responseEntity.getStatusCode().value()==200) {
                     List<SlotShort> slotShorts = (List<SlotShort>) responseEntity.getBody();
@@ -391,11 +393,15 @@ public class LessonController {
                     Optional<Slot> relatedSlot = slotService.findById(Long.parseLong(slotShort.getId()));
                     if (relatedSlot.isPresent()) {
                         Calendar relatedCalendar = relatedSlot.get().getCalendar();
-                        calendarService.deleteCalendar(relatedCalendar.getId());
+                        List<Slot> relatedSlots = relatedCalendar.getSlots();
+                        relatedSlots.stream().map(slot -> slotService.deleteSlot(slot.getId()));
+                        calendar = relatedCalendar;
                     }
                 }
+                if (calendar == null) {
+                    calendar = new Calendar(taf);
+                }
                 
-                Calendar calendar = new Calendar(taf);
                 calendarService.save(calendar);
                 Integer year = firstSlotStart.getYear();
                 Week currentWeek = new Week(weekCount, year);
