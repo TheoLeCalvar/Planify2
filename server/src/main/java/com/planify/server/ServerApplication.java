@@ -803,6 +803,10 @@ public class ServerApplication {
 		antecedenceService.addAntecedence(lesson2, lesson3);
 		antecedenceService.addAntecedence(lesson3, lesson1);
 		
+		globalUnavailabilityService.addGlobalUnavailability(false, slot4);
+		globalUnavailabilityService.addGlobalUnavailability(false, slot2);
+		globalUnavailabilityService.addGlobalUnavailability(false, slot1);
+		
 		return c;
 	}
 	

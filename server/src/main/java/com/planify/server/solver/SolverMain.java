@@ -595,7 +595,25 @@ public class SolverMain {
 	}
 	
 	private IntVar setPreferencesGlobal(Model model) {
-	    ArrayList<IntVar> globalPreferences = new ArrayList<IntVar>();
+		
+		 List<Slot> slots = services.getCalendarService().getSlotsOrdered(cal.getId());
+		 List<BoolVar> penalties = new ArrayList<>();
+		 
+		 for (Slot slot : slots) {
+		        if (services.getGlobalUnavailabilityService().findBySlot(slot).filter(g -> !g.getStrict()).isPresent()) {
+		            BoolVar a = model.boolVar("");
+		            model.reification(a, model.arithm(this.getSlotVarLesson(slot), "!=", 0));
+		        	penalties.add(a);
+		        }
+		    }
+		 IntVar[] penaltiesArray = penalties.toArray(new IntVar[penalties.size()]);
+		 
+		 IntVar totalNonPreferred = model.intVar("totalNonPreferred", 0, penaltiesArray.length);
+		 model.sum(penaltiesArray, "=", totalNonPreferred).post();
+		 return totalNonPreferred;
+		
+		
+	  /*  ArrayList<IntVar> globalPreferences = new ArrayList<IntVar>();
 
 	    for (UE ue : cal.getTaf().getUes()) {
 	        for (Lesson lesson : ue.getLessons()) {
@@ -612,7 +630,7 @@ public class SolverMain {
 	            }
 	        }
 	    }
-	    return model.sum("GlobalPreferences", globalPreferences.stream().toArray(IntVar[]::new));
+	    return model.sum("GlobalPreferences", globalPreferences.stream().toArray(IntVar[]::new));*/
 	}
 
 	private IntVar setPreferencesLecturers(Model model) {
