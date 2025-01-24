@@ -261,11 +261,11 @@ public class LessonController {
                 .filter(block -> lessons.contains(block.getFirstLesson()))
                 .collect(Collectors.toList());
         List<BlockShort> blockShorts = new ArrayList<>();
-        List<Long> blockDependenciesSave = new ArrayList<>();
+        //List<Long> blockDependenciesSave = new ArrayList<>();
 
         for (Block block : blocks) {
-            List<Long> blockDependencies = new ArrayList<>();
-            blockDependencies.addAll(blockDependenciesSave);
+            //List<Long> blockDependencies = new ArrayList<>();
+            //blockDependencies.addAll(blockDependenciesSave);
             Lesson currentLesson = block.getFirstLesson();
             List<LessonShort> lessonShorts = new ArrayList<>();
             LessonShort currentLessonShort = new LessonShort(
@@ -290,16 +290,33 @@ public class LessonController {
 
             System.out.println("BLOCK LESSON :" + block.getId() + lessonShorts);
             // Adding Block to list
-            blockDependencies.add(block.getId());
-            blockDependenciesSave = blockDependencies;
-            System.out.println("DEPENDENCIES :" + blockDependencies);
+            //blockDependencies.add(block.getId());
+            //blockDependenciesSave = blockDependencies;
+            //System.out.println("DEPENDENCIES :" + blockDependencies);
             BlockShort blockShort = new BlockShort(
                     block.getId(),
                     block.getTitle(),
                     block.getDescription(),
                     lessonShorts,
-                    blockDependencies);
+                    new ArrayList<Long>());
             blockShorts.add(blockShort);
+        }
+
+        for (BlockShort blockShort: blockShorts) {
+            List<Long> dependences = new ArrayList<Long>();
+            Long nextLessonId = blockShort.getLessons().get(0).getId();
+            Lesson nextLesson = lessonService.findById(nextLessonId).get();
+            List<Antecedence> antecedences = antecedenceService.findByNextLesson(nextLesson);
+            for (Antecedence antecedence: antecedences) {
+                for (BlockShort potentialDependence: blockShorts) {
+                    Long previousLessonId = potentialDependence.getLessons().getLast().getId();
+                    if (antecedence.getPreviousLesson().getId() == previousLessonId) {
+                        dependences.add(potentialDependence.getId());
+                    }
+                }
+            }
+
+            blockShort.setDependencies(dependences);
         }
 
         System.out.println(blockShorts.toString());
@@ -349,7 +366,7 @@ public class LessonController {
     public ResponseEntity<?> putSlotInTaf(@PathVariable Long tafId, @RequestBody List<SlotShort> slots) {
         if (slots.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ErrorResponse("The body is empty", 404));
+                    .body(new ErrorResponse("The body is empty", 400));
         } else {
             if (tafService.existsById(tafId)) {
                 // Get the slots' TAF
@@ -452,12 +469,12 @@ public class LessonController {
         TAF realTaf = taf.get();
 
         if (realTaf.getCalendars().isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            return ResponseEntity.status(HttpStatus.NO_CONTENT)
                     .body(new ErrorResponse("No calendars for this taf were found", 204));
         }
         Calendar calendar = realTaf.getCalendars().getLast();
         if (calendar.getSlots().isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            return ResponseEntity.status(HttpStatus.NO_CONTENT)
                     .body(new ErrorResponse("No slots for this taf were found", 204));
         }
         List<Slot> slots = calendar.getSlots();

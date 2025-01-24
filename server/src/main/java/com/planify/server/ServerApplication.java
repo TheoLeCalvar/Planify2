@@ -74,7 +74,7 @@ public class ServerApplication {
 		TAF taf = tafService.addTAF("LOGIN", "Polyglotte", "début", "fin");
 		Calendar calendar = calendarService.addCalendar(taf);
 		Planning planning = planningService.addPlanning(calendar);
-		System.out.println(planning.toString());
+		System.out.println(GREEN + planning.toString() + RESET);
 
 		Slot slot = slotService.add(1, dayService.addDay(1, weekService.addWeek(1, 2025)),calendar);
 		slot.setEnd(LocalDateTime.of(2025,1,17,18,0));
@@ -88,8 +88,9 @@ public class ServerApplication {
 		planningService.addScheduledLessons(planning, results);
 		List<ScheduledLesson> scheduledLessons = planning.getScheduledLessons();
 		for (ScheduledLesson sl: scheduledLessons) {
-			System.out.println(sl.toString());
+			System.out.println(GREEN + sl.toString() + RESET);
 		}
+
 
 		
 		/*System.out.println("Test !!!!!!!!!!!!!!");
@@ -572,26 +573,26 @@ public class ServerApplication {
 	}
 
 	private static void testSolver(ApplicationContext context) {
-		testSolver1(context, test());
+		//testSolver1(context, planningSolver1());
 		//testSolver2(context);
 		//testSolver3(context);
-		//testSolverDCLNS1(context);
+		testSolverDCLNS1(context);
 	}
 	
-	private static void testSolver1(ApplicationContext context, Calendar cal) {		
+	private static void testSolver1(ApplicationContext context, Planning planning) {		
 		SolverServices solverServices = context.getBean(SolverServices.class);
 		SolverMain.setServices(solverServices);
-		SolverMain.generateCal(cal);
+		SolverMain.generatePlanning(planning);
 	}
 	
 	private static void testSolver2(ApplicationContext context) {
-		Calendar[] cals = new Calendar[] {calendarSolver1(), calendarSolver2()};
-		
-		synchronizationService.addSynchronization(cals[0].getTaf().getUes().get(0).getLessons().get(0), cals[1].getTaf().getUes().get(1).getLessons().get(0));
+		//Calendar[] cals = new Calendar[] {calendarSolver1(), calendarSolver2()};
+		Planning[] plannings = new Planning[] {planningSolver1(), planningSolver2()};
+		synchronizationService.addSynchronization(plannings[0].getCalendar().getTaf().getUes().get(0).getLessons().get(0), plannings[1].getCalendar().getTaf().getUes().get(1).getLessons().get(0));
 		
 		SolverServices solverServices = context.getBean(SolverServices.class);
 		SolverMain.setServices(solverServices);
-		SolverMain.generateCals(cals);
+		SolverMain.generatePlannings(plannings);
 	}
 	
 	private static void testSolver3(ApplicationContext context) {
@@ -599,7 +600,9 @@ public class ServerApplication {
 		TAF taf2 = tafService.addTAF("taf2", null, null, null);
 		Calendar cal1 = calendarService.addCalendar(taf1);
 		Calendar cal2 = calendarService.addCalendar(taf2);
-		Calendar[] cals = new Calendar[] {cal1, cal2};
+		Planning plan1 = planningService.addPlanning(cal1);
+		Planning plan2 = planningService.addPlanning(cal2);
+		Planning[] plannings = new Planning[] {plan1, plan2};
 		
 		Week week = weekService.addWeek(5, 2025);
 		Day day = dayService.addDay(1, week);
@@ -619,22 +622,23 @@ public class ServerApplication {
 		
 		SolverServices solverServices = context.getBean(SolverServices.class);
 		SolverMain.setServices(solverServices);
-		SolverMain.generateCals(cals);
+		SolverMain.generatePlannings(plannings);
 	}
 	
 	private static void testSolverDCLNS1(ApplicationContext context) {
-		Calendar c = calendarSolverDCLNS1();
+		Planning planning = planningSolverDCLNS1();
 		
 		SolverServices solverServices = context.getBean(SolverServices.class);
 		SolverMain.setServices(solverServices);
-		SolverMain.generateCal(c);
+		SolverMain.generatePlanning(planning);
 	}
 	
-	private static Calendar calendarSolver1() {
+	private static Planning planningSolver1() {
 		tafService.addTAF("DCL", "", "", "");
 		List<TAF> listTafs = tafService.findByName("DCL");
 		TAF dcl = listTafs.get(0);
 		Calendar c = calendarService.addCalendar(dcl);
+		Planning planning = planningService.addPlanning(c);
 		Week week1 = weekService.addWeek(1, 2025);
 		Week week2 = weekService.addWeek(2, 2025);
 		Day day11 = dayService.addDay(1, week1);
@@ -670,13 +674,14 @@ public class ServerApplication {
 		userUnavailabilityService.addUserUnavailability(slot3, jacques, true);
 		userUnavailabilityService.addUserUnavailability(slot4, jacques, false);
 		
-		return c;
+		return planning;
 		
 	}
 	
-	private static Calendar calendarSolver2() {
+	private static Planning planningSolver2() {
 		TAF login = tafService.addTAF("Login*", "", "", "");
 		Calendar c = calendarService.addCalendar(login);
+		Planning planning = planningService.addPlanning(c);
 		Week week1 = weekService.findByNumber(1).get(0);
 		Week week2 = weekService.findByNumber(2).get(0);
 		Day day11 = dayService.findByWeek(week1).get(0);
@@ -712,12 +717,13 @@ public class ServerApplication {
 		userUnavailabilityService.addUserUnavailability(slot5, helene, true);
 		userUnavailabilityService.addUserUnavailability(slot2, helene, true);
 		
-		return c;
+		return planning;
 	}
 	
-	private static Calendar calendarSolverOneDay() {
+	private static Planning planningSolverOneDay() {
 		TAF dcl = tafService.addTAF("DCL-Day", "", "", "");
 		Calendar cal = calendarService.addCalendar(dcl);
+		Planning planning = planningService.addPlanning(cal);
 		Week week = weekService.addWeek(0, 2022);
 		Day day = dayService.addDay(0, week);
 		List<Slot> slots = new ArrayList<Slot>();
@@ -746,12 +752,13 @@ public class ServerApplication {
 		
 		globalUnavailabilityService.addGlobalUnavailability(true, slots.get(3));
 		
-		return cal;
+		return planning;
 	}
 	
-	private static Calendar calendarSolverTestMinMaxUeWeek() {
+	private static Planning planningSolverTestMinMaxUeWeek() {
 		TAF dcl = tafService.addTAF("DCL-Day", "", "", "");
 		Calendar cal = calendarService.addCalendar(dcl);
+		Planning planning = planningService.addPlanning(cal);
 		List<Week> weeks = new ArrayList<Week>();
 		List<List<Day>> days = new ArrayList<List<Day>>();
 		List<List<List<Slot>>> slots = new ArrayList<List<List<Slot>>>();
@@ -770,7 +777,7 @@ public class ServerApplication {
 		List<Lesson> lessons = new ArrayList<Lesson>();
 		for (int l = 0; l < 7; l ++)
 			lessons.add(lessonService.add("Lesson " + l, "", ue));
-		return cal;
+		return planning;
 	}
 	
 	private static Calendar test() {
@@ -810,9 +817,10 @@ public class ServerApplication {
 		return c;
 	}
 	
-	private static Calendar calendarSolverDCLNS1() {
+	private static Planning planningSolverDCLNS1() {
 		TAF dcl = tafService.addTAF("DCL-S1", "", "", "");
 		Calendar cal = calendarService.addCalendar(dcl);
+		Planning planning = planningService.addPlanning(cal);
 		List<Day> mardis = new ArrayList<Day>();
 		for (int i = 37; i < 52; i ++) {
 			Week week = weekService.addWeek(i, 2025);
@@ -898,7 +906,7 @@ public class ServerApplication {
 		
 		
 		
-		return cal;
+		return planning;
 	}
 	
 	private static List<Lesson> createOrderedTypeLesson(int nb, String name, UE ue){

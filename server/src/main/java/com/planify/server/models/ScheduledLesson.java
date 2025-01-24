@@ -1,5 +1,7 @@
 package com.planify.server.models;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 
 import java.time.LocalDateTime;
@@ -9,17 +11,28 @@ import java.util.Objects;
 @Embeddable
 public class ScheduledLesson {
 
+    private Long id;
+
+    @JsonFormat(pattern = "dd/MM/yyyy hh:mm")
     private LocalDateTime start; // date of the start of the lesson
+
+    @Column(name = "\"end\"")
+    @JsonFormat(pattern = "dd/MM/yyyy hh:mm")
     private LocalDateTime end; // date of the end of the lesson
+
     private String UE; // name of the UE
+
     private String title; // title of the lesson
+
     private String description; // description of the lesson
+
     private List<String> lecturers; // list of the full name of the lecturers
 
     public ScheduledLesson() {
     }
 
-    public ScheduledLesson(LocalDateTime start, LocalDateTime end, String UE, String title, String description, List<String> lecturers) {
+    public ScheduledLesson(Long id, LocalDateTime start, LocalDateTime end, String UE, String title, String description, List<String> lecturers) {
+        this.id = id;
         this.start = start;
         this.end = end;
         this.UE = UE;
@@ -74,6 +87,14 @@ public class ScheduledLesson {
 
     public void setLecturers(List<String> lecturers) {
         this.lecturers = lecturers;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     @Override

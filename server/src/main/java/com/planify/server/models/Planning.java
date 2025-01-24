@@ -15,7 +15,7 @@ public class Planning {
 
     private LocalDateTime timestamp;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "idCalendar")
     private Calendar calendar;
 
@@ -68,6 +68,7 @@ public class Planning {
         return "Planning " + id +
                 " { timestamp=" + timestamp +
                 ", calendar=" + calendar.getId() +
+                ", scheduledLesson= " + scheduledLessons +
                 '}';
     }
 }
