@@ -396,10 +396,11 @@ public class LessonController {
                         Calendar relatedCalendar = relatedSlot.get().getCalendar();
                         List<Slot> relatedSlots = relatedCalendar.getSlots();
                         relatedSlots.stream().map(slot -> slotService.deleteSlot(slot.getId()));
+                        relatedSlots.removeAll(relatedSlots);
                         calendar = relatedCalendar;
                     }
                 }
-                
+
                 if (calendar == null) {
                     calendar = new Calendar(taf);
                 }
