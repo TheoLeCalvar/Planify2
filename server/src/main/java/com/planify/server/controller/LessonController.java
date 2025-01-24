@@ -386,6 +386,7 @@ public class LessonController {
 
                 Calendar calendar = null;
 
+
                 ResponseEntity<?> responseEntity = getSlotByTafId(tafId);
                 if (responseEntity.getStatusCode().value()==200) {
                     List<SlotShort> slotShorts = (List<SlotShort>) responseEntity.getBody();
@@ -398,6 +399,7 @@ public class LessonController {
                         calendar = relatedCalendar;
                     }
                 }
+                
                 if (calendar == null) {
                     calendar = new Calendar(taf);
                 }
