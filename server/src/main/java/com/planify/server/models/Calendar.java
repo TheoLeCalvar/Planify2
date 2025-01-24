@@ -25,6 +25,9 @@ public class Calendar {
 
     @OneToMany(mappedBy = "calendar", fetch = FetchType.EAGER)
     private List<Slot> slots;
+    
+    @OneToMany(mappedBy = "calendar", fetch = FetchType.EAGER)
+    private List<Planning> plannings;
 
     public Calendar() {
     }
@@ -57,5 +60,14 @@ public class Calendar {
     public void setSlots(List<Slot> slots) {
         this.slots = slots;
     }
+
+	public List<Planning> getPlannings() {
+		return plannings;
+	}
+
+	public void setPlannings(List<Planning> plannings) {
+		this.plannings = plannings;
+	}
+    
 
 }

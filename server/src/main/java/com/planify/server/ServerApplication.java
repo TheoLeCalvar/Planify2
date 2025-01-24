@@ -107,10 +107,10 @@ public class ServerApplication {
 		System.out.println("Nb lecturers : " + lesson00.getLessonLecturers().size());
 		System.out.println("Nb lecturers : " + lessonService.findById(lesson00.getId()).get().getLessonLecturers().size());
 		System.out.println("Fin Test !!!!!!!!!!");
-		
-		//testSolver(context);
+		*/
+		testSolver(context);
 		if (weekService != null) return; //Just to not have warnings when we want to stops tests here.
-		
+		/*
 		// Test of calendarService.getSlotsOrdered(idCalendar), getNumberOfSlots,
 		// getDaysSorted
 		tafService.addTAF("DCL", "Développement", "2024-09-07", "2025-03-30");
@@ -569,31 +569,30 @@ public class ServerApplication {
 		antecedenceService.addAntecedence(lessonUe5_3, lessonUe5_4);
 		antecedenceService.addAntecedence(lessonUe5_5, lessonUe5_6);
 
-
+*/
 	}
 
 	private static void testSolver(ApplicationContext context) {
-		testSolver1(context);
+		//testSolver1(context, planningSolver1());
 		//testSolver2(context);
 		//testSolver3(context);
+		testSolverDCLNS1(context);
 	}
 	
-	private static void testSolver1(ApplicationContext context) {
-		Calendar c = calendarSolver1();
-		
+	private static void testSolver1(ApplicationContext context, Planning planning) {		
 		SolverServices solverServices = context.getBean(SolverServices.class);
 		SolverMain.setServices(solverServices);
-		SolverMain.generateCal(c);
+		SolverMain.generatePlanning(planning);
 	}
 	
 	private static void testSolver2(ApplicationContext context) {
-		Calendar[] cals = new Calendar[] {calendarSolver1(), calendarSolver2()};
-		
-		synchronizationService.addSynchronization(cals[0].getTaf().getUes().get(0).getLessons().get(0), cals[1].getTaf().getUes().get(1).getLessons().get(0));
+		//Calendar[] cals = new Calendar[] {calendarSolver1(), calendarSolver2()};
+		Planning[] plannings = new Planning[] {planningSolver1(), planningSolver2()};
+		synchronizationService.addSynchronization(plannings[0].getCalendar().getTaf().getUes().get(0).getLessons().get(0), plannings[1].getCalendar().getTaf().getUes().get(1).getLessons().get(0));
 		
 		SolverServices solverServices = context.getBean(SolverServices.class);
 		SolverMain.setServices(solverServices);
-		SolverMain.generateCals(cals);
+		SolverMain.generatePlannings(plannings);
 	}
 	
 	private static void testSolver3(ApplicationContext context) {
@@ -601,7 +600,9 @@ public class ServerApplication {
 		TAF taf2 = tafService.addTAF("taf2", null, null, null);
 		Calendar cal1 = calendarService.addCalendar(taf1);
 		Calendar cal2 = calendarService.addCalendar(taf2);
-		Calendar[] cals = new Calendar[] {cal1, cal2};
+		Planning plan1 = planningService.addPlanning(cal1);
+		Planning plan2 = planningService.addPlanning(cal2);
+		Planning[] plannings = new Planning[] {plan1, plan2};
 		
 		Week week = weekService.addWeek(5, 2025);
 		Day day = dayService.addDay(1, week);
@@ -614,21 +615,30 @@ public class ServerApplication {
 		UE ue1 = ueService.addUE("1", null, taf1);
 		UE ue2 = ueService.addUE("2", null, taf2);
 		
-		Lesson lesson1 = lessonService.add("1","string", ue1);
-		Lesson lesson2 = lessonService.add("2","a", ue2);
+		Lesson lesson1 = lessonService.add("1", null, ue1);
+		Lesson lesson2 = lessonService.add("2", null, ue2);
 		
 		synchronizationService.addSynchronization(lesson1, lesson2);
 		
 		SolverServices solverServices = context.getBean(SolverServices.class);
 		SolverMain.setServices(solverServices);
-		SolverMain.generateCals(cals);
+		SolverMain.generatePlannings(plannings);
 	}
 	
-	private static Calendar calendarSolver1() {
+	private static void testSolverDCLNS1(ApplicationContext context) {
+		Planning planning = planningSolverDCLNS1();
+		
+		SolverServices solverServices = context.getBean(SolverServices.class);
+		SolverMain.setServices(solverServices);
+		SolverMain.generatePlanning(planning);
+	}
+	
+	private static Planning planningSolver1() {
 		tafService.addTAF("DCL", "", "", "");
 		List<TAF> listTafs = tafService.findByName("DCL");
 		TAF dcl = listTafs.get(0);
 		Calendar c = calendarService.addCalendar(dcl);
+		Planning planning = planningService.addPlanning(c);
 		Week week1 = weekService.addWeek(1, 2025);
 		Week week2 = weekService.addWeek(2, 2025);
 		Day day11 = dayService.addDay(1, week1);
@@ -637,15 +647,15 @@ public class ServerApplication {
 		Slot slot1 = slotService.add(1, day11, c);
 		Slot slot2 = slotService.add(2, day11, c);
 		Slot slot3 = slotService.add(1, day12, c);
-		*//*Calendar c2 = calendarService.addCalendar(dcl);
-		Slot slotDummy = slotService.add(1, day21, c2);*//*
+		Calendar c2 = calendarService.addCalendar(dcl);
+		Slot slotDummy = slotService.add(1, day21, c2);
 		Slot slot4 = slotService.add(1, day21, c);
 		Slot slot5 = slotService.add(2, day21, c);
 		UE ue1 = ueService.addUE("UE1", "", dcl);
 		UE ue2 = ueService.addUE("UE2", "", dcl);
-		Lesson lesson1 = lessonService.add("Lesson1", "description 1", ue1);
-		Lesson lesson2 = lessonService.add("Lesson2", "description 2", ue1);
-		Lesson lesson3 = lessonService.add("Lesson3", "description 3", ue2);
+		Lesson lesson1 = lessonService.add("Lesson1", null, ue1);
+		Lesson lesson2 = lessonService.add("Lesson2", null, ue1);
+		Lesson lesson3 = lessonService.add("Lesson3", null, ue2);
 
 		globalUnavailabilityService.addGlobalUnavailability(true, slot3);
 		globalUnavailabilityService.addGlobalUnavailability(true, slot2);
@@ -664,13 +674,14 @@ public class ServerApplication {
 		userUnavailabilityService.addUserUnavailability(slot3, jacques, true);
 		userUnavailabilityService.addUserUnavailability(slot4, jacques, false);
 		
-		return c;
+		return planning;
 		
 	}
 	
-	private static Calendar calendarSolver2() {
+	private static Planning planningSolver2() {
 		TAF login = tafService.addTAF("Login*", "", "", "");
 		Calendar c = calendarService.addCalendar(login);
+		Planning planning = planningService.addPlanning(c);
 		Week week1 = weekService.findByNumber(1).get(0);
 		Week week2 = weekService.findByNumber(2).get(0);
 		Day day11 = dayService.findByWeek(week1).get(0);
@@ -680,14 +691,14 @@ public class ServerApplication {
 		Slot slot2 = slotService.add(2, day11, c);
 		Slot slot3 = slotService.add(1, day12, c);
 		Slot slot4 = slotService.add(2, day12, c);
-		*//*Calendar c2 = calendarService.addCalendar(dcl);
-		Slot slotDummy = slotService.add(1, day21, c2);*//*
+		/*Calendar c2 = calendarService.addCalendar(dcl);
+		Slot slotDummy = slotService.add(1, day21, c2);*/
 		Slot slot5 = slotService.add(1, day21, c);
 		UE ue1 = ueService.addUE("UE1", "", login);
 		UE ue2 = ueService.addUE("UE2", "", login);
-		Lesson lesson1 = lessonService.add("Lesson1", "description 1", ue1);
-		Lesson lesson2 = lessonService.add("Lesson2", "description 2", ue1);
-		Lesson lesson3 = lessonService.add("Lesson3", "description 3", ue2);
+		Lesson lesson1 = lessonService.add("Lesson1", null, ue1);
+		Lesson lesson2 = lessonService.add("Lesson2", null, ue1);
+		Lesson lesson3 = lessonService.add("Lesson3", null, ue2);
 		
 		
 		User helene = userService.addUser("Hélène", "Coullon", "jacques.noye@imt-atlantique.fr", new char[]{});
@@ -706,7 +717,210 @@ public class ServerApplication {
 		userUnavailabilityService.addUserUnavailability(slot5, helene, true);
 		userUnavailabilityService.addUserUnavailability(slot2, helene, true);
 		
-		return c;*/
+		return planning;
+	}
+	
+	private static Planning planningSolverOneDay() {
+		TAF dcl = tafService.addTAF("DCL-Day", "", "", "");
+		Calendar cal = calendarService.addCalendar(dcl);
+		Planning planning = planningService.addPlanning(cal);
+		Week week = weekService.addWeek(0, 2022);
+		Day day = dayService.addDay(0, week);
+		List<Slot> slots = new ArrayList<Slot>();
+		for (int i = 0; i < 7; i ++)
+			slots.add(slotService.add(i, day, cal));
+		
+		UE ue1 = ueService.addUE("UE-1", "", dcl);
+		UE ue2 = ueService.addUE("UE-2", "", dcl);
+
+		User user1 = userService.addUser("user-1", "1", "1", new char[] {});
+		User user2 = userService.addUser("user-2", "2", "2", new char[] {});
+		
+		List<Lesson> lessonsUE1 = createOrderedTypeLesson(3,"UE1-C", ue1);
+		List<Lesson> lessonsUE2 = createOrderedTypeLesson(2, "UE2-C", ue2);
+
+		addIntervenantToAllTypeLesson(lessonsUE1, user1);
+		addIntervenantToAllTypeLesson(lessonsUE2, user2);
+
+		sequencingService.add(lessonsUE1.get(0), lessonsUE1.get(1));
+		sequencingService.add(lessonsUE1.get(1), lessonsUE1.get(2));
+		
+		userUnavailabilityService.addUserUnavailability(slots.get(6), user2, true);
+		userUnavailabilityService.addUserUnavailability(slots.get(4), user2, false);
+		userUnavailabilityService.addUserUnavailability(slots.get(5), user1, true);
+		userUnavailabilityService.addUserUnavailability(slots.get(2), user1, false);
+		
+		globalUnavailabilityService.addGlobalUnavailability(true, slots.get(3));
+		
+		return planning;
+	}
+	
+	private static Planning planningSolverTestMinMaxUeWeek() {
+		TAF dcl = tafService.addTAF("DCL-Day", "", "", "");
+		Calendar cal = calendarService.addCalendar(dcl);
+		Planning planning = planningService.addPlanning(cal);
+		List<Week> weeks = new ArrayList<Week>();
+		List<List<Day>> days = new ArrayList<List<Day>>();
+		List<List<List<Slot>>> slots = new ArrayList<List<List<Slot>>>();
+		for (int i = 0; i < 5; i ++) {
+			weeks.add(weekService.addWeek(i, 2022));
+			days.add(new ArrayList<Day>());
+			slots.add(new ArrayList<List<Slot>>());
+			for (int j = 0; j < 3; j ++) {
+				days.getLast().add(dayService.addDay(j, weeks.getLast()));
+				slots.getLast().add(new ArrayList<Slot>());
+				for (int k = 0; k < 7; k ++)
+					slots.getLast().getLast().add(slotService.add(k, days.getLast().getLast(), cal));
+			}
+		}
+		UE ue = ueService.addUE("UE", "", dcl);
+		List<Lesson> lessons = new ArrayList<Lesson>();
+		for (int l = 0; l < 7; l ++)
+			lessons.add(lessonService.add("Lesson " + l, "", ue));
+		return planning;
+	}
+	
+	private static Calendar test() {
+		TAF login = tafService.addTAF("Login*", "", "", "");
+		Calendar c = calendarService.addCalendar(login);
+		Week week1 = weekService.addWeek(1, 2025);
+		Week week2 = weekService.addWeek(2, 2025);
+		Day day11 = dayService.addDay(1, week1);
+		Day day12 = dayService.addDay(2, week1);
+		Day day21 = dayService.addDay(1, week2);
+		Slot slot1 = slotService.add(1, day11, c);
+		Slot slot2 = slotService.add(2, day11, c);
+		Slot slot3 = slotService.add(1, day12, c);
+		Slot slot4 = slotService.add(2, day12, c);
+		
+		
+		UE ue1 = ueService.addUE("UE1", "", login);
+		UE ue2 = ueService.addUE("UE2", "", login);
+		Lesson lesson1 = lessonService.add("Lesson1", null, ue1);
+		Lesson lesson2 = lessonService.add("Lesson2", null, ue1);
+		Lesson lesson3 = lessonService.add("Lesson3", null, ue2);
+		
+		User helene = userService.addUser("Hélène", "Coullon", "jacques.noye@imt-atlantique.fr", new char[]{});
+		
+		lessonLecturerService.addLessonLecturer(helene, lesson1);
+		lessonLecturerService.addLessonLecturer(helene, lesson2);
+		lessonLecturerService.addLessonLecturer(helene, lesson3);
+		
+		
+		antecedenceService.addAntecedence(lesson2, lesson3);
+		antecedenceService.addAntecedence(lesson3, lesson1);
+		
+		return c;
+	}
+	
+	private static Planning planningSolverDCLNS1() {
+		TAF dcl = tafService.addTAF("DCL-S1", "", "", "");
+		Calendar cal = calendarService.addCalendar(dcl);
+		Planning planning = planningService.addPlanning(cal);
+		List<Day> mardis = new ArrayList<Day>();
+		for (int i = 37; i < 52; i ++) {
+			Week week = weekService.addWeek(i, 2025);
+			for (int j = 1; j < 3; j ++) {
+				Day day = dayService.addDay(j, week);
+				if (j == 1) mardis.add(day);
+				for (int k = 0; k < 7; k ++) {
+					slotService.add(k, day, cal);
+				}
+			}
+		}
+		//7th week is unavailable.
+		calendarService.getWeeksSorted(cal.getId()).get(6).getDays().stream().flatMap(d -> d.getSlots().stream()).forEach(s -> globalUnavailabilityService.addGlobalUnavailability(true, s));
+		
+		UE mapd = ueService.addUE("MAPD", "", dcl);
+		UE idl = ueService.addUE("IDL", "", dcl);
+		UE eco = ueService.addUE("ECO", "", dcl);
+		
+		User intervenant1 = userService.addUser("Intervenant1", "1", "i1@imt-atlantique.fr", new char[] {});
+		User intervenant2 = userService.addUser("Intervenant2", "2", "i2@imt-atlantique.fr", new char[] {});
+		User intervenant3 = userService.addUser("Intervenant3", "3", "i3@imt-atlantique.fr", new char[] {});
+		User intervenant4 = userService.addUser("Intervenant4", "4", "i4@imt-atlantique.fr", new char[] {});
+		User intervenant5 = userService.addUser("Intervenant5", "5", "i5@imt-atlantique.fr", new char[] {});
+		
+		for (Day mardi : mardis)
+			for (Slot slot : mardi.getSlots())
+				userUnavailabilityService.addUserUnavailability(slot, intervenant4, true);
+		
+		
+		List<Lesson> mapdCours = createOrderedTypeLesson(10, "C", mapd);
+		List<Lesson> mapdFilRouge = createOrderedTypeLesson(11, "F", mapd);
+		List<Lesson> mapdTP = createOrderedTypeLesson(9, "T", mapd);
+		List<Lesson> mapdDS = createOrderedTypeLesson(2, "DS", mapd);
+		
+		antecedenceService.addAntecedence(mapdCours.get(0), mapdTP.get(0));
+		antecedenceService.addAntecedence(mapdCours.get(1), mapdFilRouge.get(0));
+		antecedenceService.addAntecedence(mapdCours.get(2), mapdTP.get(1));
+		antecedenceService.addAntecedence(mapdCours.get(3), mapdTP.get(2));
+		antecedenceService.addAntecedence(mapdCours.get(4), mapdFilRouge.get(6));
+		antecedenceService.addAntecedence(mapdCours.get(5), mapdTP.get(4));
+		antecedenceService.addAntecedence(mapdCours.get(7), mapdTP.get(6));
+		antecedenceService.addAntecedence(mapdCours.get(8), mapdTP.get(7));
+		antecedenceService.addAntecedence(mapdCours.get(9), mapdDS.get(0));
+		antecedenceService.addAntecedence(mapdFilRouge.get(10), mapdDS.get(0));
+		antecedenceService.addAntecedence(mapdTP.get(8), mapdDS.get(0));
+		
+		sequencingService.add(mapdDS.get(0), mapdDS.get(1));
+
+		addIntervenantToTypeLesson(new int[] {0,1,2,4,6,9}, mapdCours, intervenant1);
+		addIntervenantToTypeLesson(new int[] {0,1}, mapdTP, intervenant1);
+		addIntervenantToTypeLesson(new int[] {0,1,5}, mapdFilRouge, intervenant1);
+
+		addIntervenantToTypeLesson(new int[] {2,3,4,6,7,8}, mapdFilRouge, intervenant2);
+
+		addIntervenantToTypeLesson(new int[] {3,5,7,8}, mapdCours, intervenant3);
+		addIntervenantToTypeLesson(new int[] {2,3,4,5,6,7,8}, mapdTP, intervenant3);
+		addIntervenantToTypeLesson(new int[] {9,10}, mapdFilRouge, intervenant3);
+		
+		List<Lesson> ecoCours = createOrderedTypeLesson(30, "C", eco);
+		List<Lesson> ecoDS = createOrderedTypeLesson(2, "DS", eco);
+		antecedenceService.addAntecedence(ecoCours.getLast(), ecoDS.getFirst());
+		sequencingService.add(ecoDS.get(0), ecoDS.get(1));
+
+		addIntervenantToAllTypeLesson(ecoCours, intervenant4);
+		addIntervenantToAllTypeLesson(ecoDS, intervenant4);
+
+		List<Lesson> idlCours = createOrderedTypeLesson(14, "C", idl);
+		List<Lesson> idlSynchro = createOrderedTypeLesson(16, "S", idl);
+		List<Lesson> idlDS = createOrderedTypeLesson(2, "DS", idl);
+
+		antecedenceService.addAntecedence(idlSynchro.get(3), idlCours.get(0));
+		antecedenceService.addAntecedence(idlCours.get(3), idlSynchro.get(4));
+		antecedenceService.addAntecedence(idlCours.get(12), idlSynchro.get(10));
+		antecedenceService.addAntecedence(idlSynchro.get(15), idlDS.get(0));
+		antecedenceService.addAntecedence(idlCours.get(13), idlDS.get(0));
+
+		addIntervenantToAllTypeLesson(idlCours, intervenant2);
+		addIntervenantToAllTypeLesson(idlCours, intervenant5);
+		addIntervenantToAllTypeLesson(idlSynchro, intervenant2);
+		addIntervenantToAllTypeLesson(idlSynchro, intervenant5);
+		addIntervenantToAllTypeLesson(idlDS, intervenant2);
+		addIntervenantToAllTypeLesson(idlDS, intervenant5);
+		
+		
+		
+		return planning;
+	}
+	
+	private static List<Lesson> createOrderedTypeLesson(int nb, String name, UE ue){
+		List<Lesson> lCours = new ArrayList<Lesson>();
+		for (int i = 0; i < nb; i ++) {
+			Lesson cours = lessonService.add(name + i, "", ue);
+			if (i != 0) antecedenceService.addAntecedence(lCours.getLast(), cours);
+			lCours.add(cours);
+		}
+		return lCours;
+	}
+	private static void addIntervenantToTypeLesson(int[] iLessons, List<Lesson> lessons, User user) {
+		for (int i : iLessons)
+			lessonLecturerService.addLessonLecturer(user, lessons.get(i));
+	}
+	private static void addIntervenantToAllTypeLesson(List<Lesson> lessons, User user) {
+		for (Lesson lesson : lessons)
+			lessonLecturerService.addLessonLecturer(user, lesson);
 	}
 	
 }

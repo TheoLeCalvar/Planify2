@@ -15,7 +15,7 @@ public class Planning {
 
     private LocalDateTime timestamp;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "idCalendar")
     private Calendar calendar;
 
