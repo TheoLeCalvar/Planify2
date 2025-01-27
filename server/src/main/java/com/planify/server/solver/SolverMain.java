@@ -592,21 +592,21 @@ public class SolverMain {
 	
 	private IntVar setPreferences(Model model) {
 		ArrayList<IntVar> preferences = new ArrayList<IntVar>();
-		/*if (preferencesGlobal)*/ //preferences.add(setPreferencesGlobal(model));
+		/*if (preferencesGlobal)*/ preferences.add(setPreferencesGlobal(model));
 		/*if (preferencesLecturers)*/ preferences.add(setPreferencesLecturers(model));
 		return model.sum("Preferences", preferences.stream().filter(v -> v != null).toArray(IntVar[]::new));
 	}
 	
 	private IntVar setPreferencesGlobal(Model model) {
 		
-		 List<Slot> slots = services.getCalendarService().getSlotsOrdered(cal.getId());
+		 List<Slot> slots = services.getCalendarService().getSlotsOrdered(planning.getCalendar().getId());
 		 List<BoolVar> penalties = new ArrayList<>();
 		 
 		 for (Slot slot : slots) {
 		        if (services.getGlobalUnavailabilityService().findBySlot(slot).filter(g -> !g.getStrict()).isPresent()) {
-		            BoolVar a = model.boolVar("");
-		            model.reification(a, model.arithm(this.getSlotVarLesson(slot), "!=", 0));
-		        	penalties.add(a);
+		            BoolVar lessonWhenNotPrefered = model.boolVar("");
+		            model.reification(lessonWhenNotPrefered, model.arithm(this.getSlotVarLesson(slot), "!=", 0));
+		        	penalties.add(lessonWhenNotPrefered);
 		        }
 		    }
 		 IntVar[] penaltiesArray = penalties.toArray(new IntVar[penalties.size()]);
@@ -614,31 +614,9 @@ public class SolverMain {
 		 IntVar totalNonPreferred = model.intVar("totalNonPreferred", 0, penaltiesArray.length);
 		 model.sum(penaltiesArray, "=", totalNonPreferred).post();
 		 return totalNonPreferred;
-		
-		
-	  /*  ArrayList<IntVar> globalPreferences = new ArrayList<IntVar>();
-
-	    for (UE ue : planning.getCalendar().getTaf().getUes()) {
-	        for (Lesson lesson : ue.getLessons()) {
-	            for (LessonLecturer lessonLecturer : lesson.getLessonLecturers()) {
-	            	User lecturer = lessonLecturer.getUser();
-	                List<Slot> notPreferredSlots = services.getUserService().getNotPreferedSlotsByUserAndCalendar(lecturer, planning.getCalendar());
-
-	                for (Slot notPreferredSlot : notPreferredSlots) {
-	                    BoolVar isNotPreferredVar = model.boolVar("GlobalNotPreferred_" + lesson.getId() + "_" + notPreferredSlot.getId());
-	                    
-	                    model.reification(isNotPreferredVar, model.arithm(getLessonVarSlot(lesson), "=", getIdMSlot(notPreferredSlot)));
-	                    globalPreferences.add(isNotPreferredVar);
-	                }
-	            }
-	        }
-	    }
-	    return model.sum("GlobalPreferences", globalPreferences.stream().toArray(IntVar[]::new));*/
 	}
 
 	private IntVar setPreferencesLecturers(Model model) {
-		
-		//IntVar notPreferredAllocations = model.intVar("NotPreferredAllocations", 0, Integer.MAX_VALUE);
 		ArrayList<IntVar> isNotPreferredVars = new ArrayList<IntVar>();
 
 		for (UE ue : planning.getCalendar().getTaf().getUes()) {
