@@ -1,5 +1,8 @@
 package com.planify.server.solver;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -10,6 +13,7 @@ import org.chocosolver.solver.Model;
 import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.constraints.nary.automata.FA.FiniteAutomaton;
+import org.chocosolver.solver.expression.discrete.arithmetic.ArExpression;
 import org.chocosolver.solver.search.strategy.Search;
 import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
@@ -152,6 +156,7 @@ public class SolverMain {
 		IntVar obj = solMain.setPreferences(model);
 		setStrategy(solMain, solver, planning);
 		Solution solution;
+		System.out.println("Start Solving !");
 		if (obj != null) solution = solver.findOptimalSolution(obj, false);
 		else solution = solver.findSolution();
 		System.out.println(model);
@@ -291,7 +296,18 @@ public class SolverMain {
 						iMins.add(i);
 					}
 					else {
-						int comparison = slots.get(i).get(iSlots[i]).compareTo(slots.get(iMins.get(0)).get(iSlots[iMins.get(0)]));
+						int comparison;
+						try {
+							comparison = slots.get(i).get(iSlots[i]).compareTo(slots.get(iMins.get(0)).get(iSlots[iMins.get(0)]));
+						}
+						//If the two slots don't have the same duration
+						catch (ClassCastException e) {
+							//We take the one starting the earlier (But it's not necessary to make this choice, it's just a practical choice to have the idGlobs increasing with time)
+							comparison = slots.get(i).get(iSlots[i]).getStart().compareTo(slots.get(iMins.get(0)).get(iSlots[iMins.get(0)]).getStart());
+							//If they start at the same moment, we take the one ending earlier.
+							if (comparison == 0)
+								comparison = slots.get(i).get(iSlots[i]).getEnd().compareTo(slots.get(iMins.get(0)).get(iSlots[iMins.get(0)]).getEnd());
+						}
 						if (comparison < 0) {
 							System.out.println("Lower " + iSlots[i]);
 							iMins.clear();
@@ -329,9 +345,9 @@ public class SolverMain {
 		setConstraintAntecedences(model);
 		/*if (planning.hasConstraintGlobalUnavailability()*/ setConstraintGlobalUnavailability(model);
 		/*if (planning.hasConstraint1())*/ setConstraintLecturerUnavailability(model);
-		/*if (planning.hasConstraint())*/ //setConstraintLunchBreak(model);
+		/*if (planning.hasConstraint())*/ setConstraintLunchBreak(model);
 		/*if (planning.hasConstraint())*/ setConstraintNoInterweaving(model);
-		/*if (planning.hesConstraint()*/ //setConstraintMinMaxLessonUeInWeek(model); //Idée pour essayer d'améliorer les performances si besoin : essayer de faire l'optimisation sur les variables du nombre de cours de l'UE considéré.
+		/*if (planning.hesConstraint()*/ //setConstraintMinMaxLessonUeInWeek(model); //Idée pour essayer d'améliorer les performances si besoin : essayer de faire une stratégie de recherche sur les variables du nombre de cours de l'UE considéré.
 	}
 	
 	private void setConstraintLinkLessonsSlots(Model model, boolean ue) {
@@ -534,15 +550,21 @@ public class SolverMain {
 	}
 	
 	private void setConstraintLunchBreak(Model model) {
+		LocalTime startLunch = LocalTime.of(12, 00);
+		LocalTime endLunch = LocalTime.of(13, 30);
 		for (Day day : services.getCalendarService().getDaysSorted(planning.getCalendar().getId())) {
 			List<Slot> possibleSlotsForLunchTime = new ArrayList<Slot>();
-			for (Slot slot: services.getDayService().findSlotsDayByCalendar(day, planning.getCalendar())) {
-				if (slot.getNumber() == 2 || slot.getNumber() == 3)
-					possibleSlotsForLunchTime.add(slot);
-			}
-			if (possibleSlotsForLunchTime != null) {
+			List<Slot> slotsDay = services.getDayService().findSlotsDayByCalendar(day, planning.getCalendar());
+			//If the end of the classes possible this day is before the end of the lunchBreak (or conversely with the beginning),
+			//then we don't need to have a lunch break in the timetable.
+			if (!(endLunch.isAfter(slotsDay.getLast().getEnd().toLocalTime()) || startLunch.isBefore(slotsDay.getFirst().getStart().toLocalTime())))
+				for (Slot slot: slotsDay) {
+					if (!(startLunch.isAfter(slot.getEnd().toLocalTime()) || endLunch.isBefore(slot.getStart().toLocalTime())))
+						possibleSlotsForLunchTime.add(slot);
+				}
+			if (possibleSlotsForLunchTime.size() != 0) {
 				boolean lunchBreakAlreadyFixed = false;
-				for (Slot slot : possibleSlotsForLunchTime)
+				for (Slot slot : possibleSlotsForLunchTime) // If one of the slots is unavailable, then it is considered as the lunch break.
 					if (services.getGlobalUnavailabilityService().findBySlot(slot).filter(g -> g.getStrict()).isPresent())
 						lunchBreakAlreadyFixed = true;
 				if (!lunchBreakAlreadyFixed) {
@@ -592,8 +614,9 @@ public class SolverMain {
 	
 	private IntVar setPreferences(Model model) {
 		ArrayList<IntVar> preferences = new ArrayList<IntVar>();
-		/*if (preferencesGlobal)*/ preferences.add(setPreferencesGlobal(model));
-		/*if (preferencesLecturers)*/ preferences.add(setPreferencesLecturers(model));
+		/*if (preferencesGlobal)*/ preferences.add(setPreferencesGlobal(model).mul(30).intVar());
+		/*if (preferencesLecturers)*/ preferences.add(setPreferencesLecturers(model).mul(19).intVar());
+		/*if (preferenceCentered)*/ //preferences.add(setPreferenceCenteredLessons(model).mul(1).intVar());
 		return model.sum("Preferences", preferences.stream().filter(v -> v != null).toArray(IntVar[]::new));
 	}
 	
@@ -630,6 +653,35 @@ public class SolverMain {
 		    }		    
 		}   
 		return model.sum("NotPreferredAllocations", isNotPreferredVars.stream().toArray(IntVar[]::new));
+	}
+	
+	private IntVar setPreferenceCenteredLessons(Model model) {
+		ArrayList<IntVar> penaltyNotCentered = new ArrayList<IntVar>();
+		for (Day day : services.getCalendarService().getDaysSorted(planning.getCalendar().getId())) {
+			List<Slot> slots = services.getDayService().findSlotsDayByCalendarSorted(day, planning.getCalendar());
+			Integer idMCenteredSlot = getIdMSlot(getCenteredSlot(slots));
+			for (Slot slot : slots) {
+				Integer idMSlot = getIdMSlot(slot);
+				if (idMSlot != idMCenteredSlot) {
+					penaltyNotCentered.add(model.arithm(getSlotVarLesson(slot), "!=", 0).reify().mul(Math.abs(idMSlot - idMCenteredSlot)).intVar());
+				}
+			}
+		}
+		
+		return model.sum("preferenceCenteredLesson", penaltyNotCentered.stream().toArray(IntVar[]::new));
+	}
+	
+	private Slot getCenteredSlot(List<Slot> slots) {
+		LocalTime centeredTime = LocalTime.of(12, 0);
+		Slot centeredSlot = slots.getFirst();
+		long deltaCenteredSlot = centeredSlot.getStart().toLocalTime().until(centeredTime, ChronoUnit.MINUTES);
+		for (Slot slot : slots)
+			if (slot.getStart().toLocalTime().until(centeredTime, ChronoUnit.MINUTES) < deltaCenteredSlot){
+				deltaCenteredSlot = slot.getStart().toLocalTime().until(centeredTime, ChronoUnit.MINUTES);
+				centeredSlot = slot;
+			}
+		
+		return centeredSlot;
 	}
 	
 	private static void setStrategy(SolverMain solMain, Solver solver, Planning planning) {

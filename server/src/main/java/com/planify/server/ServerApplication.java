@@ -1,6 +1,8 @@
 package com.planify.server;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,14 +44,16 @@ public class ServerApplication {
 	private static WeekService weekService;
 	private static PlanningService planningService;
 	
+	private static final String RESET = "\u001B[0m";
+	private static final String RED = "\u001B[31m";
+	private static final String GREEN = "\u001B[32m";
+	
 	public static void main(String[] args) {
 		ApplicationContext context = SpringApplication.run(ServerApplication.class, args);
 
 		SolverMain.setServices(context.getBean(SolverServices.class));
 
-		final String RESET = "\u001B[0m";
-		final String RED = "\u001B[31m";
-		final String GREEN = "\u001B[32m";
+		
 
 		// Creation of the services
 		antecedenceService = context.getBean(AntecedenceService.class);
@@ -70,7 +74,8 @@ public class ServerApplication {
 		userUnavailabilityService = context.getBean(UserUnavailabilityService.class);
 		weekService = context.getBean(WeekService.class);
 		planningService = context.getBean(PlanningService.class);
-
+		
+		/*
 		TAF taf = tafService.addTAF("LOGIN", "Polyglotte", "début", "fin");
 		Calendar calendar = calendarService.addCalendar(taf);
 		Planning planning = planningService.addPlanning(calendar);
@@ -89,7 +94,7 @@ public class ServerApplication {
 		List<ScheduledLesson> scheduledLessons = planning.getScheduledLessons();
 		for (ScheduledLesson sl: scheduledLessons) {
 			System.out.println(GREEN + sl.toString() + RESET);
-		}
+		}*/
 
 
 		
@@ -573,16 +578,16 @@ public class ServerApplication {
 	}
 
 	private static void testSolver(ApplicationContext context) {
-		//testSolver1(context, planningSolver1());
+		testSolver1(context, planningSolver1());
 		//testSolver2(context);
 		//testSolver3(context);
-		testSolverDCLNS1(context);
+		//testSolverDCLNS1(context);
 	}
 	
 	private static void testSolver1(ApplicationContext context, Planning planning) {		
 		SolverServices solverServices = context.getBean(SolverServices.class);
 		SolverMain.setServices(solverServices);
-		SolverMain.generatePlanning(planning);
+		SolverMain.generatePlanningString(planning);
 	}
 	
 	private static void testSolver2(ApplicationContext context) {
@@ -630,7 +635,7 @@ public class ServerApplication {
 		
 		SolverServices solverServices = context.getBean(SolverServices.class);
 		SolverMain.setServices(solverServices);
-		SolverMain.generatePlanning(planning);
+		SolverMain.generatePlanningString(planning);
 	}
 	
 	private static Planning planningSolver1() {
@@ -644,13 +649,13 @@ public class ServerApplication {
 		Day day11 = dayService.addDay(1, week1);
 		Day day12 = dayService.addDay(2, week1);
 		Day day21 = dayService.addDay(1, week2);
-		Slot slot1 = slotService.add(1, day11, c);
-		Slot slot2 = slotService.add(2, day11, c);
-		Slot slot3 = slotService.add(1, day12, c);
+		Slot slot1 = slotService.add(1, day11, c, LocalDateTime.of(2022,9,9,8,0), LocalDateTime.of(2022,9,9,9,15));
+		Slot slot2 = slotService.add(2, day11, c, LocalDateTime.of(2022,9,9,9,30), LocalDateTime.of(2022, 9, 9, 10, 45));
+		Slot slot3 = slotService.add(1, day12, c, LocalDateTime.of(2022,9,10,9,30), LocalDateTime.of(2022, 9, 10, 10, 45));
 		Calendar c2 = calendarService.addCalendar(dcl);
-		Slot slotDummy = slotService.add(1, day21, c2);
-		Slot slot4 = slotService.add(1, day21, c);
-		Slot slot5 = slotService.add(2, day21, c);
+		Slot slotDummy = slotService.add(1, day21, c2, LocalDateTime.of(2022,9,16,8,0), LocalDateTime.of(2022, 9, 16, 10, 0));
+		Slot slot4 = slotService.add(1, day21, c, LocalDateTime.of(2022,9,16,8,0), LocalDateTime.of(2022, 9, 16, 9, 15));
+		Slot slot5 = slotService.add(2, day21, c, LocalDateTime.of(2022,9,16,9,30), LocalDateTime.of(2022, 9, 16, 10, 45));
 		UE ue1 = ueService.addUE("UE1", "", dcl);
 		UE ue2 = ueService.addUE("UE2", "", dcl);
 		Lesson lesson1 = lessonService.add("Lesson1", null, ue1);
@@ -687,13 +692,13 @@ public class ServerApplication {
 		Day day11 = dayService.findByWeek(week1).get(0);
 		Day day12 = dayService.findByWeek(week1).get(1);
 		Day day21 = dayService.findByWeek(week2).get(0);
-		Slot slot1 = slotService.add(1, day11, c);
-		Slot slot2 = slotService.add(2, day11, c);
-		Slot slot3 = slotService.add(1, day12, c);
-		Slot slot4 = slotService.add(2, day12, c);
-		/*Calendar c2 = calendarService.addCalendar(dcl);
-		Slot slotDummy = slotService.add(1, day21, c2);*/
-		Slot slot5 = slotService.add(1, day21, c);
+		Slot slot1 = slotService.add(1, day11, c, LocalDateTime.of(2022,9,9,8,0), LocalDateTime.of(2022,9,9,9,15));
+		Slot slot2 = slotService.add(2, day11, c, LocalDateTime.of(2022,9,9,9,30), LocalDateTime.of(2022, 9, 9, 10, 45));
+		Slot slot3 = slotService.add(1, day12, c, LocalDateTime.of(2022,9,10,8,0), LocalDateTime.of(2022, 9, 10, 9, 15));
+		Slot slot4 = slotService.add(2, day12, c, LocalDateTime.of(2022,9,10,9,30), LocalDateTime.of(2022, 9, 10, 10, 45));
+		Calendar c2 = calendarService.addCalendar(login);
+		Slot slotDummy = slotService.add(1, day21, c2);
+		Slot slot5 = slotService.add(1, day21, c, LocalDateTime.of(2022,9,16,9,30), LocalDateTime.of(2022, 9, 16, 10, 45));
 		UE ue1 = ueService.addUE("UE1", "", login);
 		UE ue2 = ueService.addUE("UE2", "", login);
 		Lesson lesson1 = lessonService.add("Lesson1", null, ue1);
@@ -727,9 +732,12 @@ public class ServerApplication {
 		Week week = weekService.addWeek(0, 2022);
 		Day day = dayService.addDay(0, week);
 		List<Slot> slots = new ArrayList<Slot>();
-		for (int i = 0; i < 7; i ++)
-			slots.add(slotService.add(i, day, cal));
-		
+		LocalDate startSlotDay = LocalDate.of(2022, 9, 9);
+		LocalTime startSlotHour = LocalTime.of(8, 0);
+		for (int i = 0; i < 7; i ++) {
+			slots.add(slotService.add(i, day, cal, LocalDateTime.of(startSlotDay, startSlotHour), LocalDateTime.of(startSlotDay, startSlotHour.plusMinutes(75))));
+			startSlotHour = startSlotHour.plusMinutes(90);
+		}
 		UE ue1 = ueService.addUE("UE-1", "", dcl);
 		UE ue2 = ueService.addUE("UE-2", "", dcl);
 
@@ -762,6 +770,7 @@ public class ServerApplication {
 		List<Week> weeks = new ArrayList<Week>();
 		List<List<Day>> days = new ArrayList<List<Day>>();
 		List<List<List<Slot>>> slots = new ArrayList<List<List<Slot>>>();
+		LocalDate startSlotDay = LocalDate.of(2022, 9, 9);
 		for (int i = 0; i < 5; i ++) {
 			weeks.add(weekService.addWeek(i, 2022));
 			days.add(new ArrayList<Day>());
@@ -769,9 +778,14 @@ public class ServerApplication {
 			for (int j = 0; j < 3; j ++) {
 				days.getLast().add(dayService.addDay(j, weeks.getLast()));
 				slots.getLast().add(new ArrayList<Slot>());
-				for (int k = 0; k < 7; k ++)
-					slots.getLast().getLast().add(slotService.add(k, days.getLast().getLast(), cal));
+				LocalTime startSlotHour = LocalTime.of(8, 0);
+				for (int k = 0; k < 7; k ++) {
+					slots.getLast().getLast().add(slotService.add(k, days.getLast().getLast(), cal, LocalDateTime.of(startSlotDay, startSlotHour), LocalDateTime.of(startSlotDay, startSlotHour.plusMinutes(75))));
+					startSlotHour = startSlotHour.plusMinutes(90);
+				}
+				startSlotDay = startSlotDay.plusDays(1);
 			}
+			startSlotDay = startSlotDay.plusDays(4);
 		}
 		UE ue = ueService.addUE("UE", "", dcl);
 		List<Lesson> lessons = new ArrayList<Lesson>();
@@ -788,10 +802,10 @@ public class ServerApplication {
 		Day day11 = dayService.addDay(1, week1);
 		Day day12 = dayService.addDay(2, week1);
 		Day day21 = dayService.addDay(1, week2);
-		Slot slot1 = slotService.add(1, day11, c);
-		Slot slot2 = slotService.add(2, day11, c);
-		Slot slot3 = slotService.add(1, day12, c);
-		Slot slot4 = slotService.add(2, day12, c);
+		Slot slot1 = slotService.add(1, day11, c, LocalDateTime.of(2025, 1, 4, 9, 30), LocalDateTime.of(2025, 1, 4, 10, 45));
+		Slot slot2 = slotService.add(2, day11, c, LocalDateTime.of(2025, 1, 4, 11, 0), LocalDateTime.of(2025, 1, 4, 12, 15));
+		Slot slot3 = slotService.add(1, day12, c, LocalDateTime.of(2025, 1, 5, 9, 30), LocalDateTime.of(2025, 1, 4, 10, 45));
+		Slot slot4 = slotService.add(2, day12, c, LocalDateTime.of(2025, 1, 5, 11, 0), LocalDateTime.of(2025, 1, 4, 12, 15));
 		
 		
 		UE ue1 = ueService.addUE("UE1", "", login);
@@ -822,15 +836,20 @@ public class ServerApplication {
 		Calendar cal = calendarService.addCalendar(dcl);
 		Planning planning = planningService.addPlanning(cal);
 		List<Day> mardis = new ArrayList<Day>();
+		LocalDate startSlotDay = LocalDate.of(2025, 9, 9);
 		for (int i = 37; i < 52; i ++) {
 			Week week = weekService.addWeek(i, 2025);
 			for (int j = 1; j < 3; j ++) {
 				Day day = dayService.addDay(j, week);
 				if (j == 1) mardis.add(day);
+				LocalTime startSlotHour = LocalTime.of(8, 0);
 				for (int k = 0; k < 7; k ++) {
-					slotService.add(k, day, cal);
+					slotService.add(k, day, cal, LocalDateTime.of(startSlotDay, startSlotHour), LocalDateTime.of(startSlotDay, startSlotHour.plusMinutes(75)));
+					startSlotHour = startSlotHour.plusMinutes(90);
 				}
+				startSlotDay = startSlotDay.plusDays(1);
 			}
+			startSlotDay = startSlotDay.plusDays(5);
 		}
 		//7th week is unavailable.
 		calendarService.getWeeksSorted(cal.getId()).get(6).getDays().stream().flatMap(d -> d.getSlots().stream()).forEach(s -> globalUnavailabilityService.addGlobalUnavailability(true, s));
