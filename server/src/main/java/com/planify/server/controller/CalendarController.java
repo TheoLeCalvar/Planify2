@@ -17,11 +17,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.planify.server.controller.returnsClass.TAFShort;
-import com.planify.server.service.CalendarService;
 import com.planify.server.service.TAFService;
-import com.planify.server.solver.SolverMain;
-import com.planify.server.solver.SolverServices;
+import com.planify.server.solver.SolverExecutor;
 
 @RestController
 @RequestMapping("/api")
@@ -29,9 +26,6 @@ public class CalendarController {
 
     @Autowired
     private TAFService tafService;
-
-    @Autowired
-    private CalendarService calendarService;
 
     @Autowired
     private PlanningService planningService;
@@ -51,10 +45,10 @@ public class CalendarController {
 
         Calendar calendar = realTaf.getCalendars().getFirst();
         Planning planning = planningService.addPlanning(calendar);
-
-        List<Result> result = SolverMain.generatePlanning(planning);
-
-        return ResponseEntity.ok(result);
+        
+        SolverExecutor.generatePlanning(planning);
+        
+        return ResponseEntity.ok("The solver is launched ! (PlanningId : " + planning.getId() + ")");
     }
 
     @GetMapping(value = "/solver/history/{idTaf}", produces = MediaType.APPLICATION_JSON_VALUE )
