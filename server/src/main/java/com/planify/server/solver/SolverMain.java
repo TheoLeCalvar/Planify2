@@ -136,8 +136,10 @@ public class SolverMain {
 		Solution solution;
 		if (obj != null) solution = solver.findOptimalSolution(obj, false);
 		else solution = solver.findSolution();
-		System.out.println(model);
+		//System.out.println(model);
 		solver.printShortStatistics();
+		if (!solution.exists())
+			return new ArrayList<Result>();
 		System.out.println(solMain.showSolutionsDebug(solution));
 		System.out.println(solMain.makeSolutionString(solution));
 		List<Result> results = solMain.makeSolution(solution);
@@ -159,8 +161,10 @@ public class SolverMain {
 		System.out.println("Start Solving !");
 		if (obj != null) solution = solver.findOptimalSolution(obj, false);
 		else solution = solver.findSolution();
-		System.out.println(model);
+		//System.out.println(model);
 		solver.printShortStatistics();
+		if (!solution.exists())
+			return "";
 		System.out.println(solMain.showSolutionsDebug(solution));
 		System.out.println(solMain.makeSolutionString(solution));
 		return solMain.makeSolutionString(solution);
@@ -192,6 +196,8 @@ public class SolverMain {
 		Solution solution = solver.findOptimalSolution(globObj, false);
 		System.out.println(model);
 		solver.printShortStatistics();
+		if (!solution.exists())
+			return;
 		for (int i = 0; i < plannings.length; i ++)
 			System.out.println(solMains[i].showSolutionsDebug(solution));
 	}
