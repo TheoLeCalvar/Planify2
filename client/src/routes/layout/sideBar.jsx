@@ -87,8 +87,11 @@ const SidebarActions = ({ tafID, resultPlanning, handleGenerateCalendar, generat
 // Main Sidebar Component
 const SideBar = () => {
     const isOpen = useStore((state) => state.sideBarOpen);
+
     const context = useOutletContext();
-    const { UE: lessons, id: tafID, resultPlanning } = context.taf;
+    const lessons = useMemo(() => context.taf.UE, [context.taf.UE]);
+    const tafID = useMemo(() => context.taf.id, [context.taf.id]);
+    const resultPlanning = useMemo(() => context.taf.resultPlanning, [context.taf.resultPlanning]);
     
     const [state, dispatch] = useReducer(reducer, initialState);
 
