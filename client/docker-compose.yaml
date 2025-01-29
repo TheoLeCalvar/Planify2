@@ -1,0 +1,7 @@
+services:
+  client:
+    build: .
+    image: planify-client
+    container_name: planify_client
+    ports:
+      - "80:80"
