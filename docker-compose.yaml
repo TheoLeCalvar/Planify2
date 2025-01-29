@@ -1,7 +1,9 @@
 services:
   client:
-    build: .
+    build:
+      context: ./client
+      dockerfile: Dockerfile.dev
     image: planify-client
     container_name: planify_client
     ports:
-      - "80:80"
+      - "5173:5173"
