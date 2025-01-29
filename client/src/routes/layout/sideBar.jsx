@@ -99,6 +99,8 @@ const SideBar = () => {
         dispatch({ type: "START_GENERATION" });
         try {
             await axiosInstance.get(`/solver/run/${tafID}`);
+        } catch (error) {
+            console.error("Error generating calendar:", error);
         } finally {
             dispatch({ type: "END_GENERATION" });
         }
