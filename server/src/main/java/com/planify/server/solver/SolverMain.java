@@ -8,11 +8,15 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.Solver;
+import org.chocosolver.solver.constraints.nary.automata.FA.CostAutomaton;
 import org.chocosolver.solver.constraints.nary.automata.FA.FiniteAutomaton;
+import org.chocosolver.solver.constraints.nary.automata.FA.ICostAutomaton;
+import org.chocosolver.solver.constraints.nary.automata.FA.utils.Counter;
 import org.chocosolver.solver.expression.discrete.arithmetic.ArExpression;
 import org.chocosolver.solver.search.strategy.Search;
 import org.chocosolver.solver.variables.BoolVar;
@@ -161,7 +165,7 @@ public class SolverMain {
 		System.out.println("Start Solving !");
 		if (obj != null) solution = solver.findOptimalSolution(obj, false);
 		else solution = solver.findSolution();
-		//System.out.println(model);
+		System.out.println(model);
 		solver.printShortStatistics();
 		if (!solution.exists())
 			return "";
@@ -353,7 +357,7 @@ public class SolverMain {
 		/*if (planning.hasConstraint1())*/ setConstraintLecturerUnavailability(model);
 		/*if (planning.hasConstraint())*/ setConstraintLunchBreak(model);
 		/*if (planning.hasConstraint())*/ setConstraintNoInterweaving(model);
-		/*if (planning.hesConstraint()*/ //setConstraintMinMaxLessonUeInWeek(model); //Idée pour essayer d'améliorer les performances si besoin : essayer de faire une stratégie de recherche sur les variables du nombre de cours de l'UE considéré.
+		/*if (planning.hesConstraint()*/ setConstraintMinMaxLessonUeInWeek(model); //Idée pour essayer d'améliorer les performances si besoin : essayer de faire une stratégie de recherche sur les variables du nombre de cours de l'UE considéré.
 	}
 	
 	private void setConstraintLinkLessonsSlots(Model model, boolean ue) {
@@ -605,7 +609,7 @@ public class SolverMain {
 			IntVar[] varSlots = getSlotVarUe(services.getSlotService().findSlotsByWeekAndCalendar(week, planning.getCalendar()).stream().toArray(Slot[]::new));
 			for (UE ue : planning.getCalendar().getTaf().getUes()) {
 				int min = 2;
-				int max = 4;
+				int max = 6;
 				int[] valsCnt = new int[max - min + 2];
 				valsCnt[0] = 0;
 				for (int i = 1; i <= max - min + 1; i ++)
@@ -623,6 +627,7 @@ public class SolverMain {
 		/*if (preferencesGlobal)*/ preferences.add(setPreferencesGlobal(model).mul(30).intVar());
 		/*if (preferencesLecturers)*/ preferences.add(setPreferencesLecturers(model).mul(19).intVar());
 		/*if (preferenceCentered)*/ //preferences.add(setPreferenceCenteredLessons(model).mul(1).intVar());
+		/*if (preferenceRegroupLessons)*/ preferences.add(setPreferenceRegroupLessonsByNbSlots(model).mul(5).intVar());
 		return model.sum("Preferences", preferences.stream().filter(v -> v != null).toArray(IntVar[]::new));
 	}
 	
@@ -690,10 +695,108 @@ public class SolverMain {
 		return centeredSlot;
 	}
 	
+	private IntVar setPreferenceRegroupLessonsByNbSlots(Model model) {
+		List<Day> days = services.getCalendarService().getDaysSorted(planning.getCalendar().getId()); 
+		List<List<Slot>> slotDays = days.stream().map(d -> services.getDayService().findSlotsDayByCalendar(d, planning.getCalendar())).toList();
+		int nbMaxSlotsDay = slotDays.stream().mapToInt(l -> l.size()).max().orElse(0);
+		if (nbMaxSlotsDay == 0) return null;
+		List<IntVar> distancesFromPreferedValues = new ArrayList<IntVar>();
+		int nbUe = planning.getCalendar().getTaf().getUes().size();
+ 		for (UE ue : planning.getCalendar().getTaf().getUes()) {
+			int[] preferedVals = new int[] {2, 3}; //Must be ordered
+			int[] costs = getCostsTblRegroupLessons(preferedVals, nbMaxSlotsDay);
+			System.out.println(Arrays.toString(costs));
+			int iDay = 0;
+			for (List<Slot> slots : slotDays) {
+				IntVar cnt = model.count("Count Ue " + ue.getName() + "(" + getIdMUe(ue) + ") in Day " + getIdMDay(days.get(iDay)),
+										getIdMUe(ue),
+										getSlotVarUe(slots.stream().toArray(Slot[]::new)));
+				distancesFromPreferedValues.add(
+						model.element("Distance Ue " + ue.getName() + "(" + getIdMUe(ue) + ") in Day " + getIdMDay(days.get(iDay)),
+									costs, cnt, 0));
+				iDay ++;
+			}
+		}
+ 		IntVar preferenceNoInterweaving = setPreferenceNoInterweaving(model, nbMaxSlotsDay).mul(2).intVar();
+ 		IntVar preferenceNbLessons = model.sum("preferenceNbLessons", distancesFromPreferedValues.stream().toArray(IntVar[]::new));
+		return model.sum("preferenceRegroupLessons", preferenceNoInterweaving, preferenceNbLessons);
+	}
+	
+	private int[] getCostsTblRegroupLessons(int[] preferedVals, int nbMaxSlotsDay) {
+		int[] costs = new int[nbMaxSlotsDay];
+		costs[0] = 0;
+		int iPreferedVal = 0;
+		for (int i = 1; i < nbMaxSlotsDay; i ++) {
+			int dist1 = Math.abs(preferedVals[iPreferedVal] - i);
+			int dist2 = nbMaxSlotsDay;
+			if (iPreferedVal + 1 < preferedVals.length) dist2 = Math.abs(preferedVals[iPreferedVal + 1] - i);
+			if (dist2 < dist1) iPreferedVal ++;
+			costs[i] = Math.abs(preferedVals[iPreferedVal] - i);
+		}
+		return costs;
+	}
+	
+	private IntVar setPreferenceNoInterweaving(Model model) {
+		return setPreferenceNoInterweaving(model, services.getCalendarService().getDaysSorted(planning.getCalendar().getId()).stream().mapToInt(l -> l.getSlots().size()).max().orElse(0));
+	}
+	
+	private IntVar setPreferenceNoInterweaving(Model model, int nbMaxSlotsDay) {
+		if (nbMaxSlotsDay == 0) return null;
+		List<Day> days = services.getCalendarService().getDaysSorted(planning.getCalendar().getId()); 
+		List<UE> ues = planning.getCalendar().getTaf().getUes();
+		int nbUes = ues.size();
+		List<IntVar> costsDays = new ArrayList<IntVar>();
+		for (UE ue : ues) {
+			int idMUe = getIdMUe(ue);
+			FiniteAutomaton automaton = automatonPreferenceNoInterweaving(ue, nbMaxSlotsDay, nbUes);
+			int[][][] costsForward = new int[nbMaxSlotsDay][nbUes + 1][2];
+			int[][][] costsBackward = new int[nbMaxSlotsDay][nbUes + 1][2];
+			for (int i = 0; i < nbMaxSlotsDay; i ++)
+				for (int j = 0; j < nbUes + 1; j ++)
+					for (int k = 0; k < 2; k ++) {
+						costsForward[i][j][k] = (j != idMUe && k == 1) ? 1 : 0;
+						costsBackward[i][j][k] = (j == idMUe && k == 0) ? i : 0;
+					}
+			ICostAutomaton cAutoForward = CostAutomaton.makeSingleResource(automaton, costsForward, 0, nbMaxSlotsDay - 1);
+			ICostAutomaton cAutoBackward = CostAutomaton.makeSingleResource(automaton, costsBackward, 0, nbMaxSlotsDay - 1);
+			for (Day day : days) {
+				IntVar costForward = model.intVar("CostForward " + ue.getName() + " day " + day.getId(), 0, nbMaxSlotsDay - 1);
+				IntVar costBackward = model.intVar("CostBackward " + ue.getName() + " day " + day.getId(), 0, nbMaxSlotsDay - 1);
+				IntVar costDay = model.intVar("CostDay " + ue.getName() + " day " + day.getId(), 0, nbMaxSlotsDay - 2);
+				IntVar[] vars = services.getDayService().findSlotsDayByCalendarSorted(day, planning.getCalendar()).stream().map(s -> getSlotVarUe(s)).toArray(IntVar[]::new);
+				IntVar[] varsReversed = new IntVar[vars.length];
+				for (int i = 0; i < vars.length; i ++) varsReversed[vars.length - 1 - i] = vars[i];
+				model.costRegular(vars, costForward, cAutoForward).post();
+				model.costRegular(varsReversed, costBackward, cAutoBackward).post();
+				model.arithm(costDay, "=", costForward, "-", costBackward).post();
+				costsDays.add(costDay);
+			}
+		}
+		return model.sum("preferenceNoInterweaving", costsDays.stream().toArray(IntVar[]::new));
+	}
+	
+	private FiniteAutomaton automatonPreferenceNoInterweaving(UE ue, int nbMaxSlotsDay, int nbUes) {
+		FiniteAutomaton automaton = new FiniteAutomaton();
+		int idMUe = getIdMUe(ue);
+		int[] alphabet = IntStream.range(0, nbUes + 1).toArray();
+		int[] alphabetWithoutUe = Arrays.stream(alphabet).filter(val -> val != idMUe).toArray();
+		int state0 = automaton.addState();
+		int state1 = automaton.addState();
+		automaton.setInitialState(state0);
+		automaton.setFinal(state0, state1);
+		automaton.addTransition(state0, state0, alphabetWithoutUe);
+		automaton.addTransition(state0, state1, idMUe);
+		automaton.addTransition(state1, state1, alphabet);
+		return automaton;
+	}
+	
 	private static void setStrategy(SolverMain solMain, Solver solver, Planning planning) {
 		IntVar[] decisionVars = solMain.getDecisionVars();
 		//solver.setSearch(Search.minDomLBSearch(decisionVars));
 		solver.setSearch(Search.minDomUBSearch(decisionVars));
+		//solver.setSearch(Search.activityBasedSearch(decisionVars));
+		//solver.setSearch(Search.conflictHistorySearch(decisionVars));
+		//solver.setSearch(Search.domOverWDegSearch(decisionVars));
 	}
 	
 	private static void setStrategy(SolverMain[] solMains, Solver solver, Planning[] plannings) {
@@ -718,6 +821,22 @@ public class SolverMain {
 		IntVar[] arr = new IntVar[list.size()];
 		for (int i = 0; i < list.size(); i ++) arr[i] = list.get(i);
 		return arr;
+	}
+	
+	private IntVar[] getVarDecisionSlotsMiddle() {
+		List<IntVar> vars = new ArrayList<IntVar>();
+		for (Day day : services.getCalendarService().getDaysSorted(planning.getCalendar().getId())) {
+			List<Slot> slots = services.getDayService().findSlotsDayByCalendarSorted(day, planning.getCalendar());
+			for (int i = 0; i < slots.size(); i ++) {
+				if (i <= slots.size() / 2) {
+					vars.add(vars.size() - i, getSlotVarLesson(slots.get(i)));
+				}
+				else {
+					vars.add(vars.size() - slots.size() + i + 1, getSlotVarLesson(slots.get(i)));
+				}
+			}
+		}
+		return convertListToArrayIntVar(vars);
 	}
 	
 	private int[] getArrayInt(Integer[] tbl) {
