@@ -578,10 +578,10 @@ public class ServerApplication {
 	}
 
 	private static void testSolver(ApplicationContext context) {
-		testSolver1(context, planningSolver1());
+		//testSolver1(context, planningSolverTestMinMaxUeWeek());
 		//testSolver2(context);
 		//testSolver3(context);
-		//testSolverDCLNS1(context);
+		testSolverDCLNS1(context);
 	}
 	
 	private static void testSolver1(ApplicationContext context, Planning planning) {		
@@ -784,13 +784,37 @@ public class ServerApplication {
 					startSlotHour = startSlotHour.plusMinutes(90);
 				}
 				startSlotDay = startSlotDay.plusDays(1);
+				globalUnavailabilityService.addGlobalUnavailability(false, slots.getLast().getLast().get(3));
 			}
 			startSlotDay = startSlotDay.plusDays(4);
 		}
 		UE ue = ueService.addUE("UE", "", dcl);
 		List<Lesson> lessons = new ArrayList<Lesson>();
-		for (int l = 0; l < 7; l ++)
+		for (int l = 0; l < 19; l ++)
 			lessons.add(lessonService.add("Lesson " + l, "", ue));
+		return planning;
+	}
+	
+	private static Planning planningSolverTestMaxBreakUe() {
+		TAF dcl = tafService.addTAF("DCL - MaxBreakUe", "", "", "");
+		Calendar cal = calendarService.addCalendar(dcl);
+		Planning planning = planningService.addPlanning(cal);
+		//Week week = weekService.addWeek(0, 2025);
+		List<Week> weeks = new ArrayList<Week>();
+		List<Day> days = new ArrayList<Day>();
+		List<Slot> slots = new ArrayList<Slot>();
+		for (int i = 0; i < 5; i ++) {
+			weeks.add(weekService.addWeek(i, 2025));
+			days.add(dayService.addDay(i, weeks.getLast()));
+			slots.add(slotService.add(0, days.getLast(), cal));
+		}
+		for (int i = 1; i < 4; i ++) {
+			globalUnavailabilityService.addGlobalUnavailability(false, slots.get(i));
+		}
+		
+		UE ue = ueService.addUE("UE", "", dcl);
+		List<Lesson> lessons = createOrderedTypeLesson(2, "Lesson", ue);
+		
 		return planning;
 	}
 	
