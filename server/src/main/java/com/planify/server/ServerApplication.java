@@ -578,10 +578,10 @@ public class ServerApplication {
 	}
 
 	private static void testSolver(ApplicationContext context) {
-		//testSolver1(context, planningSolverTestMinMaxUeWeek());
+		testSolver1(context, planningSolverTestMinMaxLessonsUeWeek());
 		//testSolver2(context);
 		//testSolver3(context);
-		testSolverDCLNS1(context);
+		//testSolverDCLNS1(context);
 	}
 	
 	private static void testSolver1(ApplicationContext context, Planning planning) {		
@@ -763,7 +763,7 @@ public class ServerApplication {
 		return planning;
 	}
 	
-	private static Planning planningSolverTestMinMaxUeWeek() {
+	private static Planning planningSolverTestMinMaxLessonsUeWeek() {
 		TAF dcl = tafService.addTAF("DCL-Day", "", "", "");
 		Calendar cal = calendarService.addCalendar(dcl);
 		Planning planning = planningService.addPlanning(cal);
@@ -771,11 +771,11 @@ public class ServerApplication {
 		List<List<Day>> days = new ArrayList<List<Day>>();
 		List<List<List<Slot>>> slots = new ArrayList<List<List<Slot>>>();
 		LocalDate startSlotDay = LocalDate.of(2022, 9, 9);
-		for (int i = 0; i < 5; i ++) {
+		for (int i = 0; i < 4; i ++) {
 			weeks.add(weekService.addWeek(i, 2022));
 			days.add(new ArrayList<Day>());
 			slots.add(new ArrayList<List<Slot>>());
-			for (int j = 0; j < 3; j ++) {
+			for (int j = 0; j < 1; j ++) {
 				days.getLast().add(dayService.addDay(j, weeks.getLast()));
 				slots.getLast().add(new ArrayList<Slot>());
 				LocalTime startSlotHour = LocalTime.of(8, 0);
@@ -790,7 +790,7 @@ public class ServerApplication {
 		}
 		UE ue = ueService.addUE("UE", "", dcl);
 		List<Lesson> lessons = new ArrayList<Lesson>();
-		for (int l = 0; l < 19; l ++)
+		for (int l = 0; l < 5; l ++)
 			lessons.add(lessonService.add("Lesson " + l, "", ue));
 		return planning;
 	}
