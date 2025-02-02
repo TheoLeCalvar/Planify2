@@ -18,6 +18,124 @@ import {
 import { LessonsContext } from "../../context/LessonsContext";
 import CreateUser from "../createUser";
 
+// Extracted style objects
+const styles = {
+  formContainer: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 2,
+    mt: 1,
+  },
+  checkbox: { mr: 1 },
+};
+
+// Subcomponent for the Title and Description text fields
+const LessonTextFields = ({ title, description, onTitleChange, onDescriptionChange }) => (
+  <>
+    <TextField
+      label="Titre"
+      value={title}
+      onChange={onTitleChange}
+      fullWidth
+      required
+    />
+    <TextField
+      label="Description"
+      value={description}
+      onChange={onDescriptionChange}
+      fullWidth
+      multiline
+      rows={3}
+    />
+  </>
+);
+
+LessonTextFields.propTypes = {
+  title: PropTypes.string.isRequired,
+  description: PropTypes.string,
+  onTitleChange: PropTypes.func.isRequired,
+  onDescriptionChange: PropTypes.func.isRequired,
+};
+
+// Subcomponent for the lecturer Autocomplete field
+const LecturerAutocomplete = ({
+  lecturers,
+  sortedOptions,
+  onLecturersChange,
+  renderTag,
+  setOpenNewUser,
+}) => (
+  <FormControl fullWidth>
+    <Autocomplete
+      multiple
+      options={sortedOptions}
+      groupBy={(option) =>
+        option.alreadySelected ? "Intervenants de cette TAF" : "Toutes les personnes"
+      }
+      disableCloseOnSelect
+      value={lecturers}
+      getOptionLabel={(option) => option.name}
+      onChange={onLecturersChange}
+      isOptionEqualToValue={(option, value) => option.id === value}
+      renderOption={(props, option, { selected }) => {
+        const { key, ...otherProps } = props;
+        return (
+          <li key={key} {...otherProps}>
+            <Checkbox checked={selected} sx={styles.checkbox} />
+            {option.name}
+          </li>
+        );
+      }}
+      renderTags={(value, getTagProps) =>
+        value.map((option, index) => renderTag(option, index, getTagProps))
+      }
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          label="Intervenants"
+          placeholder="Sélectionnez des personnes..."
+        />
+      )}
+      noOptionsText={
+        <Stack gap={1} alignItems="center">
+          <Typography variant="body2">Aucun intervenant trouvé.</Typography>
+          <Button
+            color="primary"
+            variant="contained"
+            onClick={() => setOpenNewUser(true)}
+          >
+            Créer un nouvel intervenant
+          </Button>
+        </Stack>
+      }
+    />
+  </FormControl>
+);
+
+LecturerAutocomplete.propTypes = {
+  lecturers: PropTypes.array.isRequired,
+  sortedOptions: PropTypes.array.isRequired,
+  onLecturersChange: PropTypes.func.isRequired,
+  renderTag: PropTypes.func.isRequired,
+  setOpenNewUser: PropTypes.func.isRequired,
+};
+
+// Subcomponent for the CreateUser dialog
+const CreateUserDialog = ({ open, onClose }) => (
+  <Dialog open={open} onClose={onClose}>
+    <DialogTitle>Créer un nouvel utilisateur</DialogTitle>
+    <DialogContent>
+      <CreateUser onCancel={onClose} />
+    </DialogContent>
+  </Dialog>
+);
+
+CreateUserDialog.propTypes = {
+  open: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+};
+
+// Main LessonDialog component
 const LessonDialog = ({ open, onClose, onSubmit, initialData }) => {
   // Local state for form fields
   const [title, setTitle] = useState(initialData?.title || "");
@@ -86,71 +204,20 @@ const LessonDialog = ({ open, onClose, onSubmit, initialData }) => {
       <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
         <DialogTitle>{getDialogTitle()}</DialogTitle>
         <DialogContent>
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}>
-            <TextField
-              label="Titre"
-              value={title}
-              onChange={handleTitleChange}
-              fullWidth
-              required
+          <Box sx={styles.formContainer}>
+            <LessonTextFields
+              title={title}
+              description={description}
+              onTitleChange={handleTitleChange}
+              onDescriptionChange={handleDescriptionChange}
             />
-            <TextField
-              label="Description"
-              value={description}
-              onChange={handleDescriptionChange}
-              fullWidth
-              multiline
-              rows={3}
+            <LecturerAutocomplete
+              lecturers={lecturers}
+              sortedOptions={sortedOptions}
+              onLecturersChange={handleLecturersChange}
+              renderTag={renderTag}
+              setOpenNewUser={setOpenNewUser}
             />
-            <FormControl fullWidth>
-              <Autocomplete
-                multiple
-                options={sortedOptions}
-                groupBy={(option) =>
-                  option.alreadySelected
-                    ? "Intervenants de cette TAF"
-                    : "Toutes les personnes"
-                }
-                disableCloseOnSelect
-                value={lecturers}
-                getOptionLabel={(option) => option.name}
-                onChange={handleLecturersChange}
-                isOptionEqualToValue={(option, value) => option.id === value}
-                renderOption={(props, option, { selected }) => {
-                    const { key, ...otherProps } = props;
-                    return (
-                      <li key={key} {...otherProps}>
-                        <Checkbox checked={selected} sx={{ mr: 1 }} />
-                        {option.name}
-                      </li>
-                    );
-                  }}
-                renderTags={(value, getTagProps) =>
-                  value.map((option, index) => renderTag(option, index, getTagProps))
-                }
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Intervenants"
-                    placeholder="Sélectionnez des personnes..."
-                  />
-                )}
-                noOptionsText={
-                  <Stack gap={1} alignItems="center">
-                    <Typography variant="body2">
-                      Aucun intervenant trouvé.
-                    </Typography>
-                    <Button
-                      color="primary"
-                      variant="contained"
-                      onClick={() => setOpenNewUser(true)}
-                    >
-                      Créer un nouvel intervenant
-                    </Button>
-                  </Stack>
-                }
-              />
-            </FormControl>
           </Box>
         </DialogContent>
         <DialogActions>
@@ -162,13 +229,7 @@ const LessonDialog = ({ open, onClose, onSubmit, initialData }) => {
           </Button>
         </DialogActions>
       </Dialog>
-
-      <Dialog open={openNewUser} onClose={() => setOpenNewUser(false)}>
-        <DialogTitle>Créer un nouvel utilisateur</DialogTitle>
-        <DialogContent>
-          <CreateUser onCancel={() => setOpenNewUser(false)} />
-        </DialogContent>
-      </Dialog>
+      <CreateUserDialog open={openNewUser} onClose={() => setOpenNewUser(false)} />
     </>
   );
 };

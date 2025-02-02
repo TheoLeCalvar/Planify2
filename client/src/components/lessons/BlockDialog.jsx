@@ -14,6 +14,132 @@ import {
   FormControl,
 } from "@mui/material";
 
+// Extracted style objects
+const styles = {
+  formContainer: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 2,
+    mt: 1,
+  },
+};
+
+// Subcomponent for the dependencies select field
+const DependenciesSelect = ({
+  dependencies,
+  onDependenciesChange,
+  allBlocks,
+  initialData,
+}) => (
+  <FormControl fullWidth>
+    <InputLabel>Dépendances</InputLabel>
+    <Select
+      multiple
+      value={dependencies}
+      onChange={onDependenciesChange}
+      label="Dépendances"
+      renderValue={(selected) =>
+        selected
+          .map((id) => allBlocks.find((block) => block.id === id)?.title)
+          .join(", ")
+      }
+    >
+      {allBlocks
+        .filter((block) => block.id !== initialData?.id)
+        .map((block) => (
+          <MenuItem key={block.id} value={block.id}>
+            {block.title}
+          </MenuItem>
+        ))}
+    </Select>
+  </FormControl>
+);
+
+DependenciesSelect.propTypes = {
+  dependencies: PropTypes.arrayOf(
+    PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+  ).isRequired,
+  onDependenciesChange: PropTypes.func.isRequired,
+  allBlocks: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+      title: PropTypes.string.isRequired,
+    })
+  ).isRequired,
+  initialData: PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  }),
+};
+
+// Subcomponent for form fields: title, description, and dependencies
+const BlockFormFields = ({
+  title,
+  onTitleChange,
+  description,
+  onDescriptionChange,
+  dependencies,
+  onDependenciesChange,
+  allBlocks,
+  initialData,
+}) => (
+  <Box sx={styles.formContainer}>
+    <TextField
+      label="Titre"
+      value={title}
+      onChange={onTitleChange}
+      fullWidth
+      required
+    />
+    <TextField
+      label="Description"
+      value={description}
+      onChange={onDescriptionChange}
+      fullWidth
+      multiline
+      rows={3}
+    />
+    <DependenciesSelect
+      dependencies={dependencies}
+      onDependenciesChange={onDependenciesChange}
+      allBlocks={allBlocks}
+      initialData={initialData}
+    />
+  </Box>
+);
+
+BlockFormFields.propTypes = {
+  title: PropTypes.string.isRequired,
+  onTitleChange: PropTypes.func.isRequired,
+  description: PropTypes.string,
+  onDescriptionChange: PropTypes.func.isRequired,
+  dependencies: PropTypes.arrayOf(
+    PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+  ).isRequired,
+  onDependenciesChange: PropTypes.func.isRequired,
+  allBlocks: PropTypes.array.isRequired,
+  initialData: PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  }),
+};
+
+// Subcomponent for the dialog action buttons
+const DialogActionsButtons = ({ onClose, handleSave }) => (
+  <DialogActions>
+    <Button onClick={onClose} color="secondary">
+      Annuler
+    </Button>
+    <Button onClick={handleSave} variant="contained" color="primary">
+      Enregistrer
+    </Button>
+  </DialogActions>
+);
+
+DialogActionsButtons.propTypes = {
+  onClose: PropTypes.func.isRequired,
+  handleSave: PropTypes.func.isRequired,
+};
+
+// Main BlockDialog component
 const BlockDialog = ({ open, onClose, onSubmit, initialData, allBlocks }) => {
   const [title, setTitle] = useState(initialData?.title || "");
   const [description, setDescription] = useState(initialData?.description || "");
@@ -47,57 +173,18 @@ const BlockDialog = ({ open, onClose, onSubmit, initialData, allBlocks }) => {
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle>{getDialogTitle()}</DialogTitle>
       <DialogContent>
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}>
-          <TextField
-            label="Titre"
-            value={title}
-            onChange={handleTitleChange}
-            fullWidth
-            required
-          />
-          <TextField
-            label="Description"
-            value={description}
-            onChange={handleDescriptionChange}
-            fullWidth
-            multiline
-            rows={3}
-          />
-          <FormControl fullWidth>
-            <InputLabel>Dépendances</InputLabel>
-            <Select
-              multiple
-              value={dependencies}
-              onChange={handleDependenciesChange}
-              renderValue={(selected) =>
-                selected
-                  .map(
-                    (id) =>
-                      allBlocks.find((block) => block.id === id)?.title
-                  )
-                  .join(", ")
-              }
-              label="Dépendances"
-            >
-              {allBlocks
-                .filter((block) => block.id !== initialData?.id)
-                .map((block) => (
-                  <MenuItem key={block.id} value={block.id}>
-                    {block.title}
-                  </MenuItem>
-                ))}
-            </Select>
-          </FormControl>
-        </Box>
+        <BlockFormFields
+          title={title}
+          onTitleChange={handleTitleChange}
+          description={description}
+          onDescriptionChange={handleDescriptionChange}
+          dependencies={dependencies}
+          onDependenciesChange={handleDependenciesChange}
+          allBlocks={allBlocks}
+          initialData={initialData}
+        />
       </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose} color="secondary">
-          Annuler
-        </Button>
-        <Button onClick={handleSave} variant="contained" color="primary">
-          Enregistrer
-        </Button>
-      </DialogActions>
+      <DialogActionsButtons onClose={onClose} handleSave={handleSave} />
     </Dialog>
   );
 };
