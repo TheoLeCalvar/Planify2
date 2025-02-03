@@ -21,6 +21,11 @@ import org.chocosolver.solver.constraints.nary.automata.FA.utils.Counter;
 import org.chocosolver.solver.expression.discrete.arithmetic.ArExpression;
 import org.chocosolver.solver.search.loop.monitors.SolvingStatisticsFlow;
 import org.chocosolver.solver.search.strategy.Search;
+import org.chocosolver.solver.search.strategy.selectors.values.IntDomainMax;
+import org.chocosolver.solver.search.strategy.selectors.values.IntDomainMin;
+import org.chocosolver.solver.search.strategy.selectors.variables.ConflictHistorySearch;
+import org.chocosolver.solver.search.strategy.selectors.variables.DomOverWDeg;
+import org.chocosolver.solver.search.strategy.selectors.variables.FirstFail;
 import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.util.tools.ArrayUtils;
@@ -237,22 +242,25 @@ public class SolverMain {
 		initialiseDays();
 		initialiseSlots(model, nbLessons, varUe, planning.getCalendar().getTaf().getUes().size());
 		initialiseUes();
-		initialiseLessons(model, nbSlots, varDay, services.getCalendarService().getDaysSorted(planning.getCalendar().getId()).size(), varWeek, services.getCalendarService().getWeeksSorted(planning.getCalendar().getId()).size());
+		initialiseLessons(model, nbSlots,
+				varDay, varDay ? getValsIdMDays() : null,
+				varWeek, services.getCalendarService().getWeeksSorted(planning.getCalendar().getId()).size());
 	}
 	
 	private void initialiseWeeks() {
 		Integer idMW = 1;
-		for (Week week : services.getCalendarService().getWeeksSorted(planning.getCalendar().getId())) {
+		List<Week> weeks = services.getCalendarService().getWeeksSorted(planning.getCalendar().getId());
+		for (Week week : weeks) {
 			idMWeek.put(week.getId(), idMW);
 			idMW ++;
 		}
 	}
 	
 	private void initialiseDays() {
-		Integer idMD = 1;
-		for (Day day : services.getCalendarService().getDaysSorted(planning.getCalendar().getId())) {
-			idMDay.put(day.getId(), idMD);
-			idMD ++;
+		List<Day> days = services.getCalendarService().getDaysSorted(planning.getCalendar().getId());
+		Integer idMFirstWeek = getIdMWeek(days.getFirst().getWeek());
+		for (Day day : days) {
+			idMDay.put(day.getId(), 5 * (getIdMWeek(day.getWeek()) - idMFirstWeek) + day.getNumber());
 		}
 	}
 	
@@ -274,13 +282,13 @@ public class SolverMain {
 		}
 	}
 	
-	private void initialiseLessons(Model model, int nbSlots, boolean varDay, int nbDays, boolean varWeek, int nbWeeks) {
+	private void initialiseLessons(Model model, int nbSlots, boolean varDay, int[] valsDays, boolean varWeek, int nbWeeks) {
 		Integer idML = 1;
 		for (UE ue : planning.getCalendar().getTaf().getUes())
 			for (Lesson lesson : ue.getLessons()) {
 				idMLesson.put(lesson.getId(), idML);
 				lessonVarSlot.put(lesson.getId(), model.intVar(nameLesson(lesson) + "-VarSlot", 1, nbSlots));
-				if (varDay) lessonVarDay.put(lesson.getId(), model.intVar(nameLesson(lesson) + "-VarDay", 1, nbDays));
+				if (varDay) lessonVarDay.put(lesson.getId(), model.intVar(nameLesson(lesson) + "-VarDay", valsDays));
 				if (varWeek) lessonVarWeek.put(lesson.getId(), model.intVar(nameLesson(lesson) + "-VarWeek", 1, nbWeeks));
 				idML ++;
 			}
@@ -295,6 +303,10 @@ public class SolverMain {
 	
 	private int getNumberOfLessons() {
 		return services.getTafService().numberOfLessons(planning.getCalendar().getTaf().getId());
+	}
+	
+	private int[] getValsIdMDays() {
+		return getArrayInt(idMDay.valueSet().toArray(Integer[]::new));
 	}
 	
 	private static HashMap<Long, Integer> getIdToIdMGlobalCals(Planning[] plannings){
@@ -368,7 +380,7 @@ public class SolverMain {
 		/*if (planning.hasConstraint1())*/ setConstraintLecturerUnavailability(model);
 		/*if (planning.hasConstraint())*/ setConstraintLunchBreak(model);
 		/*if (planning.hasConstraint())*/ setConstraintNoInterweaving(model);
-		/*if (planning.hasConstraint()*/ //setConstraintMinMaxLessonUeInWeek(model); //Idée pour essayer d'améliorer les performances si besoin : essayer de faire une stratégie de recherche sur les variables du nombre de cours de l'UE considéré.
+		/*if (planning.hasConstraint()*/ setConstraintMinMaxLessonUeInWeek(model); //Idée pour essayer d'améliorer les performances si besoin : essayer de faire une stratégie de recherche sur les variables du nombre de cours de l'UE considéré.
 		/*if (planning.hasConstraint()*/ setConstraintMinMaxWeeksUe(model);
 	}
 	
@@ -401,6 +413,7 @@ public class SolverMain {
 		if (global) globInt = slots.stream().mapToInt(s -> getIdMSlotGlobal(s)).toArray();
 		int[] dayInt = new int[] {};
 		if (day) dayInt = slots.stream().mapToInt(s -> getIdMDay(s.getDay())).toArray();
+		System.out.println("DayInt : " + Arrays.toString(dayInt));
 		int[] weekInt = new int[] {};
 		if (week) weekInt = slots.stream().mapToInt(s -> getIdMWeek(s.getDay().getWeek())).toArray();
 		for (Lesson lesson : services.getTafService().getLessonsOfTAF(planning.getCalendar().getTaf().getId())) {
@@ -410,82 +423,6 @@ public class SolverMain {
 			if (week) System.out.println(getLessonVarWeek(lesson));
 		}
 	}
-	/*
-	private void setConstraintLinkSlotGlobalDayWeek2(Model model, boolean global, boolean day, boolean week) {
-		if (!(global || day || week)) return;
-		Slot[] slots = services.getCalendarService().getSlotsOrdered(planning.getCalendar().getId()).stream().toArray(Slot[]::new);
-		Lesson[] lessons = planning.getCalendar().getTaf().getUes().stream().flatMap(u -> u.getLessons().stream()).toArray(Lesson[]::new);
-		int nbSlots = slots.length;
-		int nbLessons = lessons.length;
-		List<List<IntVar>> lessonsV = new ArrayList<List<IntVar>>();
-		List<List<IntVar>> sortedLessonsV = new ArrayList<List<IntVar>>();
-		for (int i = 1; i <= nbLessons; i ++) {
-			List<IntVar> lV = new ArrayList<IntVar>();
-			lV.add(getLessonVarSlot(lessons[i - 1]));
-			lessonsV.add(lV);
-			List<IntVar> sLV = new ArrayList<IntVar>();
-			sLV.add(model.intVar(i));
-			sortedLessonsV.add(sLV);
-		}
-		for (int i = nbLessons + 1; i <= nbSlots; i ++) {
-			List<IntVar> lV = new ArrayList<IntVar>();
-			lV.add(model.intVar("Dummy VarSlot", 1, nbSlots));
-			lessonsV.add(lV);
-			List<IntVar> sLV = new ArrayList<IntVar>();
-			sLV.add(model.intVar(i));
-			sortedLessonsV.add(sLV);
-		}
-		
-		if (global) addGlobalListsConstraintLink(model, lessons, slots, lessonsV, sortedLessonsV);
-		if (day) addDayListsConstraintLink(model, lessons, slots, lessonsV, sortedLessonsV);
-		if (week) addWeekListsConstraintLink(model, lessons, slots, lessonsV, sortedLessonsV);
-		
-		IntVar[] permutations = model.intVarArray("Perm Link SlotGlobDayWeek", nbSlots, 1, nbSlots);
-
-		System.out.println("lessonsV " + lessonsV);
-		System.out.println("sortedLessonsV " + sortedLessonsV);
-		
-		model.keySort(lessonsV.stream().map(lV -> lV.toArray(IntVar[]::new)).toArray(IntVar[][]::new),
-						permutations,
-						sortedLessonsV.stream().map(sLV -> sLV.toArray(IntVar[]::new)).toArray(IntVar[][]::new),
-						1).post();
-	}
-	
-	private void addGlobalListsConstraintLink(Model model, Lesson[] lessons, Slot[] slots, List<List<IntVar>> lessonsV, List<List<IntVar>> sortedLessonsV) {
-		for (int i = 0; i < lessons.length; i ++) {
-			lessonsV.get(i).add(getLessonVarSlotGlobal(lessons[i]));
-			sortedLessonsV.get(i).add(model.intVar(getIdMSlotGlobal(slots[i])));
-		}
-		int[] valsGlobs = getValsSlotGlobal(slots);
-		for (int i = lessons.length; i < slots.length; i ++) {
-			lessonsV.get(i).add(model.intVar("Dummy VarSlotGlob " + i,valsGlobs));
-			sortedLessonsV.get(i).add(model.intVar(getIdMSlotGlobal(slots[i])));
-		}
-	}
-	
-	private void addDayListsConstraintLink(Model model, Lesson[] lessons, Slot[] slots, List<List<IntVar>> lessonsV, List<List<IntVar>> sortedLessonsV) {
-		for (int i = 0; i < lessons.length; i ++) {
-			lessonsV.get(i).add(getLessonVarDay(lessons[i]));
-			sortedLessonsV.get(i).add(model.intVar(getIdMDay(slots[i].getDay())));
-		}
-		int[] valsDays = getArrayInt(getIdMDay(services.getCalendarService().getDaysSorted(planning.getCalendar().getId()).toArray(Day[]::new)));
-		for (int i = lessons.length; i < slots.length; i ++) {
-			lessonsV.get(i).add(model.intVar("Dummy VarDay",valsDays));
-			sortedLessonsV.get(i).add(model.intVar(getIdMDay(slots[i].getDay())));
-		}
-	}
-	
-	private void addWeekListsConstraintLink(Model model, Lesson[] lessons, Slot[] slots, List<List<IntVar>> lessonsV, List<List<IntVar>> sortedLessonsV) {
-		for (int i = 0; i < lessons.length; i ++) {
-			lessonsV.get(i).add(getLessonVarWeek(lessons[i]));
-			sortedLessonsV.get(i).add(model.intVar(getIdMWeek(slots[i].getDay().getWeek())));
-		}
-		int[] valsWeeks = getArrayInt(getIdMWeek(services.getCalendarService().getWeeksSorted(planning.getCalendar().getId()).toArray(Week[]::new)));
-		for (int i = lessons.length; i < slots.length; i ++) {
-			lessonsV.get(i).add(model.intVar("Dummy VarWeek", valsWeeks));
-			sortedLessonsV.get(i).add(model.intVar(getIdMWeek(slots[i].getDay().getWeek())));
-		}
-	}*/
 	
 	private void setConstraintSequences(Model model) {
 		List<Sequencing> sequences = services.getSequencingService().getSequencingOf(planning.getCalendar().getTaf().getId());
@@ -591,7 +528,7 @@ public class SolverMain {
 					if (services.getGlobalUnavailabilityService().findBySlot(slot).filter(g -> g.getStrict()).isPresent())
 						lunchBreakAlreadyFixed = true;
 				if (!lunchBreakAlreadyFixed) {
-					IntVar count = model.intVar("Count Lunch Day-" + day.getId(),1, possibleSlotsForLunchTime.size());
+					IntVar count = model.intVar("Count Lunch Day-" + getIdMDay(day),1, possibleSlotsForLunchTime.size());
 					model.count(0, possibleSlotsForLunchTime.stream().map(s -> getSlotVarLesson(s)).toArray(IntVar[]::new), count).post();
 				}
 			}
@@ -639,18 +576,20 @@ public class SolverMain {
 		HashMap<Integer, List<IntVar>> sortedLessonsVar = new HashMap<Integer, List<IntVar>>();
 		for (UE ue : planning.getCalendar().getTaf().getUes()) {
 			IntVar[][] vars;
-			int nbVals;
+			int[] valsVars;
 			if (sortWeeks) {
 				vars = ue.getLessons().stream().map(l -> new IntVar[] {getLessonVarWeek(l)}).toArray(IntVar[][]::new);
-				nbVals = services.getCalendarService().getWeeksSorted(planning.getCalendar().getId()).size();
+				valsVars = IntStream.range(1,1 + services.getCalendarService().getWeeksSorted(planning.getCalendar().getId()).size()).toArray();
 			}
 			else {
 				vars = ue.getLessons().stream().map(l -> new IntVar[] {getLessonVarDay(l)}).toArray(IntVar[][]::new);
-				nbVals = services.getCalendarService().getDaysSorted(planning.getCalendar().getId()).size();
+				valsVars =  this.getValsIdMDays();
 			}
+			System.out.println(ue.getName());
 			System.out.println(sortWeeks);
 			System.out.println(Arrays.deepToString(vars));
-			IntVar[][] sortedVars = IntStream.range(0,vars.length).mapToObj(i -> new IntVar[] {model.intVar("sortedVarLessUe " + ue.getName() + " (" + i + ")", 0, nbVals)}).toArray(IntVar[][]::new);
+			System.out.println(Arrays.toString(valsVars));
+			IntVar[][] sortedVars = IntStream.range(0,vars.length).mapToObj(i -> new IntVar[] {model.intVar("sortedVarLessUe " + ue.getName() + " (" + i + ")", valsVars)}).toArray(IntVar[][]::new);
 			IntVar[] permutations = model.intVarArray("Perm SortedLessUe " + ue.getName(), vars.length, 1, vars.length);
 			model.keySort(vars, permutations, sortedVars, 1).post();
 			sortedLessonsVar.put(getIdMUe(ue), Arrays.stream(sortedVars).map(t -> t[0]).toList());
@@ -670,11 +609,11 @@ public class SolverMain {
 	
 	private IntVar setPreferences(Model model) {
 		ArrayList<IntVar> preferences = new ArrayList<IntVar>();
-		/*if (preferencesGlobal)*/ //preferences.add(setPreferencesGlobal(model).mul(30).intVar());
-		/*if (preferencesLecturers)*/ //preferences.add(setPreferencesLecturers(model).mul(19).intVar());
-		/*if (preferenceCentered)*/ //preferences.add(setPreferenceCenteredLessons(model).mul(1).intVar());
-		/*if (preferenceRegroupLessons)*/ preferences.add(setPreferenceRegroupLessonsByNbSlots(model).mul(10).intVar());
-		/*if (preferenceMaxBreakUe)*/ preferences.add(setPreferenceMaxBreakWithoutLessonUe(model).mul(22).intVar()); //TODO Change the mul factor to have something proportionnal with the valMax (i.e. having a fixed cost when the break is the double than the prefered max because now the cost is of one for each unit of time)
+		/*if (preferencesGlobal)*/ preferences.add(setPreferencesGlobal(model).mul(30).intVar());
+		/*if (preferencesLecturers)*/ preferences.add(setPreferencesLecturers(model).mul(19).intVar());
+		/*if (preferenceCentered)*/ preferences.add(setPreferenceCenteredLessons(model).mul(1).intVar());
+		/*if (preferenceRegroupLessons)*/ preferences.add(setPreferenceRegroupLessonsByNbSlots(model).mul(5).intVar());
+		/*if (preferenceMaxBreakUe)*/ preferences.add(setPreferenceMaxBreakWithoutLessonUe(model).mul(11).intVar()); //TODO Change the mul factor to have something proportionnal with the valMax (i.e. having a fixed cost when the break is the double than the prefered max because now the cost is of one for each unit of time)
 		return (preferences.isEmpty()) ? null : model.sum("Preferences", preferences.stream().filter(v -> v != null).toArray(IntVar[]::new));
 	}
 	
@@ -714,6 +653,37 @@ public class SolverMain {
 	}
 	
 	private IntVar setPreferenceCenteredLessons(Model model) {
+		ArrayList<IntVar> penaltiesNotCentered = new ArrayList<IntVar>();
+		List<Day> days = services.getCalendarService().getDaysSorted(planning.getCalendar().getId());
+		int nbMaxSlotsDay = days.stream().mapToInt(l -> l.getSlots().size()).max().orElse(0);
+		int nbUes = planning.getCalendar().getTaf().getUes().size();
+		FiniteAutomaton automaton = this.automatonPreferenceNoInterweaving(IntStream.range(1, nbUes + 1).toArray(), new int[] {0});
+		int[][][] costsForward = new int[nbMaxSlotsDay][nbUes + 1][2];
+		int[][][] costsBackward = new int[nbMaxSlotsDay][nbUes + 1][2];
+		for (int i = 0; i < nbMaxSlotsDay; i ++)
+			for (int j = 0; j < nbUes + 1; j ++)
+				for (int k = 0; k < 2; k ++) {
+					costsForward[i][j][k] = (k == 1 && j == 0) ? 1 : 0;
+					costsBackward[i][j][k] = (k == 0 && j != 0) ? 1 : 0;
+				}
+		ICostAutomaton cAutoForward = CostAutomaton.makeSingleResource(automaton, costsForward, 0, nbMaxSlotsDay - 1);
+		ICostAutomaton cAutoBackward = CostAutomaton.makeSingleResource(automaton, costsBackward, 0, nbMaxSlotsDay - 1);
+		for (Day day : days) {
+			IntVar costForward = model.intVar("CostForwardCentered day " + getIdMDay(day), 0, nbMaxSlotsDay - 1);
+			IntVar costBackward = model.intVar("CostBackwardCentered day " + getIdMDay(day), 0, nbMaxSlotsDay - 1);
+			IntVar costDay = model.intVar("CostDayCentered day " + getIdMDay(day), 0, nbMaxSlotsDay - 2);
+			IntVar[] vars = services.getDayService().findSlotsDayByCalendarSorted(day, planning.getCalendar()).stream().map(s -> getSlotVarUe(s)).toArray(IntVar[]::new);
+			IntVar[] varsReversed = new IntVar[vars.length];
+			for (int i = 0; i < vars.length; i ++) varsReversed[vars.length - 1 - i] = vars[i];
+			model.costRegular(vars, costForward, cAutoForward).post();
+			model.costRegular(varsReversed, costBackward, cAutoBackward).post();
+			model.arithm(costDay, "=", costForward, "-", costBackward).post();
+			penaltiesNotCentered.add(costDay);
+		}
+		return model.sum("preferenceCenteredLesson", penaltiesNotCentered.stream().toArray(IntVar[]::new));
+	}
+	
+	private IntVar setPreferenceCenteredLessons2(Model model) {
 		ArrayList<IntVar> penaltyNotCentered = new ArrayList<IntVar>();
 		for (Day day : services.getCalendarService().getDaysSorted(planning.getCalendar().getId())) {
 			List<Slot> slots = services.getDayService().findSlotsDayByCalendarSorted(day, planning.getCalendar());
@@ -809,9 +779,9 @@ public class SolverMain {
 			ICostAutomaton cAutoForward = CostAutomaton.makeSingleResource(automaton, costsForward, 0, nbMaxSlotsDay - 1);
 			ICostAutomaton cAutoBackward = CostAutomaton.makeSingleResource(automaton, costsBackward, 0, nbMaxSlotsDay - 1);
 			for (Day day : days) {
-				IntVar costForward = model.intVar("CostForward " + ue.getName() + " day " + day.getId(), 0, nbMaxSlotsDay - 1);
-				IntVar costBackward = model.intVar("CostBackward " + ue.getName() + " day " + day.getId(), 0, nbMaxSlotsDay - 1);
-				IntVar costDay = model.intVar("CostDay " + ue.getName() + " day " + day.getId(), 0, nbMaxSlotsDay - 2);
+				IntVar costForward = model.intVar("CostForward " + ue.getName() + " day " + getIdMDay(day), 0, nbMaxSlotsDay - 1);
+				IntVar costBackward = model.intVar("CostBackward " + ue.getName() + " day " + getIdMDay(day), 0, nbMaxSlotsDay - 1);
+				IntVar costDay = model.intVar("CostDay " + ue.getName() + " day " + getIdMDay(day), 0, nbMaxSlotsDay - 2);
 				IntVar[] vars = services.getDayService().findSlotsDayByCalendarSorted(day, planning.getCalendar()).stream().map(s -> getSlotVarUe(s)).toArray(IntVar[]::new);
 				IntVar[] varsReversed = new IntVar[vars.length];
 				for (int i = 0; i < vars.length; i ++) varsReversed[vars.length - 1 - i] = vars[i];
@@ -843,8 +813,8 @@ public class SolverMain {
 	}
 	
 	private IntVar setPreferenceMaxBreakWithoutLessonUe(Model model) {
-		boolean breakUnitInWeeks = true; //If you wants to set it to day, be aware that for now the days considered are only the ones having slots for this calendar.
-		int valMax = 0;
+		boolean breakUnitInWeeks = false;
+		int valMax = 11;
 		List<IntVar> penalties = new ArrayList<IntVar>();
 		HashMap<Integer, List<IntVar>> sortedLessonsVar = setConstraintSortedLessonsUeVarDayOrWeek(model, breakUnitInWeeks);
 		IntVar zero = model.intVar("Zero", 0);
@@ -860,12 +830,14 @@ public class SolverMain {
 	}
 	
 	private static void setStrategy(SolverMain solMain, Solver solver, Planning planning) {
-		IntVar[] decisionVars = solMain.getDecisionVars();
-		//solver.setSearch(Search.minDomLBSearch(decisionVars));
-		solver.setSearch(Search.minDomUBSearch(decisionVars));
-		//solver.setSearch(Search.activityBasedSearch(decisionVars));
-		//solver.setSearch(Search.conflictHistorySearch(decisionVars));
-		//solver.setSearch(Search.domOverWDegSearch(decisionVars));
+		IntVar[] decisionVars = solMain.getDecisionVars(); // Total time with proof of optimality (Time to find optimal solution)
+		//solver.setSearch(Search.minDomLBSearch(decisionVars)); // 149 s (3 s)
+		solver.setSearch(Search.minDomUBSearch(decisionVars)); // 155 s (2 s)
+		//solver.setSearch(Search.activityBasedSearch(decisionVars)); // > 15 min (36 s)
+		//solver.setSearch(Search.conflictHistorySearch(decisionVars)); // > 5min (> 5 min)
+		//solver.setSearch(Search.intVarSearch(new ConflictHistorySearch<>(decisionVars, 0),new IntDomainMax(), decisionVars)); // >5 min (> 5 min)
+		//solver.setSearch(Search.domOverWDegSearch(decisionVars)); // > 5 min (> 5 min)
+		//solver.setSearch(Search.intVarSearch(new DomOverWDeg<>(decisionVars, 0),new IntDomainMax(), decisionVars)); // > 12 min (> 12 min)
 	}
 	
 	private static void setStrategy(SolverMain[] solMains, Solver solver, Planning[] plannings) {

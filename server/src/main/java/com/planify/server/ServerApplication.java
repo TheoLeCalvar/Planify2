@@ -771,7 +771,7 @@ public class ServerApplication {
 		List<List<Day>> days = new ArrayList<List<Day>>();
 		List<List<List<Slot>>> slots = new ArrayList<List<List<Slot>>>();
 		LocalDate startSlotDay = LocalDate.of(2022, 9, 9);
-		for (int i = 0; i < 4; i ++) {
+		for (int i = 0; i < 6; i ++) {
 			weeks.add(weekService.addWeek(i, 2022));
 			days.add(new ArrayList<Day>());
 			slots.add(new ArrayList<List<Slot>>());
@@ -790,7 +790,7 @@ public class ServerApplication {
 		}
 		UE ue = ueService.addUE("UE", "", dcl);
 		List<Lesson> lessons = new ArrayList<Lesson>();
-		for (int l = 0; l < 5; l ++)
+		for (int l = 0; l < 7; l ++)
 			lessons.add(lessonService.add("Lesson " + l, "", ue));
 		return planning;
 	}
