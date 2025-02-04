@@ -327,7 +327,7 @@ public class LessonController {
 
     // Modify an UE
     @PutMapping(value = "/ue/{ueId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> modifyUE(@PathVariable Long ueId, @RequestBody UEShort newUE) {
+    public ResponseEntity<?> modifyUE(@PathVariable Long ueId, @RequestBody UECreation newUE) {
         Optional<UE> oue = ueService.findById(ueId);
         if (oue.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -338,6 +338,12 @@ public class LessonController {
         ue.setName(newUE.getName());
         ue.setDescription(newUE.getDescription());
         ueService.save(ue);
+        if (newUE.getManagers()!= null) {
+            for (Long id : newUE.getManagers()) {
+                User user = userService.findById(id).orElseThrow(() -> new IllegalArgumentException("The User doesn't exist"));
+                ueManagerService.addUEManager(user, ue);
+            }
+        }
         return ResponseEntity.ok("UE modified");
     }
 
