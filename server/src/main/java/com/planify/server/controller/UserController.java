@@ -50,7 +50,7 @@ public class UserController {
 
     // Get the list of the users
     @RequestMapping(value = "users", method = RequestMethod.GET)
-    public ResponseEntity<?> getTAFById(@RequestParam("tafId") Long tafId) {
+    public ResponseEntity<?> getUsers(@RequestParam("tafId") Long tafId) {
         Optional<TAF> taf = tafService.findById(tafId);
         if (taf.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -59,8 +59,8 @@ public class UserController {
         List<User> users = userService.findAll();
         List<UserShort> answers = new ArrayList<>();
         for (User user : users) {
-            List<TAF> tafs = (user.getLessonLecturers()).stream().map(LessonLecturer::getTAF).filter(x -> x.equals(taf))
-                    .collect(Collectors.toList());
+            List<TAF> tafs = (user.getLessonLecturers()).stream().map(LessonLecturer::getTAF).filter(x -> x.equals(taf.get()))
+                    .toList();
             if (!tafs.isEmpty()) {
                 answers.add(new UserShort(user.getId(), user.getFullName(), true));
             } else {

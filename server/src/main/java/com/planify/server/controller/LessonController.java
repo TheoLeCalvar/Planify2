@@ -17,12 +17,7 @@ import com.planify.server.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.http.MediaType;
 
 @RestController
@@ -77,6 +72,12 @@ public class LessonController {
 
     @Autowired
     private PlanningService planningService;
+
+    @Autowired
+    private TAFManagerService tafManagerService;
+
+    @Autowired
+    private UEManagerService ueManagerService;
 
 
     // Get the list of TAF
@@ -504,6 +505,51 @@ public class LessonController {
         System.out.println(slotShorts.toString());
         return ResponseEntity.ok(slotShorts);
 
+    }
+
+    @PostMapping(value = "/taf")
+    ResponseEntity<String> addTAF(@RequestBody TAFCreation newTaf) {
+        TAF taf = tafService.addTAF(newTaf.getName(), newTaf.getDescription(), newTaf.getStartDate().toString(), newTaf.getEndDate().toString());
+        for (Long managerId : newTaf.getManagers()) {
+            User user = userService.findById(managerId).orElseThrow(() -> new IllegalArgumentException("The User doesn't exist"));
+            tafManagerService.addTAFManager(user,taf);
+        }
+        return ResponseEntity.ok("Taf had been added");
+    }
+
+    @DeleteMapping(value = "/taf/{tafId}")
+    ResponseEntity<?> deleteTAF(@PathVariable Long tafId) {
+        Boolean b = tafService.deleteTAF(tafId);
+        if (b) {
+            return ResponseEntity.ok("TAF deleted");
+        }
+        else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("No TAF by this id found");
+        }
+    }
+
+    @PostMapping(value = "/ue")
+    ResponseEntity<String> addUE(@RequestBody UECreation newUE) {
+        TAF taf = tafService.findById(newUE.getTafId()).orElseThrow(() -> new IllegalArgumentException("The TAF doesn't exist"));
+        UE ue = ueService.addUE(newUE.getName(), newUE.getDescription(), taf);
+        for (Long managerId : newUE.getManagers()) {
+            User user = userService.findById(managerId).orElseThrow(() -> new IllegalArgumentException("The User doesn't exist"));
+            ueManagerService.addUEManager(user, ue);
+        }
+        return ResponseEntity.ok("UE had been added");
+    }
+
+    @DeleteMapping(value = "/ue/{ueId}")
+    ResponseEntity<?> deleteUE(@PathVariable Long ueId) {
+        Boolean b = ueService.deleteUE(ueId);
+        if (b) {
+            return ResponseEntity.ok("UE deleted");
+        }
+        else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("No UE by this id found");
+        }
     }
 
 }
