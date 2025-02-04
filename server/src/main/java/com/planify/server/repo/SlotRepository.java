@@ -36,4 +36,6 @@ public interface SlotRepository extends JpaRepository<Slot, Long> {
 
     void deleteById(Slot slot);
 
+    void deleteByCalendar(Calendar calendar);
+
 }

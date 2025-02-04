@@ -5,6 +5,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.WeekFields;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -408,8 +409,10 @@ public class LessonController {
                     if (relatedSlot.isPresent()) {
                         Calendar relatedCalendar = relatedSlot.get().getCalendar();
                         List<Slot> relatedSlots = relatedCalendar.getSlots();
-                        relatedSlots.stream().map(slot -> slotService.deleteSlot(slot.getId()));
-                        relatedSlots.removeAll(relatedSlots);
+                        List<Slot> slotsCopy = new ArrayList<>(relatedSlots);
+                        for (Slot slot : slotsCopy) {
+                            slotService.deleteSlot(slot.getId());
+                        }
                         calendar = relatedCalendar;
                     }
                 }
@@ -417,7 +420,7 @@ public class LessonController {
                 if (calendar == null) {
                     calendar = new Calendar(taf);
                 }
-                
+
                 calendarService.save(calendar);
                 Integer year = firstSlotStart.getYear();
                 Week currentWeek = new Week(weekCount, year);
@@ -470,8 +473,7 @@ public class LessonController {
                         globalUnavailabilityService.save(globalUnavailability);
                     }
                 }
-
-                return ResponseEntity.ok(slots);
+                return ResponseEntity.ok("ok");
 
             } else {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -500,6 +502,7 @@ public class LessonController {
                     .body(new ErrorResponse("No slots for this taf were found", 204));
         }
         List<Slot> slots = calendar.getSlots();
+        System.out.println("GET CALENDAR SLOTS : " + slots);
         List<SlotShort> slotShorts = new ArrayList<>();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
