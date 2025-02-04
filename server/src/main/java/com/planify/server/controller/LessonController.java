@@ -360,6 +360,12 @@ public class LessonController {
         taf.setBeginDate(newTaf.getStartDate());
         taf.setEndDate(newTaf.getEndDate());
         tafService.save(taf);
+        if(newTaf.getManagers()!=null) {
+            for (Long id: newTaf.getManagers() ) {
+                User TAFmanager = userService.findById(id).orElseThrow(() -> new IllegalArgumentException("The User doesn't exist"));
+                tafManagerService.addTAFManager(TAFmanager, taf);
+            }
+        }
         return ResponseEntity.ok("Taf mofified");
     }
 
