@@ -19,6 +19,7 @@ import com.planify.server.models.TAFManager.TAFManagerId;
 import com.planify.server.models.UEManager.UEManagerId;
 import com.planify.server.models.UserUnavailability.UserUnavailabilityId;
 import com.planify.server.service.*;
+import com.planify.server.solver.SolverExecutor;
 import com.planify.server.solver.SolverMain;
 import com.planify.server.solver.SolverServices;
 
@@ -578,10 +579,11 @@ public class ServerApplication {
 	}
 
 	private static void testSolver(ApplicationContext context) {
-		testSolver1(context, planningSolverTestMinMaxLessonsUeWeek());
+		//testSolver1(context, planningSolverTestMinMaxLessonsUeWeek());
 		//testSolver2(context);
+		//testSolver2bis(context);
 		//testSolver3(context);
-		//testSolverDCLNS1(context);
+		testSolverDCLNS1(context);
 	}
 	
 	private static void testSolver1(ApplicationContext context, Planning planning) {		
@@ -598,6 +600,18 @@ public class ServerApplication {
 		SolverServices solverServices = context.getBean(SolverServices.class);
 		SolverMain.setServices(solverServices);
 		SolverMain.generatePlannings(plannings);
+	}
+	
+	private static void testSolver2bis(ApplicationContext context) {
+		Planning planning1 = planningSolver1();
+		Planning planning2 = planningSolver2();
+		//synchronizationService.addSynchronization(planning1.getCalendar().getTaf().getUes().get(0).getLessons().get(0), planning2.getCalendar().getTaf().getUes().get(1).getLessons().get(0));
+		synchronizationService.addSynchronization(planning2.getCalendar().getTaf().getUes().get(1).getLessons().get(0), planning1.getCalendar().getTaf().getUes().get(0).getLessons().get(0));
+		SolverServices solverServices = context.getBean(SolverServices.class);
+		SolverMain.setServices(solverServices);
+		SolverMain.generatePlanning(planning1);
+		SolverMain.generatePlanning(planning2);
+		SolverMain.generatePlannings(new Planning[] {planning2}, new Planning[] {planning1});
 	}
 	
 	private static void testSolver3(ApplicationContext context) {
@@ -658,9 +672,9 @@ public class ServerApplication {
 		Slot slot5 = slotService.add(2, day21, c, LocalDateTime.of(2022,9,16,9,30), LocalDateTime.of(2022, 9, 16, 10, 45));
 		UE ue1 = ueService.addUE("UE1", "", dcl);
 		UE ue2 = ueService.addUE("UE2", "", dcl);
-		Lesson lesson1 = lessonService.add("Lesson1", null, ue1);
-		Lesson lesson2 = lessonService.add("Lesson2", null, ue1);
-		Lesson lesson3 = lessonService.add("Lesson3", null, ue2);
+		Lesson lesson1 = lessonService.add("Lesson1", "", ue1);
+		Lesson lesson2 = lessonService.add("Lesson2", "", ue1);
+		Lesson lesson3 = lessonService.add("Lesson3", "", ue2);
 
 		globalUnavailabilityService.addGlobalUnavailability(true, slot3);
 		globalUnavailabilityService.addGlobalUnavailability(true, slot2);
@@ -701,13 +715,13 @@ public class ServerApplication {
 		Slot slot5 = slotService.add(1, day21, c, LocalDateTime.of(2022,9,16,9,30), LocalDateTime.of(2022, 9, 16, 10, 45));
 		UE ue1 = ueService.addUE("UE1", "", login);
 		UE ue2 = ueService.addUE("UE2", "", login);
-		Lesson lesson1 = lessonService.add("Lesson1", null, ue1);
-		Lesson lesson2 = lessonService.add("Lesson2", null, ue1);
-		Lesson lesson3 = lessonService.add("Lesson3", null, ue2);
+		Lesson lesson1 = lessonService.add("Lesson4", "", ue1);
+		Lesson lesson2 = lessonService.add("Lesson5", "", ue1);
+		Lesson lesson3 = lessonService.add("Lesson6", "", ue2);
 		
 		
 		User helene = userService.addUser("Hélène", "Coullon", "jacques.noye@imt-atlantique.fr", new char[]{});
-		User bertrand = userService.findById((long) 1).get();
+		User bertrand = userService.findAll().stream().filter(u -> u.getLastName().equals("Lentsch")).findFirst().get();//userService.findById((long) 1).get();
 		
 		System.out.println(bertrand);
 		
@@ -715,8 +729,8 @@ public class ServerApplication {
 		lessonLecturerService.addLessonLecturer(helene, lesson2);
 		lessonLecturerService.addLessonLecturer(bertrand, lesson3);
 
-		userUnavailabilityService.addUserUnavailability(slot1, bertrand, true);
-		userUnavailabilityService.addUserUnavailability(slot5, bertrand, true);
+		userUnavailabilityService.addUserUnavailability(slot1, bertrand, false);
+		userUnavailabilityService.addUserUnavailability(slot5, bertrand, false);
 		userUnavailabilityService.addUserUnavailability(slot4, bertrand, false);
 		userUnavailabilityService.addUserUnavailability(slot1, helene, false);
 		userUnavailabilityService.addUserUnavailability(slot5, helene, true);

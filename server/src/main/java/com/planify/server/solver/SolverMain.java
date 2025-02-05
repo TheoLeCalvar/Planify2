@@ -37,6 +37,7 @@ import com.planify.server.models.Lesson;
 import com.planify.server.models.LessonLecturer;
 import com.planify.server.models.Planning;
 import com.planify.server.models.Result;
+import com.planify.server.models.ScheduledLesson;
 import com.planify.server.models.Sequencing;
 import com.planify.server.models.Slot;
 import com.planify.server.models.Synchronization;
@@ -185,18 +186,22 @@ public class SolverMain {
 		return solMain.makeSolutionString(solution);
 	}
 	
-	public static void generatePlannings(Planning[] plannings) {
+	public static List<Result> generatePlannings(Planning[] planningsToGenerate) {
+		return generatePlannings(planningsToGenerate, new Planning[] {});
+	}
+	
+	public static List<Result> generatePlannings(Planning[] planningsToGenerate, Planning[] planningsGenerated) {
 		System.out.println("Yo");
 		Model model = new Model();
 		Solver solver = model.getSolver();
-		IntVar[] objs = new IntVar[plannings.length];
-		SolverMain[] solMains = new SolverMain[plannings.length];
+		IntVar[] objs = new IntVar[planningsToGenerate.length];
+		SolverMain[] solMains = new SolverMain[planningsToGenerate.length];
 		System.out.println("Yo1");
-		HashMap<Long, Integer> idToIdMGlobal = getIdToIdMGlobalCals(plannings);
+		HashMap<Long, Integer> idToIdMGlobal = getIdToIdMGlobalCals(planningsToGenerate);
 		System.out.println("Yo2");
-		for (int i = 0; i < plannings.length; i ++) {
+		for (int i = 0; i < planningsToGenerate.length; i ++) {
 			System.out.println("Ya" + i);
-			SolverMain solMain = new SolverMain(plannings[i]);
+			SolverMain solMain = new SolverMain(planningsToGenerate[i]);
 			solMains[i] = solMain;
 			int nbSlots = solMain.getNumberOfSlots();
 			int nbLessons = solMain.getNumberOfLessons();
@@ -205,16 +210,21 @@ public class SolverMain {
 			IntVar obj = solMain.setPreferences(model);
 			objs[i] = obj != null ? obj : model.intVar(0);
 		}
-		setSynchronisationConstraints(model, solMains);
+		setSynchronisationConstraints(model, solMains, planningsGenerated);
 		IntVar globObj = model.sum("globObj", objs);
-		setStrategy(solMains, solver, plannings);
+		setStrategy(solMains, solver);
 		Solution solution = solver.findOptimalSolution(globObj, false);
 		System.out.println(model);
 		solver.printShortStatistics();
-		if (!solution.exists())
-			return;
-		for (int i = 0; i < plannings.length; i ++)
+		if (solution == null)
+			return null;
+		List<Result> allResults = new ArrayList<Result>();
+		for (int i = 0; i < planningsToGenerate.length; i ++) {
+			List<Result> results = solMains[i].makeSolution(solution);
 			System.out.println(solMains[i].showSolutionsDebug(solution));
+			allResults.addAll(results);
+		}
+		return allResults;
 	}
 	
 	private void initialiseVars(Model model, int nbSlots, int nbLessons, HashMap<Long, Integer> idToIdMGlobal) {
@@ -315,15 +325,11 @@ public class SolverMain {
 		int[] iSlots = new int[plannings.length];
 		int[] lengthSlots = slots.stream().mapToInt(s -> s.size()).toArray();
 		Integer idMGlob = 1;
-		System.out.println(Arrays.toString(lengthSlots));
 		while (testiLengths(iSlots, lengthSlots)) {
-			System.out.println(Arrays.toString(iSlots));
 			List<Integer> iMins = new ArrayList<Integer>();
 			for (int i = 0; i < plannings.length; i ++) {
-				System.out.println(i);
 				if (iSlots[i] < lengthSlots[i]) {
 					if (iMins.size() == 0) {
-						System.out.println("Nothing in : " + iSlots[i]);
 						iMins.add(i);
 					}
 					else {
@@ -351,12 +357,10 @@ public class SolverMain {
 					}
 				}
 			}
-			System.out.println("a");
 			for (int i : iMins) {
 				idToIdMGlob.put(slots.get(i).get(iSlots[i]).getId(), idMGlob);
 				iSlots[i] ++;
 			}
-			System.out.println("b");
 			idMGlob ++;
 		}
 		return idToIdMGlob;
@@ -481,11 +485,39 @@ public class SolverMain {
 	}
 	
 	
-	private static void setSynchronisationConstraints(Model model, SolverMain[] solMains) {
-		for (int i = 0; i < solMains.length - 1; i ++) {
-			for (Synchronization sync : services.getSynchronizationService().getSynchronizationsByIdTaf(solMains[i].getPlanning().getCalendar().getTaf().getId()))
-				if (sync.getLesson1().getUe().getTaf().getId() == solMains[i].getPlanning().getCalendar().getTaf().getId())
+	private static void setSynchronisationConstraints(Model model, SolverMain[] solMains, Planning[] planningsGenerated) {
+		System.out.println("He Ho là !");
+		for (int i = 0; i < solMains.length; i ++) {
+			for (Synchronization sync : services.getSynchronizationService().getSynchronizationsByIdTaf(solMains[i].getPlanning().getCalendar().getTaf().getId())) {
+				System.out.println("Allo ?!");
+				SolverMain solverMain1 = getSolMainTaf(solMains, sync.getLesson1().getUe().getTaf());
+				SolverMain solverMain2 = getSolMainTaf(solMains, sync.getLesson2().getUe().getTaf());
+				if (solverMain1 == null) {
+					System.out.println("!!!!");
+					Planning planning1 = getPlanningTaf(planningsGenerated, sync.getLesson1().getUe().getTaf());
+					if (planning1 != null) {
+						Slot slotLesson2 = getSlotFromLessonAndFixedPlanning(sync.getLesson1(), planning1.getScheduledLessons(), solMains[i]);
+						if (slotLesson2 != null)
+							model.arithm(solMains[i].getLessonVarSlot(sync.getLesson2()), "=", solMains[i].getIdMSlot(slotLesson2)).post();
+						else
+							System.out.println("[setSynchronisationConstraints] Slot or ScheduledLesson not found for lesson : " + sync.getLesson1());
+					}
+				}
+				else if (solverMain2 == null) {
+					System.out.println("!!!!");
+					Planning planning2 = getPlanningTaf(planningsGenerated, sync.getLesson2().getUe().getTaf());
+					if (planning2 != null) {
+						Slot slotLesson1 = getSlotFromLessonAndFixedPlanning(sync.getLesson2(), planning2.getScheduledLessons(), solMains[i]);
+						if (slotLesson1 != null)
+							model.arithm(solMains[i].getLessonVarSlot(sync.getLesson1()), "=", solMains[i].getIdMSlot(slotLesson1)).post();
+						else
+							System.out.println("[setSynchronisationConstraints] Slot or ScheduledLesson not found for lesson : " + sync.getLesson2());
+					}
+				}
+				else if (solverMain1.getPlanning().getId() == solMains[i].getPlanning().getId()) {
 					model.arithm(solMains[i].getLessonVarSlotGlobal(sync.getLesson1()), "=", getSolMainTaf(solMains, sync.getLesson2().getUe().getTaf()).getLessonVarSlotGlobal(sync.getLesson2())).post();
+				}
+			}
 		}
 	}
 	
@@ -495,7 +527,38 @@ public class SolverMain {
 				return solMain;
 		return null;
 	}
-
+	
+	public static Planning getPlanningTaf(Planning[] plannings, TAF taf) {
+		for (Planning planning : plannings)
+			if (planning.getCalendar().getTaf().getId() == taf.getId())
+				return planning;
+		return null;
+	}
+	
+	public static Slot getSlotFromLessonAndFixedPlanning(Lesson lesson, List<ScheduledLesson> scheduledLessons, SolverMain solMain) {
+		for (ScheduledLesson scheduledLesson : scheduledLessons)
+			if (lessonEqualScheduledLesson(lesson, scheduledLesson))
+				return getSlotFromFixedTime(scheduledLesson.getStart(), scheduledLesson.getEnd(), solMain);
+		return null;
+	}
+	
+	public static Slot getSlotFromFixedTime(LocalDateTime start, LocalDateTime end, SolverMain solMain) {
+		Slot slotTime = new Slot(0, null, null, start, end);
+		for (Slot slot : services.getCalendarService().getSlotsOrdered(solMain.getPlanning().getCalendar().getId()))
+			if (slot.compareTo(slotTime) == 0)
+				return slot;
+		return null;
+	}
+	
+	public static boolean lessonEqualScheduledLesson(Lesson lesson, ScheduledLesson scheduledLesson) {
+		return lesson.getUe().getName().equals(scheduledLesson.getUE()) &&
+				lesson.getName().equals(scheduledLesson.getTitle()) &&
+				lesson.getDescription().equals(scheduledLesson.getDescription()) &&
+				lesson.getLessonLecturers().size() == scheduledLesson.getLecturers().size() &&
+				lesson.getLessonLecturers().stream().map(ll -> 
+						scheduledLesson.getLecturers().stream().map(sl -> ll.getUser().getFullName().equals(sl)).reduce(false, Boolean::logicalOr)).reduce(true, Boolean::logicalAnd);
+	}
+	
 	private void setConstraintGlobalUnavailability(Model model) {
 		for (Slot slot : services.getCalendarService().getSlotsOrdered(planning.getCalendar().getId()))
 			if (services.getGlobalUnavailabilityService().findBySlot(slot).filter(g -> g.getStrict()).isPresent())
@@ -611,9 +674,9 @@ public class SolverMain {
 		ArrayList<IntVar> preferences = new ArrayList<IntVar>();
 		/*if (preferencesGlobal)*/ preferences.add(setPreferencesGlobal(model).mul(30).intVar());
 		/*if (preferencesLecturers)*/ preferences.add(setPreferencesLecturers(model).mul(19).intVar());
-		/*if (preferenceCentered)*/ preferences.add(setPreferenceCenteredLessons(model).mul(1).intVar());
+		/*if (preferenceCentered)*/ //preferences.add(setPreferenceCenteredLessons(model).mul(1).intVar());
 		/*if (preferenceRegroupLessons)*/ preferences.add(setPreferenceRegroupLessonsByNbSlots(model).mul(5).intVar());
-		/*if (preferenceMaxBreakUe)*/ preferences.add(setPreferenceMaxBreakWithoutLessonUe(model).mul(11).intVar()); //TODO Change the mul factor to have something proportionnal with the valMax (i.e. having a fixed cost when the break is the double than the prefered max because now the cost is of one for each unit of time)
+		/*if (preferenceMaxBreakUe)*/ //preferences.add(setPreferenceMaxBreakWithoutLessonUe(model).mul(11).intVar()); //TODO Change the mul factor to have something proportionnal with the valMax (i.e. having a fixed cost when the break is the double than the prefered max because now the cost is of one for each unit of time)
 		return (preferences.isEmpty()) ? null : model.sum("Preferences", preferences.stream().filter(v -> v != null).toArray(IntVar[]::new));
 	}
 	
@@ -830,7 +893,7 @@ public class SolverMain {
 	}
 	
 	private static void setStrategy(SolverMain solMain, Solver solver, Planning planning) {
-		IntVar[] decisionVars = solMain.getDecisionVars(); // Total time with proof of optimality (Time to find optimal solution)
+		IntVar[] decisionVars = solMain.getDecisionVars(); // Total time with proof of optimality (Time to find optimal solution) on the planning planningSolverTestMinMaxLessonsUeWeek() (in ServerApplication).
 		//solver.setSearch(Search.minDomLBSearch(decisionVars)); // 149 s (3 s)
 		solver.setSearch(Search.minDomUBSearch(decisionVars)); // 155 s (2 s)
 		//solver.setSearch(Search.activityBasedSearch(decisionVars)); // > 15 min (36 s)
@@ -840,8 +903,8 @@ public class SolverMain {
 		//solver.setSearch(Search.intVarSearch(new DomOverWDeg<>(decisionVars, 0),new IntDomainMax(), decisionVars)); // > 12 min (> 12 min)
 	}
 	
-	private static void setStrategy(SolverMain[] solMains, Solver solver, Planning[] plannings) {
-		IntVar[] decisionVars = ArrayUtils.flatten(IntStream.range(0, plannings.length).
+	private static void setStrategy(SolverMain[] solMains, Solver solver) {
+		IntVar[] decisionVars = ArrayUtils.flatten(IntStream.range(0, solMains.length).
 									mapToObj(i -> solMains[i].getDecisionVars()).toArray(IntVar[][]::new));  
 		solver.setSearch(Search.minDomLBSearch(decisionVars));
 		//solver.setSearch(Search.minDomUBSearch(getVarDecisionSlots(cal)));
