@@ -1,5 +1,6 @@
 package com.planify.server.controller.returnsClass;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -43,4 +44,7 @@ public class UEShort {
         return this.description;
     }
 
+    public List<String> getManagers() {
+        return managers;
+    }
 }

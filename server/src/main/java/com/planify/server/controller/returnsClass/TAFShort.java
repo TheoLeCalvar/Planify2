@@ -2,6 +2,8 @@ package com.planify.server.controller.returnsClass;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
+import java.util.List;
+
 public class TAFShort {
 
     private Long id;
@@ -13,6 +15,8 @@ public class TAFShort {
     private String startDate;
 
     private String endDate;
+
+    private List<Long> managers;
 
     public TAFShort() {
 
@@ -62,5 +66,13 @@ public class TAFShort {
 
     public void setStartDate(String date) {
         this.startDate = date;
+    }
+
+    public List<Long> getManagers() {
+        return managers;
+    }
+
+    public void setManagers(List<Long> managers) {
+        this.managers = managers;
     }
 }

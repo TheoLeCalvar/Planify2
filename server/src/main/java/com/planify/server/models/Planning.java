@@ -1,8 +1,11 @@
 package com.planify.server.models;
 
+import com.planify.server.models.constraints.ConstraintSynchroniseWithTAF;
+import com.planify.server.models.constraints.ConstraintsOfUE;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +22,52 @@ public class Planning {
     @JoinColumn(name = "idCalendar")
     private Calendar calendar;
 
+    // Constraints
+
+    // respect of the preference of the global unavailability
+    private boolean globalUnavailability;
+    private int weightGlobalUnavailability;
+
+    // respect of the preference of the lecturers' unavailibilities
+    private boolean lecturersUnavailability;
+    //private List<ConstraintLecturerAvailabilities> constraintsLecturersUnavailibilities;
+
+    // Synchronisation
+    private boolean synchronise;
+
+    @OneToMany(mappedBy = "planning", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<ConstraintSynchroniseWithTAF> constraintsSynchronisation;
+
+    // Constraints' UE
+    @OneToMany(mappedBy = "planning", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<ConstraintsOfUE> constraintsOfUEs;
+
+    // Avoid or not interlacing the UE
+    private boolean UEInterlacing; // false if no interlacing
+
+    // respect the midday break
+    private boolean middayBreak;
+    private LocalTime startMiddayBreak;
+    private LocalTime endMiddayBreak;
+
+    // group the lessons in the middle of the day
+    private boolean middayGrouping;
+    private int weightMiddayGrouping;
+
+    // ?
+    private boolean lessonBalancing;
+    private int weightLessonBalancing;
+
+    // Group the lessons of the day
+    private boolean lessonGrouping;
+    private int weightLessonGrouping;
+
+
+
+
+
+
+    // Result
     @ElementCollection
     private List<ScheduledLesson> scheduledLessons;
 
@@ -61,6 +110,126 @@ public class Planning {
 
     public void setScheduledLessons(List<ScheduledLesson> scheduledLessons) {
         this.scheduledLessons = scheduledLessons;
+    }
+
+    public boolean isGlobalUnavailability() {
+        return globalUnavailability;
+    }
+
+    public void setGlobalUnavailability(boolean globalUnavailability) {
+        this.globalUnavailability = globalUnavailability;
+    }
+
+    public int getWeightGlobalUnavailability() {
+        return weightGlobalUnavailability;
+    }
+
+    public void setWeightGlobalUnavailability(int weightGlobalUnavailability) {
+        this.weightGlobalUnavailability = weightGlobalUnavailability;
+    }
+
+//    public List<ConstraintLecturerAvailabilities> getConstraintsLecturersUnavailibilities() {
+//        return constraintsLecturersUnavailibilities;
+//    }
+//
+//    public void setConstraintsLecturersUnavailibilities(List<ConstraintLecturerAvailabilities> constraintsLecturersUnavailibilities) {
+//        this.constraintsLecturersUnavailibilities = constraintsLecturersUnavailibilities;
+//    }
+
+    public boolean isSynchronise() {
+        return synchronise;
+    }
+
+    public void setSynchronise(boolean synchronise) {
+        this.synchronise = synchronise;
+    }
+
+    public List<ConstraintSynchroniseWithTAF> getConstraintsSynchronisation() {
+        return constraintsSynchronisation;
+    }
+
+    public void setConstraintsSynchronisation(List<ConstraintSynchroniseWithTAF> constraintsSynchronisation) {
+        this.constraintsSynchronisation = constraintsSynchronisation;
+    }
+
+    public boolean isUEInterlacing() {
+        return UEInterlacing;
+    }
+
+    public void setUEInterlacing(boolean UEInterlacing) {
+        this.UEInterlacing = UEInterlacing;
+    }
+
+    public boolean isMiddayBreak() {
+        return middayBreak;
+    }
+
+    public void setMiddayBreak(boolean middayBreak) {
+        this.middayBreak = middayBreak;
+    }
+
+    public LocalTime getStartMiddayBreak() {
+        return startMiddayBreak;
+    }
+
+    public void setStartMiddayBreak(LocalTime startMiddayBreak) {
+        this.startMiddayBreak = startMiddayBreak;
+    }
+
+    public LocalTime getEndMiddayBreak() {
+        return endMiddayBreak;
+    }
+
+    public void setEndMiddayBreak(LocalTime endMiddayBreak) {
+        this.endMiddayBreak = endMiddayBreak;
+    }
+
+    public boolean isMiddayGrouping() {
+        return middayGrouping;
+    }
+
+    public void setMiddayGrouping(boolean middayGrouping) {
+        this.middayGrouping = middayGrouping;
+    }
+
+    public int getWeightMiddayGrouping() {
+        return weightMiddayGrouping;
+    }
+
+    public void setWeightMiddayGrouping(int weightMiddayGrouping) {
+        this.weightMiddayGrouping = weightMiddayGrouping;
+    }
+
+    public boolean isLessonBalancing() {
+        return lessonBalancing;
+    }
+
+    public void setLessonBalancing(boolean lessonBalancing) {
+        this.lessonBalancing = lessonBalancing;
+    }
+
+    public int getWeightLessonBalancing() {
+        return weightLessonBalancing;
+    }
+
+    public void setWeightLessonBalancing(int weightLessonBalancing) {
+        this.weightLessonBalancing = weightLessonBalancing;
+    }
+
+    public boolean isLessonGrouping() {
+        return lessonGrouping;
+    }
+
+    public void setLessonGrouping(boolean lessonGrouping) {
+        this.lessonGrouping = lessonGrouping;
+    }
+
+    public int getWeightLessonGrouping() {
+        return weightLessonGrouping;
+    }
+
+    public void setWeightLessonGrouping(int weightLessonGrouping) {
+        this.weightLessonGrouping = weightLessonGrouping;
     }
 
     @Override

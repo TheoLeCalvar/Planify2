@@ -5,6 +5,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.WeekFields;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -17,12 +18,7 @@ import com.planify.server.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.http.MediaType;
 
 @RestController
@@ -77,6 +73,12 @@ public class LessonController {
 
     @Autowired
     private PlanningService planningService;
+
+    @Autowired
+    private TAFManagerService tafManagerService;
+
+    @Autowired
+    private UEManagerService ueManagerService;
 
 
     // Get the list of TAF
@@ -326,7 +328,7 @@ public class LessonController {
 
     // Modify an UE
     @PutMapping(value = "/ue/{ueId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> modifyUE(@PathVariable Long ueId, @RequestBody UEShort newUE) {
+    public ResponseEntity<?> modifyUE(@PathVariable Long ueId, @RequestBody UECreation newUE) {
         Optional<UE> oue = ueService.findById(ueId);
         if (oue.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -337,6 +339,12 @@ public class LessonController {
         ue.setName(newUE.getName());
         ue.setDescription(newUE.getDescription());
         ueService.save(ue);
+        if (newUE.getManagers()!= null) {
+            for (Long id : newUE.getManagers()) {
+                User user = userService.findById(id).orElseThrow(() -> new IllegalArgumentException("The User doesn't exist"));
+                ueManagerService.addUEManager(user, ue);
+            }
+        }
         return ResponseEntity.ok("UE modified");
     }
 
@@ -359,6 +367,12 @@ public class LessonController {
         taf.setBeginDate(newTaf.getStartDate());
         taf.setEndDate(newTaf.getEndDate());
         tafService.save(taf);
+        if(newTaf.getManagers()!=null) {
+            for (Long id: newTaf.getManagers() ) {
+                User TAFmanager = userService.findById(id).orElseThrow(() -> new IllegalArgumentException("The User doesn't exist"));
+                tafManagerService.addTAFManager(TAFmanager, taf);
+            }
+        }
         return ResponseEntity.ok("Taf mofified");
     }
 
@@ -384,6 +398,9 @@ public class LessonController {
                 int currentWeekCount = firstSlotStart.get(weekFields.weekOfYear());
                 int weekCount = 1;
 
+                Calendar calendar = null;
+
+
                 ResponseEntity<?> responseEntity = getSlotByTafId(tafId);
                 if (responseEntity.getStatusCode().value()==200) {
                     List<SlotShort> slotShorts = (List<SlotShort>) responseEntity.getBody();
@@ -391,11 +408,19 @@ public class LessonController {
                     Optional<Slot> relatedSlot = slotService.findById(Long.parseLong(slotShort.getId()));
                     if (relatedSlot.isPresent()) {
                         Calendar relatedCalendar = relatedSlot.get().getCalendar();
-                        calendarService.deleteCalendar(relatedCalendar.getId());
+                        List<Slot> relatedSlots = relatedCalendar.getSlots();
+                        List<Slot> slotsCopy = new ArrayList<>(relatedSlots);
+                        for (Slot slot : slotsCopy) {
+                            slotService.deleteSlot(slot.getId());
+                        }
+                        calendar = relatedCalendar;
                     }
                 }
-                
-                Calendar calendar = new Calendar(taf);
+
+                if (calendar == null) {
+                    calendar = new Calendar(taf);
+                }
+
                 calendarService.save(calendar);
                 Integer year = firstSlotStart.getYear();
                 Week currentWeek = new Week(weekCount, year);
@@ -448,8 +473,7 @@ public class LessonController {
                         globalUnavailabilityService.save(globalUnavailability);
                     }
                 }
-
-                return ResponseEntity.ok(slots);
+                return ResponseEntity.ok("ok");
 
             } else {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -478,6 +502,7 @@ public class LessonController {
                     .body(new ErrorResponse("No slots for this taf were found", 204));
         }
         List<Slot> slots = calendar.getSlots();
+        System.out.println("GET CALENDAR SLOTS : " + slots);
         List<SlotShort> slotShorts = new ArrayList<>();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
@@ -504,6 +529,51 @@ public class LessonController {
         System.out.println(slotShorts.toString());
         return ResponseEntity.ok(slotShorts);
 
+    }
+
+    @PostMapping(value = "/taf")
+    ResponseEntity<String> addTAF(@RequestBody TAFCreation newTaf) {
+        TAF taf = tafService.addTAF(newTaf.getName(), newTaf.getDescription(), newTaf.getStartDate().toString(), newTaf.getEndDate().toString());
+        for (Long managerId : newTaf.getManagers()) {
+            User user = userService.findById(managerId).orElseThrow(() -> new IllegalArgumentException("The User doesn't exist"));
+            tafManagerService.addTAFManager(user,taf);
+        }
+        return ResponseEntity.ok("Taf had been added");
+    }
+
+    @DeleteMapping(value = "/taf/{tafId}")
+    ResponseEntity<?> deleteTAF(@PathVariable Long tafId) {
+        Boolean b = tafService.deleteTAF(tafId);
+        if (b) {
+            return ResponseEntity.ok("TAF deleted");
+        }
+        else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("No TAF by this id found");
+        }
+    }
+
+    @PostMapping(value = "/ue")
+    ResponseEntity<String> addUE(@RequestBody UECreation newUE) {
+        TAF taf = tafService.findById(newUE.getTafId()).orElseThrow(() -> new IllegalArgumentException("The TAF doesn't exist"));
+        UE ue = ueService.addUE(newUE.getName(), newUE.getDescription(), taf);
+        for (Long managerId : newUE.getManagers()) {
+            User user = userService.findById(managerId).orElseThrow(() -> new IllegalArgumentException("The User doesn't exist"));
+            ueManagerService.addUEManager(user, ue);
+        }
+        return ResponseEntity.ok("UE had been added");
+    }
+
+    @DeleteMapping(value = "/ue/{ueId}")
+    ResponseEntity<?> deleteUE(@PathVariable Long ueId) {
+        Boolean b = ueService.deleteUE(ueId);
+        if (b) {
+            return ResponseEntity.ok("UE deleted");
+        }
+        else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("No UE by this id found");
+        }
     }
 
 }

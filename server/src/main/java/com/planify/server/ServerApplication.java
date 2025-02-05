@@ -679,8 +679,8 @@ public class ServerApplication {
 		globalUnavailabilityService.addGlobalUnavailability(true, slot3);
 		globalUnavailabilityService.addGlobalUnavailability(true, slot2);
 		
-		User jacques = userService.addUser("Jacques", "Noyé", "jacques.noye@imt-atlantique.fr", new char[]{'s', 'o', 'u', 's', ' ', 'l', '\'', 'e', 'a', 'u'});
-		User bertrand = userService.addUser("Bertrand", "Lentsch", "bertrand.lentsch@nantes.univ.fr", new char[] {'D', 'e', 'e', 'p', 'e', 'r', ' ', 'm', 'e', 'a', 'n', 'i', 'n', 'g', '!'});
+		User jacques = userService.addUser("Jacques", "Noyé", "jacques.noye@imt-atlantique.fr", "sous l\'eau");
+		User bertrand = userService.addUser("Bertrand", "Lentsch", "bertrand.lentsch@nantes.univ.fr", "Deeper meaning!");
 		
 		lessonLecturerService.addLessonLecturer(jacques, lesson1);
 		lessonLecturerService.addLessonLecturer(jacques, lesson2);
@@ -720,7 +720,7 @@ public class ServerApplication {
 		Lesson lesson3 = lessonService.add("Lesson6", "", ue2);
 		
 		
-		User helene = userService.addUser("Hélène", "Coullon", "jacques.noye@imt-atlantique.fr", new char[]{});
+		User helene = userService.addUser("Hélène", "Coullon", "jacques.noye@imt-atlantique.fr", "password");
 		User bertrand = userService.findAll().stream().filter(u -> u.getLastName().equals("Lentsch")).findFirst().get();//userService.findById((long) 1).get();
 		
 		System.out.println(bertrand);
@@ -755,8 +755,8 @@ public class ServerApplication {
 		UE ue1 = ueService.addUE("UE-1", "", dcl);
 		UE ue2 = ueService.addUE("UE-2", "", dcl);
 
-		User user1 = userService.addUser("user-1", "1", "1", new char[] {});
-		User user2 = userService.addUser("user-2", "2", "2", new char[] {});
+		User user1 = userService.addUser("user-1", "1", "1", "pw");
+		User user2 = userService.addUser("user-2", "2", "2", "1234");
 		
 		List<Lesson> lessonsUE1 = createOrderedTypeLesson(3,"UE1-C", ue1);
 		List<Lesson> lessonsUE2 = createOrderedTypeLesson(2, "UE2-C", ue2);
@@ -852,7 +852,7 @@ public class ServerApplication {
 		Lesson lesson2 = lessonService.add("Lesson2", null, ue1);
 		Lesson lesson3 = lessonService.add("Lesson3", null, ue2);
 		
-		User helene = userService.addUser("Hélène", "Coullon", "jacques.noye@imt-atlantique.fr", new char[]{});
+		User helene = userService.addUser("Hélène", "Coullon", "jacques.noye@imt-atlantique.fr", "password");
 		
 		lessonLecturerService.addLessonLecturer(helene, lesson1);
 		lessonLecturerService.addLessonLecturer(helene, lesson2);
@@ -896,11 +896,11 @@ public class ServerApplication {
 		UE idl = ueService.addUE("IDL", "", dcl);
 		UE eco = ueService.addUE("ECO", "", dcl);
 		
-		User intervenant1 = userService.addUser("Intervenant1", "1", "i1@imt-atlantique.fr", new char[] {});
-		User intervenant2 = userService.addUser("Intervenant2", "2", "i2@imt-atlantique.fr", new char[] {});
-		User intervenant3 = userService.addUser("Intervenant3", "3", "i3@imt-atlantique.fr", new char[] {});
-		User intervenant4 = userService.addUser("Intervenant4", "4", "i4@imt-atlantique.fr", new char[] {});
-		User intervenant5 = userService.addUser("Intervenant5", "5", "i5@imt-atlantique.fr", new char[] {});
+		User intervenant1 = userService.addUser("Intervenant1", "1", "i1@imt-atlantique.fr", "password");
+		User intervenant2 = userService.addUser("Intervenant2", "2", "i2@imt-atlantique.fr", "password");
+		User intervenant3 = userService.addUser("Intervenant3", "3", "i3@imt-atlantique.fr", "123321");
+		User intervenant4 = userService.addUser("Intervenant4", "4", "i4@imt-atlantique.fr", "motdepassesecret");
+		User intervenant5 = userService.addUser("Intervenant5", "5", "i5@imt-atlantique.fr", "passwordnotsosecret");
 		
 		for (Day mardi : mardis)
 			for (Slot slot : mardi.getSlots())
