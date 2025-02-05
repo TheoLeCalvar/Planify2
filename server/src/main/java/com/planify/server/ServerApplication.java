@@ -579,11 +579,29 @@ public class ServerApplication {
 	}
 
 	private static void testSolver(ApplicationContext context) {
-		//testSolver1(context, planningSolverTestMinMaxLessonsUeWeek());
+		testSolver1(context, setSettingsPlanning(planningSolverTestMinMaxLessonsUeWeek()));
 		//testSolver2(context);
 		//testSolver2bis(context);
 		//testSolver3(context);
-		testSolverDCLNS1(context);
+		//testSolverDCLNS1(context);
+	}
+	
+	private static Planning setSettingsPlanning(Planning planning) {
+		planning.setMiddayBreak(true);
+		planning.setStartMiddayBreak(LocalTime.of(12, 00));
+		planning.setEndMiddayBreak(LocalTime.of(13, 30));
+		planning.setUEInterlacing(true);
+		
+		planning.setGlobalUnavailability(true);
+		planning.setWeightGlobalUnavailability(30);
+		planning.setLessonBalancing(false);
+		planning.setWeightLessonBalancing(0);
+		planning.setLessonGrouping(true);
+		planning.setWeightLessonGrouping(5);
+		planning.setMiddayGrouping(false);
+		planning.setWeightMiddayGrouping(1);
+		
+		return planning;
 	}
 	
 	private static void testSolver1(ApplicationContext context, Planning planning) {		

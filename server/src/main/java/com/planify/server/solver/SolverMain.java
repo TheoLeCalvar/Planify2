@@ -380,11 +380,11 @@ public class SolverMain {
 		setConstraintLinkSlotGlobalDayWeek(model, this.IdMSlotGlobal != null, true, true);
 		setConstraintSequences(model);
 		setConstraintAntecedences(model);
-		/*if (planning.hasConstraintGlobalUnavailability()*/ setConstraintGlobalUnavailability(model);
-		/*if (planning.hasConstraint1())*/ setConstraintLecturerUnavailability(model);
-		/*if (planning.hasConstraint())*/ setConstraintLunchBreak(model);
-		/*if (planning.hasConstraint())*/ setConstraintNoInterweaving(model);
-		/*if (planning.hasConstraint()*/ setConstraintMinMaxLessonUeInWeek(model); //Idée pour essayer d'améliorer les performances si besoin : essayer de faire une stratégie de recherche sur les variables du nombre de cours de l'UE considéré.
+		setConstraintGlobalUnavailability(model);
+		/*if (planning.isLecturerUnavailability())*/ setConstraintLecturerUnavailability(model);
+		if (planning.isMiddayBreak()) setConstraintLunchBreak(model);
+		if (planning.isUEInterlacing()) setConstraintNoInterweaving(model);
+		/*if (planning.isMinMaxLessonUeInWeek())*/ setConstraintMinMaxLessonUeInWeek(model); //Idée pour essayer d'améliorer les performances si besoin : essayer de faire une stratégie de recherche sur les variables du nombre de cours de l'UE considéré.
 		/*if (planning.hasConstraint()*/ setConstraintMinMaxWeeksUe(model);
 	}
 	
@@ -672,11 +672,11 @@ public class SolverMain {
 	
 	private IntVar setPreferences(Model model) {
 		ArrayList<IntVar> preferences = new ArrayList<IntVar>();
-		/*if (preferencesGlobal)*/ preferences.add(setPreferencesGlobal(model).mul(30).intVar());
+		if (planning.isGlobalUnavailability())  preferences.add(setPreferencesGlobal(model).mul(planning.getWeightGlobalUnavailability()).intVar());
 		/*if (preferencesLecturers)*/ preferences.add(setPreferencesLecturers(model).mul(19).intVar());
-		/*if (preferenceCentered)*/ //preferences.add(setPreferenceCenteredLessons(model).mul(1).intVar());
-		/*if (preferenceRegroupLessons)*/ preferences.add(setPreferenceRegroupLessonsByNbSlots(model).mul(5).intVar());
-		/*if (preferenceMaxBreakUe)*/ //preferences.add(setPreferenceMaxBreakWithoutLessonUe(model).mul(11).intVar()); //TODO Change the mul factor to have something proportionnal with the valMax (i.e. having a fixed cost when the break is the double than the prefered max because now the cost is of one for each unit of time)
+		if (planning.isMiddayGrouping()) preferences.add(setPreferenceCenteredLessons(model).mul(planning.getWeightMiddayGrouping()).intVar());
+		if (planning.isLessonGrouping()) preferences.add(setPreferenceRegroupLessonsByNbSlots(model).mul(planning.getWeightLessonGrouping()).intVar());
+		/*if (preferenceMaxBreakUe)*/ //preferences.add(setPreferenceMaxBreakWithoutLessonUe(model).mul(11).intVar()); //TODO Maybe change the mul factor to have something proportionnal with the valMax (i.e. having a fixed cost when the break is the double than the prefered max because now the cost is of one for each unit of time)
 		return (preferences.isEmpty()) ? null : model.sum("Preferences", preferences.stream().filter(v -> v != null).toArray(IntVar[]::new));
 	}
 	
