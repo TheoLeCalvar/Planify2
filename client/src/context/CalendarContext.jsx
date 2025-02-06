@@ -1,9 +1,10 @@
-import { act, createContext, useMemo } from "react";
+import { React, createContext, useMemo } from "react";
 import { createEventsServicePlugin } from "@schedule-x/events-service";
 import ConfirmationDialog from "../components/utils/ConfirmationDialog";
 
 import { useState } from "react";
 import { JSONToCalendarEvent } from "../helper/calendarEvent";
+import PropTypes from "prop-types";
 
 export const CalendarContext = createContext();
 
@@ -69,3 +70,8 @@ export default function CalendarContextProvider({ children, initialEvents }) {
     </div>
   );
 }
+
+CalendarContextProvider.propTypes = {
+  children: PropTypes.node.isRequired,
+  initialEvents: PropTypes.array,
+};

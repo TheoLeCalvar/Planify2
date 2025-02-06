@@ -53,7 +53,10 @@ const ConfirmationButton = ({
 };
 
 ConfirmationButton.propTypes = {
+  buttonComponent: PropTypes.element,
+  variant: PropTypes.string,
   buttonText: PropTypes.string,
+  tooltip: PropTypes.string,
   buttonColor: PropTypes.string,
   dialogTitle: PropTypes.string,
   dialogMessage: PropTypes.string,

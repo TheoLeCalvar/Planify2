@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import { TextField } from "@mui/material";
 import { FormContext } from "../../context/FormContext";
 import dayjs from "dayjs";
+import PropTypes from "prop-types";
 
 export default function ValidatedInput({
   name,
@@ -89,3 +90,12 @@ export default function ValidatedInput({
     </>
   );
 }
+
+ValidatedInput.propTypes = {
+  name: PropTypes.string.isRequired,
+  required: PropTypes.bool,
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+  onChange: PropTypes.func,
+  defaultValue: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+  children: PropTypes.node,
+};

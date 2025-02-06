@@ -1,10 +1,11 @@
-import { useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { Form, useSubmit } from "react-router-dom";
 import { Button, Stack, Typography } from "@mui/material";
 import LoadingButton from "@mui/lab/LoadingButton";
 import SaveIcon from "@mui/icons-material/Save";
 import { FormContext } from "../../context/FormContext";
 import dayjs from "dayjs";
+import PropTypes from "prop-types";
 
 const ValidatedForm = ({
   validateField,
@@ -86,6 +87,14 @@ const ValidatedForm = ({
       </Stack>
     </Form>
   );
+};
+
+ValidatedForm.propTypes = {
+  validateField: PropTypes.func.isRequired,
+  onSubmit: PropTypes.func,
+  onCancel: PropTypes.func,
+  children: PropTypes.node.isRequired,
+  action: PropTypes.string,
 };
 
 export default ValidatedForm;

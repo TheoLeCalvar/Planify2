@@ -4,8 +4,9 @@ import ValidatedForm from "./utils/ValidatedForm";
 import { Box, Stack } from "@mui/material";
 import axiosInstance from "../services/axiosConfig";
 import { USE_MOCK_DATA } from "../contants";
+import PropTypes from "prop-types";
 
-export async function action({ request, params }) {
+export async function action({ request }) {
   const formData = await request.formData();
   const data = Object.fromEntries(formData);
 
@@ -74,3 +75,7 @@ export default function CreateUser({ onCancel }) {
     </Box>
   );
 }
+
+CreateUser.propTypes = {
+  onCancel: PropTypes.func.isRequired,
+};

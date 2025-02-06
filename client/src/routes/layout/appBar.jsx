@@ -31,6 +31,7 @@ import useStore from "../../hooks/store";
 import axiosInstance from "../../services/axiosConfig";
 import { USE_MOCK_DATA } from "../../contants";
 import { app, layout } from "../../config/locale.json";
+import PropTypes from "prop-types";
 
 // Extracted styles constant for maintainability
 const styles = {
@@ -143,6 +144,11 @@ const ProfileMenu = ({ anchorEl, handleClose }) => (
   </Menu>
 );
 
+ProfileMenu.propTypes = {
+  anchorEl: PropTypes.object,
+  handleClose: PropTypes.func.isRequired,
+};
+
 // Notifications Menu Component
 const NotificationMenu = ({
   anchorEl,
@@ -179,6 +185,13 @@ const NotificationMenu = ({
   </Menu>
 );
 
+NotificationMenu.propTypes = {
+  anchorEl: PropTypes.object,
+  notifications: PropTypes.array.isRequired,
+  handleClose: PropTypes.func.isRequired,
+  dismissNotification: PropTypes.func.isRequired,
+};
+
 // TAF Selector Component
 const TAFSelector = ({ selectedOption, onChange, tafs }) => (
   <Box sx={styles.TAFSelectorBox}>
@@ -201,6 +214,12 @@ const TAFSelector = ({ selectedOption, onChange, tafs }) => (
     </FormControl>
   </Box>
 );
+
+TAFSelector.propTypes = {
+  selectedOption: PropTypes.string.isRequired,
+  onChange: PropTypes.func.isRequired,
+  tafs: PropTypes.array.isRequired,
+};
 
 // Main AppBar Component
 const AppBarComponent = () => {
@@ -279,6 +298,10 @@ const AppBarComponent = () => {
       <Outlet />
     </>
   );
+};
+
+AppBarComponent.propTypes = {
+  tafs: PropTypes.array.isRequired,
 };
 
 export default AppBarComponent;
