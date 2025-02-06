@@ -1,7 +1,7 @@
 // src/components/SideBar.js
 
-import React, { useCallback, useReducer } from 'react';
-import PropTypes from 'prop-types';
+import React, { useCallback, useReducer } from "react";
+import PropTypes from "prop-types";
 import {
   Drawer,
   Box,
@@ -12,13 +12,13 @@ import {
   Typography,
   Button,
   CssBaseline,
-  Stack
-} from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
-import { Link, Outlet, useOutletContext } from 'react-router-dom';
-import locale from '../../config/locale.json';
-import useStore from '../../hooks/store';
-import axiosInstance from '../../services/axiosConfig';
+  Stack,
+} from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import { Link, Outlet, useOutletContext } from "react-router-dom";
+import locale from "../../config/locale.json";
+import useStore from "../../hooks/store";
+import axiosInstance from "../../services/axiosConfig";
 
 const drawerWidth = 250;
 
@@ -27,29 +27,29 @@ const styles = {
   drawer: {
     width: drawerWidth,
     flexShrink: 0,
-    '& .MuiDrawer-paper': {
+    "& .MuiDrawer-paper": {
       width: drawerWidth + 1,
-      boxSizing: 'border-box',
-      position: 'relative',
+      boxSizing: "border-box",
+      position: "relative",
     },
   },
   sidebarContainer: {
     width: drawerWidth,
-    display: 'flex',
-    flexDirection: 'column',
-    height: '100%',
+    display: "flex",
+    flexDirection: "column",
+    height: "100%",
   },
   mainContent: (theme) => ({
     flexGrow: 1,
     p: 3,
-    transition: theme.transitions.create(['margin', 'width'], {
+    transition: theme.transitions.create(["margin", "width"], {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
     }),
   }),
   lessonList: {
     flexGrow: 1,
-    overflowY: 'auto',
+    overflowY: "auto",
     px: 2,
   },
   lessonListTitle: {
@@ -68,9 +68,9 @@ const initialState = {
 
 function reducer(state, action) {
   switch (action.type) {
-    case 'START_GENERATION':
+    case "START_GENERATION":
       return { ...state, generatingCalendar: true };
-    case 'END_GENERATION':
+    case "END_GENERATION":
       return { ...state, generatingCalendar: false };
     default:
       return state;
@@ -88,9 +88,9 @@ const LessonList = ({ lessons, tafID }) => (
         <Link
           to={`/taf/${tafID}/ue/${id}`}
           key={id}
-          style={{ textDecoration: 'none', color: 'inherit' }}
+          style={{ textDecoration: "none", color: "inherit" }}
         >
-          <ListItem sx={{ display: 'flex', flexDirection: 'column' }}>
+          <ListItem sx={{ display: "flex", flexDirection: "column" }}>
             <Typography variant="body1">{name}</Typography>
             <Typography variant="body2" color="textSecondary">
               {locale.layout.sideBar.UEManager}: {responsible}
@@ -108,7 +108,7 @@ LessonList.propTypes = {
       id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
       name: PropTypes.string.isRequired,
       responsible: PropTypes.string.isRequired,
-    })
+    }),
   ).isRequired,
   tafID: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
 };
@@ -118,13 +118,13 @@ const SidebarActions = ({
   tafID,
   resultPlanning,
   handleGenerateCalendar,
-  generatingCalendar
+  generatingCalendar,
 }) => (
   <Box sx={styles.sidebarActions}>
     <Stack spacing={2}>
       {resultPlanning?.length > 0 && (
         <Link to={`/taf/${tafID}/results`}>
-          <Button variant="outlined" sx={{ width: '100%' }}>
+          <Button variant="outlined" sx={{ width: "100%" }}>
             Voir les calendriers
           </Button>
         </Link>
@@ -132,12 +132,16 @@ const SidebarActions = ({
       <Button
         onClick={handleGenerateCalendar}
         variant="outlined"
-        sx={{ width: '100%' }}
+        sx={{ width: "100%" }}
         disabled={generatingCalendar}
       >
-        {generatingCalendar ? 'Génération...' : 'Générer le calendrier'}
+        {generatingCalendar ? "Génération..." : "Générer le calendrier"}
       </Button>
-      <Button variant="contained" startIcon={<AddIcon />} sx={{ width: '100%' }}>
+      <Button
+        variant="contained"
+        startIcon={<AddIcon />}
+        sx={{ width: "100%" }}
+      >
         {locale.layout.sideBar.addUE}
       </Button>
     </Stack>
@@ -162,20 +166,25 @@ const SideBar = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const handleGenerateCalendar = useCallback(async () => {
-    dispatch({ type: 'START_GENERATION' });
+    dispatch({ type: "START_GENERATION" });
     try {
       await axiosInstance.get(`/solver/run/${tafID}`);
     } catch (error) {
-      console.error('Error generating calendar:', error);
+      console.error("Error generating calendar:", error);
     } finally {
-      dispatch({ type: 'END_GENERATION' });
+      dispatch({ type: "END_GENERATION" });
     }
   }, [tafID]);
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: "flex" }}>
       <CssBaseline />
-      <Drawer variant="persistent" anchor="left" open={isOpen} sx={styles.drawer}>
+      <Drawer
+        variant="persistent"
+        anchor="left"
+        open={isOpen}
+        sx={styles.drawer}
+      >
         <Box sx={styles.sidebarContainer} role="presentation">
           {/* Sidebar Navigation */}
           <List>

@@ -1,12 +1,12 @@
+import React from "react";
 import {
-    Outlet,
-    useLoaderData,
-    useOutletContext,
-    useFetcher,
+  Outlet,
+  useLoaderData,
+  useOutletContext,
+  useFetcher,
 } from "react-router-dom";
 import BlockManager from "../../components/lessons/BlockManager";
 import { useEffect, useState } from "react";
-import LoadingButton from "@mui/lab/LoadingButton";
 import SaveIcon from "@mui/icons-material/Save";
 import { Fab } from "@mui/material";
 import { LessonsContext } from "../../context/LessonsContext";
@@ -23,7 +23,6 @@ const styles = {
     mr: 1,
   },
 };
-
 
 export async function loader({ params }) {
   if (USE_MOCK_DATA) {
@@ -133,12 +132,6 @@ export default function UELessons() {
     setLecturersList(users);
   }, [users]);
 
-  const fabStyles = {
-    position: "fixed",
-    right: 32,
-    bottom: 32,
-  };
-
   return (
     <>
       <h1>Cours</h1>
@@ -151,30 +144,30 @@ export default function UELessons() {
         />
       </LessonsContext.Provider>
       <Fab
-          variant="extended"
-          size="large"
-          color="primary"
-          onClick={() =>
-              fetcher.submit(lessonsData, {
-              encType: "application/json",
-              method: "post",
-              })
-          }
-          disabled={!!dependencyError || busy}
-          sx={styles.fab}
-          >
-          {busy ? (
-              <>
-              <SaveIcon sx={styles.saveIcon} />
-              Sauvegarde...
-              </>
-          ) : (
-              <>
-              <SaveIcon sx={styles.saveIcon} />
-              Sauvegarder
-              </>
-          )}
-          </Fab>
+        variant="extended"
+        size="large"
+        color="primary"
+        onClick={() =>
+          fetcher.submit(lessonsData, {
+            encType: "application/json",
+            method: "post",
+          })
+        }
+        disabled={!!dependencyError || busy}
+        sx={styles.fab}
+      >
+        {busy ? (
+          <>
+            <SaveIcon sx={styles.saveIcon} />
+            Sauvegarde...
+          </>
+        ) : (
+          <>
+            <SaveIcon sx={styles.saveIcon} />
+            Sauvegarder
+          </>
+        )}
+      </Fab>
 
       <Outlet context={context} />
     </>

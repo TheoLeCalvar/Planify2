@@ -1,3 +1,4 @@
+import React from "react";
 import { createBrowserRouter } from "react-router-dom";
 
 import Root from "./routes/root";
@@ -31,12 +32,12 @@ import { action as createNewUserAction } from "./components/createUser";
 const ueRoutes = [
   {
     index: true,
-    element: <General />
+    element: <General />,
   },
   {
     path: "settings",
     element: <Settings />,
-    action: editUEAction
+    action: editUEAction,
   },
   {
     path: "lessons",
@@ -46,10 +47,10 @@ const ueRoutes = [
     children: [
       {
         path: "createUser",
-        action: createNewUserAction
-      }
-    ]
-  }
+        action: createNewUserAction,
+      },
+    ],
+  },
 ];
 
 // Define TAF nested routes (displayed within the SideBar)
@@ -58,12 +59,12 @@ const tafRoutes = [
     path: "calendar",
     element: <LessonsAvailability />,
     loader: LessonsAvailabilityLoader,
-    action: editTAFCalendarAction
+    action: editTAFCalendarAction,
   },
   {
     path: "settings",
     element: <TAFSettings />,
-    action: editTAFSettingsAction
+    action: editTAFSettingsAction,
   },
   {
     path: "results",
@@ -72,16 +73,16 @@ const tafRoutes = [
       {
         path: ":idPlanning",
         element: <TAFPlanning />,
-        loader: TAFResultsLoader
-      }
-    ]
+        loader: TAFResultsLoader,
+      },
+    ],
   },
   {
     path: "ue/:idUE",
     element: <UE />,
     loader: UELoader,
-    children: ueRoutes
-  }
+    children: ueRoutes,
+  },
 ];
 
 // Define the TAF route (with a nested SideBar)
@@ -93,9 +94,9 @@ const tafRoute = {
     {
       path: "",
       element: <SideBar />,
-      children: tafRoutes
-    }
-  ]
+      children: tafRoutes,
+    },
+  ],
 };
 
 export const router = createBrowserRouter([
@@ -108,12 +109,12 @@ export const router = createBrowserRouter([
         path: "",
         element: <AppBarComponent />,
         loader: AppBarLoader,
-        children: [tafRoute]
+        children: [tafRoute],
       },
       {
         path: "login",
-        element: <LoginPage />
-      }
-    ]
-  }
+        element: <LoginPage />,
+      },
+    ],
+  },
 ]);

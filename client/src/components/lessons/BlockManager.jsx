@@ -63,7 +63,10 @@ const styles = {
 const DependencyCycleError = ({ dependencyCycle, blocks }) => {
   if (!dependencyCycle) return null;
   const cycleTitles = dependencyCycle
-    .map((dependBlockId) => blocks.find((block) => block.id === dependBlockId)?.title)
+    .map(
+      (dependBlockId) =>
+        blocks.find((block) => block.id === dependBlockId)?.title,
+    )
     .join(" -> ");
   return (
     <Box sx={styles.errorBox}>
@@ -99,7 +102,11 @@ const BlocksDragDropList = ({
       {(provided) => (
         <Stack ref={provided.innerRef} {...provided.droppableProps} spacing={2}>
           {blocks.map((block, index) => (
-            <Draggable key={block.id} draggableId={`block-${block.id}`} index={index}>
+            <Draggable
+              key={block.id}
+              draggableId={`block-${block.id}`}
+              index={index}
+            >
               {(provided) => (
                 <div
                   ref={provided.innerRef}
@@ -108,8 +115,8 @@ const BlocksDragDropList = ({
                 >
                   <Block
                     block={block}
-                    dependencies={block.dependencies.map((id) =>
-                      blocks.find((b) => b.id === id)?.title
+                    dependencies={block.dependencies.map(
+                      (id) => blocks.find((b) => b.id === id)?.title,
                     )}
                     onEdit={() => handleEditBlock(block)}
                     onDelete={() => handleDeleteBlock(block.id)}
@@ -203,7 +210,10 @@ const BlockManager = ({
     if (!result.destination) return;
 
     const { source, destination } = result;
-    if (source.droppableId === "blocks" && destination.droppableId === "blocks") {
+    if (
+      source.droppableId === "blocks" &&
+      destination.droppableId === "blocks"
+    ) {
       // Reorder blocks.
       const reorderedBlocks = Array.from(blocks);
       const [removed] = reorderedBlocks.splice(source.index, 1);
@@ -215,10 +225,15 @@ const BlockManager = ({
     ) {
       // Handle lesson reordering or moving between blocks.
       const sourceBlockId = parseInt(source.droppableId.split("-")[1], 10);
-      const destinationBlockId = parseInt(destination.droppableId.split("-")[1], 10);
+      const destinationBlockId = parseInt(
+        destination.droppableId.split("-")[1],
+        10,
+      );
 
       const sourceBlock = blocks.find((block) => block.id === sourceBlockId);
-      const destinationBlock = blocks.find((block) => block.id === destinationBlockId);
+      const destinationBlock = blocks.find(
+        (block) => block.id === destinationBlockId,
+      );
       const sourceLessons = Array.from(sourceBlock.lessons);
       const [removed] = sourceLessons.splice(source.index, 1);
 
@@ -226,8 +241,10 @@ const BlockManager = ({
         sourceLessons.splice(destination.index, 0, removed);
         setBlocks((prev) =>
           prev.map((block) =>
-            block.id === sourceBlockId ? { ...block, lessons: sourceLessons } : block
-          )
+            block.id === sourceBlockId
+              ? { ...block, lessons: sourceLessons }
+              : block,
+          ),
         );
       } else {
         const destinationLessons = Array.from(destinationBlock.lessons);
@@ -240,7 +257,7 @@ const BlockManager = ({
               return { ...block, lessons: destinationLessons };
             }
             return block;
-          })
+          }),
         );
       }
     }
@@ -270,10 +287,10 @@ const BlockManager = ({
     setBlocks((prevBlocks) =>
       prevBlocks.map((block) => {
         const updatedLessons = block.lessons.filter(
-          (lesson) => lesson.id !== lessonId
+          (lesson) => lesson.id !== lessonId,
         );
         return { ...block, lessons: updatedLessons };
-      })
+      }),
     );
   };
 
@@ -283,13 +300,13 @@ const BlockManager = ({
         if (block.id === currentBlockId) {
           const updatedLessons = lesson.id
             ? block.lessons.map((l) =>
-                l.id === editingLesson.id ? { ...editingLesson, ...lesson } : l
+                l.id === editingLesson.id ? { ...editingLesson, ...lesson } : l,
               )
             : [...block.lessons, { ...lesson, id: Date.now() }];
           return { ...block, lessons: updatedLessons };
         }
         return block;
-      })
+      }),
     );
   };
 
@@ -299,7 +316,10 @@ const BlockManager = ({
         <Typography variant="h5" align="center" gutterBottom>
           Gestion des Blocs et Cours
         </Typography>
-        <DependencyCycleError dependencyCycle={dependencyCycle} blocks={blocks} />
+        <DependencyCycleError
+          dependencyCycle={dependencyCycle}
+          blocks={blocks}
+        />
         <BlocksDragDropList
           blocks={blocks}
           onDragEnd={handleDragEnd}
@@ -351,7 +371,7 @@ BlockManager.propTypes = {
       description: PropTypes.string,
       lessons: PropTypes.array,
       dependencies: PropTypes.array,
-    })
+    }),
   ).isRequired,
   setLessonsData: PropTypes.func.isRequired,
   dependencyError: PropTypes.array,

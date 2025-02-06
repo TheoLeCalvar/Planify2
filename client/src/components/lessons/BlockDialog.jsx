@@ -57,14 +57,14 @@ const DependenciesSelect = ({
 
 DependenciesSelect.propTypes = {
   dependencies: PropTypes.arrayOf(
-    PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+    PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   ).isRequired,
   onDependenciesChange: PropTypes.func.isRequired,
   allBlocks: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
       title: PropTypes.string.isRequired,
-    })
+    }),
   ).isRequired,
   initialData: PropTypes.shape({
     id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
@@ -113,7 +113,7 @@ BlockFormFields.propTypes = {
   description: PropTypes.string,
   onDescriptionChange: PropTypes.func.isRequired,
   dependencies: PropTypes.arrayOf(
-    PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+    PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   ).isRequired,
   onDependenciesChange: PropTypes.func.isRequired,
   allBlocks: PropTypes.array.isRequired,
@@ -142,8 +142,12 @@ DialogActionsButtons.propTypes = {
 // Main BlockDialog component
 const BlockDialog = ({ open, onClose, onSubmit, initialData, allBlocks }) => {
   const [title, setTitle] = useState(initialData?.title || "");
-  const [description, setDescription] = useState(initialData?.description || "");
-  const [dependencies, setDependencies] = useState(initialData?.dependencies || []);
+  const [description, setDescription] = useState(
+    initialData?.description || "",
+  );
+  const [dependencies, setDependencies] = useState(
+    initialData?.dependencies || [],
+  );
 
   const handleTitleChange = (e) => setTitle(e.target.value);
   const handleDescriptionChange = (e) => setDescription(e.target.value);
@@ -198,14 +202,14 @@ BlockDialog.propTypes = {
     title: PropTypes.string,
     description: PropTypes.string,
     dependencies: PropTypes.arrayOf(
-      PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+      PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     ),
   }),
   allBlocks: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
       title: PropTypes.string.isRequired,
-    })
+    }),
   ).isRequired,
 };
 

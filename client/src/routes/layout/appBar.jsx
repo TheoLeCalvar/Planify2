@@ -14,7 +14,7 @@ import {
   Box,
   Badge,
   Avatar,
-  Button
+  Button,
 } from "@mui/material";
 import {
   Menu as MenuIcon,
@@ -22,7 +22,7 @@ import {
   AccountCircle as AccountCircleIcon,
   Settings as SettingsIcon,
   Brightness4 as Brightness4Icon,
-  Logout as LogoutIcon
+  Logout as LogoutIcon,
 } from "@mui/icons-material";
 
 import { Outlet, useLoaderData } from "react-router-dom";
@@ -35,27 +35,27 @@ import { app, layout } from "../../config/locale.json";
 // Extracted styles constant for maintainability
 const styles = {
   toolbar: {
-    justifyContent: "space-between"
+    justifyContent: "space-between",
   },
   TAFSelectorBox: {
     display: "flex",
     justifyContent: "center",
-    flexGrow: 1
+    flexGrow: 1,
   },
   formControl: {
-    minWidth: 300
+    minWidth: 300,
   },
   notificationBox: {
     display: "flex",
     flexDirection: "column",
-    width: "100%"
+    width: "100%",
   },
   dismissButton: {
-    mt: 1
+    mt: 1,
   },
   menuIcon: {
-    mr: 1
-  }
+    mr: 1,
+  },
 };
 
 // Data loader function
@@ -65,18 +65,18 @@ export async function loader() {
       {
         id: 1,
         name: "TAF DCL",
-        description: "Développement Collaboratif de Logiciel"
+        description: "Développement Collaboratif de Logiciel",
       },
       {
         id: 2,
         name: "TAF EDP",
-        description: "Environnement de Développement de Projet"
+        description: "Environnement de Développement de Projet",
       },
       {
         id: 3,
         name: "TAF GPE",
-        description: "Gestion de Projet et Entrepreneuriat"
-      }
+        description: "Gestion de Projet et Entrepreneuriat",
+      },
     ];
   }
   const response = await axiosInstance.get("/taf");
@@ -92,15 +92,15 @@ const initialState = {
       id: 1,
       title: "New Message",
       description: "You have a new message.",
-      date: "2024-11-19"
+      date: "2024-11-19",
     },
     {
       id: 2,
       title: "System Update",
       description: "System update scheduled.",
-      date: "2024-11-18"
-    }
-  ]
+      date: "2024-11-18",
+    },
+  ],
 };
 
 function reducer(state, action) {
@@ -116,7 +116,9 @@ function reducer(state, action) {
     case "DISMISS_NOTIFICATION":
       return {
         ...state,
-        notifications: state.notifications.filter(n => n.id !== action.payload)
+        notifications: state.notifications.filter(
+          (n) => n.id !== action.payload,
+        ),
       };
     default:
       return state;
@@ -146,7 +148,7 @@ const NotificationMenu = ({
   anchorEl,
   notifications,
   handleClose,
-  dismissNotification
+  dismissNotification,
 }) => (
   <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
     {notifications.length > 0 ? (
@@ -205,13 +207,13 @@ const AppBarComponent = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const tafs = useLoaderData();
-  const toggleDrawer = useStore(state => state.toggleSideBar);
+  const toggleDrawer = useStore((state) => state.toggleSideBar);
   const tafId = location.pathname.match(/\/taf\/(\d+)/)?.[1];
 
   const [selectedOption, setSelectedOption] = useState(tafId || "");
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  const handleProfileClick = useCallback(event => {
+  const handleProfileClick = useCallback((event) => {
     dispatch({ type: "OPEN_PROFILE_MENU", payload: event.currentTarget });
   }, []);
 
@@ -219,7 +221,7 @@ const AppBarComponent = () => {
     dispatch({ type: "CLOSE_PROFILE_MENU" });
   }, []);
 
-  const handleNotificationsClick = useCallback(event => {
+  const handleNotificationsClick = useCallback((event) => {
     dispatch({ type: "OPEN_NOTIFICATIONS_MENU", payload: event.currentTarget });
   }, []);
 
@@ -228,14 +230,14 @@ const AppBarComponent = () => {
   }, []);
 
   const handleMenuSelect = useCallback(
-    event => {
+    (event) => {
       navigate(`/taf/${event.target.value}`);
       setSelectedOption(event.target.value);
     },
-    [navigate]
+    [navigate],
   );
 
-  const dismissNotification = useCallback(id => {
+  const dismissNotification = useCallback((id) => {
     dispatch({ type: "DISMISS_NOTIFICATION", payload: id });
   }, []);
 
