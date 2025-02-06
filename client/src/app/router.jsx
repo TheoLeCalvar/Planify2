@@ -1,6 +1,8 @@
+// React imports
 import React from "react";
 import { createBrowserRouter } from "react-router-dom";
 
+// Routes components
 import Root from "./routes/root";
 import LoginPage from "./routes/login";
 import AppBarComponent from "./routes/layout/appBar";
@@ -16,6 +18,7 @@ import General from "./routes/ue/general";
 import Settings from "./routes/ue/settings";
 import Lessons from "./routes/ue/lessons";
 
+// Loader functions
 import { loader as TAFLoader } from "./routes/taf";
 import { loader as AppBarLoader } from "./routes/layout/appBar";
 import { loader as UELoader } from "./routes/ue";
