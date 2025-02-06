@@ -180,7 +180,7 @@ const BlockManager = ({
   };
 
   const handleDuplicateBlock = (block) => {
-    const { id, ...rest } = block;
+    const { id, ...rest } = block; // eslint-disable-line no-unused-vars
     setEditBlock(rest);
     setDialogOpen(true);
   };
@@ -277,7 +277,7 @@ const BlockManager = ({
   };
 
   const handleDuplicateLesson = (blockId, lesson) => {
-    const { id, ...rest } = lesson;
+    const { id, ...rest } = lesson; // eslint-disable-line no-unused-vars
     setCurrentBlockId(blockId);
     setEditingLesson(rest);
     setLessonDialogOpen(true);

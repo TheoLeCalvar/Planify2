@@ -120,6 +120,7 @@ const LecturerAutocomplete = ({
 );
 
 LecturerAutocomplete.propTypes = {
+  key: PropTypes.string,
   lecturers: PropTypes.array.isRequired,
   sortedOptions: PropTypes.array.isRequired,
   onLecturersChange: PropTypes.func.isRequired,
@@ -205,7 +206,7 @@ const LessonDialog = ({ open, onClose, onSubmit, initialData }) => {
   const renderTag = (optionId, index, getTagProps) => {
     const lecturer = options.find((opt) => opt.id === optionId);
     if (!lecturer) return null;
-    const { key, ...chipProps } = getTagProps({ index });
+    const { key, ...chipProps } = getTagProps({ index }); // eslint-disable-line no-unused-vars
     return <Chip key={lecturer.id} label={lecturer.name} {...chipProps} />;
   };
 

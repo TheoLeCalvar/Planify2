@@ -300,8 +300,4 @@ const AppBarComponent = () => {
   );
 };
 
-AppBarComponent.propTypes = {
-  tafs: PropTypes.array.isRequired,
-};
-
 export default AppBarComponent;
