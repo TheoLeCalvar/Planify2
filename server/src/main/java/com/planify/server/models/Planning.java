@@ -30,6 +30,7 @@ public class Planning {
 
     // respect of the preference of the lecturers' unavailibilities
     private boolean lecturersUnavailability;
+    private int weightLecturersUnavailability;
     //private List<ConstraintLecturerAvailabilities> constraintsLecturersUnavailibilities;
 
     // Synchronisation
@@ -54,11 +55,11 @@ public class Planning {
     private boolean middayGrouping;
     private int weightMiddayGrouping;
 
-    // ?
+    // Balancing the lessons
     private boolean lessonBalancing;
     private int weightLessonBalancing;
 
-    // Group the lessons of the day
+    // Group the lessons by 2 or 3
     private boolean lessonGrouping;
     private int weightLessonGrouping;
 
@@ -127,14 +128,6 @@ public class Planning {
     public void setWeightGlobalUnavailability(int weightGlobalUnavailability) {
         this.weightGlobalUnavailability = weightGlobalUnavailability;
     }
-
-//    public List<ConstraintLecturerAvailabilities> getConstraintsLecturersUnavailibilities() {
-//        return constraintsLecturersUnavailibilities;
-//    }
-//
-//    public void setConstraintsLecturersUnavailibilities(List<ConstraintLecturerAvailabilities> constraintsLecturersUnavailibilities) {
-//        this.constraintsLecturersUnavailibilities = constraintsLecturersUnavailibilities;
-//    }
 
     public boolean isSynchronise() {
         return synchronise;
@@ -230,6 +223,30 @@ public class Planning {
 
     public void setWeightLessonGrouping(int weightLessonGrouping) {
         this.weightLessonGrouping = weightLessonGrouping;
+    }
+
+    public boolean isLecturersUnavailability() {
+        return lecturersUnavailability;
+    }
+
+    public void setLecturersUnavailability(boolean lecturersUnavailability) {
+        this.lecturersUnavailability = lecturersUnavailability;
+    }
+
+    public int getWeightLecturersUnavailability() {
+        return weightLecturersUnavailability;
+    }
+
+    public void setWeightLecturersUnavailability(int weightLecturersUnavailability) {
+        this.weightLecturersUnavailability = weightLecturersUnavailability;
+    }
+
+    public List<ConstraintsOfUE> getConstraintsOfUEs() {
+        return constraintsOfUEs;
+    }
+
+    public void setConstraintsOfUEs(List<ConstraintsOfUE> constraintsOfUEs) {
+        this.constraintsOfUEs = constraintsOfUEs;
     }
 
     @Override
