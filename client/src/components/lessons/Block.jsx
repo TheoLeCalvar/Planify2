@@ -21,15 +21,15 @@ import Lesson from "./Lesson";
 const styles = {
   paper: { padding: 2 },
   actionBox: (isHovered) => ({
-    visibility: isHovered ? "visible" : "hidden"
-}),
+    visibility: isHovered ? "visible" : "hidden",
+  }),
   addButton: {
-    marginRight: 3
-},
+    marginRight: 3,
+  },
   lessonContainer: {
     marginTop: 2,
     padding: 1,
-    border: "1px dashed gray"
+    border: "1px dashed gray",
   },
 };
 
@@ -174,7 +174,11 @@ const Block = ({
   return (
     <Box onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
       <Paper elevation={2} sx={styles.paper}>
-        <Stack direction="row" justifyContent="space-between" alignItems="center">
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+        >
           <Typography variant="h6">{block.title}</Typography>
           <DependenciesDisplay dependencies={dependencies} />
           <BlockActions

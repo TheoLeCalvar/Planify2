@@ -2,7 +2,11 @@ import ICAL from "ical.js";
 import { toast } from "react-toastify";
 import { JSONToCalendarEvent } from "./calendarEvent";
 
-export default function importExclusionCalendar(previousEvents, delay, changingStatus) {
+export default function importExclusionCalendar(
+  previousEvents,
+  delay,
+  changingStatus,
+) {
   return new Promise((resolve, reject) => {
     // Créer dynamiquement un élément input de type file
     const input = document.createElement("input");
@@ -59,15 +63,14 @@ export default function importExclusionCalendar(previousEvents, delay, changingS
             let newStatus = prevEvent.status;
 
             const overlaps = extendedRanges.some(
-              (range) =>
-                prevStart < range.end && prevEnd > range.start // Vérifie si les plages se chevauchent
+              (range) => prevStart < range.end && prevEnd > range.start, // Vérifie si les plages se chevauchent
             );
 
             if (overlaps) {
-                newStatus = changingStatus;
+              newStatus = changingStatus;
             }
 
-            return JSONToCalendarEvent({...prevEvent, status: newStatus});
+            return JSONToCalendarEvent({ ...prevEvent, status: newStatus });
           });
 
           toast.success("Calendrier importé avec succès !");

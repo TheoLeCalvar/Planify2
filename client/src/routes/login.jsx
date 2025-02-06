@@ -1,11 +1,20 @@
 // src/components/LoginPage.js
 
-import React, { useState } from 'react';
-import { Container, Box, Typography, TextField, Button, FormControlLabel, Checkbox, Link } from '@mui/material';
+import React, { useState } from "react";
+import {
+  Container,
+  Box,
+  Typography,
+  TextField,
+  Button,
+  FormControlLabel,
+  Checkbox,
+  Link,
+} from "@mui/material";
 
 const LoginPage = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
 
   const handleEmailChange = (event) => {
@@ -23,29 +32,29 @@ const LoginPage = () => {
   const handleSubmit = (event) => {
     event.preventDefault();
     // Handle login logic here (e.g., API call)
-    console.log('Email:', email);
-    console.log('Password:', password);
-    console.log('Remember me:', rememberMe);
+    console.log("Email:", email);
+    console.log("Password:", password);
+    console.log("Remember me:", rememberMe);
   };
 
   return (
     <Container maxWidth="xs">
       <Box
         sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
           mt: 8,
           p: 3,
           boxShadow: 3,
           borderRadius: 2,
-          bgcolor: 'background.paper',
+          bgcolor: "background.paper",
         }}
       >
         <Typography component="h1" variant="h5" sx={{ mb: 2 }}>
           Login
         </Typography>
-        <form onSubmit={handleSubmit} style={{ width: '100%' }}>
+        <form onSubmit={handleSubmit} style={{ width: "100%" }}>
           {/* Email Input */}
           <TextField
             label="Email Address"
@@ -72,11 +81,17 @@ const LoginPage = () => {
           />
           {/* Remember Me Checkbox */}
           <FormControlLabel
-            control={<Checkbox value={rememberMe} onChange={handleCheckboxChange} color="primary" />}
+            control={
+              <Checkbox
+                value={rememberMe}
+                onChange={handleCheckboxChange}
+                color="primary"
+              />
+            }
             label="Remember me"
           />
           {/* Forgotten Password Link */}
-          <Box sx={{ textAlign: 'right', mb: 2 }}>
+          <Box sx={{ textAlign: "right", mb: 2 }}>
             <Link href="#" variant="body2">
               Forgotten password?
             </Link>

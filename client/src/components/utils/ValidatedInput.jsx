@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useContext } from "react";
 import { TextField } from "@mui/material";
 import { FormContext } from "../../context/FormContext";
-import dayjs from 'dayjs'
+import dayjs from "dayjs";
+import PropTypes from "prop-types";
 
 export default function ValidatedInput({
   name,
@@ -36,7 +37,6 @@ export default function ValidatedInput({
 
   // Gestion du changement de valeur
   const handleChange = (e) => {
-    
     const newValue = dayjs.isDayjs(e) ? e : e.target.value;
 
     const formValues = Object.fromEntries(new FormData(form?.current));
@@ -61,7 +61,7 @@ export default function ValidatedInput({
 
   return (
     <>
-      {children ? 
+      {children ? (
         React.Children.map(children, (child) =>
           React.cloneElement(child, {
             name,
@@ -71,21 +71,31 @@ export default function ValidatedInput({
               textField: {
                 helperText: error,
                 error: !!error,
-              }
+              },
             },
             ...props,
-          })
+          }),
         )
-        :
-        (<TextField
-        name={name}
-        value={value}
-        onChange={handleChange}
-        error={!!error}
-        helperText={error}
-        required={required}
-        {...props}
-      />)}
+      ) : (
+        <TextField
+          name={name}
+          value={value}
+          onChange={handleChange}
+          error={!!error}
+          helperText={error}
+          required={required}
+          {...props}
+        />
+      )}
     </>
   );
 }
+
+ValidatedInput.propTypes = {
+  name: PropTypes.string.isRequired,
+  required: PropTypes.bool,
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+  onChange: PropTypes.func,
+  defaultValue: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+  children: PropTypes.node,
+};

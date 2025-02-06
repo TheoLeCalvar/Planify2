@@ -30,7 +30,12 @@ const styles = {
 };
 
 // Subcomponent for the Title and Description text fields
-const LessonTextFields = ({ title, description, onTitleChange, onDescriptionChange }) => (
+const LessonTextFields = ({
+  title,
+  description,
+  onTitleChange,
+  onDescriptionChange,
+}) => (
   <>
     <TextField
       label="Titre"
@@ -70,7 +75,9 @@ const LecturerAutocomplete = ({
       multiple
       options={sortedOptions}
       groupBy={(option) =>
-        option.alreadySelected ? "Intervenants de cette TAF" : "Toutes les personnes"
+        option.alreadySelected
+          ? "Intervenants de cette TAF"
+          : "Toutes les personnes"
       }
       disableCloseOnSelect
       value={lecturers}
@@ -113,6 +120,7 @@ const LecturerAutocomplete = ({
 );
 
 LecturerAutocomplete.propTypes = {
+  key: PropTypes.string,
   lecturers: PropTypes.array.isRequired,
   sortedOptions: PropTypes.array.isRequired,
   onLecturersChange: PropTypes.func.isRequired,
@@ -139,11 +147,14 @@ CreateUserDialog.propTypes = {
 const LessonDialog = ({ open, onClose, onSubmit, initialData }) => {
   // Local state for form fields
   const [title, setTitle] = useState(initialData?.title || "");
-  const [description, setDescription] = useState(initialData?.description || "");
+  const [description, setDescription] = useState(
+    initialData?.description || "",
+  );
   const [lecturers, setLecturers] = useState(initialData?.lecturers || []);
   const [openNewUser, setOpenNewUser] = useState(false);
 
-  const { lecturersList: options, setLecturersList } = useContext(LessonsContext);
+  const { lecturersList: options, setLecturersList } =
+    useContext(LessonsContext);
 
   // Handlers for input changes
   const handleTitleChange = (e) => setTitle(e.target.value);
@@ -166,8 +177,8 @@ const LessonDialog = ({ open, onClose, onSubmit, initialData }) => {
       prev.map((lecturer) =>
         lecturers.includes(lecturer.id)
           ? { ...lecturer, alreadySelected: true }
-          : lecturer
-      )
+          : lecturer,
+      ),
     );
   };
 
@@ -188,14 +199,14 @@ const LessonDialog = ({ open, onClose, onSubmit, initialData }) => {
 
   // Sort options by "alreadySelected" status (selected ones first)
   const sortedOptions = [...options].sort(
-    (a, b) => Number(b.alreadySelected) - Number(a.alreadySelected)
+    (a, b) => Number(b.alreadySelected) - Number(a.alreadySelected),
   );
 
   // Helper to render a tag (Chip) from a lecturer id
   const renderTag = (optionId, index, getTagProps) => {
     const lecturer = options.find((opt) => opt.id === optionId);
     if (!lecturer) return null;
-    const { key, ...chipProps } = getTagProps({ index });
+    const { key, ...chipProps } = getTagProps({ index }); // eslint-disable-line no-unused-vars
     return <Chip key={lecturer.id} label={lecturer.name} {...chipProps} />;
   };
 
@@ -229,7 +240,10 @@ const LessonDialog = ({ open, onClose, onSubmit, initialData }) => {
           </Button>
         </DialogActions>
       </Dialog>
-      <CreateUserDialog open={openNewUser} onClose={() => setOpenNewUser(false)} />
+      <CreateUserDialog
+        open={openNewUser}
+        onClose={() => setOpenNewUser(false)}
+      />
     </>
   );
 };
@@ -243,7 +257,7 @@ LessonDialog.propTypes = {
     title: PropTypes.string,
     description: PropTypes.string,
     lecturers: PropTypes.arrayOf(
-      PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+      PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     ),
   }),
 };

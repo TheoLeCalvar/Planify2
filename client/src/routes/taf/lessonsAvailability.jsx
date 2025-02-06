@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import Calendar from "../../components/calendar/Calendar";
 import GenericWeekCalendar from "../../components/calendar/GenericWeekCalendar";
 import { Tabs, Tab, Typography, Stack } from "@mui/material";
@@ -15,9 +15,8 @@ import axiosInstance from "../../services/axiosConfig";
 import { JSONToCalendarEvent } from "../../helper/calendarEvent";
 
 export async function loader({ params }) {
-
   if (USE_MOCK_DATA) {
-    return null
+    return null;
   }
 
   const response = await axiosInstance.get(`/taf/${params.idTAF}/availability`);
@@ -32,52 +31,54 @@ export async function action({ request, params }) {
     return { ok: true };
   }
 
-  const result = await axiosInstance.put(`/taf/${params.idTAF}/availability`, data);
+  const result = await axiosInstance.put(
+    `/taf/${params.idTAF}/availability`,
+    data,
+  );
   return { ok: result.status === 200 };
-
 }
 
 export default function LessonsAvailability() {
-    const [tabIndex, setTabIndex] = useState(1);
+  const [tabIndex, setTabIndex] = useState(1);
 
-    const data = useLoaderData();
-    const context = useOutletContext();
+  const data = useLoaderData();
+  const context = useOutletContext();
 
-    const handleChange = (event, newValue) => {
-        setTabIndex(newValue);
-    };
+  const handleChange = (event, newValue) => {
+    setTabIndex(newValue);
+  };
 
-    const initialEvents = typeof data === "string" ? generateClassSlots(
-        context.taf.startDate,
-        context.taf.endDate
-    ) : data.map(JSONToCalendarEvent);
+  const initialEvents =
+    typeof data === "string"
+      ? generateClassSlots(context.taf.startDate, context.taf.endDate)
+      : data.map(JSONToCalendarEvent);
 
-    return (
-      <div>
-        <Stack direction="row" spacing={2} alignItems="center">
-          <Typography variant="h4" gutterBottom>
-            Disponibilité des créneaux de cours
-          </Typography>
-          <Tabs value={tabIndex} onChange={handleChange} centered>
-            <Tab label="Semaine type" />
-            <Tab label="Agenda" />
-          </Tabs>
+  return (
+    <div>
+      <Stack direction="row" spacing={2} alignItems="center">
+        <Typography variant="h4" gutterBottom>
+          Disponibilité des créneaux de cours
+        </Typography>
+        <Tabs value={tabIndex} onChange={handleChange} centered>
+          <Tab label="Semaine type" />
+          <Tab label="Agenda" />
+        </Tabs>
+      </Stack>
+      <CalendarContextProvider initialEvents={initialEvents}>
+        <div hidden={tabIndex !== 0}>
+          <GenericWeekCalendar />
+        </div>
+        <div hidden={tabIndex !== 1}>
+          <Calendar />
+        </div>
+        <Stack spacing={2} direction={"row"}>
+          <ResetButton />
+          <ImportButton />
+          <ExportButton />
+          <ImportExclusionButton />
+          <SaveButton />
         </Stack>
-        <CalendarContextProvider initialEvents={initialEvents}>
-          <div hidden={tabIndex !== 0}>
-            <GenericWeekCalendar />
-          </div>
-          <div hidden={tabIndex !== 1}>
-            <Calendar />
-          </div>
-          <Stack spacing={2} direction={"row"}>
-            <ResetButton />
-            <ImportButton />
-            <ExportButton />
-            <ImportExclusionButton />
-            <SaveButton />
-          </Stack>
-        </CalendarContextProvider>
-      </div>
-    );
+      </CalendarContextProvider>
+    </div>
+  );
 }

@@ -68,13 +68,19 @@ const LecturerList = ({ lecturers, getLecturerName }) => {
 
 LecturerList.propTypes = {
   lecturers: PropTypes.arrayOf(
-    PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+    PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   ),
   getLecturerName: PropTypes.func.isRequired,
 };
 
 // Subcomponent for the action buttons (Edit, Delete, Duplicate)
-const LessonActions = ({ isHovered, onEdit, onDelete, onDuplicate, lessonTitle }) => (
+const LessonActions = ({
+  isHovered,
+  onEdit,
+  onDelete,
+  onDuplicate,
+  lessonTitle,
+}) => (
   <Box sx={styles.actionBox(isHovered)}>
     <Tooltip title="Editer">
       <IconButton onClick={onEdit} color="primary">
@@ -134,9 +140,16 @@ const Lesson = ({ lesson, onEdit, onDelete, onDuplicate }) => {
   return (
     <Box onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
       <Paper elevation={1} sx={styles.paper}>
-        <Stack direction="row" justifyContent="space-between" alignItems="center">
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+        >
           <LessonTitle title={lesson.title} />
-          <LecturerList lecturers={lesson.lecturers} getLecturerName={getLecturerName} />
+          <LecturerList
+            lecturers={lesson.lecturers}
+            getLecturerName={getLecturerName}
+          />
           <LessonActions
             isHovered={isHovered}
             onEdit={onEdit}
@@ -156,7 +169,7 @@ Lesson.propTypes = {
     title: PropTypes.string.isRequired,
     description: PropTypes.string,
     lecturers: PropTypes.arrayOf(
-      PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+      PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     ),
   }).isRequired,
   onEdit: PropTypes.func.isRequired,
