@@ -1,7 +1,6 @@
 import { Outlet, useLoaderData, useOutletContext } from "react-router-dom";
 
-
-export default function UEGeneral() {
+const UEGeneral = () => {
     const context = useOutletContext();
 
     const ue = context.ue;
@@ -14,4 +13,7 @@ export default function UEGeneral() {
             <Outlet context={context} />
         </>
     );
-}
+};
+
+
+export default UEGeneral;
