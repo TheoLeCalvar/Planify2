@@ -61,7 +61,7 @@ export default function TAFSettings() {
         break;
       default:
         return "";
-      case "endDate":
+      case "endDate": {
         const compareValue = dayjs.isDayjs(value)
           ? value
           : dayjs(value, "DD/MM/YYYY");
@@ -71,13 +71,16 @@ export default function TAFSettings() {
         if (compareValue.isBefore(dayjs(otherValues.startDate, "DD/MM/YYYY"))) {
           return "La date de fin doit être après la date de début.";
         }
-      case "startDate":
+        break;
+      }
+      case "startDate": {
         const compareValue2 = dayjs.isDayjs(value)
           ? value
           : dayjs(value, "DD/MM/YYYY");
         if (!compareValue2.isValid()) {
           return "La date de début n'est pas valide.";
         }
+      }
     }
     return ""; // Pas d'erreur
   };
