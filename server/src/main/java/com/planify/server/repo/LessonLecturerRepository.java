@@ -22,6 +22,8 @@ public interface LessonLecturerRepository extends JpaRepository<LessonLecturer,L
 
     List<LessonLecturer> findByLesson(Lesson lesson);
 
+    boolean existsByUser(User user);
+
     LessonLecturer save(LessonLecturer lessonLecturer);
 
     void deleteById(LessonLecturerId id);

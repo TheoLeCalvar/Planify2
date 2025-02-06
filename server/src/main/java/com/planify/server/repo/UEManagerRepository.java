@@ -22,6 +22,8 @@ public interface UEManagerRepository extends JpaRepository<UEManager, UEManagerI
 
     List<UEManager> findByUe(UE ue);
 
+    boolean existsByUser(User user);
+
     UEManager save(UEManager ueManager);
 
     void deleteById(UEManagerId id);

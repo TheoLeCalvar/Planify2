@@ -3,6 +3,7 @@ package com.planify.server.models;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -21,8 +22,12 @@ public class User {
 
     private String name;
     private String lastName;
+
+    @Column(unique = true, nullable = false)
     private String mail;
-    private char[] password;
+
+    @Column(nullable = false)
+    private String password;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     private List<UserUnavailability> userUnavailabilities = new ArrayList<>();
@@ -43,7 +48,7 @@ public class User {
     public User() {
     }
 
-    public User(String name, String lastName, String mail, char[] password) {
+    public User(String name, String lastName, String mail, String password) {
         this.name = name;
         this.lastName = lastName;
         this.mail = mail;
@@ -82,11 +87,11 @@ public class User {
         this.mail = mail;
     }
 
-    public char[] getPassword() {
+    public String getPassword() {
         return password;
     }
 
-    public void setPassword(char[] password) {
+    public void setPassword(String password) {
         this.password = password;
     }
 
