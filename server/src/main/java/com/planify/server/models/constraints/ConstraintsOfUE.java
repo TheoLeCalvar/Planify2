@@ -75,6 +75,20 @@ public class ConstraintsOfUE {
         this.planning = planning;
     }
 
+    public ConstraintsOfUE(UE ue, Planning planning, boolean lessonCount, int maxLesson, int minLesson, boolean maxTimeWithoutLesson, Duration duration, boolean spreading, Duration maxSpreading, Duration minSpreading) {
+        this.id = new ConstraintsOfUEId(ue.getId(), planning.getId());
+        this.ue = ue;
+        this.planning = planning;
+        this.lessonCount = lessonCount;
+        this.maxLesson = maxLesson;
+        this.minLesson = minLesson;
+        this.maxTimeWithoutLesson = maxTimeWithoutLesson;
+        this.duration = duration;
+        this.spreading = spreading;
+        this.maxSpreading = maxSpreading;
+        this.minSpreading = minSpreading;
+    }
+
     public ConstraintsOfUEId getId() {
         return id;
     }

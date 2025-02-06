@@ -32,6 +32,13 @@ public class ConstraintSynchroniseWithTAF {
         this.regenerateBothPlanning = regenerateBothPlanning;
     }
 
+    public ConstraintSynchroniseWithTAF(Planning planning, TAF taf, boolean enabled, boolean regenerateBothPlanning) {
+        this.planning = planning;
+        this.taf = taf;
+        this.enabled = enabled;
+        this.regenerateBothPlanning = regenerateBothPlanning;
+    }
+
     public TAF getTaf() {
         return taf;
     }

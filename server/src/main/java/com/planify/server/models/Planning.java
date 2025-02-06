@@ -63,14 +63,16 @@ public class Planning {
     private boolean lessonGrouping;
     private int weightLessonGrouping;
 
-
-
-
-
+    // Weight of time without an UE
+    private int weightTimeWithoutUE;
 
     // Result
     @ElementCollection
     private List<ScheduledLesson> scheduledLessons;
+
+
+
+
 
     public Planning() {
     }
@@ -80,6 +82,36 @@ public class Planning {
         this.scheduledLessons = new ArrayList<ScheduledLesson>();
         this.timestamp = LocalDateTime.now();
     }
+
+    public Planning(Calendar calendar, boolean globalUnavailability, int weightGlobalUnavailability, boolean lecturersUnavailability, int weightLecturersUnavailability, boolean synchronise, List<ConstraintSynchroniseWithTAF> constraintsSynchronisation, List<ConstraintsOfUE> constraintsOfUEs, boolean UEInterlacing, boolean middayBreak, LocalTime startMiddayBreak, LocalTime endMiddayBreak, boolean middayGrouping, int weightMiddayGrouping, boolean lessonBalancing, int weightLessonBalancing, int weightLessonGrouping, boolean lessonGrouping, int weightTimeWithoutUE) {
+        this.calendar = calendar;
+        this.scheduledLessons = new ArrayList<ScheduledLesson>();
+        this.timestamp = LocalDateTime.now();
+        this.globalUnavailability = globalUnavailability;
+        this.weightGlobalUnavailability = weightGlobalUnavailability;
+        this.lecturersUnavailability = lecturersUnavailability;
+        this.weightLecturersUnavailability = weightLecturersUnavailability;
+        this.synchronise = synchronise;
+        this.constraintsSynchronisation = constraintsSynchronisation;
+        this.constraintsOfUEs = constraintsOfUEs;
+        this.UEInterlacing = UEInterlacing;
+        this.middayBreak = middayBreak;
+        this.startMiddayBreak = startMiddayBreak;
+        this.endMiddayBreak = endMiddayBreak;
+        this.middayGrouping = middayGrouping;
+        this.weightMiddayGrouping = weightMiddayGrouping;
+        this.lessonBalancing = lessonBalancing;
+        this.weightLessonBalancing = weightLessonBalancing;
+        this.weightLessonGrouping = weightLessonGrouping;
+        this.lessonGrouping = lessonGrouping;
+        this.weightTimeWithoutUE = weightTimeWithoutUE;
+    }
+
+
+
+
+
+
 
     public Long getId() {
         return id;
@@ -247,6 +279,14 @@ public class Planning {
 
     public void setConstraintsOfUEs(List<ConstraintsOfUE> constraintsOfUEs) {
         this.constraintsOfUEs = constraintsOfUEs;
+    }
+
+    public int getWeightTimeWithoutUE() {
+        return weightTimeWithoutUE;
+    }
+
+    public void setWeightTimeWithoutUE(int weightTimeWithoutUE) {
+        this.weightTimeWithoutUE = weightTimeWithoutUE;
     }
 
     @Override
