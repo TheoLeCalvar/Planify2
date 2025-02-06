@@ -1,9 +1,9 @@
 import React from "react";
-import ValidatedInput from "./utils/ValidatedInput";
-import ValidatedForm from "./utils/ValidatedForm";
+import ValidatedInput from "./ValidatedInput";
+import ValidatedForm from "./ValidatedForm";
 import { Box, Stack } from "@mui/material";
-import axiosInstance from "../services/axiosConfig";
-import { USE_MOCK_DATA } from "../contants";
+import axiosInstance from "../config/axiosConfig";
+import { USE_MOCK_DATA } from "../constants";
 import PropTypes from "prop-types";
 
 export async function action({ request }) {
