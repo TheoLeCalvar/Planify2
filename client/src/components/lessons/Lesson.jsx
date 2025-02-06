@@ -1,102 +1,167 @@
-import React, { useContext } from "react";
-import { Paper, Typography, Stack, Tooltip } from "@mui/material";
-import { Box, IconButton } from "@mui/material";
+import React, { useState, useContext } from "react";
+import PropTypes from "prop-types";
+import {
+  Box,
+  Paper,
+  Typography,
+  Stack,
+  Tooltip,
+  IconButton,
+  Chip,
+} from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import FileCopyIcon from "@mui/icons-material/FileCopy";
 import ConfirmationButton from "../utils/ConfirmationButton";
-import Chip from "@mui/material/Chip";
 import { LessonsContext } from "../../context/LessonsContext";
-import { useState } from "react";
 
-export default function Lesson({ lesson, onEdit, onDelete, onDuplicate }) {
-    const [isHovered, setIsHovered] = useState(false);
-    const { lecturersList } = useContext(LessonsContext);
+// Extracted style objects
+const styles = {
+  paper: {
+    padding: 1,
+    marginBottom: 1,
+    backgroundColor: "#f9f9f9",
+  },
+  lessonTitle: {
+    flexGrow: 1,
+  },
+  lecturerList: {
+    marginLeft: "auto",
+    display: "flex",
+    gap: 1,
+    alignItems: "center",
+  },
+  actionBox: (isHovered) => ({
+    display: "flex",
+    alignItems: "center",
+    marginLeft: "16px",
+    visibility: isHovered ? "visible" : "hidden",
+  }),
+};
 
-    return (
-        <Box
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-        >
-            <Paper
-                elevation={1}
-                sx={{
-                    padding: 1,
-                    marginBottom: 1,
-                    backgroundColor: "#f9f9f9",
-                }}
-            >
-                <Stack
-                    direction="row"
-                    justifyContent="space-between"
-                    alignItems="center"
-                >
-                    {/* Titre du cours */}
-                    <Typography variant="subtitle1" sx={{ flexGrow: 1 }}>
-                        {lesson.title}
-                    </Typography>
+// Subcomponent for the Lesson title
+const LessonTitle = ({ title }) => (
+  <Typography variant="subtitle1" sx={styles.lessonTitle}>
+    {title}
+  </Typography>
+);
 
-                    {/* Liste des intervenants */}
-                    {lesson.lecturers?.length > 0 && (
-                        <Stack
-                            direction="row"
-                            gap={1}
-                            alignItems="center"
-                            sx={{ flexGrow: 0, marginLeft: "auto" }} // Pousse la liste des intervenants le plus à droite
-                        >
-                            <Typography variant="body2" color="textSecondary">
-                                Intervenants :
-                            </Typography>
-                            {lesson.lecturers?.map((lecturer) => (
-                                <Chip
-                                    key={lecturer}
-                                    label={
-                                        lecturersList.find(
-                                            (value) => value.id === lecturer
-                                        )?.name
-                                    }
-                                />
-                            ))}
-                        </Stack>
-                    )}
+LessonTitle.propTypes = {
+  title: PropTypes.string.isRequired,
+};
 
-                    {/* Boutons d'action (éditer, supprimer, dupliquer) */}
-                    <Box
-                        visibility={isHovered ? "visible" : "hidden"}
-                        sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            marginLeft: "16px",
-                        }}
-                    >
-                        <Tooltip title="Editer">
-                            <IconButton onClick={onEdit} color="primary">
-                                <EditIcon />
-                            </IconButton>
-                        </Tooltip>
-                        <ConfirmationButton
-                            buttonComponent={
-                                <IconButton color="secondary">
-                                    <DeleteIcon />
-                                </IconButton>
-                            }
-                            onConfirm={onDelete}
-                            dialogTitle="Supprimer le cours ?"
-                            tooltip={"Supprimer"}
-                            dialogMessage={`Êtes-vous sûr de vouloir supprimer le cours '${lesson.title}' ?`}
-                        />
-                        <Tooltip title="Dupliquer">
-                            <IconButton onClick={onDuplicate} color="secondary">
-                                <FileCopyIcon />
-                            </IconButton>
-                        </Tooltip>
-                    </Box>
-                </Stack>
+// Subcomponent for rendering the lecturer list
+const LecturerList = ({ lecturers, getLecturerName }) => {
+  if (!lecturers || lecturers.length === 0) return null;
 
-                <Typography variant="body2" color="textSecondary">
-                    {lesson.description || "Aucune description fournie"}
-                </Typography>
-            </Paper>
-        </Box>
-    );
-}
+  return (
+    <Stack direction="row" sx={styles.lecturerList}>
+      <Typography variant="body2" color="text.secondary">
+        Intervenants :
+      </Typography>
+      {lecturers.map((lecturer) => (
+        <Chip key={lecturer} label={getLecturerName(lecturer)} />
+      ))}
+    </Stack>
+  );
+};
+
+LecturerList.propTypes = {
+  lecturers: PropTypes.arrayOf(
+    PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+  ),
+  getLecturerName: PropTypes.func.isRequired,
+};
+
+// Subcomponent for the action buttons (Edit, Delete, Duplicate)
+const LessonActions = ({ isHovered, onEdit, onDelete, onDuplicate, lessonTitle }) => (
+  <Box sx={styles.actionBox(isHovered)}>
+    <Tooltip title="Editer">
+      <IconButton onClick={onEdit} color="primary">
+        <EditIcon />
+      </IconButton>
+    </Tooltip>
+    <ConfirmationButton
+      buttonComponent={
+        <IconButton color="secondary">
+          <DeleteIcon />
+        </IconButton>
+      }
+      onConfirm={onDelete}
+      dialogTitle="Supprimer le cours ?"
+      tooltip="Supprimer"
+      dialogMessage={`Êtes-vous sûr de vouloir supprimer le cours '${lessonTitle}' ?`}
+    />
+    <Tooltip title="Dupliquer">
+      <IconButton onClick={onDuplicate} color="secondary">
+        <FileCopyIcon />
+      </IconButton>
+    </Tooltip>
+  </Box>
+);
+
+LessonActions.propTypes = {
+  isHovered: PropTypes.bool.isRequired,
+  onEdit: PropTypes.func.isRequired,
+  onDelete: PropTypes.func.isRequired,
+  onDuplicate: PropTypes.func.isRequired,
+  lessonTitle: PropTypes.string.isRequired,
+};
+
+// Subcomponent for the Lesson description
+const LessonDescription = ({ description }) => (
+  <Typography variant="body2" color="text.secondary">
+    {description || "Aucune description fournie"}
+  </Typography>
+);
+
+LessonDescription.propTypes = {
+  description: PropTypes.string,
+};
+
+// Main Lesson component
+const Lesson = ({ lesson, onEdit, onDelete, onDuplicate }) => {
+  const [isHovered, setIsHovered] = useState(false);
+  const { lecturersList } = useContext(LessonsContext);
+
+  const handleMouseEnter = () => setIsHovered(true);
+  const handleMouseLeave = () => setIsHovered(false);
+
+  // Helper to retrieve lecturer name from the lecturersList based on lecturer id
+  const getLecturerName = (lecturerId) =>
+    lecturersList.find((item) => item.id === lecturerId)?.name;
+
+  return (
+    <Box onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+      <Paper elevation={1} sx={styles.paper}>
+        <Stack direction="row" justifyContent="space-between" alignItems="center">
+          <LessonTitle title={lesson.title} />
+          <LecturerList lecturers={lesson.lecturers} getLecturerName={getLecturerName} />
+          <LessonActions
+            isHovered={isHovered}
+            onEdit={onEdit}
+            onDelete={onDelete}
+            onDuplicate={onDuplicate}
+            lessonTitle={lesson.title}
+          />
+        </Stack>
+        <LessonDescription description={lesson.description} />
+      </Paper>
+    </Box>
+  );
+};
+
+Lesson.propTypes = {
+  lesson: PropTypes.shape({
+    title: PropTypes.string.isRequired,
+    description: PropTypes.string,
+    lecturers: PropTypes.arrayOf(
+      PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+    ),
+  }).isRequired,
+  onEdit: PropTypes.func.isRequired,
+  onDelete: PropTypes.func.isRequired,
+  onDuplicate: PropTypes.func.isRequired,
+};
+
+export default Lesson;
