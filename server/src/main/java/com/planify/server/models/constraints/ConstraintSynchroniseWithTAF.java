@@ -64,6 +64,14 @@ public class ConstraintSynchroniseWithTAF {
         this.regenerateBothPlanning = regenerateBothPlanning;
     }
 
+    public Planning getPlanning() {
+        return planning;
+    }
+
+    public void setPlanning(Planning planning) {
+        this.planning = planning;
+    }
+
     @Override
     public String toString() {
         return "ConstraintSynchroniseWithTAF{" +

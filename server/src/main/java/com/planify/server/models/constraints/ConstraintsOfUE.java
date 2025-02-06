@@ -21,7 +21,7 @@ public class ConstraintsOfUE {
     @MapsId("idPlanning")
     private Planning planning;
 
-    // Max and min of lessons in this UE in a day
+    // Max and min of lessons in this UE in a week
     private boolean lessonCount;
     private int maxLesson;
     private int minLesson;
@@ -29,6 +29,11 @@ public class ConstraintsOfUE {
     // Max time without this UE
     private boolean maxTimeWithoutLesson;
     private Duration duration;
+
+    // Spreading of the UE
+    private boolean spreading;
+    private Duration maxSpreading;
+    private Duration minSpreading;
 
     @Embeddable
     public static class ConstraintsOfUEId implements Serializable {
@@ -92,6 +97,70 @@ public class ConstraintsOfUE {
 
     public void setPlanning(Planning planning) {
         this.planning = planning;
+    }
+
+    public boolean isLessonCount() {
+        return lessonCount;
+    }
+
+    public void setLessonCount(boolean lessonCount) {
+        this.lessonCount = lessonCount;
+    }
+
+    public int getMaxLesson() {
+        return maxLesson;
+    }
+
+    public void setMaxLesson(int maxLesson) {
+        this.maxLesson = maxLesson;
+    }
+
+    public int getMinLesson() {
+        return minLesson;
+    }
+
+    public void setMinLesson(int minLesson) {
+        this.minLesson = minLesson;
+    }
+
+    public boolean isMaxTimeWithoutLesson() {
+        return maxTimeWithoutLesson;
+    }
+
+    public void setMaxTimeWithoutLesson(boolean maxTimeWithoutLesson) {
+        this.maxTimeWithoutLesson = maxTimeWithoutLesson;
+    }
+
+    public Duration getDuration() {
+        return duration;
+    }
+
+    public void setDuration(Duration duration) {
+        this.duration = duration;
+    }
+
+    public boolean isSpreading() {
+        return spreading;
+    }
+
+    public void setSpreading(boolean spreading) {
+        this.spreading = spreading;
+    }
+
+    public Duration getMaxSpreading() {
+        return maxSpreading;
+    }
+
+    public void setMaxSpreading(Duration maxSpreading) {
+        this.maxSpreading = maxSpreading;
+    }
+
+    public Duration getMinSpreading() {
+        return minSpreading;
+    }
+
+    public void setMinSpreading(Duration minSpreading) {
+        this.minSpreading = minSpreading;
     }
 
     @Override
