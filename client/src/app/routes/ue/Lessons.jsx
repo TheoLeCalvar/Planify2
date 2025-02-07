@@ -10,7 +10,7 @@ import { useEffect, useState } from "react";
 import SaveIcon from "@mui/icons-material/Save";
 import { Fab } from "@mui/material";
 import { LessonsContext } from "../../../hooks/LessonsContext";
-import { USE_MOCK_DATA } from "../../../constants";
+import { USE_MOCK_DATA } from "../../../config/constants";
 import axiosInstance from "../../../config/axiosConfig";
 
 const styles = {

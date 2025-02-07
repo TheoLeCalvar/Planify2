@@ -16,7 +16,7 @@ import axiosInstance from "../../../config/axiosConfig";
 
 import "dayjs/locale/fr";
 import { Stack } from "@mui/material";
-import { USE_MOCK_DATA } from "../../../constants";
+import { USE_MOCK_DATA } from "../../../config/constants";
 
 dayjs.extend(customParseFormat);
 

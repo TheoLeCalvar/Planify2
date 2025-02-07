@@ -3,7 +3,7 @@ import React from "react";
 
 // Data imports
 import axiosInstance from "../../../config/axiosConfig";
-import { USE_MOCK_DATA } from "../../../constants";
+import { USE_MOCK_DATA } from "../../../config/constants";
 
 // Custom components
 import AppBarComponent from "../../../features/app-bar/components/AppBarComponent";

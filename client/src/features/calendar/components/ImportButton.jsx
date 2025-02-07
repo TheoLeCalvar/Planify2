@@ -1,6 +1,6 @@
 import React from "react";
 import importCalendar from "../utils/importCalendar";
-import { constants } from "../../../constants";
+import { constants } from "../../../config/constants";
 import { useContext } from "react";
 import { CalendarContext } from "../../../hooks/CalendarContext";
 import ConfirmationButton from "../../../components/ConfirmationButton";

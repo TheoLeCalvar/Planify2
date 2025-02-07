@@ -21,7 +21,7 @@ import {
   Box,
 } from "@mui/material";
 import InfoIcon from "@mui/icons-material/Info";
-import { constants } from "../../../constants";
+import { constants } from "../../../config/constants";
 import locale from "../../../config/locale.json";
 
 export default function ImportExclusionButton() {

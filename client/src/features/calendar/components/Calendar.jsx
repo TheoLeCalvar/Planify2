@@ -3,7 +3,7 @@ import React from "react";
 import { useContext } from "react";
 import { CalendarContext } from "../../../hooks/CalendarContext";
 
-import { constants } from "../../../constants";
+import { constants } from "../../../config/constants";
 import locale from "../../../config/locale.json";
 
 import "@schedule-x/theme-default/dist/index.css";

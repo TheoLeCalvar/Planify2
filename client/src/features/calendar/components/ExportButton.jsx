@@ -1,7 +1,7 @@
 import React from "react";
 import { Button } from "@mui/material";
 import exportCalendar from "../utils/exportCalendar";
-import { constants } from "../../../constants";
+import { constants } from "../../../config/constants";
 import { useContext } from "react";
 import { CalendarContext } from "../../../hooks/CalendarContext";
 

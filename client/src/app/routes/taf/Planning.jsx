@@ -1,9 +1,9 @@
 import React from "react";
-import { USE_MOCK_DATA } from "../../../constants";
+import { USE_MOCK_DATA } from "../../../config/constants";
 import axiosInstance from "../../../config/axiosConfig";
 import { useCalendarApp, ScheduleXCalendar } from "@schedule-x/react";
 import { Typography } from "@mui/material";
-import { constants } from "../../../constants";
+import { constants } from "../../../config/constants";
 import {
   JSONToPlanningEvent,
   assignUniqueUDId,

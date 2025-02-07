@@ -3,7 +3,7 @@ import ValidatedInput from "./ValidatedInput";
 import ValidatedForm from "./ValidatedForm";
 import { Box, Stack } from "@mui/material";
 import axiosInstance from "../config/axiosConfig";
-import { USE_MOCK_DATA } from "../constants";
+import { USE_MOCK_DATA } from "../config/constants";
 import PropTypes from "prop-types";
 
 export async function action({ request }) {

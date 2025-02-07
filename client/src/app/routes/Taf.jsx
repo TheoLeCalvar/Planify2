@@ -1,7 +1,7 @@
 import React from "react";
 import { Outlet, useLoaderData } from "react-router-dom";
 import axiosInstance from "../../config/axiosConfig";
-import { USE_MOCK_DATA } from "../../constants";
+import { USE_MOCK_DATA } from "../../config/constants";
 
 export async function loader({ params }) {
   if (USE_MOCK_DATA) {

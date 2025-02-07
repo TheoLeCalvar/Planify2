@@ -2,7 +2,7 @@ import React from "react";
 import { Outlet, useLoaderData, useOutletContext } from "react-router-dom";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Tabs, Tab } from "@mui/material";
-import { USE_MOCK_DATA } from "../../constants";
+import { USE_MOCK_DATA } from "../../config/constants";
 import axiosInstance from "../../config/axiosConfig";
 
 export async function loader({ params }) {

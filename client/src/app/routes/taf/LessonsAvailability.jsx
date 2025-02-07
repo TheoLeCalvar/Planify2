@@ -10,7 +10,7 @@ import ResetButton from "../../../features/calendar/components/ResetButton";
 import ImportExclusionButton from "../../../features/calendar/components/ImportExclusionButton";
 import { useOutletContext, useLoaderData } from "react-router-dom";
 import SaveButton from "../../../features/calendar/components/SaveButton";
-import { USE_MOCK_DATA } from "../../../constants";
+import { USE_MOCK_DATA } from "../../../config/constants";
 import axiosInstance from "../../../config/axiosConfig";
 import { JSONToCalendarEvent } from "../../../features/calendar/utils/calendarEvent";
 

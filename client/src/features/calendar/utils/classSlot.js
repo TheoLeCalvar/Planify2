@@ -2,7 +2,7 @@ import dayjs from "dayjs";
 
 import slotConfig from "../../../config/slots.json";
 import { JSONToCalendarEvent } from "./calendarEvent";
-import { constants } from "../../../constants";
+import { constants } from "../../../config/constants";
 
 export default function generateClassSlots(startDate, endDate) {
   const events = [];
