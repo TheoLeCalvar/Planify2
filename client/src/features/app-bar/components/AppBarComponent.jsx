@@ -16,9 +16,9 @@ import useStore from "../../../store/store";
 import { app } from "../../../config/locale.json";
 
 // Local imports
-import TAFSelector from "./tafSelector";
-import NotificationMenu from "./notificationsMenu";
-import ProfileMenu from "./profileMenu";
+import TAFSelector from "./TafSelector";
+import NotificationMenu from "./NotificationsMenu";
+import ProfileMenu from "./ProfileMenu";
 import { useTAFSelection } from "../hooks/useTAFSelection";
 import styles from "./AppBarComponent.styles";
 

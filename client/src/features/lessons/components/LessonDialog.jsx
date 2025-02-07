@@ -16,7 +16,7 @@ import {
   Stack,
 } from "@mui/material";
 import { LessonsContext } from "../../../hooks/LessonsContext";
-import CreateUser from "../../../components/createUser";
+import CreateUser from "../../../components/CreateUser";
 
 // Extracted style objects
 const styles = {

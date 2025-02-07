@@ -7,7 +7,7 @@ import { Box, FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 
 // Local imports
 import layout from "../../../config/locale.json";
-import styles from "./tafSelector.styles";
+import styles from "./TafSelector.styles";
 
 const TAFSelector = ({ selectedOption, onChange, tafs }) => {
   // Wrap the onChange to extract the value and then forward it.

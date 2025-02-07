@@ -15,7 +15,7 @@ import {
 import { Notifications as NotificationsIcon } from "@mui/icons-material";
 
 // Local imports
-import styles from "./notificationsMenu.styles";
+import styles from "./NotificationsMenu.styles";
 import {
   notificationsMenuReducer,
   initialState,

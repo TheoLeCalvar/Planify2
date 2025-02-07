@@ -12,7 +12,7 @@ import {
 } from "@mui/icons-material";
 
 // Local imports
-import styles from "./profileMenu.styles";
+import styles from "./ProfileMenu.styles";
 import {
   profileMenuReducer,
   initialState,

@@ -3,33 +3,33 @@ import React from "react";
 import { createBrowserRouter } from "react-router-dom";
 
 // Routes components
-import Root from "./routes/root";
-import LoginPage from "./routes/login";
-import AppBar from "./routes/layout/appBar";
-import SideBar from "./routes/layout/sideBar";
-import ErrorPage from "./routes/error-page";
-import LessonsAvailability from "./routes/taf/lessonsAvailability";
-import TAF from "./routes/taf";
-import TAFSettings from "./routes/taf/settings";
-import TAFResults from "./routes/taf/results";
-import TAFPlanning from "./routes/taf/planning";
-import UE from "./routes/ue";
-import General from "./routes/ue/general";
-import Settings from "./routes/ue/settings";
-import Lessons from "./routes/ue/lessons";
+import Root from "./routes/Root";
+import LoginPage from "./routes/Login";
+import AppBar from "./routes/layout/AppBar";
+import SideBar from "./routes/layout/SideBar";
+import ErrorPage from "./routes/ErrorPage";
+import LessonsAvailability from "./routes/taf/LessonsAvailability";
+import TAF from "./routes/Taf";
+import TAFSettings from "./routes/taf/Settings";
+import TAFResults from "./routes/taf/Results";
+import TAFPlanning from "./routes/taf/Planning";
+import UE from "./routes/Ue";
+import General from "./routes/ue/General";
+import Settings from "./routes/ue/Settings";
+import Lessons from "./routes/ue/Lessons";
 
 // Loader functions
-import { loader as TAFLoader } from "./routes/taf";
-import { loader as AppBarLoader } from "./routes/layout/appBar";
-import { loader as UELoader } from "./routes/ue";
-import { loader as LessonsLoader } from "./routes/ue/lessons";
-import { loader as LessonsAvailabilityLoader } from "./routes/taf/lessonsAvailability";
-import { loader as TAFResultsLoader } from "./routes/taf/planning";
-import { action as editUEAction } from "./routes/ue/settings";
-import { action as editLessonsAction } from "./routes/ue/lessons";
-import { action as editTAFCalendarAction } from "./routes/taf/lessonsAvailability";
-import { action as editTAFSettingsAction } from "./routes/taf/settings";
-import { action as createNewUserAction } from "../components/createUser";
+import { loader as TAFLoader } from "./routes/Taf";
+import { loader as AppBarLoader } from "./routes/layout/AppBar";
+import { loader as UELoader } from "./routes/Ue";
+import { loader as LessonsLoader } from "./routes/ue/Lessons";
+import { loader as LessonsAvailabilityLoader } from "./routes/taf/LessonsAvailability";
+import { loader as TAFResultsLoader } from "./routes/taf/Planning";
+import { action as editUEAction } from "./routes/ue/Settings";
+import { action as editLessonsAction } from "./routes/ue/Lessons";
+import { action as editTAFCalendarAction } from "./routes/taf/LessonsAvailability";
+import { action as editTAFSettingsAction } from "./routes/taf/Settings";
+import { action as createNewUserAction } from "../components/CreateUser";
 
 // Define UE nested routes
 const ueRoutes = [
