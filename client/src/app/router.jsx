@@ -5,7 +5,7 @@ import { createBrowserRouter } from "react-router-dom";
 // Routes components
 import Root from "./routes/root";
 import LoginPage from "./routes/login";
-import AppBarComponent from "./routes/layout/appBar";
+import AppBar from "./routes/layout/appBar";
 import SideBar from "./routes/layout/sideBar";
 import ErrorPage from "./routes/error-page";
 import LessonsAvailability from "./routes/taf/lessonsAvailability";
@@ -110,7 +110,7 @@ export const router = createBrowserRouter([
     children: [
       {
         path: "",
-        element: <AppBarComponent />,
+        element: <AppBar />,
         loader: AppBarLoader,
         children: [tafRoute],
       },
