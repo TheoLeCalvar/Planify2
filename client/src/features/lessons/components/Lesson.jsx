@@ -1,5 +1,8 @@
+// React imports
 import React, { useState, useContext } from "react";
 import PropTypes from "prop-types";
+
+// Material-UI imports
 import {
   Box,
   Paper,
@@ -12,8 +15,10 @@ import {
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import FileCopyIcon from "@mui/icons-material/FileCopy";
-import ConfirmationButton from "../../../components/ConfirmationButton";
-import { LessonsContext } from "../../../hooks/LessonsContext";
+
+// Local imports
+import ConfirmationButton from "@/components/ConfirmationButton";
+import { LessonsContext } from "@/hooks/LessonsContext";
 
 // Extracted style objects
 const styles = {

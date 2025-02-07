@@ -1,5 +1,8 @@
+// React imports
 import React, { useState } from "react";
 import PropTypes from "prop-types";
+
+// Material-UI imports
 import {
   Box,
   Button,
@@ -13,8 +16,12 @@ import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import FileCopyIcon from "@mui/icons-material/FileCopy";
+
+// DND imports
 import { Draggable, Droppable } from "@hello-pangea/dnd";
-import ConfirmationButton from "../../../components/ConfirmationButton";
+
+// Local imports
+import ConfirmationButton from "@/components/ConfirmationButton";
 import Lesson from "./Lesson";
 
 // Extracted style objects

@@ -1,5 +1,8 @@
+// React imports
 import React, { useState, useContext } from "react";
 import PropTypes from "prop-types";
+
+// Material-UI imports
 import {
   Dialog,
   DialogActions,
@@ -15,8 +18,10 @@ import {
   Typography,
   Stack,
 } from "@mui/material";
-import { LessonsContext } from "../../../hooks/LessonsContext";
-import CreateUser from "../../../components/CreateUser";
+
+// Local imports
+import { LessonsContext } from "@/hooks/LessonsContext";
+import CreateUser from "@/components/CreateUser";
 
 // Extracted style objects
 const styles = {

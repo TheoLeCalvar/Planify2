@@ -1,9 +1,12 @@
+// React imports
 import React from "react";
-import importCalendar from "../utils/importCalendar";
-import { constants } from "../../../config/constants";
 import { useContext } from "react";
-import { CalendarContext } from "../../../hooks/CalendarContext";
-import ConfirmationButton from "../../../components/ConfirmationButton";
+
+// Local imports
+import importCalendar from "../utils/importCalendar";
+import { constants } from "@/config/constants";
+import { CalendarContext } from "@/hooks/CalendarContext";
+import ConfirmationButton from "@/components/ConfirmationButton";
 
 export default function ImportButton() {
   const { eventService, genericEventService } = useContext(CalendarContext);

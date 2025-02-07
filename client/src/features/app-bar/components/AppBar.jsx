@@ -12,14 +12,14 @@ import {
 import { Menu as MenuIcon } from "@mui/icons-material";
 
 // Global store and configuration imports
-import useStore from "../../../store/store";
-import { app } from "../../../config/locale.json";
+import useStore from "@/store/store";
+import { app } from "@/config/locale.json";
 
 // Local imports
 import TAFSelector from "./tafSelector";
 import NotificationMenu from "./notificationsMenu";
 import ProfileMenu from "./profileMenu";
-import { useTAFSelection } from "../hooks/useTAFSelection";
+import { useTAFSelection } from "@/hooks/useTAFSelection";
 import styles from "./AppBar.styles";
 
 const AppBar = () => {

@@ -1,10 +1,14 @@
+// React imports
 import { React, createContext, useMemo } from "react";
-import { createEventsServicePlugin } from "@schedule-x/events-service";
-import ConfirmationDialog from "../components/ConfirmationDialog";
-
 import { useState } from "react";
-import { JSONToCalendarEvent } from "../features/calendar/utils/calendarEvent";
 import PropTypes from "prop-types";
+
+// Schedule-X imports
+import { createEventsServicePlugin } from "@schedule-x/events-service";
+
+// Local imports
+import ConfirmationDialog from "@/components/ConfirmationDialog";
+import { JSONToCalendarEvent } from "@/features/calendar/utils/calendarEvent";
 
 export const CalendarContext = createContext();
 

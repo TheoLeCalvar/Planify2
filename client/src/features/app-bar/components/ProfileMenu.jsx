@@ -16,7 +16,7 @@ import styles from "./ProfileMenu.styles";
 import {
   profileMenuReducer,
   initialState,
-} from "../stores/profileMenu.reducer";
+} from "../stores/ProfileMenu.reducer";
 
 // Profile Menu Component
 const ProfileMenu = () => {

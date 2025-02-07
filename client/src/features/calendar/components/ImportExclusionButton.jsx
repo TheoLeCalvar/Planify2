@@ -1,7 +1,8 @@
-import importExclusionCalendar from "../utils/importExclusionCalendar";
+// React imports
 import { useContext } from "react";
-import { CalendarContext } from "../../../hooks/CalendarContext";
 import React, { useState } from "react";
+
+// Material-UI imports
 import {
   Button,
   Dialog,
@@ -21,8 +22,12 @@ import {
   Box,
 } from "@mui/material";
 import InfoIcon from "@mui/icons-material/Info";
-import { constants } from "../../../config/constants";
-import locale from "../../../config/locale.json";
+
+// Local imports
+import { constants } from "@/config/constants";
+import locale from "@/config/locale.json";
+import { CalendarContext } from "@/hooks/CalendarContext";
+import importExclusionCalendar from "../utils/importExclusionCalendar";
 
 export default function ImportExclusionButton() {
   const { eventService } = useContext(CalendarContext);

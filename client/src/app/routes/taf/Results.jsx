@@ -1,8 +1,11 @@
+// React imports
 import React, { useEffect } from "react";
-import { Box } from "@mui/material";
 import { Outlet, useOutletContext, useParams } from "react-router-dom";
-import { Select, MenuItem } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+
+// Material-UI imports
+import { Box } from "@mui/material";
+import { Select, MenuItem } from "@mui/material";
 import { FormControl, InputLabel } from "@mui/material";
 
 export default function TAFResults() {

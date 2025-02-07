@@ -19,7 +19,7 @@ import styles from "./NotificationsMenu.styles";
 import {
   notificationsMenuReducer,
   initialState,
-} from "../stores/notificationsMenu.reducer";
+} from "../stores/NotificationsMenu.reducer";
 
 const NotificationMenu = () => {
   const [state, dispatch] = useReducer(notificationsMenuReducer, initialState);

@@ -6,7 +6,7 @@ import PropTypes from "prop-types";
 import { Box, FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 
 // Local imports
-import layout from "../../../config/locale.json";
+import layout from "@/config/locale.json";
 import styles from "./TafSelector.styles";
 
 const TAFSelector = ({ selectedOption, onChange, tafs }) => {

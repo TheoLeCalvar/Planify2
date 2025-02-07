@@ -12,8 +12,8 @@ import {
 import { Menu as MenuIcon } from "@mui/icons-material";
 
 // Global store and configuration imports
-import useStore from "../../../store/store";
-import { app } from "../../../config/locale.json";
+import useStore from "@/store/store";
+import { app } from "@/config/locale.json";
 
 // Local imports
 import TAFSelector from "./TafSelector";

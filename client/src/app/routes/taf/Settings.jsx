@@ -1,3 +1,4 @@
+// React imports
 import React from "react";
 import {
   Outlet,
@@ -5,18 +6,23 @@ import {
   useNavigate,
   useOutletContext,
 } from "react-router-dom";
-import ValidatedInput from "../../../components/ValidatedInput";
-import ValidatedForm from "../../../components/ValidatedForm";
+
+// Material-UI imports
+import { Stack } from "@mui/material";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+
+// DayJS imports
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
-import axiosInstance from "../../../config/axiosConfig";
-
 import "dayjs/locale/fr";
-import { Stack } from "@mui/material";
-import { USE_MOCK_DATA } from "../../../config/constants";
+
+// Local imports
+import ValidatedInput from "@/components/ValidatedInput";
+import ValidatedForm from "@/components/ValidatedForm";
+import axiosInstance from "@/config/axiosConfig";
+import { USE_MOCK_DATA } from "@/config/constants";
 
 dayjs.extend(customParseFormat);
 

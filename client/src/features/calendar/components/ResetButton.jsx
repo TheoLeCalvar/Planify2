@@ -1,12 +1,12 @@
+// React imports
 import React from "react";
-
 import { useContext } from "react";
-import { CalendarContext } from "../../../hooks/CalendarContext";
-
-import { convertCalendarToGeneric } from "../utils/calendarEvent";
-import ConfirmationButton from "../../../components/ConfirmationButton";
-
 import { toast } from "react-toastify";
+
+// Local imports
+import { CalendarContext } from "@/hooks/CalendarContext";
+import { convertCalendarToGeneric } from "../utils/calendarEvent";
+import ConfirmationButton from "@/components/ConfirmationButton";
 
 export default function ResetButton() {
   const { eventService, genericEventService, initialEvents } =

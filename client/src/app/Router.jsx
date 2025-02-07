@@ -29,7 +29,7 @@ import { action as editUEAction } from "./routes/ue/Settings";
 import { action as editLessonsAction } from "./routes/ue/Lessons";
 import { action as editTAFCalendarAction } from "./routes/taf/LessonsAvailability";
 import { action as editTAFSettingsAction } from "./routes/taf/Settings";
-import { action as createNewUserAction } from "../components/CreateUser";
+import { action as createNewUserAction } from "@/components/CreateUser";
 
 // Define UE nested routes
 const ueRoutes = [

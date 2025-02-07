@@ -1,7 +1,9 @@
-// src/components/SideBar.js
-
+// React imports
 import React, { useCallback, useReducer } from "react";
 import PropTypes from "prop-types";
+import { Link, Outlet, useOutletContext } from "react-router-dom";
+
+// Material-UI imports
 import {
   Drawer,
   Box,
@@ -15,10 +17,11 @@ import {
   Stack,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import { Link, Outlet, useOutletContext } from "react-router-dom";
-import locale from "../../../config/locale.json";
-import useStore from "../../../store/store";
-import axiosInstance from "../../../config/axiosConfig";
+
+// Local imports
+import locale from "@/config/locale.json";
+import useStore from "@/store/store";
+import axiosInstance from "@/config/axiosConfig";
 
 const drawerWidth = 250;
 

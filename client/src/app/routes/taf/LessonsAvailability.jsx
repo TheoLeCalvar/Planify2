@@ -1,18 +1,23 @@
+// React imports
 import React, { useState } from "react";
-import Calendar from "../../../features/calendar/components/Calendar";
-import GenericWeekCalendar from "../../../features/calendar/components/GenericWeekCalendar";
+
+// Material-UI imports
 import { Tabs, Tab, Typography, Stack } from "@mui/material";
-import CalendarContextProvider from "../../../hooks/CalendarContext";
-import ImportButton from "../../../features/calendar/components/ImportButton";
-import ExportButton from "../../../features/calendar/components/ExportButton";
-import generateClassSlots from "../../../features/calendar/utils/classSlot";
-import ResetButton from "../../../features/calendar/components/ResetButton";
-import ImportExclusionButton from "../../../features/calendar/components/ImportExclusionButton";
+
+// Local imports
+import Calendar from "@/features/calendar/components/Calendar";
+import GenericWeekCalendar from "@/features/calendar/components/GenericWeekCalendar";
+import CalendarContextProvider from "@/hooks/CalendarContext";
+import ImportButton from "@/features/calendar/components/ImportButton";
+import ExportButton from "@/features/calendar/components/ExportButton";
+import generateClassSlots from "@/features/calendar/utils/classSlot";
+import ResetButton from "@/features/calendar/components/ResetButton";
+import ImportExclusionButton from "@/features/calendar/components/ImportExclusionButton";
 import { useOutletContext, useLoaderData } from "react-router-dom";
-import SaveButton from "../../../features/calendar/components/SaveButton";
-import { USE_MOCK_DATA } from "../../../config/constants";
-import axiosInstance from "../../../config/axiosConfig";
-import { JSONToCalendarEvent } from "../../../features/calendar/utils/calendarEvent";
+import SaveButton from "@/features/calendar/components/SaveButton";
+import { USE_MOCK_DATA } from "@/config/constants";
+import axiosInstance from "@/config/axiosConfig";
+import { JSONToCalendarEvent } from "@/features/calendar/utils/calendarEvent";
 
 export async function loader({ params }) {
   if (USE_MOCK_DATA) {
