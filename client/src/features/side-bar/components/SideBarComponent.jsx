@@ -12,7 +12,7 @@ import LessonList from "./LessonList";
 import SidebarActions from "./SidebarActions";
 
 // Styles
-import { styles } from "./SideBarComponent.styles";
+import styles from "./SideBarComponent.styles";
 
 // Custom hook for calendar generation
 import useCalendarGeneration from "@/features/side-bar/hooks/useCalendarGeneration";

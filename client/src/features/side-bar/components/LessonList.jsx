@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import locale from "@/config/locale.json";
 
 // Styles
-import { styles } from "./LessonList.styles";
+import styles from "./LessonList.styles";
 
 const LessonList = ({ lessons, tafID }) => {
   return (
