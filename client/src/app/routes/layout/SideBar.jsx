@@ -22,45 +22,41 @@ import AddIcon from "@mui/icons-material/Add";
 import locale from "@/config/locale.json";
 import useStore from "@/store/store";
 import axiosInstance from "@/config/axiosConfig";
-
-const drawerWidth = 250;
+import { drawerWidth, appBarHeight } from "@/config/constants";
 
 // Extracted styles for the sidebar components
 const styles = {
   drawer: {
     width: drawerWidth,
-    flexShrink: 0,
     "& .MuiDrawer-paper": {
-      width: drawerWidth + 1,
+      width: drawerWidth,
       boxSizing: "border-box",
-      position: "relative",
+      top: appBarHeight,
+      height: "calc(100vh - ${appBarHeight}px)",
+      position: "fixed",
+      overflowX: "hidden",
     },
   },
   sidebarContainer: {
     width: drawerWidth,
     display: "flex",
     flexDirection: "column",
-    height: "100%",
+    height: "90vh",
   },
-  mainContent: (theme) => ({
-    flexGrow: 1,
-    p: 3,
-    transition: theme.transitions.create(["margin", "width"], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-  }),
   lessonList: {
-    flexGrow: 1,
-    overflowY: "auto",
-    px: 2,
-  },
-  lessonListTitle: {
-    mt: 2,
+    flexGrow: 1, // Takes all available vertical space
+    overflowY: "auto", // Scrolls if content is too long
     px: 2,
   },
   sidebarActions: {
-    p: 2,
+    px: 2,
+    py: 2,
+    mt: "auto", // Pushes this section to the bottom
+  },
+  mainContent: {
+    flexGrow: 1, // Takes all available space
+    padding: 3,
+    paddingTop: appBarHeight + "px",
   },
 };
 
@@ -182,6 +178,7 @@ const SideBar = () => {
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
+
       <Drawer
         variant="persistent"
         anchor="left"
@@ -205,7 +202,7 @@ const SideBar = () => {
           {/* Lessons List */}
           <LessonList lessons={lessons} tafID={tafID} />
 
-          {/* Sidebar Actions */}
+          {/* Sidebar Actions (pushed to the bottom) */}
           <SidebarActions
             tafID={tafID}
             resultPlanning={resultPlanning}
@@ -216,7 +213,7 @@ const SideBar = () => {
       </Drawer>
 
       {/* Main Content */}
-      <Box component="main" sx={(theme) => styles.mainContent(theme)}>
+      <Box component="main" sx={styles.mainContent}>
         <Outlet context={{ taf }} />
       </Box>
     </Box>
