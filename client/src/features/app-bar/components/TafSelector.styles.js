@@ -5,6 +5,7 @@ const styles = {
     flexGrow: 1,
   },
   formControl: {
+    marginTop: 2,
     minWidth: 300,
   },
   label: {
