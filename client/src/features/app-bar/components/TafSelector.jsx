@@ -17,8 +17,8 @@ const TAFSelector = ({ selectedOption, onChange, tafs }) => {
 
   return (
     <Box sx={styles.TAFSelectorBox}>
-      <FormControl variant="standard" sx={styles.formControl}>
-        <InputLabel htmlFor="dropdown-selector">
+      <FormControl sx={styles.formControl}>
+        <InputLabel htmlFor="dropdown-selector" sx={styles.label}>
           {layout.layout.appBar.TAFSelector}
         </InputLabel>
         <Select
@@ -26,6 +26,7 @@ const TAFSelector = ({ selectedOption, onChange, tafs }) => {
           value={selectedOption}
           onChange={handleChange}
           label={layout.layout.appBar.TAFSelector}
+          sx={styles.select}
         >
           {tafs.map(({ id, name }) => (
             <MenuItem key={id} value={id}>
