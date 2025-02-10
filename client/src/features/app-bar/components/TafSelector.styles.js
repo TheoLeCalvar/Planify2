@@ -3,6 +3,7 @@ const styles = {
     display: "flex",
     justifyContent: "center",
     flexGrow: 1,
+    height: "100%",
   },
   formControl: {
     margin: 1,

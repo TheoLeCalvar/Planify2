@@ -34,7 +34,7 @@ const AppBarComponent = () => {
 
   return (
     <>
-      <MuiAppBar position="static" sx={styles.appbar}>
+      <MuiAppBar sx={styles.appbar}>
         <Toolbar sx={styles.toolbar}>
           {selectedTAF && (
             <IconButton onClick={toggleDrawer} color="inherit">
