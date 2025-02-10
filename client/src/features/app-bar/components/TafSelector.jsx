@@ -18,10 +18,11 @@ const TAFSelector = ({ selectedOption, onChange, tafs }) => {
   return (
     <Box sx={styles.TAFSelectorBox}>
       <FormControl sx={styles.formControl}>
-        <InputLabel htmlFor="dropdown-selector" sx={styles.label}>
+        <InputLabel id="taf-selector-label" sx={styles.label}>
           {layout.layout.appBar.TAFSelector}
         </InputLabel>
         <Select
+          labelId="taf-selector-label"
           id="dropdown-selector"
           value={selectedOption}
           onChange={handleChange}
