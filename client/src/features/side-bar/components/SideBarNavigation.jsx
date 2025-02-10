@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import locale from "@/config/locale.json";
 
 // Styles
-import { styles } from "./SideBarNavigation.styles";
+import styles from "./SideBarNavigation.styles";
 
 const SidebarNavigation = () => {
   return (

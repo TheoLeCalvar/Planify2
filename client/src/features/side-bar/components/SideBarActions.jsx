@@ -6,7 +6,7 @@ import AddIcon from "@mui/icons-material/Add";
 import locale from "@/config/locale.json";
 
 // Styles
-import { styles } from "./SideBarActions.styles";
+import styles from "./SideBarActions.styles";
 
 const SidebarActions = ({
   tafID,
