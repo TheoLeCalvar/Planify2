@@ -12,8 +12,8 @@ import {
 import { Menu as MenuIcon } from "@mui/icons-material";
 
 // Global store and configuration imports
-import useStore from "../../../store/store";
-import { app } from "../../../config/locale.json";
+import useStore from "@/store/store";
+import { app } from "@/config/locale.json";
 
 // Local imports
 import TAFSelector from "./TafSelector";
@@ -34,7 +34,7 @@ const AppBarComponent = () => {
 
   return (
     <>
-      <MuiAppBar position="static">
+      <MuiAppBar position="static" sx={styles.appbar}>
         <Toolbar sx={styles.toolbar}>
           {selectedTAF && (
             <IconButton onClick={toggleDrawer} color="inherit">

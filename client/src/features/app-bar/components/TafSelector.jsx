@@ -6,7 +6,7 @@ import PropTypes from "prop-types";
 import { Box, FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 
 // Local imports
-import layout from "../../../config/locale.json";
+import layout from "@/config/locale.json";
 import styles from "./TafSelector.styles";
 
 const TAFSelector = ({ selectedOption, onChange, tafs }) => {
@@ -17,15 +17,17 @@ const TAFSelector = ({ selectedOption, onChange, tafs }) => {
 
   return (
     <Box sx={styles.TAFSelectorBox}>
-      <FormControl variant="standard" sx={styles.formControl}>
-        <InputLabel htmlFor="dropdown-selector">
+      <FormControl sx={styles.formControl}>
+        <InputLabel id="taf-selector-label" sx={styles.label}>
           {layout.layout.appBar.TAFSelector}
         </InputLabel>
         <Select
+          labelId="taf-selector-label"
           id="dropdown-selector"
           value={selectedOption}
           onChange={handleChange}
           label={layout.layout.appBar.TAFSelector}
+          sx={styles.select}
         >
           {tafs.map(({ id, name }) => (
             <MenuItem key={id} value={id}>

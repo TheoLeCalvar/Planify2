@@ -5,10 +5,10 @@ import {
   useNavigate,
   useOutletContext,
 } from "react-router-dom";
-import ValidatedInput from "../../../components/ValidatedInput";
-import ValidatedForm from "../../../components/ValidatedForm";
-import { USE_MOCK_DATA } from "../../../config/constants";
-import axiosInstance from "../../../config/axiosConfig";
+import ValidatedInput from "@/components/ValidatedInput";
+import ValidatedForm from "@/components/ValidatedForm";
+import { USE_MOCK_DATA } from "@/config/constants";
+import axiosInstance from "@/config/axiosConfig";
 
 export async function action({ request, params }) {
   //TODO: Update section with backend call

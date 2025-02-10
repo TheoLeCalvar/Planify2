@@ -1,5 +1,8 @@
+// React imports
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
+
+// Material-UI imports
 import {
   Container,
   Paper,
@@ -8,8 +11,12 @@ import {
   Box,
   Stack,
 } from "@mui/material";
-import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import AddIcon from "@mui/icons-material/Add";
+
+// DND imports
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+
+// Local imports
 import Block from "./Block";
 import BlockDialog from "./BlockDialog";
 import LessonDialog from "./LessonDialog";

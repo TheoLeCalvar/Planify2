@@ -1,5 +1,5 @@
-import locale from "../../../config/locale.json";
-import { constants } from "../../../config/constants";
+import locale from "@/config/locale.json";
+import { constants } from "@/config/constants";
 
 import dayjs from "dayjs";
 import isoWeek from "dayjs/plugin/isoWeek";

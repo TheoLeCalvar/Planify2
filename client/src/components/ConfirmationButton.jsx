@@ -1,7 +1,11 @@
-// src/components/ConfirmationButton.js
+// React imports
 import React, { useState } from "react";
 import PropTypes from "prop-types";
+
+// Material-UI imports
 import { Button, Tooltip } from "@mui/material";
+
+// Local imports
 import ConfirmationDialog from "./ConfirmationDialog";
 
 const ConfirmationButton = ({

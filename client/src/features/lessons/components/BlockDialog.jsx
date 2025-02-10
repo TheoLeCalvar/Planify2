@@ -1,5 +1,8 @@
+// React imports
 import React, { useState } from "react";
 import PropTypes from "prop-types";
+
+// Material-UI imports
 import {
   Dialog,
   DialogActions,

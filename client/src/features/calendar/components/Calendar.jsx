@@ -1,12 +1,15 @@
-import { useCalendarApp, ScheduleXCalendar } from "@schedule-x/react";
+// React imports
 import React from "react";
 import { useContext } from "react";
-import { CalendarContext } from "../../../hooks/CalendarContext";
 
-import { constants } from "../../../config/constants";
-import locale from "../../../config/locale.json";
-
+// ScheduleX imports
+import { useCalendarApp, ScheduleXCalendar } from "@schedule-x/react";
 import "@schedule-x/theme-default/dist/index.css";
+
+// Local imports
+import { CalendarContext } from "@/hooks/CalendarContext";
+import { constants } from "@/config/constants";
+import locale from "@/config/locale.json";
 import "../assets/calendar.css";
 
 export default function Calendar() {

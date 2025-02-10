@@ -5,13 +5,13 @@ import {
   useOutletContext,
   useFetcher,
 } from "react-router-dom";
-import BlockManager from "../../../features/lessons/components/BlockManager";
+import BlockManager from "@/features/lessons/components/BlockManager";
 import { useEffect, useState } from "react";
 import SaveIcon from "@mui/icons-material/Save";
 import { Fab } from "@mui/material";
-import { LessonsContext } from "../../../hooks/LessonsContext";
-import { USE_MOCK_DATA } from "../../../config/constants";
-import axiosInstance from "../../../config/axiosConfig";
+import { LessonsContext } from "@/hooks/LessonsContext";
+import { USE_MOCK_DATA } from "@/config/constants";
+import axiosInstance from "@/config/axiosConfig";
 
 const styles = {
   fab: {

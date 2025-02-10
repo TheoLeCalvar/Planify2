@@ -1,9 +1,11 @@
+// React imports
 import React from "react";
 import ReactDOM from "react-dom/client";
-import "../assets/index.css";
-import reportWebVitals from "./reportWebVitals";
-
 import { RouterProvider } from "react-router-dom";
+
+// Local imports
+import "@/assets/index.css";
+import reportWebVitals from "./reportWebVitals";
 import { router } from "./Router";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));

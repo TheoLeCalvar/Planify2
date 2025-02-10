@@ -1,17 +1,23 @@
+// React imports
 import React from "react";
-import { USE_MOCK_DATA } from "../../../config/constants";
-import axiosInstance from "../../../config/axiosConfig";
-import { useCalendarApp, ScheduleXCalendar } from "@schedule-x/react";
+import { useLoaderData } from "react-router-dom";
+
+// Material-UI imports
 import { Typography } from "@mui/material";
-import { constants } from "../../../config/constants";
+
+// ScheduleX imports
+import { useCalendarApp, ScheduleXCalendar } from "@schedule-x/react";
+import { createEventModalPlugin } from "@schedule-x/event-modal";
+import "@schedule-x/theme-default/dist/index.css";
+
+// Local imports
+import { USE_MOCK_DATA } from "@/config/constants";
+import axiosInstance from "@/config/axiosConfig";
+import { constants } from "@/config/constants";
 import {
   JSONToPlanningEvent,
   assignUniqueUDId,
-} from "../../../features/calendar/utils/calendarEvent";
-import { useLoaderData } from "react-router-dom";
-import { createEventModalPlugin } from "@schedule-x/event-modal";
-
-import "@schedule-x/theme-default/dist/index.css";
+} from "@/features/calendar/utils/calendarEvent";
 
 export async function loader({ params }) {
   if (USE_MOCK_DATA) {
