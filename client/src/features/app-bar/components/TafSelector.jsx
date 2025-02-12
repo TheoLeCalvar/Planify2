@@ -3,11 +3,20 @@ import React from "react";
 import PropTypes from "prop-types";
 
 // Material-UI imports
-import { Box, FormControl, InputLabel, MenuItem, Select } from "@mui/material";
+import {
+  Box,
+  FormControl,
+  IconButton,
+  InputLabel,
+  MenuItem,
+  Select,
+} from "@mui/material";
 
 // Local imports
 import layout from "@/config/locale.json";
 import styles from "./TafSelector.styles";
+import { AddCircle } from "@mui/icons-material";
+import { Link } from "react-router-dom";
 
 const TAFSelector = ({ selectedOption, onChange, tafs }) => {
   // Wrap the onChange to extract the value and then forward it.
@@ -36,6 +45,11 @@ const TAFSelector = ({ selectedOption, onChange, tafs }) => {
           ))}
         </Select>
       </FormControl>
+      <Link to="/taf/new">
+        <IconButton>
+          <AddCircle color="secondary" />
+        </IconButton>
+      </Link>
     </Box>
   );
 };

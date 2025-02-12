@@ -88,18 +88,25 @@ const tafRoutes = [
 ];
 
 // Define the TAF route (with a nested SideBar)
-const tafRoute = {
-  path: "taf/:idTAF",
-  element: <TAF />,
-  loader: TAFLoader,
-  children: [
-    {
-      path: "",
-      element: <SideBar />,
-      children: tafRoutes,
-    },
-  ],
-};
+const tafRoute = [
+  {
+    path: "taf/:idTAF",
+    element: <TAF />,
+    loader: TAFLoader,
+    children: [
+      {
+        path: "",
+        element: <SideBar />,
+        children: tafRoutes,
+      },
+    ],
+  },
+  {
+    path: "taf/new",
+    element: <TAFSettings />,
+    action: editTAFSettingsAction,
+  },
+];
 
 export const router = createBrowserRouter([
   {
@@ -111,7 +118,7 @@ export const router = createBrowserRouter([
         path: "",
         element: <AppBar />,
         loader: AppBarLoader,
-        children: [tafRoute],
+        children: tafRoute,
       },
       {
         path: "login",

@@ -5,7 +5,10 @@ import {
   redirect,
   useNavigate,
   useOutletContext,
+  useParams,
+  useRevalidator,
 } from "react-router-dom";
+import PropTypes from "prop-types";
 
 // Material-UI imports
 import { Stack, Typography } from "@mui/material";
@@ -24,6 +27,7 @@ import ValidatedForm from "@/components/ValidatedForm";
 import axiosInstance from "@/config/axiosConfig";
 import { USE_MOCK_DATA } from "@/config/constants";
 import UserSelector from "@/components/UserSelector";
+import ConfirmationButton from "@/components/ConfirmationButton";
 
 dayjs.extend(customParseFormat);
 
@@ -41,11 +45,41 @@ export async function action({ request, params }) {
 
     await delay();
   } else {
-    await axiosInstance.put(`/taf/${params.idTAF}`, data);
+    if (params.idTAF) {
+      await axiosInstance.put(`/taf/${params.idTAF}`, data);
+    } else {
+      await axiosInstance.post(`/taf`, data);
+    }
   }
 
   return redirect("..");
 }
+
+const DeleteTAFButton = ({ idTAF }) => {
+  const navigate = useNavigate();
+  const revalidator = useRevalidator();
+
+  const handleDelete = () => {
+    axiosInstance.delete(`/taf/${idTAF}`).then(() => {
+      navigate("../..");
+      revalidator.revalidate();
+    });
+  };
+
+  return (
+    <ConfirmationButton
+      buttonText="Supprimer la TAF"
+      onConfirm={handleDelete}
+      buttonColor="warning"
+      dialogMessage="Êtes-vous sûr de vouloir supprimer cette TAF ? Toutes les UE et cours seront également supprimés. Cette action est irréversible."
+      confirmText="Supprimer"
+    />
+  );
+};
+
+DeleteTAFButton.propTypes = {
+  idTAF: PropTypes.string.isRequired,
+};
 
 const minDate = dayjs().subtract(1, "year");
 const maxDate = dayjs().add(2, "year");
@@ -53,8 +87,11 @@ const maxDate = dayjs().add(2, "year");
 export default function TAFSettings() {
   const context = useOutletContext();
   const navigate = useNavigate();
+  const params = useParams();
 
-  const taf = context.taf;
+  const isEditing = !!params.idTAF;
+
+  const taf = context?.taf;
 
   const [managers, setManagers] = React.useState([]);
 
@@ -92,15 +129,19 @@ export default function TAFSettings() {
 
   return (
     <>
-      <Typography variant="h4" gutterBottom mt={2}>
-        Paramètres de la TAF
+      <Typography variant="h5" gutterBottom mt={2}>
+        {isEditing ? "Paramètres de la TAF" : "Nouvelle TAF"}
       </Typography>
-      <ValidatedForm validateField={validateField} onCancel={onCancel}>
+      <ValidatedForm
+        validateField={validateField}
+        onCancel={onCancel}
+        actionButtons={isEditing ? <DeleteTAFButton idTAF={taf.id} /> : null}
+      >
         <Stack direction="column" spacing={3}>
           <ValidatedInput
             name="name"
             label="Nom"
-            defaultValue={taf.name}
+            defaultValue={taf?.name}
             margin="normal"
             fullWidth
             required
@@ -108,7 +149,7 @@ export default function TAFSettings() {
           <ValidatedInput
             name="description"
             label="Description"
-            defaultValue={taf.description}
+            defaultValue={taf?.description}
             multiline
             minRows={3}
             margin="normal"
@@ -119,14 +160,14 @@ export default function TAFSettings() {
               <ValidatedInput
                 name="startDate"
                 label="Date de début des cours"
-                defaultValue={dayjs(taf.startDate)}
+                defaultValue={dayjs(taf?.startDate)}
               >
                 <DatePicker minDate={minDate} maxDate={maxDate} />
               </ValidatedInput>
               <ValidatedInput
                 name="endDate"
                 label="Date de fin des cours"
-                defaultValue={dayjs(taf.endDate)}
+                defaultValue={dayjs(taf?.endDate)}
               >
                 <DatePicker minDate={minDate} maxDate={maxDate} />
               </ValidatedInput>
