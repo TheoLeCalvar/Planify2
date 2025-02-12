@@ -47,12 +47,6 @@ const ueRoutes = [
     element: <Lessons />,
     loader: LessonsLoader,
     action: editLessonsAction,
-    children: [
-      {
-        path: "createUser",
-        action: createNewUserAction,
-      },
-    ],
   },
 ];
 
@@ -118,6 +112,10 @@ export const router = createBrowserRouter([
         path: "login",
         element: <LoginPage />,
       },
+      {
+        path: "createUser",
+        action: createNewUserAction,
+      }
     ],
   },
 ]);

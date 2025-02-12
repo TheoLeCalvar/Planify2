@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 
 // Material-UI imports
 import { Box, Stack } from "@mui/material";
+import { Dialog, DialogContent, DialogTitle } from "@mui/material";
 
 // Local imports
 import ValidatedInput from "./ValidatedInput";
@@ -12,8 +13,7 @@ import axiosInstance from "@/config/axiosConfig";
 import { USE_MOCK_DATA } from "@/config/constants";
 
 export async function action({ request }) {
-  const formData = await request.formData();
-  const data = Object.fromEntries(formData);
+  const data = await request.json();
 
   if (USE_MOCK_DATA) {
     await new Promise((res) => setTimeout(res, 1000));
@@ -24,7 +24,22 @@ export async function action({ request }) {
   return { ok: result.status === 200 };
 }
 
-export default function CreateUser({ onCancel }) {
+// Subcomponent for the CreateUser dialog
+const CreateUserDialog = ({ open, onClose }) => (
+  <Dialog open={open} onClose={onClose}>
+    <DialogTitle>Créer un nouvel utilisateur</DialogTitle>
+    <DialogContent>
+      <CreateUser onCancel={onClose} />
+    </DialogContent>
+  </Dialog>
+);
+
+CreateUserDialog.propTypes = {
+  open: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+};
+
+export function CreateUser({ onCancel }) {
   const validateField = (name, value) => {
     switch (name) {
       case "email":
@@ -48,7 +63,7 @@ export default function CreateUser({ onCancel }) {
         validateField={validateField}
         onSubmit={onCancel}
         onCancel={onCancel}
-        action={"./createUser"}
+        action="/createUser"
       >
         <Stack direction="row" spacing={2}>
           <ValidatedInput
@@ -84,3 +99,5 @@ export default function CreateUser({ onCancel }) {
 CreateUser.propTypes = {
   onCancel: PropTypes.func.isRequired,
 };
+
+export default CreateUserDialog;

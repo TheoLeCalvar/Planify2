@@ -8,7 +8,7 @@ import {
 } from "react-router-dom";
 
 // Material-UI imports
-import { Stack } from "@mui/material";
+import { Stack, Typography } from "@mui/material";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -23,14 +23,12 @@ import ValidatedInput from "@/components/ValidatedInput";
 import ValidatedForm from "@/components/ValidatedForm";
 import axiosInstance from "@/config/axiosConfig";
 import { USE_MOCK_DATA } from "@/config/constants";
+import UserSelector from "@/components/UserSelector";
 
 dayjs.extend(customParseFormat);
 
 export async function action({ request, params }) {
-  //TODO: Update section with backend call
-
-  const formData = await request.formData();
-  const updates = Object.fromEntries(formData);
+  const data = await request.json();
 
   if (USE_MOCK_DATA) {
     const delay = () => {
@@ -42,9 +40,8 @@ export async function action({ request, params }) {
     };
 
     await delay();
-    console.log(updates);
   } else {
-    const response = await axiosInstance.put(`/taf/${params.idTAF}`, updates);
+    await axiosInstance.put(`/taf/${params.idTAF}`, data);
   }
 
   return redirect("..");
@@ -59,6 +56,8 @@ export default function TAFSettings() {
 
   const taf = context.taf;
 
+  const [managers, setManagers] = React.useState([]);
+
   const validateField = (name, value, otherValues) => {
     switch (name) {
       case "name":
@@ -68,21 +67,17 @@ export default function TAFSettings() {
       default:
         return "";
       case "endDate": {
-        const compareValue = dayjs.isDayjs(value)
-          ? value
-          : dayjs(value, "DD/MM/YYYY");
+        const compareValue = dayjs.isDayjs(value) ? value : dayjs(value);
         if (!compareValue.isValid()) {
           return "La date de fin n'est pas valide.";
         }
-        if (compareValue.isBefore(dayjs(otherValues.startDate, "DD/MM/YYYY"))) {
+        if (compareValue.isBefore(dayjs(otherValues.startDate))) {
           return "La date de fin doit être après la date de début.";
         }
         break;
       }
       case "startDate": {
-        const compareValue2 = dayjs.isDayjs(value)
-          ? value
-          : dayjs(value, "DD/MM/YYYY");
+        const compareValue2 = dayjs.isDayjs(value) ? value : dayjs(value);
         if (!compareValue2.isValid()) {
           return "La date de début n'est pas valide.";
         }
@@ -97,42 +92,58 @@ export default function TAFSettings() {
 
   return (
     <>
+      <Typography variant="h4" gutterBottom mt={2}>
+        Paramètres de la TAF
+      </Typography>
       <ValidatedForm validateField={validateField} onCancel={onCancel}>
-        <ValidatedInput
-          name="name"
-          label="Nom"
-          defaultValue={taf.name}
-          margin="normal"
-          fullWidth
-          required
-        />
-        <ValidatedInput
-          name="description"
-          label="Description"
-          defaultValue={taf.description}
-          multiline
-          minRows={3}
-          margin="normal"
-          fullWidth
-        />
-        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="fr">
-          <Stack direction="row" spacing={2}>
-            <ValidatedInput
-              name="startDate"
-              label="Date de début des cours"
-              defaultValue={dayjs(taf.startDate, "YYYY-MM-DD")}
-            >
-              <DatePicker minDate={minDate} maxDate={maxDate} />
-            </ValidatedInput>
-            <ValidatedInput
-              name="endDate"
-              label="Date de fin des cours"
-              defaultValue={dayjs(taf.endDate, "YYYY-MM-DD")}
-            >
-              <DatePicker minDate={minDate} maxDate={maxDate} />
-            </ValidatedInput>
-          </Stack>
-        </LocalizationProvider>
+        <Stack direction="column" spacing={3}>
+          <ValidatedInput
+            name="name"
+            label="Nom"
+            defaultValue={taf.name}
+            margin="normal"
+            fullWidth
+            required
+          />
+          <ValidatedInput
+            name="description"
+            label="Description"
+            defaultValue={taf.description}
+            multiline
+            minRows={3}
+            margin="normal"
+            fullWidth
+          />
+          <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="fr">
+            <Stack direction="row" spacing={2} mt={2}>
+              <ValidatedInput
+                name="startDate"
+                label="Date de début des cours"
+                defaultValue={dayjs(taf.startDate)}
+              >
+                <DatePicker minDate={minDate} maxDate={maxDate} />
+              </ValidatedInput>
+              <ValidatedInput
+                name="endDate"
+                label="Date de fin des cours"
+                defaultValue={dayjs(taf.endDate)}
+              >
+                <DatePicker minDate={minDate} maxDate={maxDate} />
+              </ValidatedInput>
+            </Stack>
+          </LocalizationProvider>
+          <ValidatedInput
+            name={"managers"}
+            label={"Responsables"}
+            value={managers}
+          >
+            <UserSelector
+              lecturers={managers}
+              setLecturers={setManagers}
+              title="Responsable TAF"
+            />
+          </ValidatedInput>
+        </Stack>
       </ValidatedForm>
       <Outlet context={context} />
     </>

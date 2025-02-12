@@ -11,17 +11,11 @@ import {
   TextField,
   Button,
   Box,
-  FormControl,
-  Autocomplete,
-  Checkbox,
-  Chip,
-  Typography,
-  Stack,
 } from "@mui/material";
 
 // Local imports
 import { LessonsContext } from "@/hooks/LessonsContext";
-import CreateUser from "@/components/CreateUser";
+import UserSelector from "@/components/UserSelector";
 
 // Extracted style objects
 const styles = {
@@ -67,87 +61,6 @@ LessonTextFields.propTypes = {
   onDescriptionChange: PropTypes.func.isRequired,
 };
 
-// Subcomponent for the lecturer Autocomplete field
-const LecturerAutocomplete = ({
-  lecturers,
-  sortedOptions,
-  onLecturersChange,
-  renderTag,
-  setOpenNewUser,
-}) => (
-  <FormControl fullWidth>
-    <Autocomplete
-      multiple
-      options={sortedOptions}
-      groupBy={(option) =>
-        option.alreadySelected
-          ? "Intervenants de cette TAF"
-          : "Toutes les personnes"
-      }
-      disableCloseOnSelect
-      value={lecturers}
-      getOptionLabel={(option) => option.name}
-      onChange={onLecturersChange}
-      isOptionEqualToValue={(option, value) => option.id === value}
-      renderOption={(props, option, { selected }) => {
-        const { key, ...otherProps } = props;
-        return (
-          <li key={key} {...otherProps}>
-            <Checkbox checked={selected} sx={styles.checkbox} />
-            {option.name}
-          </li>
-        );
-      }}
-      renderTags={(value, getTagProps) =>
-        value.map((option, index) => renderTag(option, index, getTagProps))
-      }
-      renderInput={(params) => (
-        <TextField
-          {...params}
-          label="Intervenants"
-          placeholder="Sélectionnez des personnes..."
-        />
-      )}
-      noOptionsText={
-        <Stack gap={1} alignItems="center">
-          <Typography variant="body2">Aucun intervenant trouvé.</Typography>
-          <Button
-            color="primary"
-            variant="contained"
-            onClick={() => setOpenNewUser(true)}
-          >
-            Créer un nouvel intervenant
-          </Button>
-        </Stack>
-      }
-    />
-  </FormControl>
-);
-
-LecturerAutocomplete.propTypes = {
-  key: PropTypes.string,
-  lecturers: PropTypes.array.isRequired,
-  sortedOptions: PropTypes.array.isRequired,
-  onLecturersChange: PropTypes.func.isRequired,
-  renderTag: PropTypes.func.isRequired,
-  setOpenNewUser: PropTypes.func.isRequired,
-};
-
-// Subcomponent for the CreateUser dialog
-const CreateUserDialog = ({ open, onClose }) => (
-  <Dialog open={open} onClose={onClose}>
-    <DialogTitle>Créer un nouvel utilisateur</DialogTitle>
-    <DialogContent>
-      <CreateUser onCancel={onClose} />
-    </DialogContent>
-  </Dialog>
-);
-
-CreateUserDialog.propTypes = {
-  open: PropTypes.bool.isRequired,
-  onClose: PropTypes.func.isRequired,
-};
-
 // Main LessonDialog component
 const LessonDialog = ({ open, onClose, onSubmit, initialData }) => {
   // Local state for form fields
@@ -156,7 +69,6 @@ const LessonDialog = ({ open, onClose, onSubmit, initialData }) => {
     initialData?.description || "",
   );
   const [lecturers, setLecturers] = useState(initialData?.lecturers || []);
-  const [openNewUser, setOpenNewUser] = useState(false);
 
   const { lecturersList: options, setLecturersList } =
     useContext(LessonsContext);
@@ -164,10 +76,6 @@ const LessonDialog = ({ open, onClose, onSubmit, initialData }) => {
   // Handlers for input changes
   const handleTitleChange = (e) => setTitle(e.target.value);
   const handleDescriptionChange = (e) => setDescription(e.target.value);
-  const handleLecturersChange = (e, value) => {
-    // Map lecturer objects to their ids (or keep id if already a primitive)
-    setLecturers(value.map((lecturer) => lecturer.id || lecturer));
-  };
 
   // Determine the dialog title based on initialData
   const getDialogTitle = () => {
@@ -202,19 +110,6 @@ const LessonDialog = ({ open, onClose, onSubmit, initialData }) => {
     onClose();
   };
 
-  // Sort options by "alreadySelected" status (selected ones first)
-  const sortedOptions = [...options].sort(
-    (a, b) => Number(b.alreadySelected) - Number(a.alreadySelected),
-  );
-
-  // Helper to render a tag (Chip) from a lecturer id
-  const renderTag = (optionId, index, getTagProps) => {
-    const lecturer = options.find((opt) => opt.id === optionId);
-    if (!lecturer) return null;
-    const { key, ...chipProps } = getTagProps({ index }); // eslint-disable-line no-unused-vars
-    return <Chip key={lecturer.id} label={lecturer.name} {...chipProps} />;
-  };
-
   return (
     <>
       <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
@@ -227,12 +122,10 @@ const LessonDialog = ({ open, onClose, onSubmit, initialData }) => {
               onTitleChange={handleTitleChange}
               onDescriptionChange={handleDescriptionChange}
             />
-            <LecturerAutocomplete
+            <UserSelector
               lecturers={lecturers}
-              sortedOptions={sortedOptions}
-              onLecturersChange={handleLecturersChange}
-              renderTag={renderTag}
-              setOpenNewUser={setOpenNewUser}
+              options={options}
+              setLecturers={setLecturers}
             />
           </Box>
         </DialogContent>
@@ -245,10 +138,7 @@ const LessonDialog = ({ open, onClose, onSubmit, initialData }) => {
           </Button>
         </DialogActions>
       </Dialog>
-      <CreateUserDialog
-        open={openNewUser}
-        onClose={() => setOpenNewUser(false)}
-      />
+      
     </>
   );
 };

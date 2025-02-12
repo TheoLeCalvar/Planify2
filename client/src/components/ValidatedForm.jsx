@@ -8,9 +8,6 @@ import { Button, Stack, Typography } from "@mui/material";
 import LoadingButton from "@mui/lab/LoadingButton";
 import SaveIcon from "@mui/icons-material/Save";
 
-// DayJS imports
-import dayjs from "dayjs";
-
 // Local imports
 import { FormContext } from "@/hooks/FormContext";
 
@@ -22,47 +19,41 @@ const ValidatedForm = ({
   action,
 }) => {
   const [loading, setLoading] = useState(false);
+  const [formValue, setValue] = useState({});
   const [isFormValid, setIsFormValid] = useState(true);
   const [formError, setFormError] = useState("");
   const form = useRef(null);
   const submit = useSubmit();
 
   const handleSubmit = (e) => {
-    e.preventDefault();
-    const form = e.target;
-    const formValues = Object.fromEntries(new FormData(form));
+    e?.preventDefault();
 
-    const hasErrors = Array.from(form.elements).some((element) => {
-      if (element.tagName === "INPUT" || element.tagName === "TEXTAREA") {
-        const error = validateField(element.name, element.value, formValues);
-        if (dayjs(element.value, "DD/MM/YYYY").isValid()) {
-          element.value = dayjs(element.value, "DD/MM/YYYY").format(
-            "YYYY-MM-DD",
-          );
-        }
-        error && setFormError(error);
-        return error !== "";
-      }
-      return false;
+    const hasErrors = Object.entries(formValue).some(([name, value]) => {
+      const error = validateField(name, value, formValue);
+      error && setFormError(error);
+      return error !== "";
     });
 
     if (!hasErrors) {
       setLoading(true);
       setIsFormValid(true);
-      submit(form, {
+      submit(formValue, {
         method: "post",
         action,
-        navigate: !action,
+        navigate: false,
+        encType: "application/json",
       });
-      onSubmit && onSubmit(form);
+      onSubmit && onSubmit(formValue);
     } else {
       setIsFormValid(false);
     }
   };
 
   return (
-    <Form method="post" onSubmit={handleSubmit} ref={form}>
-      <FormContext.Provider value={{ validate: validateField, form }}>
+    <Form method="post" onSubmit={handleSubmit} ref={form} action={action}>
+      <FormContext.Provider
+        value={{ validate: validateField, value: formValue, setValue }}
+      >
         {children}
       </FormContext.Provider>
       {!isFormValid && (
@@ -75,7 +66,7 @@ const ValidatedForm = ({
           </Typography>
         </>
       )}
-      <Stack spacing={2} direction={"row"} justifyContent={"flex-end"}>
+      <Stack spacing={2} direction={"row"} justifyContent={"flex-end"} my={3}>
         {onCancel && (
           <Button variant="outlined" color="secondary" onClick={onCancel}>
             Annuler
@@ -84,7 +75,7 @@ const ValidatedForm = ({
         <LoadingButton
           variant="contained"
           color="primary"
-          type="submit"
+          onClick={handleSubmit}
           loading={loading}
           loadingPosition="start"
           startIcon={<SaveIcon />}
