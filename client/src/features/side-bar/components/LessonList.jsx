@@ -14,7 +14,7 @@ const LessonList = ({ lessons, tafID }) => {
         {locale.layout.sideBar.UE}
       </Typography>
       <List>
-        {lessons.map(({ id, name, responsible }) => (
+        {lessons.map(({ id, name, managers }) => (
           <Link
             to={`/taf/${tafID}/ue/${id}`}
             key={id}
@@ -23,7 +23,7 @@ const LessonList = ({ lessons, tafID }) => {
             <ListItem sx={styles.listItem}>
               <Typography variant="body1">{name}</Typography>
               <Typography variant="body2" color="textSecondary">
-                {locale.layout.sideBar.UEManager}: {responsible}
+                {locale.layout.sideBar.UEManager}: {managers.join(", ")}
               </Typography>
             </ListItem>
           </Link>

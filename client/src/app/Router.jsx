@@ -80,6 +80,11 @@ const tafRoutes = [
     loader: UELoader,
     children: ueRoutes,
   },
+  {
+    path: "ue/new",
+    element: <Settings />,
+    action: editUEAction,
+  },
 ];
 
 // Define the TAF route (with a nested SideBar)
@@ -115,7 +120,7 @@ export const router = createBrowserRouter([
       {
         path: "createUser",
         action: createNewUserAction,
-      }
+      },
     ],
   },
 ]);

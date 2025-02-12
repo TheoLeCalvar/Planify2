@@ -4,17 +4,21 @@ import {
   redirect,
   useNavigate,
   useOutletContext,
+  useParams,
+  useRevalidator,
 } from "react-router-dom";
 import ValidatedInput from "@/components/ValidatedInput";
 import ValidatedForm from "@/components/ValidatedForm";
 import { USE_MOCK_DATA } from "@/config/constants";
 import axiosInstance from "@/config/axiosConfig";
+import UserSelector from "@/components/UserSelector";
+import { Typography } from "@mui/material";
+import ConfirmationButton from "@/components/ConfirmationButton";
+import PropTypes from "prop-types";
 
 export async function action({ request, params }) {
   //TODO: Update section with backend call
-
-  const formData = await request.formData();
-  const updates = Object.fromEntries(formData);
+  const updates = await request.json();
 
   if (USE_MOCK_DATA) {
     const delay = () => {
@@ -28,17 +32,55 @@ export async function action({ request, params }) {
     await delay();
     console.log(updates);
   } else {
-    const response = await axiosInstance.put(`/ue/${params.idUE}`, updates);
+    if (params.idUE) {
+      await axiosInstance.put(`/ue/${params.idUE}`, updates);
+    } else {
+      await axiosInstance.post(`/ue`, {
+        ...updates,
+        tafId: parseInt(params.idTAF),
+      });
+    }
   }
 
   return redirect("..");
 }
 
+const DeleteUEButton = ({ idUE }) => {
+  const navigate = useNavigate();
+  const revalidator = useRevalidator();
+
+  const handleDelete = () => {
+    axiosInstance.delete(`/ue/${idUE}`).then(() => {
+      navigate("../..");
+      revalidator.revalidate();
+    });
+  };
+
+  return (
+    <ConfirmationButton
+      buttonText="Supprimer l'UE"
+      onConfirm={handleDelete}
+      buttonColor="warning"
+      dialogMessage="Êtes-vous sûr de vouloir supprimer cette UE ? Cette action est irréversible."
+      confirmText="Supprimer"
+    />
+  );
+};
+
+DeleteUEButton.propTypes = {
+  idUE: PropTypes.string.isRequired,
+};
+
 export default function UESettings() {
   const context = useOutletContext();
   const navigate = useNavigate();
+  const params = useParams();
 
-  const ue = context.ue;
+  const isEditing = !!params.idUE;
+
+  const [managers, setManagers] = React.useState([]);
+
+  const ue = context?.ue;
 
   const validateField = (name, value) => {
     switch (name) {
@@ -58,11 +100,18 @@ export default function UESettings() {
 
   return (
     <>
-      <ValidatedForm validateField={validateField} onCancel={onCancel}>
+      <Typography variant="h5" mt={3}>
+        {isEditing ? "Paramètres de l'UE" : "Nouvelle UE"}
+      </Typography>
+      <ValidatedForm
+        validateField={validateField}
+        onCancel={onCancel}
+        actionButtons={isEditing ? <DeleteUEButton idUE={ue.id} /> : null}
+      >
         <ValidatedInput
           name="name"
           label="Nom"
-          defaultValue={ue.name}
+          defaultValue={ue?.name}
           margin="normal"
           fullWidth
           required
@@ -70,12 +119,23 @@ export default function UESettings() {
         <ValidatedInput
           name="description"
           label="Description"
-          defaultValue={ue.description}
+          defaultValue={ue?.description}
           multiline
           minRows={3}
           margin="normal"
           fullWidth
         />
+        <ValidatedInput
+          name={"managers"}
+          label={"Responsables"}
+          value={managers}
+        >
+          <UserSelector
+            lecturers={managers}
+            setLecturers={setManagers}
+            title="Responsable UE"
+          />
+        </ValidatedInput>
       </ValidatedForm>
       <Outlet context={context} />
     </>

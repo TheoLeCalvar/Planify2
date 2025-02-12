@@ -4,7 +4,7 @@ import { Outlet, useLoaderData, useOutletContext } from "react-router-dom";
 import { useNavigate, useLocation } from "react-router-dom";
 
 // Material-UI imports
-import { Tabs, Tab } from "@mui/material";
+import { Tabs, Tab, Typography } from "@mui/material";
 
 // Local imports
 import { USE_MOCK_DATA } from "@/config/constants";
@@ -72,7 +72,9 @@ export default function UE() {
           <Tab key={index} label={tab.label} />
         ))}
       </Tabs>
-      <h1>{ue.name}</h1>
+      <Typography variant="h4" gutterBottom mt={2}>
+        Unité d&apos;enseignement : {ue.name}
+      </Typography>
       <Outlet context={{ ...context, ue }} />
     </>
   );

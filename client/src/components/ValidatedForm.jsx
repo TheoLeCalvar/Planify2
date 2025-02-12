@@ -17,6 +17,7 @@ const ValidatedForm = ({
   onCancel,
   children,
   action,
+  actionButtons,
 }) => {
   const [loading, setLoading] = useState(false);
   const [formValue, setValue] = useState({});
@@ -66,23 +67,33 @@ const ValidatedForm = ({
           </Typography>
         </>
       )}
-      <Stack spacing={2} direction={"row"} justifyContent={"flex-end"} my={3}>
-        {onCancel && (
-          <Button variant="outlined" color="secondary" onClick={onCancel}>
-            Annuler
-          </Button>
-        )}
-        <LoadingButton
-          variant="contained"
-          color="primary"
-          onClick={handleSubmit}
-          loading={loading}
-          loadingPosition="start"
-          startIcon={<SaveIcon />}
+      <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <Stack
+          spacing={2}
+          direction={"row"}
+          justifyContent={"flex-start"}
+          my={3}
         >
-          Sauvegarder
-        </LoadingButton>
-      </Stack>
+          {actionButtons}
+        </Stack>
+        <Stack spacing={2} direction={"row"} justifyContent={"flex-end"} my={3}>
+          {onCancel && (
+            <Button variant="outlined" color="secondary" onClick={onCancel}>
+              Annuler
+            </Button>
+          )}
+          <LoadingButton
+            variant="contained"
+            color="primary"
+            onClick={handleSubmit}
+            loading={loading}
+            loadingPosition="start"
+            startIcon={<SaveIcon />}
+          >
+            Sauvegarder
+          </LoadingButton>
+        </Stack>
+      </div>
     </Form>
   );
 };
@@ -93,6 +104,7 @@ ValidatedForm.propTypes = {
   onCancel: PropTypes.func,
   children: PropTypes.node.isRequired,
   action: PropTypes.string,
+  actionButtons: PropTypes.node,
 };
 
 export default ValidatedForm;

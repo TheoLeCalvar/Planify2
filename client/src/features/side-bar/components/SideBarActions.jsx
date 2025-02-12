@@ -17,6 +17,15 @@ const SidebarActions = ({
   return (
     <Box sx={styles.container}>
       <Stack spacing={2}>
+        <Link to={`/taf/${tafID}/ue/new`}>
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            sx={{ width: "100%" }}
+          >
+            {locale.layout.sideBar.addUE}
+          </Button>
+        </Link>
         {resultPlanning?.length > 0 && (
           <Link to={`/taf/${tafID}/results`}>
             <Button variant="outlined" sx={{ width: "100%" }}>
@@ -31,13 +40,6 @@ const SidebarActions = ({
           disabled={generatingCalendar}
         >
           {generatingCalendar ? "Génération..." : "Générer le calendrier"}
-        </Button>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          sx={{ width: "100%" }}
-        >
-          {locale.layout.sideBar.addUE}
         </Button>
       </Stack>
     </Box>
