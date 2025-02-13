@@ -37,11 +37,11 @@ public class Planning {
     private boolean synchronise;
 
     @OneToMany(mappedBy = "planning", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<ConstraintSynchroniseWithTAF> constraintsSynchronisation;
+    private List<ConstraintSynchroniseWithTAF> constraintsSynchronisation = new ArrayList<ConstraintSynchroniseWithTAF>();
 
     // Constraints' UE
     @OneToMany(mappedBy = "planning", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<ConstraintsOfUE> constraintsOfUEs;
+    private List<ConstraintsOfUE> constraintsOfUEs = new ArrayList<ConstraintsOfUE>();
 
     // Avoid or not interlacing the UE
     private boolean UEInterlacing; // false if no interlacing
@@ -247,6 +247,18 @@ public class Planning {
 
     public void setConstraintsOfUEs(List<ConstraintsOfUE> constraintsOfUEs) {
         this.constraintsOfUEs = constraintsOfUEs;
+    }
+    
+    public boolean isMaxTimeWithoutLesson() {
+    	return this.getConstraintsOfUEs().stream().filter(c -> c.isMaxTimeWithoutLesson()).findAny().isPresent();
+    }
+    
+    public boolean isSpreadingUe() {
+    	return this.getConstraintsOfUEs().stream().filter(c -> c.isSpreading()).findAny().isPresent();
+    }
+    
+    public boolean isLessonCountInWeek() {
+    	return this.getConstraintsOfUEs().stream().filter(c -> c.isLessonCountInWeek()).findAny().isPresent();
     }
 
     @Override

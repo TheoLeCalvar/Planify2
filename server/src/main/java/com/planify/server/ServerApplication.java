@@ -18,6 +18,7 @@ import com.planify.server.models.Synchronization.SynchronizationId;
 import com.planify.server.models.TAFManager.TAFManagerId;
 import com.planify.server.models.UEManager.UEManagerId;
 import com.planify.server.models.UserUnavailability.UserUnavailabilityId;
+import com.planify.server.models.constraints.ConstraintsOfUE;
 import com.planify.server.service.*;
 import com.planify.server.solver.SolverExecutor;
 import com.planify.server.solver.SolverMain;
@@ -592,14 +593,37 @@ public class ServerApplication {
 		planning.setEndMiddayBreak(LocalTime.of(13, 30));
 		planning.setUEInterlacing(true);
 		
-		planning.setGlobalUnavailability(true);
+		planning.setGlobalUnavailability(false);
 		planning.setWeightGlobalUnavailability(30);
 		planning.setLessonBalancing(false);
 		planning.setWeightLessonBalancing(0);
-		planning.setLessonGrouping(true);
+		planning.setLessonGrouping(false);
 		planning.setWeightLessonGrouping(5);
 		planning.setMiddayGrouping(false);
 		planning.setWeightMiddayGrouping(1);
+		
+		//Add Weight for MaxTimeWithoutLesson !
+		//Add lecturerPreference !
+		for (UE ue : planning.getCalendar().getTaf().getUes()) {
+			ConstraintsOfUE cUe = new ConstraintsOfUE(ue, planning);
+			//Max time without lesson of this ue (number of day/week without lessons
+			//(i.e. for a duration of 1 week, only max one week in a row without lesson is prefered))
+			cUe.setMaxTimeWithoutLesson(true);
+			cUe.setMaxTimeWLUnitInWeeks(true);
+			cUe.setMaxTimeWLduration(1);
+			
+			//Max Lessons in a week for this UE.
+			cUe.setLessonCountInWeek(true);
+			cUe.setMaxLessonInWeek(6);
+			cUe.setMinLessonInWeek(2);
+			
+			//Min Max number of weeks to do all the lessons of the Ue.
+			cUe.setSpreading(true);
+			cUe.setMaxSpreading(12);
+			cUe.setMinSpreading(3);
+			
+			planning.getConstraintsOfUEs().add(cUe);
+		}
 		
 		return planning;
 	}
@@ -663,7 +687,7 @@ public class ServerApplication {
 	}
 	
 	private static void testSolverDCLNS1(ApplicationContext context) {
-		Planning planning = planningSolverDCLNS1();
+		Planning planning = setSettingsPlanning(planningSolverDCLNS1());
 		
 		SolverServices solverServices = context.getBean(SolverServices.class);
 		SolverMain.setServices(solverServices);
