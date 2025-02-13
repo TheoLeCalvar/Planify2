@@ -1,6 +1,8 @@
 package com.planify.server.authentification;
 
 import com.planify.server.authentification.CustomUserDetailsService;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -9,24 +11,27 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 public class SecurityConfig {
 
-    private final CustomUserDetailsService customUserDetailsService;
+    @Autowired
+    private CustomUserDetailsService customUserDetailsService;
 
-    public SecurityConfig(CustomUserDetailsService customUserDetailsService) {
-        this.customUserDetailsService = customUserDetailsService;
-    }
+    @Autowired
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf().disable() // Disable CSRF for development/testing purposes
-            .authorizeRequests()
-            .anyRequest().permitAll() // Allow unrestricted access to all endpoints
-            .and()
-            .httpBasic(); // Optionally enable HTTP Basic Authentication (not required if JWT is in use)
-        return http.build();
+        return http
+            .csrf(csrf -> csrf.disable()) // Disable CSRF for APIs
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/auth/**").permitAll() // Public endpoints
+                .anyRequest().permitAll() 
+            )
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+            .build();
     }
     /* 
     @Bean

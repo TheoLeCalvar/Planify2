@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 
 import java.io.Serializable;
 import java.time.Duration;
+import java.time.Period;
 
 @Entity
 public class ConstraintsOfUE {
@@ -22,18 +23,19 @@ public class ConstraintsOfUE {
     private Planning planning;
 
     // Max and min of lessons in this UE in a week
-    private boolean lessonCount;
-    private int maxLesson;
-    private int minLesson;
+    private boolean lessonCountInWeek;
+    private int maxLessonInWeek;
+    private int minLessonInWeek;
 
     // Max time without this UE
     private boolean maxTimeWithoutLesson;
-    private Duration duration;
+    private boolean maxTimeWLUnitInWeeks;
+    private int maxTimeWLduration;
 
-    // Spreading of the UE
+	// Spreading of the UE
     private boolean spreading;
-    private Duration maxSpreading;
-    private Duration minSpreading;
+    private int maxSpreading;
+    private int minSpreading;
 
     @Embeddable
     public static class ConstraintsOfUEId implements Serializable {
@@ -113,28 +115,28 @@ public class ConstraintsOfUE {
         this.planning = planning;
     }
 
-    public boolean isLessonCount() {
-        return lessonCount;
+    public boolean isLessonCountInWeek() {
+        return lessonCountInWeek;
     }
 
-    public void setLessonCount(boolean lessonCount) {
-        this.lessonCount = lessonCount;
+    public void setLessonCountInWeek(boolean lessonCount) {
+        this.lessonCountInWeek = lessonCount;
     }
 
-    public int getMaxLesson() {
-        return maxLesson;
+    public int getMaxLessonInWeek() {
+        return maxLessonInWeek;
     }
 
-    public void setMaxLesson(int maxLesson) {
-        this.maxLesson = maxLesson;
+    public void setMaxLessonInWeek(int maxLesson) {
+        this.maxLessonInWeek = maxLesson;
     }
 
-    public int getMinLesson() {
-        return minLesson;
+    public int getMinLessonInWeek() {
+        return minLessonInWeek;
     }
 
-    public void setMinLesson(int minLesson) {
-        this.minLesson = minLesson;
+    public void setMinLessonInWeek(int minLesson) {
+        this.minLessonInWeek = minLesson;
     }
 
     public boolean isMaxTimeWithoutLesson() {
@@ -145,13 +147,21 @@ public class ConstraintsOfUE {
         this.maxTimeWithoutLesson = maxTimeWithoutLesson;
     }
 
-    public Duration getDuration() {
-        return duration;
-    }
+    public boolean isMaxTimeWLUnitInWeeks() {
+		return maxTimeWLUnitInWeeks;
+	}
 
-    public void setDuration(Duration duration) {
-        this.duration = duration;
-    }
+	public void setMaxTimeWLUnitInWeeks(boolean maxTimeWLunitInWeeks) {
+		this.maxTimeWLUnitInWeeks = maxTimeWLunitInWeeks;
+	}
+
+	public int getMaxTimeWLduration() {
+		return maxTimeWLduration;
+	}
+
+	public void setMaxTimeWLduration(int maxTimeWLduration) {
+		this.maxTimeWLduration = maxTimeWLduration;
+	}
 
     public boolean isSpreading() {
         return spreading;
@@ -161,19 +171,19 @@ public class ConstraintsOfUE {
         this.spreading = spreading;
     }
 
-    public Duration getMaxSpreading() {
+    public int getMaxSpreading() {
         return maxSpreading;
     }
 
-    public void setMaxSpreading(Duration maxSpreading) {
+    public void setMaxSpreading(int maxSpreading) {
         this.maxSpreading = maxSpreading;
     }
 
-    public Duration getMinSpreading() {
+    public int getMinSpreading() {
         return minSpreading;
     }
 
-    public void setMinSpreading(Duration minSpreading) {
+    public void setMinSpreading(int minSpreading) {
         this.minSpreading = minSpreading;
     }
 
