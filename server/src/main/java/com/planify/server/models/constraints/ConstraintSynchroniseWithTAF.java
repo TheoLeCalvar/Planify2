@@ -1,5 +1,7 @@
 package com.planify.server.models.constraints;
 
+import java.io.Serializable;
+
 import com.planify.server.models.Planning;
 import com.planify.server.models.TAF;
 import jakarta.persistence.*;
@@ -7,51 +9,83 @@ import jakarta.persistence.*;
 @Entity
 public class ConstraintSynchroniseWithTAF {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @EmbeddedId
+    private ConstraintsSynchroniseWithTAFId id;
 
     @ManyToOne
-    @JoinColumn(name = "idPlanning")
+    @MapsId("idPlanning")
     private Planning planning;
 
     @ManyToOne
-    @JoinColumn(name = "taf_id")
-    private TAF taf;
+    @MapsId("idOtherPlanning")
+    private Planning otherPlanning;
 
     private boolean enabled;
 
-    private boolean regenerateBothPlanning;
+    private boolean generateOtherPlanning;
 
+    @Embeddable
+    public static class ConstraintsSynchroniseWithTAFId implements Serializable {
+
+        private Long idPlanning;
+        private Long idOtherPlanning;
+
+        public ConstraintsSynchroniseWithTAFId() {
+        }
+
+        public ConstraintsSynchroniseWithTAFId( Long idPlanning, Long idOtherPlanning) {
+            this.idOtherPlanning = idOtherPlanning;
+            this.idPlanning = idPlanning;
+        }
+
+        public Long getIdOtherPlanning() {
+            return idOtherPlanning;
+        }
+
+        public void setIdUE(Long idOtherPlanning) {
+            this.idOtherPlanning = idOtherPlanning;
+        }
+
+        public Long getIdPlanning() {
+            return idPlanning;
+        }
+
+        public void setIdPlanning(Long idPlanning) {
+            this.idPlanning = idPlanning;
+        }
+    }
+    
     public ConstraintSynchroniseWithTAF() {
     }
 
-    public ConstraintSynchroniseWithTAF(TAF taf, boolean enabled, boolean regenerateBothPlanning) {
-        this.taf = taf;
+    public ConstraintSynchroniseWithTAF(Planning planning, Planning otherPlanning, boolean enabled, boolean generateOtherPlanning) {
+        this.id = new ConstraintsSynchroniseWithTAFId(planning.getId(), otherPlanning.getId());
+    	this.planning = planning;
+        this.otherPlanning = otherPlanning;
         this.enabled = enabled;
-        this.regenerateBothPlanning = regenerateBothPlanning;
+        this.generateOtherPlanning = generateOtherPlanning;
     }
 
-    public ConstraintSynchroniseWithTAF(Planning planning, TAF taf, boolean enabled, boolean regenerateBothPlanning) {
+    public ConstraintSynchroniseWithTAF(Planning planning, TAF taf, boolean enabled, boolean generateOtherPlanning) {
         this.planning = planning;
         this.taf = taf;
         this.enabled = enabled;
-        this.regenerateBothPlanning = regenerateBothPlanning;
+        this.generateOtherPlanning = generateOtherPlanning;
     }
 
-    public TAF getTaf() {
-        return taf;
+    public Planning getOtherPlanning() {
+        return otherPlanning;
     }
 
-    public void setTaf(TAF taf) {
-        this.taf = taf;
+    public void setOtherPlanning(Planning otherPlanning) {
+        this.otherPlanning = otherPlanning;
     }
 
-    public Long getId() {
+    public ConstraintsSynchroniseWithTAFId getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(ConstraintsSynchroniseWithTAFId id) {
         this.id = id;
     }
 
@@ -63,12 +97,12 @@ public class ConstraintSynchroniseWithTAF {
         this.enabled = enabled;
     }
 
-    public boolean isRegenerateBothPlanning() {
-        return regenerateBothPlanning;
+    public boolean isGenerateOtherPlanning() {
+        return generateOtherPlanning;
     }
 
-    public void setRegenerateBothPlanning(boolean regenerateBothPlanning) {
-        this.regenerateBothPlanning = regenerateBothPlanning;
+    public void setGenerateOtherPlanning(boolean generateBothPlanning) {
+        this.generateOtherPlanning = generateBothPlanning;
     }
 
     public Planning getPlanning() {
@@ -83,9 +117,8 @@ public class ConstraintSynchroniseWithTAF {
     public String toString() {
         return "ConstraintSynchroniseWithTAF{" +
                 "id=" + id +
-                ", taf=" + taf +
                 ", enabled=" + enabled +
-                ", regenerateBothPlanning=" + regenerateBothPlanning +
+                ", generateOtherPlanning=" + generateOtherPlanning +
                 '}';
     }
 }
