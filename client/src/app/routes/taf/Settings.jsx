@@ -78,7 +78,7 @@ const DeleteTAFButton = ({ idTAF }) => {
 };
 
 DeleteTAFButton.propTypes = {
-  idTAF: PropTypes.string.isRequired,
+  idTAF: PropTypes.number.isRequired,
 };
 
 const minDate = dayjs().subtract(1, "year");

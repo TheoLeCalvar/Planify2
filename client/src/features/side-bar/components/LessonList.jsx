@@ -38,7 +38,7 @@ LessonList.propTypes = {
     PropTypes.shape({
       id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
       name: PropTypes.string.isRequired,
-      responsible: PropTypes.string.isRequired,
+      managers: PropTypes.array.isRequired,
     }),
   ).isRequired,
   tafID: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
