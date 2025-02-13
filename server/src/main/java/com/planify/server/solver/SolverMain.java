@@ -985,7 +985,7 @@ public class SolverMain {
 		for (UE ue : getUes()) {
 			ConstraintsOfUE cUe = getConstraintsOfUe(ue);
 			boolean breakUnitInWeeks = cUe.isMaxTimeWLUnitInWeeks();
-			int valMax = cUe.getMaxTimeWLduration() + 1;
+			int valMax = cUe.getMaxTimeWLDuration() + 1;
 			List<IntVar> sorteds = breakUnitInWeeks ? sortedLessonsVarWeek.get(getIdMUe(ue)) : sortedLessonsVarDay.get(getIdMUe(ue));
 			for (int i = 0; i < sorteds.size() - 1; i ++) {
 				penalties.add(model.max("MaxBreak " + ue.getName() + " (" + i + ")",

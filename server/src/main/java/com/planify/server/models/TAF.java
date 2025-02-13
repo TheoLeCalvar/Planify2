@@ -35,10 +35,7 @@ public class TAF {
 
     @OneToMany(mappedBy = "taf", fetch = FetchType.EAGER)
     private List<TAFManager> TAFmanagers = new ArrayList<>();
-
-    @OneToMany(mappedBy = "taf", fetch = FetchType.EAGER)
-    private List<ConstraintSynchroniseWithTAF> constraintSynchroniseWithTAFS = new ArrayList<>();
-
+    
     public TAF() {
     }
 
@@ -113,13 +110,5 @@ public class TAF {
 
     public void setTafManagers(List<TAFManager> tafManagers) {
         this.TAFmanagers = tafManagers;
-    }
-
-    public List<ConstraintSynchroniseWithTAF> getConstraintSynchroniseWithTAFS() {
-        return constraintSynchroniseWithTAFS;
-    }
-
-    public void setConstraintSynchroniseWithTAFS(List<ConstraintSynchroniseWithTAF> constraintSynchroniseWithTAFS) {
-        this.constraintSynchroniseWithTAFS = constraintSynchroniseWithTAFS;
     }
 }

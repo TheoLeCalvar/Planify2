@@ -3,7 +3,6 @@ package com.planify.server.models.constraints;
 import java.io.Serializable;
 
 import com.planify.server.models.Planning;
-import com.planify.server.models.TAF;
 import jakarta.persistence.*;
 
 @Entity
@@ -57,18 +56,17 @@ public class ConstraintSynchroniseWithTAF {
     
     public ConstraintSynchroniseWithTAF() {
     }
-
+    
+    public ConstraintSynchroniseWithTAF(Planning planning, Planning otherPlanning) {
+    	this.id = new ConstraintsSynchroniseWithTAFId(planning.getId(), otherPlanning.getId());
+    	this.planning = planning;
+        this.otherPlanning = otherPlanning;
+    }
+    
     public ConstraintSynchroniseWithTAF(Planning planning, Planning otherPlanning, boolean enabled, boolean generateOtherPlanning) {
         this.id = new ConstraintsSynchroniseWithTAFId(planning.getId(), otherPlanning.getId());
     	this.planning = planning;
         this.otherPlanning = otherPlanning;
-        this.enabled = enabled;
-        this.generateOtherPlanning = generateOtherPlanning;
-    }
-
-    public ConstraintSynchroniseWithTAF(Planning planning, TAF taf, boolean enabled, boolean generateOtherPlanning) {
-        this.planning = planning;
-        this.taf = taf;
         this.enabled = enabled;
         this.generateOtherPlanning = generateOtherPlanning;
     }

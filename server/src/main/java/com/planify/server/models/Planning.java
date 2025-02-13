@@ -38,11 +38,17 @@ public class Planning {
 
     @OneToMany(mappedBy = "planning", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<ConstraintSynchroniseWithTAF> constraintsSynchronisation = new ArrayList<ConstraintSynchroniseWithTAF>();
+    
+    @OneToMany(mappedBy = "otherPlanning", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<ConstraintSynchroniseWithTAF> constrainedSynchronisations = new ArrayList<ConstraintSynchroniseWithTAF>();
 
+    
     // Constraints' UE
     @OneToMany(mappedBy = "planning", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<ConstraintsOfUE> constraintsOfUEs = new ArrayList<ConstraintsOfUE>();
-
+    
+    
+    
     // Avoid or not interlacing the UE
     private boolean UEInterlacing; // false if no interlacing
 

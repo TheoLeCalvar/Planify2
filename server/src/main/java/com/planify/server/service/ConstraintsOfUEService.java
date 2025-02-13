@@ -25,8 +25,8 @@ public class ConstraintsOfUEService {
         return constraintsOfUERepository.findById(id);
     }
 
-    ConstraintsOfUE add(UE ue, Planning planning, boolean lessonCount, int maxLesson, int minLesson, boolean maxTimeWithoutLesson, Duration duration, boolean spreading, Duration maxSpreading, Duration minSpreading) {
-        return  constraintsOfUERepository.save(new ConstraintsOfUE(ue, planning, lessonCount, maxLesson, minLesson, maxTimeWithoutLesson, duration, spreading,maxSpreading, minSpreading));
+    ConstraintsOfUE add(UE ue, Planning planning, boolean lessonCount, int maxLesson, int minLesson, boolean maxTimeWithoutLesson, boolean maxTimeWLUnitInWeeks, int maxTimeWLDuration, boolean spreading, int maxSpreading, int minSpreading) {
+        return  constraintsOfUERepository.save(new ConstraintsOfUE(ue, planning, lessonCount, maxLesson, minLesson, maxTimeWithoutLesson, maxTimeWLUnitInWeeks, maxTimeWLDuration, spreading,maxSpreading, minSpreading));
     }
 
     boolean deleteById(ConstraintsOfUE.ConstraintsOfUEId id) {

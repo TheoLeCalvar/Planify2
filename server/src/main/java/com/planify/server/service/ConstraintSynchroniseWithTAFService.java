@@ -25,8 +25,8 @@ public class ConstraintSynchroniseWithTAFService {
         return constraintSynchroniseWithTAFRepository.findById(id);
     }
 
-    ConstraintSynchroniseWithTAF add(Planning planning, TAF taf, boolean enabled, boolean regenerateBothPlanning) {
-        return  constraintSynchroniseWithTAFRepository.save(new ConstraintSynchroniseWithTAF(planning, taf, enabled, regenerateBothPlanning));
+    ConstraintSynchroniseWithTAF add(Planning planning, Planning otherPlanning, boolean enabled, boolean regenerateBothPlanning) {
+        return  constraintSynchroniseWithTAFRepository.save(new ConstraintSynchroniseWithTAF(planning, otherPlanning, enabled, regenerateBothPlanning));
     }
 
     boolean deleteById(Long id) {

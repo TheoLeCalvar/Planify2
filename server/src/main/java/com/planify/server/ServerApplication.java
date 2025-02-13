@@ -610,7 +610,7 @@ public class ServerApplication {
 			//(i.e. for a duration of 1 week, only max one week in a row without lesson is prefered))
 			cUe.setMaxTimeWithoutLesson(true);
 			cUe.setMaxTimeWLUnitInWeeks(true);
-			cUe.setMaxTimeWLduration(1);
+			cUe.setMaxTimeWLDuration(1);
 			
 			//Max Lessons in a week for this UE.
 			cUe.setLessonCountInWeek(true);
