@@ -92,6 +92,17 @@ public class LessonController {
         return ResponseEntity.ok(answer);
     }
 
+    // Get the list of TAF
+    @GetMapping(value = "/alltaf", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getAllTAFs() {
+        List<TAF> tafs = tafService.findAll();
+        List<TAFShort> answer = new ArrayList<TAFShort>();
+        for (TAF taf : tafs) {
+            answer.add(new TAFShort(taf.getId(), taf.getName(), taf.getDescription()));
+        }
+        return ResponseEntity.ok(answer);
+    }
+
     // Data on a given TAF (id)
     @GetMapping(value = "/taf/{idTAF}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getTAFById(@PathVariable Long idTAF) {
