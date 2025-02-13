@@ -1,6 +1,7 @@
 package com.planify.server.solver;
 
 import java.util.HashMap;
+import java.util.Set;
 
 public class BijectiveHashMap<Key, Value> {
 	private HashMap<Key, Value> keyToValue;
@@ -44,5 +45,13 @@ public class BijectiveHashMap<Key, Value> {
 		if (this.containValue(value)) this.deleteValue(value);
 		this.keyToValue.put(key, value);
 		this.valueToKey.put(value, key);
+	}
+	
+	public Set<Key> keySet() {
+		return keyToValue.keySet();
+	}
+	
+	public Set<Value> valueSet(){
+		return valueToKey.keySet();
 	}
 }
