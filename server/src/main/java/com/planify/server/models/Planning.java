@@ -74,7 +74,7 @@ public class Planning {
 
     // Result
     @ElementCollection
-    private List<ScheduledLesson> scheduledLessons;
+    private List<ScheduledLesson> scheduledLessons = new ArrayList<ScheduledLesson>();
 
 
 
@@ -149,6 +149,10 @@ public class Planning {
 
     public void setScheduledLessons(List<ScheduledLesson> scheduledLessons) {
         this.scheduledLessons = scheduledLessons;
+    }
+    
+    public boolean isGenerated() {
+    	return !this.getScheduledLessons().isEmpty();
     }
 
     public boolean isGlobalUnavailability() {
