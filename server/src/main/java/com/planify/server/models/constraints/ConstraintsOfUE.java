@@ -5,8 +5,6 @@ import com.planify.server.models.UE;
 import jakarta.persistence.*;
 
 import java.io.Serializable;
-import java.time.Duration;
-import java.time.Period;
 
 @Entity
 public class ConstraintsOfUE {
@@ -30,7 +28,7 @@ public class ConstraintsOfUE {
     // Max time without this UE
     private boolean maxTimeWithoutLesson;
     private boolean maxTimeWLUnitInWeeks;
-    private int maxTimeWLduration;
+    private int maxTimeWLDuration;
 
 	// Spreading of the UE
     private boolean spreading;
@@ -75,6 +73,21 @@ public class ConstraintsOfUE {
         this.id = new ConstraintsOfUEId(ue.getId(), planning.getId());
         this.ue = ue;
         this.planning = planning;
+    }
+
+    public ConstraintsOfUE(UE ue, Planning planning, boolean lessonCountInWeek, int maxLessonInWeek, int minLessonInWeek, boolean maxTimeWithoutLesson, boolean maxTimeWLUnitInWeeks, int maxTimeWLDuration, boolean spreading, int maxSpreading, int minSpreading) {
+        this.id = new ConstraintsOfUEId(ue.getId(), planning.getId());
+        this.ue = ue;
+        this.planning = planning;
+        this.lessonCountInWeek = lessonCountInWeek;
+        this.maxLessonInWeek = maxLessonInWeek;
+        this.minLessonInWeek = minLessonInWeek;
+        this.maxTimeWithoutLesson = maxTimeWithoutLesson;
+        this.maxTimeWLUnitInWeeks = maxTimeWLUnitInWeeks;
+        this.maxTimeWLDuration = maxTimeWLDuration;
+        this.spreading = spreading;
+        this.maxSpreading = maxSpreading;
+        this.minSpreading = minSpreading;
     }
 
     public ConstraintsOfUEId getId() {
@@ -141,12 +154,12 @@ public class ConstraintsOfUE {
 		this.maxTimeWLUnitInWeeks = maxTimeWLunitInWeeks;
 	}
 
-	public int getMaxTimeWLduration() {
-		return maxTimeWLduration;
+	public int getMaxTimeWLDuration() {
+		return maxTimeWLDuration;
 	}
 
-	public void setMaxTimeWLduration(int maxTimeWLduration) {
-		this.maxTimeWLduration = maxTimeWLduration;
+	public void setMaxTimeWLDuration(int maxTimeWLduration) {
+		this.maxTimeWLDuration = maxTimeWLduration;
 	}
 
     public boolean isSpreading() {

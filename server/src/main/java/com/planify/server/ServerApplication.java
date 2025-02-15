@@ -18,6 +18,7 @@ import com.planify.server.models.Synchronization.SynchronizationId;
 import com.planify.server.models.TAFManager.TAFManagerId;
 import com.planify.server.models.UEManager.UEManagerId;
 import com.planify.server.models.UserUnavailability.UserUnavailabilityId;
+import com.planify.server.models.constraints.ConstraintSynchroniseWithTAF;
 import com.planify.server.models.constraints.ConstraintsOfUE;
 import com.planify.server.service.*;
 import com.planify.server.solver.SolverExecutor;
@@ -45,6 +46,7 @@ public class ServerApplication {
 	private static UserUnavailabilityService userUnavailabilityService;
 	private static WeekService weekService;
 	private static PlanningService planningService;
+	private static ConstraintSynchroniseWithTAFService constraintSynchroniseWithTAFService;
 	
 	private static final String RESET = "\u001B[0m";
 	private static final String RED = "\u001B[31m";
@@ -76,6 +78,7 @@ public class ServerApplication {
 		userUnavailabilityService = context.getBean(UserUnavailabilityService.class);
 		weekService = context.getBean(WeekService.class);
 		planningService = context.getBean(PlanningService.class);
+		constraintSynchroniseWithTAFService = context.getBean(ConstraintSynchroniseWithTAFService.class);
 		
 		/*
 		TAF taf = tafService.addTAF("LOGIN", "Polyglotte", "début", "fin");
@@ -580,6 +583,7 @@ public class ServerApplication {
 	}
 
 	private static void testSolver(ApplicationContext context) {
+		//testSynchronisationSeparation(context);
 		testSolver1(context, setSettingsPlanning(planningSolverTestMinMaxLessonsUeWeek()));
 		//testSolver2(context);
 		//testSolver2bis(context);
@@ -610,7 +614,7 @@ public class ServerApplication {
 			//(i.e. for a duration of 1 week, only max one week in a row without lesson is prefered))
 			cUe.setMaxTimeWithoutLesson(true);
 			cUe.setMaxTimeWLUnitInWeeks(true);
-			cUe.setMaxTimeWLduration(1);
+			cUe.setMaxTimeWLDuration(1);
 			
 			//Max Lessons in a week for this UE.
 			cUe.setLessonCountInWeek(true);
@@ -628,10 +632,40 @@ public class ServerApplication {
 		return planning;
 	}
 	
+	private static void testSynchronisationSeparation(ApplicationContext context) {
+		/*Planning p1 = planningSolver1();
+		Planning p2 = planningSolver2();
+		Planning p3 = planningSolverOneDay();
+		testSolver1(context, p1);
+		List<ConstraintSynchroniseWithTAF> l2 = new ArrayList<ConstraintSynchroniseWithTAF>();
+		l2.add(new ConstraintSynchroniseWithTAF(p2, p1));
+		l2.add(new ConstraintSynchroniseWithTAF(p2, p3));
+		p2.setConstraintsSynchronisation(l2);
+		p2.setSynchronise(true);
+		System.out.println(p1.getId());
+		System.out.println(p2.getId());
+		System.out.println(p3.getId());
+		SolverMain.generatePlanning(p2);
+		Planning p4 = planningSolverTestMinMaxLessonsUeWeek();
+		List<ConstraintSynchroniseWithTAF> l4 = new ArrayList<ConstraintSynchroniseWithTAF>();
+		l4.add(new ConstraintSynchroniseWithTAF(p4, p2));
+		p4.setConstraintsSynchronisation(l4);
+		p4.setSynchronise(true);
+		System.out.println(p4.getId());
+		SolverMain.generatePlanning(p4);
+		TAF tafDCL = tafService.findById(p1.getCalendar().getTaf().getId()).get();
+		Calendar calDCL = calendarService.addCalendar(tafDCL);
+		Planning planDCL = planningService.addPlanning(calDCL);
+		l2.add(new ConstraintSynchroniseWithTAF(p2, planDCL));
+		p2.setConstraintsSynchronisation(l2);
+		System.out.println(planDCL.getId());
+		SolverMain.generatePlanning(p4);*/
+	}
+	
 	private static void testSolver1(ApplicationContext context, Planning planning) {		
 		SolverServices solverServices = context.getBean(SolverServices.class);
 		SolverMain.setServices(solverServices);
-		SolverMain.generatePlanningString(planning);
+		SolverMain.generatePlanningWithoutSync(planning);
 	}
 	
 	private static void testSolver2(ApplicationContext context) {
@@ -651,8 +685,8 @@ public class ServerApplication {
 		synchronizationService.addSynchronization(planning2.getCalendar().getTaf().getUes().get(1).getLessons().get(0), planning1.getCalendar().getTaf().getUes().get(0).getLessons().get(0));
 		SolverServices solverServices = context.getBean(SolverServices.class);
 		SolverMain.setServices(solverServices);
-		SolverMain.generatePlanning(planning1);
-		SolverMain.generatePlanning(planning2);
+		SolverMain.generatePlanningWithoutSync(planning1);
+		SolverMain.generatePlanningWithoutSync(planning2);
 		SolverMain.generatePlannings(new Planning[] {planning2}, new Planning[] {planning1});
 	}
 	
@@ -762,7 +796,7 @@ public class ServerApplication {
 		Lesson lesson3 = lessonService.add("Lesson6", "", ue2);
 		
 		
-		User helene = userService.addUser("Hélène", "Coullon", "jacques.noye@imt-atlantique.fr", "password");
+		User helene = userService.addUser("Hélène", "Coullon", "helene.coullon@imt-atlantique.fr", "password");
 		User bertrand = userService.findAll().stream().filter(u -> u.getLastName().equals("Lentsch")).findFirst().get();//userService.findById((long) 1).get();
 		
 		System.out.println(bertrand);

@@ -118,9 +118,7 @@ public class UserController {
         return ResponseEntity.ok("User registered successfully");
     }
 
-    /**
-     * ✅ User Login Endpoint
-     */
+    
     @PostMapping("/auth/login")
     public ResponseEntity<?> login(@RequestBody AuthentificationRequest authRequest) {
         try {

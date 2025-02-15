@@ -1,7 +1,9 @@
 package com.planify.server.controller.returnsClass;
 
 public class AuthentificationRequest {
+
     private String mail;
+    
     private String password;
 
     public AuthentificationRequest(String mail, String password) {

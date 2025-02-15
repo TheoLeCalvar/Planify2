@@ -45,6 +45,7 @@ import com.planify.server.models.TAF;
 import com.planify.server.models.UE;
 import com.planify.server.models.User;
 import com.planify.server.models.Week;
+import com.planify.server.models.constraints.ConstraintSynchroniseWithTAF;
 import com.planify.server.models.constraints.ConstraintsOfUE;
 
 
@@ -153,11 +154,50 @@ public class SolverMain {
 	}
 	
 	/**
+	 * Generate the planning.
+	 * @param planning The planning to generate.
+	 * @return The results generated (also stored automatically in the database).
+	 */
+	public static List<Result> generatePlanning(Planning planning){
+		if (!planning.isSynchronise() || planning.getConstraintsSynchronisation().isEmpty()) {
+			System.out.println("Generate Planning " + planning.getId());
+			return generatePlanningWithoutSync(planning);
+		}
+		List<Planning> planningsToConsider = new ArrayList<Planning>();
+		planningsToConsider.add(planning);
+		List<Planning> planningsToGenerate = new ArrayList<Planning>();
+		planningsToGenerate.add(planning);
+		List<Planning> planningsGenerated = new ArrayList<Planning>();
+		while (!planningsToConsider.isEmpty()) {
+			Planning plan = planningsToConsider.removeFirst();
+			for (ConstraintSynchroniseWithTAF cSync : plan.getConstraintsSynchronisation()) {
+				if (!(cSyncInPlannings(cSync, planningsToGenerate) || cSyncInPlannings(cSync, planningsGenerated))) {
+					Planning otherPlanning = cSync.getOtherPlanning();
+					if (otherPlanning.isGenerated()) {
+						planningsGenerated.add(otherPlanning);
+					}
+					else {
+						planningsToConsider.add(otherPlanning);
+						planningsToGenerate.add(otherPlanning);
+					}
+				}
+			}
+		}
+		System.out.println("Generate Plannings :[" + planningsToGenerate.stream().map(p -> p.getId() + ", ").reduce("", String::concat) + "]");
+		System.out.println("Using the Plannings generated :[" + planningsGenerated.stream().map(p -> p.getId() + ", ").reduce("", String::concat) + "]");
+		return generatePlannings(planningsToGenerate.stream().toArray(Planning[]::new), planningsGenerated.stream().toArray(Planning[]::new));
+	}
+	
+	private static boolean cSyncInPlannings(ConstraintSynchroniseWithTAF cSync, List<Planning> plannings) {
+		return plannings.stream().anyMatch(p -> p.getCalendar().getTaf().getId() == cSync.getOtherPlanning().getCalendar().getTaf().getId());
+	}
+	
+	/**
 	 * Generate the planning without considering synchronizations using the parameters in the object planning.
 	 * @param planning The planning to generate.
 	 * @return The results generated (also stored automatically in the database).
 	 */
-	public static List<Result> generatePlanning(Planning planning) {
+	public static List<Result> generatePlanningWithoutSync(Planning planning) {
 		Model model = new Model();
 		Solver solver = model.getSolver();
 		SolverMain solMain = new SolverMain(planning);
@@ -1015,7 +1055,7 @@ public class SolverMain {
 		for (UE ue : getUes()) {
 			ConstraintsOfUE cUe = getConstraintsOfUe(ue);
 			boolean breakUnitInWeeks = cUe.isMaxTimeWLUnitInWeeks();
-			int valMax = cUe.getMaxTimeWLduration() + 1;
+			int valMax = cUe.getMaxTimeWLDuration() + 1;
 			List<IntVar> sorteds = breakUnitInWeeks ? sortedLessonsVarWeek.get(getIdMUe(ue)) : sortedLessonsVarDay.get(getIdMUe(ue));
 			for (int i = 0; i < sorteds.size() - 1; i ++) {
 				penalties.add(model.max("MaxBreak " + ue.getName() + " (" + i + ")",

@@ -38,11 +38,17 @@ public class Planning {
 
     @OneToMany(mappedBy = "planning", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<ConstraintSynchroniseWithTAF> constraintsSynchronisation = new ArrayList<ConstraintSynchroniseWithTAF>();
+    
+    @OneToMany(mappedBy = "otherPlanning", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<ConstraintSynchroniseWithTAF> constrainedSynchronisations = new ArrayList<ConstraintSynchroniseWithTAF>();
 
+    
     // Constraints' UE
     @OneToMany(mappedBy = "planning", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<ConstraintsOfUE> constraintsOfUEs = new ArrayList<ConstraintsOfUE>();
-
+    
+    
+    
     // Avoid or not interlacing the UE
     private boolean UEInterlacing; // false if no interlacing
 
@@ -63,14 +69,16 @@ public class Planning {
     private boolean lessonGrouping;
     private int weightLessonGrouping;
 
-
-
-
-
+    // Weight of time without an UE
+    private int weightTimeWithoutUE;
 
     // Result
     @ElementCollection
-    private List<ScheduledLesson> scheduledLessons;
+    private List<ScheduledLesson> scheduledLessons = new ArrayList<ScheduledLesson>();
+
+
+
+
 
     public Planning() {
     }
@@ -80,6 +88,36 @@ public class Planning {
         this.scheduledLessons = new ArrayList<ScheduledLesson>();
         this.timestamp = LocalDateTime.now();
     }
+
+    public Planning(Calendar calendar, boolean globalUnavailability, int weightGlobalUnavailability, boolean lecturersUnavailability, int weightLecturersUnavailability, boolean synchronise, List<ConstraintSynchroniseWithTAF> constraintsSynchronisation, List<ConstraintsOfUE> constraintsOfUEs, boolean UEInterlacing, boolean middayBreak, LocalTime startMiddayBreak, LocalTime endMiddayBreak, boolean middayGrouping, int weightMiddayGrouping, boolean lessonBalancing, int weightLessonBalancing, int weightLessonGrouping, boolean lessonGrouping, int weightTimeWithoutUE) {
+        this.calendar = calendar;
+        this.scheduledLessons = new ArrayList<ScheduledLesson>();
+        this.timestamp = LocalDateTime.now();
+        this.globalUnavailability = globalUnavailability;
+        this.weightGlobalUnavailability = weightGlobalUnavailability;
+        this.lecturersUnavailability = lecturersUnavailability;
+        this.weightLecturersUnavailability = weightLecturersUnavailability;
+        this.synchronise = synchronise;
+        this.constraintsSynchronisation = constraintsSynchronisation;
+        this.constraintsOfUEs = constraintsOfUEs;
+        this.UEInterlacing = UEInterlacing;
+        this.middayBreak = middayBreak;
+        this.startMiddayBreak = startMiddayBreak;
+        this.endMiddayBreak = endMiddayBreak;
+        this.middayGrouping = middayGrouping;
+        this.weightMiddayGrouping = weightMiddayGrouping;
+        this.lessonBalancing = lessonBalancing;
+        this.weightLessonBalancing = weightLessonBalancing;
+        this.weightLessonGrouping = weightLessonGrouping;
+        this.lessonGrouping = lessonGrouping;
+        this.weightTimeWithoutUE = weightTimeWithoutUE;
+    }
+
+
+
+
+
+
 
     public Long getId() {
         return id;
@@ -111,6 +149,10 @@ public class Planning {
 
     public void setScheduledLessons(List<ScheduledLesson> scheduledLessons) {
         this.scheduledLessons = scheduledLessons;
+    }
+    
+    public boolean isGenerated() {
+    	return !this.getScheduledLessons().isEmpty();
     }
 
     public boolean isGlobalUnavailability() {
@@ -259,6 +301,14 @@ public class Planning {
     
     public boolean isLessonCountInWeek() {
     	return this.getConstraintsOfUEs().stream().filter(c -> c.isLessonCountInWeek()).findAny().isPresent();
+    }
+
+    public int getWeightTimeWithoutUE() {
+        return weightTimeWithoutUE;
+    }
+
+    public void setWeightTimeWithoutUE(int weightTimeWithoutUE) {
+        this.weightTimeWithoutUE = weightTimeWithoutUE;
     }
 
     @Override

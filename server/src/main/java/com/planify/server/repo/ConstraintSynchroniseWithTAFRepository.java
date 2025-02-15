@@ -23,4 +23,8 @@ public interface ConstraintSynchroniseWithTAFRepository extends JpaRepository<Co
     void deleteById(Long id);
 
     List<ConstraintSynchroniseWithTAF> findByPlanning(Planning planning);
+
+    @Override
+    boolean existsById(Long aLong);
+
 }

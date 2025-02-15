@@ -1,11 +1,14 @@
 package com.planify.server.service;
 
 import com.planify.server.models.*;
+import com.planify.server.models.constraints.ConstraintSynchroniseWithTAF;
+import com.planify.server.models.constraints.ConstraintsOfUE;
 import com.planify.server.repo.PlanningRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -33,12 +36,23 @@ public class PlanningService {
         return planning;
     }
 
+    public Planning addPlanning(Calendar calendar, boolean globalUnavailability, int weightGlobalUnavailability, boolean lecturersUnavailability, int weightLecturersUnavailability, boolean synchronise, List<ConstraintSynchroniseWithTAF> constraintsSynchronisation, List<ConstraintsOfUE> constraintsOfUEs, boolean UEInterlacing, boolean middayBreak, LocalTime startMiddayBreak, LocalTime endMiddayBreak, boolean middayGrouping, int weightMiddayGrouping, boolean lessonBalancing, int weightLessonBalancing, int weightLessonGrouping, boolean lessonGrouping, int weightTimeWithoutUE) {
+        Planning planning = new Planning(calendar, globalUnavailability, weightGlobalUnavailability, lecturersUnavailability, weightLecturersUnavailability, synchronise, constraintsSynchronisation, constraintsOfUEs, UEInterlacing, middayBreak, startMiddayBreak, endMiddayBreak,middayGrouping, weightMiddayGrouping,lessonBalancing, weightLessonBalancing, weightLessonGrouping, lessonGrouping, weightTimeWithoutUE);
+        planningRepository.save(planning);
+        return planning;
+    }
+
+
     public  void save(Planning p) {
         planningRepository.save(p);
     }
 
     public Optional<Planning> findById(Long id) {
         return planningRepository.findById(id);
+    }
+
+    public boolean existById(Long id) {
+        return planningRepository.existsById(id);
     }
 
     public List<Planning> findByCalendar(Calendar calendar) {

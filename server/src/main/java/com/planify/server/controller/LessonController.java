@@ -18,6 +18,9 @@ import com.planify.server.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.MediaType;
 
@@ -80,10 +83,24 @@ public class LessonController {
     @Autowired
     private UEManagerService ueManagerService;
 
+    @Autowired
+    private UserUnavailabilityService userUnavailabilityService;
+
 
     // Get the list of TAF
     @GetMapping(value = "/taf", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getTAFs() {
+        List<TAF> tafs = tafService.findAll();
+        List<TAFShort> answer = new ArrayList<TAFShort>();
+        for (TAF taf : tafs) {
+            answer.add(new TAFShort(taf.getId(), taf.getName(), taf.getDescription()));
+        }
+        return ResponseEntity.ok(answer);
+    }
+
+    // Get the list of TAF
+    @GetMapping(value = "/alltaf", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getAllTAFs() {
         List<TAF> tafs = tafService.findAll();
         List<TAFShort> answer = new ArrayList<TAFShort>();
         for (TAF taf : tafs) {
@@ -574,6 +591,49 @@ public class LessonController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("No UE by this id found");
         }
+    }
+
+    @PutMapping(value = "/taf/{tafId}/lecturer_availability", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> putLecturerUnavailability(@PathVariable Long tafId, @RequestBody List<UserUnavailabilityShort> userAvailabilities) {
+        if (userAvailabilities.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorResponse("The body is empty", 400));
+        } 
+        
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !(authentication.getPrincipal() instanceof UserDetails)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ErrorResponse("Authentication required", 401));
+        }
+
+        String mail = ((UserDetails) authentication.getPrincipal()).getUsername();
+        Optional<User> userOpt = userService.findByMail(mail);
+
+        // If user not found, return error
+        if (!userOpt.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ErrorResponse("User not found", 404));
+        }
+
+        User user = userOpt.get();
+
+        for (UserUnavailabilityShort userAvailability : userAvailabilities) {
+            Optional<Slot> slotOpt = slotService.findById(userAvailability.getId());
+            if (slotOpt.isPresent()) {
+                Slot slot = slotOpt.get();
+                if (userAvailability.getStatus() == AvailabilityEnum.UNAVAILABLE) {
+                    UserUnavailability userUnavailability = userUnavailabilityService.addUserUnavailability(slot, user, true);
+                    userUnavailabilityService.save(userUnavailability);
+                }
+                if (userAvailability.getStatus() == AvailabilityEnum.UNPREFERRED) {
+                    UserUnavailability userUnavailability = userUnavailabilityService.addUserUnavailability(slot, user, false);
+                    userUnavailabilityService.save(userUnavailability);
+                }
+            }
+        }
+        
+       return ResponseEntity.ok("ok");
+
     }
 
 }
