@@ -479,6 +479,7 @@ public class SolverMain {
 		setConstraintAntecedences(model);
 		setConstraintGlobalUnavailability(model);
 		setConstraintLecturerUnavailability(model);
+		setConstraintBalancedLesson(model);
 		if (planning.isMiddayBreak()) setConstraintLunchBreak(model);
 		if (planning.isUEInterlacing()) setConstraintNoInterweaving(model);
 		if (planning.isLessonCountInWeek()) setConstraintMinMaxLessonUeInWeek(model); //Idée pour essayer d'améliorer les performances si besoin : essayer de faire une stratégie de recherche sur les variables du nombre de cours de l'UE considéré.
@@ -856,6 +857,7 @@ public class SolverMain {
 		return model.sum("preferenceCenteredLesson", penaltyNotCentered.stream().toArray(IntVar[]::new));
 	}
 	
+
 	private Slot getCenteredSlot(List<Slot> slots) {
 		LocalTime centeredTime = LocalTime.of(12, 0);
 		Slot centeredSlot = slots.getFirst();
@@ -866,6 +868,34 @@ public class SolverMain {
 				centeredSlot = slot;
 			}
 		return centeredSlot;
+	}
+	
+	private IntVar setConstraintBalancedLesson (Model model) {
+		ArrayList<IntVar> penalties = new ArrayList<>();		
+		
+	    int totalCourses = getLessons().size(); 
+	    int totalDays = getDaysOrdered().size();
+	   //int averageCoursesPerDay = model.div(totalCourses, totalDays, averageCoursesPerDay).post();
+	    IntVar averageCoursesPerDay = model.intVar("AverageCoursesPerDay", totalCourses / totalDays, totalCourses);
+
+	    
+	    for (Day day : getDaysOrdered()) {
+	    	List<Slot> slots = getSlotsByDayOrdered(day);
+	    	
+	    	IntVar nbSlotEmpty = model.count("VarNbSlotEmpty-Day " + day.getId(), 0, getSlotVarLesson(slots.stream().toArray(Slot[]::new)));
+	    	int nbTotalSlots = slots.size();
+	    	IntVar nbSlotNotEmpty = nbSlotEmpty.add(-nbTotalSlots).neg().intVar();
+	    	
+	    	IntVar penalty = model.intVar("Penalty-Day " + day.getId(), 0, totalCourses); 
+	    	model.distance(nbSlotNotEmpty, averageCoursesPerDay, "=", penalty).post();
+
+	        penalties.add(penalty);	    	 
+	    }
+		
+	    IntVar totalPenalty = model.intVar("TotalPenalty", 0, totalCourses * totalDays);
+	    model.sum(penalties.toArray(new IntVar[0]), "=", totalPenalty).post();
+
+	    return totalPenalty;
 	}
 	
 	private IntVar setPreferenceRegroupLessonsByNbSlots(Model model) {
