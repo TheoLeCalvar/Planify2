@@ -67,7 +67,7 @@ public class CalendarController {
                     for (Planning planning : plannings) {
                         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
                         String formatted = planning.getTimestamp().format(formatter);
-                        answer.add(new PlanningReturn(planning.getId(), formatted));
+                        answer.add(new PlanningReturn(planning.getId(), formatted, planning.getName()));
                     }
                 }
             }

@@ -175,7 +175,7 @@ public class LessonService {
             // Delete the synchronization of this lesson
             List<Synchronization> s1 = lesson.getSynchronizations1();
             List<Synchronization> s2 = lesson.getSynchronizations2();
-            if (s1 != null & !s1.isEmpty()) {
+            /*if (s1 != null & !s1.isEmpty()) {
                 while (!s1.isEmpty()) {
                     Synchronization s = s1.removeFirst();
                     synchronizationService.deleteSynchronization(s.getId());
@@ -186,7 +186,12 @@ public class LessonService {
                     Synchronization s = s2.removeFirst();
                     synchronizationService.deleteSynchronization(s.getId());
                 }
-            }
+            }*/
+            System.out.println("SYNCHRONISATION");
+            s1.forEach(s -> synchronizationService.deleteSynchronisationFromLesson(s.getId()));
+            s2.forEach(s -> synchronizationService.deleteSynchronisationFromLesson(s.getId()));
+
+            System.out.println("LessonLecturer");
 
             System.out.println("Lesson : " + lesson);
             // Delete the lessonLecturer of the lesson

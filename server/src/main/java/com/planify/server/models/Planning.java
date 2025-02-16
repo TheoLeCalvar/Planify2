@@ -16,6 +16,8 @@ public class Planning {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String name;
+
     private LocalDateTime timestamp;
 
     @ManyToOne
@@ -305,6 +307,22 @@ public class Planning {
 
     public void setWeightTimeWithoutUE(int weightTimeWithoutUE) {
         this.weightTimeWithoutUE = weightTimeWithoutUE;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public List<ConstraintSynchroniseWithTAF> getConstrainedSynchronisations() {
+        return constrainedSynchronisations;
+    }
+
+    public void setConstrainedSynchronisations(List<ConstraintSynchroniseWithTAF> constrainedSynchronisations) {
+        this.constrainedSynchronisations = constrainedSynchronisations;
     }
 
     @Override

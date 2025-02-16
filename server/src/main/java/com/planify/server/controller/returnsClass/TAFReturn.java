@@ -21,16 +21,20 @@ public class TAFReturn {
     private List<Long> CalendarsId;
 
     @JsonManagedReference
-    private List<String> managers;
+    private List<UserBrief> managers;
 
     private String startDate;
 
     private String endDate;
 
+    @JsonManagedReference
     private List<PlanningReturn> resultPlanning;
 
+    @JsonManagedReference
+    private List<Long> tafSynchronised;
+
     public TAFReturn(Long id, String name, String description, List<UEShort> UEs, List<Long> CalendarsId,
-                     List<String> managers, String beginDate, String endDate, List<PlanningReturn> plannings) {
+                     List<UserBrief> managers, String beginDate, String endDate, List<PlanningReturn> plannings, List<Long> tafSynchronised) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -40,6 +44,7 @@ public class TAFReturn {
         this.startDate = beginDate;
         this.endDate = endDate;
         this.resultPlanning = plannings;
+        this.tafSynchronised = tafSynchronised;
     }
 
     public TAFReturn() {
@@ -52,6 +57,7 @@ public class TAFReturn {
         this.startDate = "";
         this.endDate = "";
         this.resultPlanning = new ArrayList<>();
+        this.tafSynchronised = new ArrayList<>();
     }
 
     public String toString() {
@@ -83,11 +89,11 @@ public class TAFReturn {
         CalendarsId = calendarsId;
     }
 
-    public List<String> getManagers() {
+    public List<UserBrief> getManagers() {
         return managers;
     }
 
-    public void setManagers(List<String> managers) {
+    public void setManagers(List<UserBrief> managers) {
         this.managers = managers;
     }
 
@@ -129,5 +135,13 @@ public class TAFReturn {
 
     public void setResultPlanning(List<PlanningReturn> resultPlanning) {
         this.resultPlanning = resultPlanning;
+    }
+
+    public List<Long> getTafSynchronised() {
+        return tafSynchronised;
+    }
+
+    public void setTafSynchronised(List<Long> tafSynchronised) {
+        this.tafSynchronised = tafSynchronised;
     }
 }

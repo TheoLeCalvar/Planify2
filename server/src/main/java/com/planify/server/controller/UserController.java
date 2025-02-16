@@ -68,14 +68,20 @@ public class UserController {
 
     // Get the list of the users
     @RequestMapping(value = "users", method = RequestMethod.GET)
-    public ResponseEntity<?> getUsers(@RequestParam("tafId") Long tafId) {
+    public ResponseEntity<?> getUsers(@RequestParam(value="tafId", required = false) Long tafId) {
+        List<User> users = userService.findAll();
+        List<UserShort> answers = new ArrayList<>();
+        if (tafId == null) {
+            for (User user : users) {
+                answers.add(new UserShort(user.getId(), user.getFullName(), false));
+            }
+            return ResponseEntity.ok(answers);
+        }
         Optional<TAF> taf = tafService.findById(tafId);
         if (taf.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ErrorResponse("No TAF with this id was found", 404));
         }
-        List<User> users = userService.findAll();
-        List<UserShort> answers = new ArrayList<>();
         for (User user : users) {
             List<TAF> tafs = (user.getLessonLecturers()).stream().map(LessonLecturer::getTAF).filter(x -> x.equals(taf.get()))
                     .toList();

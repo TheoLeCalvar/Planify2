@@ -75,7 +75,7 @@ public class UEService {
 
             // Delete the UE Managers associated with this UE
             List<UEManager> listUeManagers = ue.getUeManagers();
-            if (listUeManagers != null) {
+            if (listUeManagers != null && !listUeManagers.isEmpty()) {
                 for (UEManager m : listUeManagers) {
                     ueManagerService.deleteUEManager(m.getId());
                 }

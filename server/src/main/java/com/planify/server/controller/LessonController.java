@@ -3,17 +3,13 @@ package com.planify.server.controller;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.WeekFields;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.planify.server.controller.returnsClass.*;
 import com.planify.server.models.*;
+import com.planify.server.models.Calendar;
 import com.planify.server.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -120,6 +116,15 @@ public class LessonController {
         TAF realTaf = taf.get();
         List<PlanningReturn> resultPlanning = new ArrayList<PlanningReturn>();
         List<Calendar> calendars = realTaf.getCalendars();
+
+        // Find the TAF with which there is a synchronisation
+        List<Lesson> allLessons = realTaf.getUes().stream()
+                .flatMap(ue -> ue.getLessons().stream())
+                .toList();
+        List<Long> tafsSynchronized = allLessons.stream()
+                .flatMap(lesson -> lesson.synchronisedWith().stream().map(TAF::getId))
+                .toList();
+
         if (calendars!=null && !calendars.isEmpty()) {
             for (Calendar calendar : calendars) {
                 List<Planning> plannings = planningService.findByCalendar(calendar);
@@ -127,7 +132,7 @@ public class LessonController {
                     for (Planning planning : plannings) {
                         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
                         String formatted = planning.getTimestamp().format(formatter);
-                        resultPlanning.add(new PlanningReturn(planning.getId(), formatted));
+                        resultPlanning.add(new PlanningReturn(planning.getId(), formatted, planning.getName()));
                     }
                 }
             }
@@ -138,11 +143,12 @@ public class LessonController {
                 realTaf.getDescription(),
                 realTaf.getUes().stream().map(ue -> new UEShort(ue)).collect(Collectors.toList()),
                 realTaf.getCalendars().stream().map(Calendar::getId).collect(Collectors.toList()),
-                realTaf.getTafManagers().stream().map(manager -> manager.getUser().getFullName())
+                realTaf.getTafManagers().stream().map(manager -> new UserBrief(manager.getUser().getId(), manager.getUser().getFullName()))
                         .collect(Collectors.toList()),
                 realTaf.getBeginDate(),
                 realTaf.getEndDate(),
-                resultPlanning);
+                resultPlanning,
+                tafsSynchronized);
         System.out.println(tafReturn.toString());
         return ResponseEntity.ok(tafReturn);
     }
@@ -208,6 +214,15 @@ public class LessonController {
                             }
                         }
 
+                        // Add the synchronisation
+                        System.out.println(GREEN + "Synchronisation:" + lesson.getSynchronise() + RESET);
+                        if (lesson.getSynchronise()!=null && !lesson.getSynchronise().isEmpty()) {
+                            for (Long s : lesson.getSynchronise()) {
+                                Lesson lesson2 = lessonService.findById(s).orElseThrow(() ->new IllegalArgumentException("The Lesson doesn't exist"));
+                                synchronizationService.addSynchronization(realLesson,lesson2);
+                            }
+                        }
+
                     }
 
                     System.out.println(GREEN + "Lessons of block " + block.getTitle() + " have been added" + RESET);
@@ -233,6 +248,7 @@ public class LessonController {
 
                     System.out.println(GREEN + "Antecedence and Sequencing in the " + block.getTitle()
                             + " have been added" + RESET);
+
 
                     lastLessonOfBlocks.put(block.getId(), reaLessons.get(reaLessons.size() - 1));
                 }
@@ -287,23 +303,49 @@ public class LessonController {
             //blockDependencies.addAll(blockDependenciesSave);
             Lesson currentLesson = block.getFirstLesson();
             List<LessonShort> lessonShorts = new ArrayList<>();
+
+            // Finding synchronization
+            Long actualId1 = currentLesson.getId();
+            List<Long> synchronised1 = Optional.ofNullable(currentLesson.getSynchronizations())
+                    .orElse(Collections.emptyList())
+                    .stream()
+                    .flatMap(s -> Optional.ofNullable(s.getLessonIds()).orElse(Collections.emptyList()).stream()) // Évite null sur getLessonIds()
+                    .distinct()
+                    .filter(id -> !Objects.equals(id, actualId1))
+                    .toList();
+
             LessonShort currentLessonShort = new LessonShort(
                     currentLesson.getId(),
                     currentLesson.getName(),
                     currentLesson.getDescription(),
                     currentLesson.getLessonLecturers().stream().map(lecturer -> lecturer.getId().getIdUser())
-                            .collect(Collectors.toList()));
+                            .collect(Collectors.toList()),
+                    synchronised1
+            );
             lessonShorts.add(currentLessonShort);
             while (!currentLesson.getSequencingsAsPrevious().isEmpty()) {
                 // Adding lesson to list until there are no more lessons in this block
                 Sequencing sequencing = currentLesson.getSequencingsAsPrevious().getFirst();
                 currentLesson = sequencing.getNextLesson();
+                // Finding synchronization
+                Long actualId = currentLesson.getId();
+                List<Long> synchronised = Optional.ofNullable(currentLesson.getSynchronizations())
+                        .orElse(Collections.emptyList())
+                        .stream()
+                        .flatMap(s -> Optional.ofNullable(s.getLessonIds()).orElse(Collections.emptyList()).stream()) // Évite null sur getLessonIds()
+                        .distinct()
+                        .filter(id -> !Objects.equals(id, actualId))
+                        .toList();
+
+
                 currentLessonShort = new LessonShort(
                         currentLesson.getId(),
                         currentLesson.getName(),
                         currentLesson.getDescription(),
                         currentLesson.getLessonLecturers().stream().map(lecturer -> lecturer.getId().getIdUser())
-                                .collect(Collectors.toList()));
+                                .collect(Collectors.toList()),
+                        synchronised
+                );
                 lessonShorts.add(currentLessonShort);
             }
 
