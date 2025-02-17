@@ -600,7 +600,7 @@ public class ServerApplication {
 		planning.setGlobalUnavailability(false);
 		planning.setWeightGlobalUnavailability(30);
 		planning.setLessonBalancing(false);
-		planning.setWeightLessonBalancing(0);
+		planning.setWeightLessonBalancing(2);
 		planning.setLessonGrouping(false);
 		planning.setWeightLessonGrouping(5);
 		planning.setMiddayGrouping(false);
