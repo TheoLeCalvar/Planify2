@@ -698,6 +698,16 @@ public class LessonController {
                     UserUnavailability userUnavailability = userUnavailabilityService.addUserUnavailability(slot, user, false);
                     userUnavailabilityService.save(userUnavailability);
                 }
+                if (userAvailability.getStatus() == AvailabilityEnum.AVAILABLE) {
+                    if (userUnavailabilityService.existsBySlotAndByUser(slot, user)) {
+                        Optional<UserUnavailability> userUnavailability = userUnavailabilityService.findBySlotAndByUser(slot, user);
+                        if (userUnavailability.isPresent()) {
+                            userUnavailabilityService.deleteUserUnavailability(userUnavailability.get().getId());
+                        }
+                    }
+                    UserUnavailability userUnavailability = userUnavailabilityService.addUserUnavailability(slot, user, false);
+                    userUnavailabilityService.save(userUnavailability);
+                }
             }
         }
         

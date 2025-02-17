@@ -118,4 +118,16 @@ public class UserUnavailabilityService {
         userUnavailabilityRepository.save(userUnavailability);
     }
 
+    public boolean exists(Slot slot) {
+        return userUnavailabilityRepository.existsBySlot(slot);
+    }
+
+    public boolean existsBySlotAndByUser(Slot slot, User user) {
+        return userUnavailabilityRepository.existsBySlotAndUser(slot, user);
+    }
+
+    public Optional<UserUnavailability> findBySlotAndByUser(Slot slot, User user) {
+        return userUnavailabilityRepository.findBySlotAndUser(slot, user);
+    }
+
 }
