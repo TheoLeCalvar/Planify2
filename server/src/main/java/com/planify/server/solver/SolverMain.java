@@ -697,23 +697,26 @@ public class SolverMain {
 		}
 	}
 	
-	private HashMap<Integer, List<IntVar>> setConstraintSortedLessonsUeVarDayOrWeek(Model model, boolean sortWeeks) {
+	private HashMap<Integer, List<IntVar>> setConstraintSortedLessonsUeVarDayOrWeek(Model model) {
 		HashMap<Integer, List<IntVar>> sortedLessonsVar = new HashMap<Integer, List<IntVar>>();
 		for (UE ue : getUes()) {
-			IntVar[][] vars;
-			int[] valsVars;
-			if (sortWeeks) {
-				vars = ue.getLessons().stream().map(l -> new IntVar[] {getLessonVarWeek(l)}).toArray(IntVar[][]::new);
-				valsVars = IntStream.range(1,1 + getWeeksOrdered().size()).toArray();
+			ConstraintsOfUE cUe = getConstraintsOfUe(ue);
+			if (cUe.isMaxTimeWithoutLesson()) {
+				IntVar[][] vars;
+				int[] valsVars;
+				if (cUe.isMaxTimeWLUnitInWeeks()) {
+					vars = ue.getLessons().stream().map(l -> new IntVar[] {getLessonVarWeek(l)}).toArray(IntVar[][]::new);
+					valsVars = IntStream.range(1,1 + getWeeksOrdered().size()).toArray();
+				}
+				else {
+					vars = ue.getLessons().stream().map(l -> new IntVar[] {getLessonVarDay(l)}).toArray(IntVar[][]::new);
+					valsVars =  this.getValsIdMDays();
+				}
+				IntVar[][] sortedVars = IntStream.range(0,vars.length).mapToObj(i -> new IntVar[] {model.intVar("sortedVarLessUe " + ue.getName() + " (" + i + ")", valsVars)}).toArray(IntVar[][]::new);
+				IntVar[] permutations = model.intVarArray("Perm SortedLessUe " + ue.getName(), vars.length, 1, vars.length);
+				model.keySort(vars, permutations, sortedVars, 1).post();
+				sortedLessonsVar.put(getIdMUe(ue), Arrays.stream(sortedVars).map(t -> t[0]).toList());
 			}
-			else {
-				vars = ue.getLessons().stream().map(l -> new IntVar[] {getLessonVarDay(l)}).toArray(IntVar[][]::new);
-				valsVars =  this.getValsIdMDays();
-			}
-			IntVar[][] sortedVars = IntStream.range(0,vars.length).mapToObj(i -> new IntVar[] {model.intVar("sortedVarLessUe " + ue.getName() + " (" + i + ")", valsVars)}).toArray(IntVar[][]::new);
-			IntVar[] permutations = model.intVarArray("Perm SortedLessUe " + ue.getName(), vars.length, 1, vars.length);
-			model.keySort(vars, permutations, sortedVars, 1).post();
-			sortedLessonsVar.put(getIdMUe(ue), Arrays.stream(sortedVars).map(t -> t[0]).toList());
 		}
 		return sortedLessonsVar;
 	}
@@ -1034,27 +1037,18 @@ public class SolverMain {
 	
 	private IntVar setPreferenceMaxBreakWithoutLessonUe(Model model) {
 		List<IntVar> penalties = new ArrayList<IntVar>();
-		boolean weekDuration = false;
-		boolean dayDuration = false;
-		for (UE ue : getUes()) {
-			ConstraintsOfUE cUe = planning.getConstraintsOfUEs().stream().filter(c -> c.getUe().getId() == ue.getId()).findAny().get();
-			if (cUe.isMaxTimeWLUnitInWeeks())
-				weekDuration = true;
-			else
-				dayDuration = true;
-		}
-		HashMap<Integer, List<IntVar>> sortedLessonsVarWeek = weekDuration ? setConstraintSortedLessonsUeVarDayOrWeek(model, true) : null;
-		HashMap<Integer, List<IntVar>> sortedLessonsVarDay = dayDuration ? setConstraintSortedLessonsUeVarDayOrWeek(model, false) : null;
+		HashMap<Integer, List<IntVar>> sortedLessonsVar = setConstraintSortedLessonsUeVarDayOrWeek(model);
 		IntVar zero = model.intVar("Zero", 0);
 		for (UE ue : getUes()) {
 			ConstraintsOfUE cUe = getConstraintsOfUe(ue);
-			boolean breakUnitInWeeks = cUe.isMaxTimeWLUnitInWeeks();
-			int valMax = cUe.getMaxTimeWLDuration() + 1;
-			List<IntVar> sorteds = breakUnitInWeeks ? sortedLessonsVarWeek.get(getIdMUe(ue)) : sortedLessonsVarDay.get(getIdMUe(ue));
-			for (int i = 0; i < sorteds.size() - 1; i ++) {
-				penalties.add(model.max("MaxBreak " + ue.getName() + " (" + i + ")",
-										new IntVar[] {zero,
-													sorteds.get(i + 1).add(sorteds.get(i).add(valMax).neg()).intVar()}));
+			if (cUe.isMaxTimeWithoutLesson()) {
+				int valMax = cUe.getMaxTimeWLDuration() + 1;
+				List<IntVar> sorteds = sortedLessonsVar.get(getIdMUe(ue));
+				for (int i = 0; i < sorteds.size() - 1; i ++) {
+					penalties.add(model.max("MaxBreak " + ue.getName() + " (" + i + ")",
+											new IntVar[] {zero,
+														sorteds.get(i + 1).add(sorteds.get(i).add(valMax).neg()).intVar()}));
+				}
 			}
 		}
 		return model.sum("PreferenceMaxBreak", penalties.stream().toArray(IntVar[]::new));
