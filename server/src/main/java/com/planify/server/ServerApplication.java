@@ -599,6 +599,8 @@ public class ServerApplication {
 		
 		planning.setGlobalUnavailability(false);
 		planning.setWeightGlobalUnavailability(30);
+		planning.setLecturersUnavailability(true);
+		planning.setWeightLecturersUnavailability(19);
 		planning.setLessonBalancing(false);
 		planning.setWeightLessonBalancing(0);
 		planning.setLessonGrouping(false);
