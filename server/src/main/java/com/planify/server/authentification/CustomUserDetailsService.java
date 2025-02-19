@@ -39,7 +39,7 @@ public class CustomUserDetailsService implements UserDetailsService {
        
         List<GrantedAuthority> authorities = new ArrayList<>();
 
-        // Check UEmanager and TAFmanager tables for roles
+        // Check UEmanager and TAFmanager and LessonLecturer tables for roles
         if (tafManagerRepository.existsByUser(user)) {
             authorities.add(new SimpleGrantedAuthority("ROLE_TAFMANAGER"));
         }

@@ -6,14 +6,25 @@ public class PlanningReturn {
 
     private Long id;
 
+    private String name;
+
     private String timestamp;
+
+    private boolean generated;
 
     public PlanningReturn() {
     }
 
-    public PlanningReturn(Long id, String timestamp) {
+    public PlanningReturn(Long id, String timestamp, String name) {
         this.id = id;
         this.timestamp = timestamp;
+        this.name = name;
+    }
+
+    public PlanningReturn(Long id, String name, boolean generated) {
+        this.id = id;
+        this.name = name;
+        this.generated = generated;
     }
 
     public Long getId() {
@@ -32,5 +43,19 @@ public class PlanningReturn {
         this.timestamp = timestamp;
     }
 
+    public String getName() {
+        return name;
+    }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public boolean isGenerated() {
+        return generated;
+    }
+
+    public void setGenerated(boolean generated) {
+        this.generated = generated;
+    }
 }

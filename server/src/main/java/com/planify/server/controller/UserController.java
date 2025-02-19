@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -68,14 +69,20 @@ public class UserController {
 
     // Get the list of the users
     @RequestMapping(value = "users", method = RequestMethod.GET)
-    public ResponseEntity<?> getUsers(@RequestParam("tafId") Long tafId) {
+    public ResponseEntity<?> getUsers(@RequestParam(value="tafId", required = false) Long tafId) {
+        List<User> users = userService.findAll();
+        List<UserShort> answers = new ArrayList<>();
+        if (tafId == null) {
+            for (User user : users) {
+                answers.add(new UserShort(user.getId(), user.getFullName(), false));
+            }
+            return ResponseEntity.ok(answers);
+        }
         Optional<TAF> taf = tafService.findById(tafId);
         if (taf.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ErrorResponse("No TAF with this id was found", 404));
         }
-        List<User> users = userService.findAll();
-        List<UserShort> answers = new ArrayList<>();
         for (User user : users) {
             List<TAF> tafs = (user.getLessonLecturers()).stream().map(LessonLecturer::getTAF).filter(x -> x.equals(taf.get()))
                     .toList();
@@ -138,8 +145,13 @@ public class UserController {
             // Generate JWT token
             String jwt = jwtUtil.generateToken(userDetails.getUsername());
 
+            // Get roles
+            List<String> roles = userDetails.getAuthorities().stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .collect(Collectors.toList());
+
             // Return token in response
-            return ResponseEntity.ok(new AuthentificationResponse(jwt));
+            return ResponseEntity.ok(new AuthentificationResponse(jwt, roles));
 
         } catch (BadCredentialsException e) {
             return ResponseEntity.status(401).body("Invalid username or password");

@@ -15,11 +15,24 @@ public class LessonShort {
 
     private List<Long> lecturers;
 
+    private List<Long> synchronise;
+
+    public LessonShort() {
+    }
+
     public LessonShort(Long id, String title, String description, List<Long> lecturers) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.lecturers = lecturers;
+    }
+
+    public LessonShort(Long id, String title, String description, List<Long> lecturers, List<Long> synchronise) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.lecturers = lecturers;
+        this.synchronise = synchronise;
     }
 
     public Long getId() {
@@ -54,4 +67,11 @@ public class LessonShort {
         this.lecturers = lects;
     }
 
+    public List<Long> getSynchronise() {
+        return synchronise;
+    }
+
+    public void setSynchronise(List<Long> synchronise) {
+        this.synchronise = synchronise;
+    }
 }
