@@ -606,6 +606,8 @@ public class ServerApplication {
 		planning.setMiddayGrouping(false);
 		planning.setWeightMiddayGrouping(1);
 		
+		planning.setWeightMaxTimeWithoutLesson(11);
+		
 		//Add Weight for MaxTimeWithoutLesson !
 		//Add lecturerPreference !
 		for (UE ue : planning.getCalendar().getTaf().getUes()) {
