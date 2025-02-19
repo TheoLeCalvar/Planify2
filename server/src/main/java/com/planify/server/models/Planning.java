@@ -49,7 +49,7 @@ public class Planning {
     @OneToMany(mappedBy = "planning", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<ConstraintsOfUE> constraintsOfUEs = new ArrayList<ConstraintsOfUE>();
     
-    
+    private int weightMaxTimeWithoutLesson;
     
     // Avoid or not interlacing the UE
     private boolean UEInterlacing; // false if no interlacing
@@ -91,7 +91,7 @@ public class Planning {
         this.timestamp = LocalDateTime.now();
     }
 
-    public Planning(Calendar calendar, boolean globalUnavailability, int weightGlobalUnavailability, boolean lecturersUnavailability, int weightLecturersUnavailability, boolean synchronise, List<ConstraintSynchroniseWithTAF> constraintsSynchronisation, List<ConstraintsOfUE> constraintsOfUEs, boolean UEInterlacing, boolean middayBreak, LocalTime startMiddayBreak, LocalTime endMiddayBreak, boolean middayGrouping, int weightMiddayGrouping, boolean lessonBalancing, int weightLessonBalancing, int weightLessonGrouping, boolean lessonGrouping, int weightTimeWithoutUE) {
+    public Planning(Calendar calendar, boolean globalUnavailability, int weightGlobalUnavailability, boolean lecturersUnavailability, int weightLecturersUnavailability, boolean synchronise, List<ConstraintSynchroniseWithTAF> constraintsSynchronisation, List<ConstraintsOfUE> constraintsOfUEs, int weightMaxTimeWithoutLesson, boolean UEInterlacing, boolean middayBreak, LocalTime startMiddayBreak, LocalTime endMiddayBreak, boolean middayGrouping, int weightMiddayGrouping, boolean lessonBalancing, int weightLessonBalancing, int weightLessonGrouping, boolean lessonGrouping, int weightTimeWithoutUE) {
         this.calendar = calendar;
         this.scheduledLessons = new ArrayList<ScheduledLesson>();
         this.timestamp = LocalDateTime.now();
@@ -102,6 +102,7 @@ public class Planning {
         this.synchronise = synchronise;
         this.constraintsSynchronisation = constraintsSynchronisation;
         this.constraintsOfUEs = constraintsOfUEs;
+        this.weightMaxTimeWithoutLesson = weightMaxTimeWithoutLesson;
         this.UEInterlacing = UEInterlacing;
         this.middayBreak = middayBreak;
         this.startMiddayBreak = startMiddayBreak;
@@ -188,8 +189,16 @@ public class Planning {
     public void setConstraintsSynchronisation(List<ConstraintSynchroniseWithTAF> constraintsSynchronisation) {
         this.constraintsSynchronisation = constraintsSynchronisation;
     }
+    
+    public int getWeightMaxTimeWithoutLesson() {
+		return weightMaxTimeWithoutLesson;
+	}
 
-    public boolean isUEInterlacing() {
+	public void setWeightMaxTimeWithoutLesson(int weightMaxTimeWithoutLesson) {
+		this.weightMaxTimeWithoutLesson = weightMaxTimeWithoutLesson;
+	}
+
+	public boolean isUEInterlacing() {
         return UEInterlacing;
     }
 

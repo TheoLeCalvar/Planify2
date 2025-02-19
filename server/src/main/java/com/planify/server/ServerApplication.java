@@ -599,12 +599,16 @@ public class ServerApplication {
 		
 		planning.setGlobalUnavailability(false);
 		planning.setWeightGlobalUnavailability(30);
+		planning.setLecturersUnavailability(true);
+		planning.setWeightLecturersUnavailability(19);
 		planning.setLessonBalancing(false);
 		planning.setWeightLessonBalancing(2);
 		planning.setLessonGrouping(false);
 		planning.setWeightLessonGrouping(5);
 		planning.setMiddayGrouping(false);
 		planning.setWeightMiddayGrouping(1);
+		
+		planning.setWeightMaxTimeWithoutLesson(11);
 		
 		//Add Weight for MaxTimeWithoutLesson !
 		//Add lecturerPreference !

@@ -816,10 +816,10 @@ public class SolverMain {
 	private IntVar setPreferences(Model model) {
 		ArrayList<IntVar> preferences = new ArrayList<IntVar>();
 		if (planning.isGlobalUnavailability())  preferences.add(setPreferencesGlobal(model).mul(planning.getWeightGlobalUnavailability()).intVar());
-		/*if (preferencesLecturers)*/ preferences.add(setPreferencesLecturers(model).mul(19).intVar());
+		if (planning.isLecturersUnavailability()) preferences.add(setPreferencesLecturers(model).mul(planning.getWeightLecturersUnavailability()).intVar());
 		if (planning.isMiddayGrouping()) preferences.add(setPreferenceCenteredLessons(model).mul(planning.getWeightMiddayGrouping()).intVar());
 		if (planning.isLessonGrouping()) preferences.add(setPreferenceRegroupLessonsByNbSlots(model).mul(planning.getWeightLessonGrouping()).intVar());
-		if (planning.isMaxTimeWithoutLesson()) preferences.add(setPreferenceMaxBreakWithoutLessonUe(model).mul(11).intVar()); //TODO Maybe change the mul factor to have something proportionnal with the valMax (i.e. having a fixed cost when the break is the double than the prefered max because now the cost is of one for each unit of time)
+		if (planning.isMaxTimeWithoutLesson()) preferences.add(setPreferenceMaxBreakWithoutLessonUe(model).mul(planning.getWeightMaxTimeWithoutLesson()).intVar()); //TODO Maybe change the mul factor to have something proportionnal with the valMax (i.e. having a fixed cost when the break is the double than the prefered max because now the cost is of one for each unit of time)
 		if (planning.isLessonBalancing()) preferences.add(setPreferenceBalancedLesson(model).mul(planning.getWeightLessonBalancing()).intVar());
 		return (preferences.isEmpty()) ? null : model.sum("Preferences", preferences.stream().filter(v -> v != null).toArray(IntVar[]::new));
 	}
