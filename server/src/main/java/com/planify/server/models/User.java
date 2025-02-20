@@ -22,6 +22,7 @@ public class User {
 
     private String name;
     private String lastName;
+    private boolean isAdmin;
 
     @Column(unique = true, nullable = false)
     private String mail;
@@ -53,6 +54,7 @@ public class User {
         this.lastName = lastName;
         this.mail = mail;
         this.password = password;
+        this.isAdmin = false;
     }
 
     public String toString() {
@@ -77,6 +79,14 @@ public class User {
 
     public String getFullName() {
         return name + " " + lastName;
+    }
+
+    public boolean getIsAdmin() {
+        return isAdmin;
+    }
+
+    public void setIsAdmin(boolean isAdmin) {
+        this.isAdmin = isAdmin;
     }
 
     public String getMail() {

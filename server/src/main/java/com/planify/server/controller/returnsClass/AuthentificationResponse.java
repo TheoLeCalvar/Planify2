@@ -12,7 +12,7 @@ public class AuthentificationResponse {
 
     public AuthentificationResponse(String token, List<String> roles) {
         this.token = token;
-        //this.profiles.put("admin", roles.contains("ROLE_ADMIN"));
+        this.profiles.put("admin", roles.contains("ROLE_ADMIN"));
         this.profiles.put("lecturer", roles.contains("ROLE_LESSONLECTURER"));
         this.profiles.put("ue_manager", roles.contains("ROLE_UEMANAGER"));
         this.profiles.put("taf_manager", roles.contains("ROLE_TAFMANAGER"));

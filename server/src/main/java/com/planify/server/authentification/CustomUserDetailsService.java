@@ -39,6 +39,11 @@ public class CustomUserDetailsService implements UserDetailsService {
        
         List<GrantedAuthority> authorities = new ArrayList<>();
 
+        //Check if user is admin
+        if (user.getIsAdmin()) {
+            authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        }
+
         // Check UEmanager and TAFmanager and LessonLecturer tables for roles
         if (tafManagerRepository.existsByUser(user)) {
             authorities.add(new SimpleGrantedAuthority("ROLE_TAFMANAGER"));
