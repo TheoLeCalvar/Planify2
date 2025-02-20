@@ -10,6 +10,8 @@ import java.util.stream.Stream;
 import com.planify.server.controller.returnsClass.*;
 import com.planify.server.models.*;
 import com.planify.server.models.Calendar;
+import com.planify.server.models.constraints.ConstraintSynchroniseWithTAF;
+import com.planify.server.models.constraints.ConstraintsOfUE;
 import com.planify.server.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -706,6 +708,107 @@ public class LessonController {
         }
         
        return ResponseEntity.ok("ok");
+
+    }
+
+    @GetMapping(value = "/taf/{tafId}/configs", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getPlannings(@PathVariable Long tafId) {
+        if (!tafService.existsById(tafId)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("TAF not found");
+        }
+        List<Config> configs = new ArrayList<>();
+        TAF taf = tafService.findById(tafId).get();
+        List<Calendar> calendars= taf.getCalendars();
+        if (calendars!=null && !calendars.isEmpty()) {
+            for (Calendar calendar : calendars) {
+                List<Planning> plannings = calendar.getPlannings();
+                if (plannings!=null && !plannings.isEmpty()) {
+                    for (Planning planning : plannings) {
+                        List<ScheduledLesson> lessons = planning.getScheduledLessons();
+                        if (lessons == null || lessons.isEmpty()) {
+                            configs.add(new Config(planning));
+                        }
+                    }
+                }
+            }
+        }
+        return ResponseEntity.ok(configs);
+    }
+
+    @PostMapping(value = "/taf/{tafId}/configs", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> addPlanning(@PathVariable Long tafId, @RequestBody Config config) {
+        if (!tafService.existsById(tafId)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("TAF not found");
+        }
+        if (config==null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorResponse("The body is empty", 400));
+        }
+
+        TAF taf = tafService.findById(tafId).get();
+
+        Planning planning = new Planning(
+                calendarService.findById(config.getCalendar()).orElseThrow(() -> new IllegalArgumentException("The Calendar doesn't exist")),
+                config.isGlobalUnavailability(),
+                config.getWeightGlobalUnavailability(),
+                config.isLecturersUnavailability(),
+                config.getWeightLecturersUnavailability(),
+                config.isSynchronise(),
+                config.isUEInterlacing(),
+                config.isMiddayBreak(),
+                config.getStartMiddayBreak(),
+                config.getEndMiddayBreak(),
+                config.isMiddayGrouping(),
+                config.getWeightMiddayGrouping(),
+                config.isLessonBalancing(),
+                config.getWeightLessonBalancing(),
+                config.getWeightLessonGrouping(),
+                config.isLessonGrouping(),
+                config.getWeightTimeWithoutUE()
+        );
+
+        //Addition of the synchronisation's constraints
+        List<ConstraintSynchroniseWithTAF> cSynchronisations = new ArrayList<>();
+        if (config.getConstraintsSynchronisation()!=null && !config.getConstraintsSynchronisation().isEmpty()) {
+            for (Config.CSyncrho cs : config.getConstraintsSynchronisation()) {
+                ConstraintSynchroniseWithTAF c = new ConstraintSynchroniseWithTAF(
+                        planning,
+                        planningService.findById(cs.getOtherPlanning()).orElseThrow(() -> new IllegalArgumentException("The Other Planning doesn't exist")),
+                        cs.isEnabled(),
+                        cs.isGenerateOtherPlanning()
+                );
+                cSynchronisations.add(c);
+            }
+        }
+        planning.setConstrainedSynchronisations(cSynchronisations);
+
+        //Addition of the UEs constraints
+        List<ConstraintsOfUE> cUEs = new ArrayList<>();
+        if (config.getConstraintsOfUEs()!=null && !config.getConstraintsOfUEs().isEmpty()) {
+            for (Config.CUE cue : config.getConstraintsOfUEs()) {
+                ConstraintsOfUE c = new ConstraintsOfUE(
+                        ueService.findById(cue.getUe()).orElseThrow(() -> new IllegalArgumentException("The UE doesn't exist")),
+                        planning,
+                        cue.isLessonCountInWeek(),
+                        cue.getMaxLessonInWeek(),
+                        cue.getMinLessonInWeek(),
+                        cue.isMaxTimeWithoutLesson(),
+                        cue.isMaxTimeWLUnitInWeeks(),
+                        cue.getMaxTimeWLDuration(),
+                        cue.isSpreading(),
+                        cue.getMaxSpreading(),
+                        cue.getMaxSpreading()
+                );
+                cUEs.add(c);
+            }
+        }
+        planning.setConstraintsOfUEs(cUEs);
+
+        planningService.save(planning);
+        return ResponseEntity.ok("New planning added !");
+
 
     }
 

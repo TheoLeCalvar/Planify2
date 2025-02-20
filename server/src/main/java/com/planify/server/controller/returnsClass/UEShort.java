@@ -16,9 +16,9 @@ public class UEShort {
 
     private String description;
 
-    private List<String> managers;
+    private List<UserBrief> managers;
 
-    public UEShort(Long id, String name, String description, List<String> managers) {
+    public UEShort(Long id, String name, String description, List<UserBrief> managers) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -29,7 +29,7 @@ public class UEShort {
         this.id = ue.getId();
         this.name = ue.getName();
         this.description = ue.getDescription();
-        this.managers = ue.getUeManagers().stream().map(UEManager::getUserName).collect(Collectors.toList());
+        this.managers = ue.getUeManagers().stream().map(manager -> new UserBrief(manager.getUser().getId(), manager.getUserName())).collect(Collectors.toList());
     }
 
     public Long getId() {
@@ -44,7 +44,7 @@ public class UEShort {
         return this.description;
     }
 
-    public List<String> getManagers() {
+    public List<UserBrief> getManagers() {
         return managers;
     }
 }
