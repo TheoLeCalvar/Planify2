@@ -93,7 +93,9 @@ export default function TAFSettings() {
 
   const taf = context?.taf;
 
-  const [managers, setManagers] = React.useState([]);
+  const [managers, setManagers] = React.useState(
+    taf?.managers.map((m) => m.id) || [],
+  );
 
   const validateField = (name, value, otherValues) => {
     switch (name) {

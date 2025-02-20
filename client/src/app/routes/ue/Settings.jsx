@@ -78,10 +78,11 @@ export default function UESettings() {
 
   const isEditing = !!params.idUE;
 
-  const [managers, setManagers] = React.useState([]);
-
   const ue = context?.ue;
 
+  const [managers, setManagers] = React.useState(
+    ue?.managers.map((m) => m.id) || [],
+  );
   const validateField = (name, value) => {
     switch (name) {
       case "name":

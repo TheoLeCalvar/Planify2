@@ -23,7 +23,8 @@ const LessonList = ({ lessons, tafID }) => {
             <ListItem sx={styles.listItem}>
               <Typography variant="body1">{name}</Typography>
               <Typography variant="body2" color="textSecondary">
-                {locale.layout.sideBar.UEManager}: {managers.join(", ")}
+                {locale.layout.sideBar.UEManager}:{" "}
+                {managers.map((m) => m.name).join(", ")}
               </Typography>
             </ListItem>
           </Link>
