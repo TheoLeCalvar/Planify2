@@ -44,7 +44,7 @@ public class CalendarController {
         // A supprimer
         TAF taf = tafService.findById(configId).orElseThrow(() -> new IllegalArgumentException("TAF not found"));
         Calendar calendar = taf.getCalendars().getFirst();
-        Planning realPlanning = planningService.addPlanning(calendar);
+        Planning realPlanning = Planning.setSettingsPlanning(planningService.addPlanning(calendar));
         // Fin de à supprimer
         
         SolverExecutor.generatePlanning(realPlanning);
