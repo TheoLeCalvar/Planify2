@@ -88,9 +88,34 @@ public class LessonController {
     // Get the list of TAF
     @GetMapping(value = "/taf", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getTAFs() {
-        List<TAF> tafs = tafService.findAll();
+        // Retrieving user
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !(authentication.getPrincipal() instanceof UserDetails)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ErrorResponse("Authentication required", 401));
+        }
+
+        String mail = ((UserDetails) authentication.getPrincipal()).getUsername();
+        Optional<User> userOpt = userService.findByMail(mail);
+
+        // If user not found, return error
+        if (!userOpt.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ErrorResponse("User not found", 404));
+        }
+
+        User user = userOpt.get();
+
+        // Retrieving related TAF to user
+        List<TAF> relatedTafs = new ArrayList<TAF>();
+        List<TAFManager> tafManagers = user.getTafManagers();
+        List<UEManager> ueManagers = user.getUeManagers();
+        List<LessonLecturer> lessonLecturers = user.getLessonLecturers();
+        relatedTafs.addAll(tafManagers.stream().map(manager -> manager.getTaf()).collect(Collectors.toList()));
+        relatedTafs.addAll(ueManagers.stream().map(manager -> manager.getUe().getTaf()).collect(Collectors.toList()));
+        relatedTafs.addAll(lessonLecturers.stream().map(lecturer -> lecturer.getLesson().getUe().getTaf()).collect(Collectors.toList()));
         List<TAFShort> answer = new ArrayList<TAFShort>();
-        for (TAF taf : tafs) {
+        for (TAF taf : relatedTafs) {
             answer.add(new TAFShort(taf.getId(), taf.getName(), taf.getDescription()));
         }
         return ResponseEntity.ok(answer);
@@ -645,12 +670,14 @@ public class LessonController {
         } 
         
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        System.out.println("AUTHENTICATION : " + authentication);
         if (authentication == null || !(authentication.getPrincipal() instanceof UserDetails)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new ErrorResponse("Authentication required", 401));
         }
 
         String mail = ((UserDetails) authentication.getPrincipal()).getUsername();
+        System.out.println("Authenticated User: " + mail);
         Optional<User> userOpt = userService.findByMail(mail);
 
         // If user not found, return error
@@ -670,6 +697,16 @@ public class LessonController {
                     userUnavailabilityService.save(userUnavailability);
                 }
                 if (userAvailability.getStatus() == AvailabilityEnum.UNPREFERRED) {
+                    UserUnavailability userUnavailability = userUnavailabilityService.addUserUnavailability(slot, user, false);
+                    userUnavailabilityService.save(userUnavailability);
+                }
+                if (userAvailability.getStatus() == AvailabilityEnum.AVAILABLE) {
+                    if (userUnavailabilityService.existsBySlotAndByUser(slot, user)) {
+                        Optional<UserUnavailability> userUnavailability = userUnavailabilityService.findBySlotAndByUser(slot, user);
+                        if (userUnavailability.isPresent()) {
+                            userUnavailabilityService.deleteUserUnavailability(userUnavailability.get().getId());
+                        }
+                    }
                     UserUnavailability userUnavailability = userUnavailabilityService.addUserUnavailability(slot, user, false);
                     userUnavailabilityService.save(userUnavailability);
                 }

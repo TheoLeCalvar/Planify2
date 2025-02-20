@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -144,8 +145,13 @@ public class UserController {
             // Generate JWT token
             String jwt = jwtUtil.generateToken(userDetails.getUsername());
 
+            // Get roles
+            List<String> roles = userDetails.getAuthorities().stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .collect(Collectors.toList());
+
             // Return token in response
-            return ResponseEntity.ok(new AuthentificationResponse(jwt));
+            return ResponseEntity.ok(new AuthentificationResponse(jwt, roles));
 
         } catch (BadCredentialsException e) {
             return ResponseEntity.status(401).body("Invalid username or password");
