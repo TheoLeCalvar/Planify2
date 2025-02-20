@@ -1,5 +1,5 @@
 // React imports
-import React from "react";
+import React, { useMemo } from "react";
 import { useLoaderData } from "react-router-dom";
 
 // Material-UI imports
@@ -8,6 +8,8 @@ import { Typography } from "@mui/material";
 // ScheduleX imports
 import { useCalendarApp, ScheduleXCalendar } from "@schedule-x/react";
 import { createEventModalPlugin } from "@schedule-x/event-modal";
+import { createEventsServicePlugin } from "@schedule-x/events-service";
+import { createCalendarControlsPlugin } from "@schedule-x/calendar-controls";
 import "@schedule-x/theme-default/dist/index.css";
 
 // Local imports
@@ -97,6 +99,8 @@ export async function loader({ params }) {
 export default function TAFPlanning() {
   const initialEvents = useLoaderData();
   const eventModal = createEventModalPlugin();
+  const eventsService = useMemo(() => createEventsServicePlugin(), []);
+  const calendarControls = useMemo(() => createCalendarControlsPlugin(), []);
 
   const calendar = useCalendarApp(
     {
@@ -104,8 +108,14 @@ export default function TAFPlanning() {
       selectedDate: initialEvents[0].start.split(" ")[0],
       events: assignUniqueUDId(initialEvents).map(JSONToPlanningEvent),
     },
-    [eventModal],
+    [eventModal, eventsService, calendarControls],
   );
+
+  if (eventsService?.set) {
+    eventsService.set(assignUniqueUDId(initialEvents).map(JSONToPlanningEvent));
+    initialEvents[0] &&
+      calendarControls.setDate(initialEvents[0].start.split(" ")[0]);
+  }
 
   return (
     <div>
