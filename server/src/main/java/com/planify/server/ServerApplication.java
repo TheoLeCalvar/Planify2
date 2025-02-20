@@ -597,15 +597,15 @@ public class ServerApplication {
 		planning.setEndMiddayBreak(LocalTime.of(13, 30));
 		planning.setUEInterlacing(true);
 		
-		planning.setGlobalUnavailability(false);
+		planning.setGlobalUnavailability(true);
 		planning.setWeightGlobalUnavailability(30);
 		planning.setLecturersUnavailability(true);
 		planning.setWeightLecturersUnavailability(19);
-		planning.setLessonBalancing(false);
-		planning.setWeightLessonBalancing(0);
-		planning.setLessonGrouping(false);
+		planning.setLessonBalancing(true);
+		planning.setWeightLessonBalancing(2);
+		planning.setLessonGrouping(true);
 		planning.setWeightLessonGrouping(5);
-		planning.setMiddayGrouping(false);
+		planning.setMiddayGrouping(true);
 		planning.setWeightMiddayGrouping(1);
 		
 		planning.setWeightMaxTimeWithoutLesson(11);
@@ -628,11 +628,11 @@ public class ServerApplication {
 			//Min Max number of weeks to do all the lessons of the Ue.
 			cUe.setSpreading(true);
 			cUe.setMaxSpreading(12);
-			cUe.setMinSpreading(3);
+			cUe.setMinSpreading(2);
 			
 			planning.getConstraintsOfUEs().add(cUe);
 		}
-		
+		System.out.println("Planning parameters set !");
 		return planning;
 	}
 	
@@ -669,7 +669,8 @@ public class ServerApplication {
 	private static void testSolver1(ApplicationContext context, Planning planning) {		
 		SolverServices solverServices = context.getBean(SolverServices.class);
 		SolverMain.setServices(solverServices);
-		SolverMain.generatePlanningWithoutSync(planning);
+		System.out.println("Yo");
+		SolverMain.generatePlanningString(planning);
 	}
 	
 	private static void testSolver2(ApplicationContext context) {
@@ -875,7 +876,7 @@ public class ServerApplication {
 				days.getLast().add(dayService.addDay(j, weeks.getLast()));
 				slots.getLast().add(new ArrayList<Slot>());
 				LocalTime startSlotHour = LocalTime.of(8, 0);
-				for (int k = 0; k < 7; k ++) {
+				for (int k = 0; k < 4; k ++) {
 					slots.getLast().getLast().add(slotService.add(k, days.getLast().getLast(), cal, LocalDateTime.of(startSlotDay, startSlotHour), LocalDateTime.of(startSlotDay, startSlotHour.plusMinutes(75))));
 					startSlotHour = startSlotHour.plusMinutes(90);
 				}
@@ -886,7 +887,7 @@ public class ServerApplication {
 		}
 		UE ue = ueService.addUE("UE", "", dcl);
 		List<Lesson> lessons = new ArrayList<Lesson>();
-		for (int l = 0; l < 7; l ++)
+		for (int l = 0; l < 10; l ++)
 			lessons.add(lessonService.add("Lesson " + l, "", ue));
 		return planning;
 	}
