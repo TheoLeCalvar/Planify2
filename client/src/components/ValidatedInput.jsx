@@ -1,7 +1,15 @@
+// React imports
 import React, { useState, useEffect, useContext } from "react";
+import PropTypes from "prop-types";
+
+// Material-UI imports
 import { TextField } from "@mui/material";
-import { FormContext } from "../context/FormContext";
-import dayjs from 'dayjs'
+
+// DayJS imports
+import dayjs from "dayjs";
+
+// Local imports
+import { FormContext } from "@/hooks/FormContext";
 
 export default function ValidatedInput({
   name,
@@ -12,10 +20,14 @@ export default function ValidatedInput({
   children, // Autres éléments enfants (optionnels)
   ...props
 }) {
-  const [localValue, setLocalValue] = useState(defaultValue ?? null);
+  const [localValue, setLocalValue] = useState(defaultValue ?? "");
   const [error, setError] = useState("");
 
-  const { validate, form } = useContext(FormContext);
+  const {
+    validate,
+    value: formValue,
+    setValue: setFormValue,
+  } = useContext(FormContext);
 
   // Détermine la valeur utilisée (interne ou externe)
   const isControlled = externalValue !== undefined;
@@ -23,12 +35,12 @@ export default function ValidatedInput({
   const value = isControlled ? externalValue : localValue;
 
   // Validation locale
-  const handleValidation = (value, formValues) => {
+  const handleValidation = (value) => {
     let validationError = "";
     if (required && !value) {
       validationError = `Ce champ est requis.`;
     } else if (validate) {
-      validationError = validate(name, value, formValues); // Appel de la fonction de validation passée en prop
+      validationError = validate(name, value, formValue); // Appel de la fonction de validation passée en prop
     }
     setError(validationError);
     return validationError;
@@ -36,13 +48,16 @@ export default function ValidatedInput({
 
   // Gestion du changement de valeur
   const handleChange = (e) => {
-    
-    const newValue = dayjs.isDayjs(e) ? e : e.target.value;
+    const newValue = dayjs.isDayjs(e)
+      ? e
+      : isControlled
+        ? externalValue
+        : e.target.value;
 
-    const formValues = Object.fromEntries(new FormData(form?.current));
+    const newFormValues = { ...formValue, [name]: newValue };
 
     // Valider la nouvelle valeur
-    handleValidation(newValue, formValues);
+    handleValidation(newValue);
 
     // Met à jour la valeur locale ou appelle le gestionnaire externe
     if (isControlled) {
@@ -50,18 +65,24 @@ export default function ValidatedInput({
     } else {
       setLocalValue(newValue); // Si non contrôlé, mise à jour locale
     }
+    setFormValue(newFormValues);
   };
 
   // Effet pour valider la valeur contrôlée lorsqu'elle change
   useEffect(() => {
     if (isControlled) {
       handleValidation(externalValue);
+      setFormValue((prev) => ({ ...prev, [name]: externalValue }));
     }
   }, [externalValue]);
 
+  useEffect(() => {
+    setFormValue((prev) => ({ ...prev, [name]: value }));
+  }, []);
+
   return (
     <>
-      {children ? 
+      {children ? (
         React.Children.map(children, (child) =>
           React.cloneElement(child, {
             name,
@@ -71,20 +92,35 @@ export default function ValidatedInput({
               textField: {
                 helperText: error,
                 error: !!error,
-              }
+              },
             },
             ...props,
-          })
+          }),
         )
-        :
-        (<TextField
-        name={name}
-        value={value}
-        onChange={handleChange}
-        error={!!error}
-        helperText={error}
-        {...props}
-      />)}
+      ) : (
+        <TextField
+          name={name}
+          value={value}
+          onChange={handleChange}
+          error={!!error}
+          helperText={error}
+          required={required}
+          {...props}
+        />
+      )}
     </>
   );
 }
+
+ValidatedInput.propTypes = {
+  name: PropTypes.string.isRequired,
+  required: PropTypes.bool,
+  value: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.object,
+    PropTypes.array,
+  ]),
+  onChange: PropTypes.func,
+  defaultValue: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+  children: PropTypes.node,
+};
