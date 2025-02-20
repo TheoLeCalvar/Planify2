@@ -34,12 +34,18 @@ public class CalendarController {
 
     @GetMapping(value = "/solver/run/{configId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> runSolverMain(@PathVariable Long configId) {
-        Optional<Planning> planning = planningService.findById(configId);
+        /*Optional<Planning> planning = planningService.findById(configId);
         if (planning.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ErrorResponse("No Planning with this id was found", 404));
         }
-        Planning realPlanning = planning.get();
+        Planning realPlanning = planning.get();*/
+
+        // A supprimer
+        TAF taf = tafService.findById(configId).orElseThrow(() -> new IllegalArgumentException("TAF not found"));
+        Calendar calendar = taf.getCalendars().getFirst();
+        Planning realPlanning = planningService.addPlanning(calendar);
+        // Fin de à supprimer
         
         SolverExecutor.generatePlanning(realPlanning);
         

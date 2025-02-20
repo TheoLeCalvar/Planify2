@@ -717,17 +717,34 @@ public class LessonController {
 
     }
 
-    /*@GetMapping(value = "/taf/{tafId}/configs", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/taf/{tafId}/configs", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getPlannings(@PathVariable Long tafId) {
-        if (tafService.existsById(tafId)) {
+        if (!tafService.existsById(tafId)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("TAF not found");
         }
-    }*/
+        List<Config> configs = new ArrayList<>();
+        TAF taf = tafService.findById(tafId).get();
+        List<Calendar> calendars= taf.getCalendars();
+        if (calendars!=null && !calendars.isEmpty()) {
+            for (Calendar calendar : calendars) {
+                List<Planning> plannings = calendar.getPlannings();
+                if (plannings!=null && !plannings.isEmpty()) {
+                    for (Planning planning : plannings) {
+                        List<ScheduledLesson> lessons = planning.getScheduledLessons();
+                        if (lessons == null || lessons.isEmpty()) {
+                            configs.add(new Config(planning));
+                        }
+                    }
+                }
+            }
+        }
+        return ResponseEntity.ok(configs);
+    }
 
     @PostMapping(value = "/taf/{tafId}/configs", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> addPlanning(@PathVariable Long tafId, @RequestBody Config config) {
-        if (tafService.existsById(tafId)) {
+        if (!tafService.existsById(tafId)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("TAF not found");
         }
