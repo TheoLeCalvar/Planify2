@@ -93,8 +93,9 @@ public class Planning {
         this.timestamp = LocalDateTime.now();
     }
 
-    public Planning(Calendar calendar, boolean globalUnavailability, int weightGlobalUnavailability, boolean lecturersUnavailability, int weightLecturersUnavailability, boolean synchronise, List<ConstraintSynchroniseWithTAF> constraintsSynchronisation, List<ConstraintsOfUE> constraintsOfUEs, int weightMaxTimeWithoutLesson, boolean UEInterlacing, boolean middayBreak, LocalTime startMiddayBreak, LocalTime endMiddayBreak, boolean middayGrouping, int weightMiddayGrouping, boolean lessonBalancing, int weightLessonBalancing, int weightLessonGrouping, boolean lessonGrouping, int weightTimeWithoutUE) {
+    public Planning(Calendar calendar, String name, boolean globalUnavailability, int weightGlobalUnavailability, boolean lecturersUnavailability, int weightLecturersUnavailability, boolean synchronise, List<ConstraintSynchroniseWithTAF> constraintsSynchronisation, List<ConstraintsOfUE> constraintsOfUEs, int weightMaxTimeWithoutLesson, boolean UEInterlacing, boolean middayBreak, LocalTime startMiddayBreak, LocalTime endMiddayBreak, boolean middayGrouping, int weightMiddayGrouping, boolean lessonBalancing, int weightLessonBalancing, int weightLessonGrouping, boolean lessonGrouping, int weightTimeWithoutUE) {
         this.calendar = calendar;
+        this.name = name;
         this.scheduledLessons = new ArrayList<ScheduledLesson>();
         this.timestamp = LocalDateTime.now();
         this.globalUnavailability = globalUnavailability;
@@ -118,8 +119,9 @@ public class Planning {
         this.weightTimeWithoutUE = weightTimeWithoutUE;
     }
 
-    public Planning(Calendar calendar, boolean globalUnavailability, int weightGlobalUnavailability, boolean lecturersUnavailability, int weightLecturersUnavailability, boolean synchronise, boolean UEInterlacing, boolean middayBreak, LocalTime startMiddayBreak, LocalTime endMiddayBreak, boolean middayGrouping, int weightMiddayGrouping, boolean lessonBalancing, int weightLessonBalancing, int weightLessonGrouping, boolean lessonGrouping, int weightTimeWithoutUE) {
+    public Planning(Calendar calendar, String name, boolean globalUnavailability, int weightGlobalUnavailability, boolean lecturersUnavailability, int weightLecturersUnavailability, boolean synchronise, boolean UEInterlacing, boolean middayBreak, LocalTime startMiddayBreak, LocalTime endMiddayBreak, boolean middayGrouping, int weightMiddayGrouping, boolean lessonBalancing, int weightLessonBalancing, int weightLessonGrouping, boolean lessonGrouping, int weightTimeWithoutUE) {
         this.calendar = calendar;
+        this.name = name;
         this.scheduledLessons = new ArrayList<ScheduledLesson>();
         this.timestamp = LocalDateTime.now();
         this.globalUnavailability = globalUnavailability;
@@ -378,7 +380,7 @@ public class Planning {
         if (config.isLecturersUnavailability() != null) this.setLecturersUnavailability(config.isLecturersUnavailability());
         if (config.getWeightLecturersUnavailability() != null) this.setWeightLecturersUnavailability(config.getWeightLecturersUnavailability());
         if (config.isSynchronise() != null) this.setSynchronise(config.isSynchronise());
-        if (config.isUEInterlacing() != null) this.setUEInterlacing(config.isUEInterlacing());
+        if (config.getUEInterlacing() != null) this.setUEInterlacing(config.getUEInterlacing());
         if (config.isMiddayBreak() != null) this.setMiddayBreak(config.isMiddayBreak());
         if (config.getStartMiddayBreak() != null) this.setStartMiddayBreak(config.getStartMiddayBreak());
         if (config.getEndMiddayBreak() != null) this.setEndMiddayBreak(config.getEndMiddayBreak());

@@ -123,7 +123,7 @@ public class CalendarController {
     public ResponseEntity<?> deleteConfig(@PathVariable Long configId) {
         if (planningService.existById(configId)) {
             planningService.delete(configId);
-            ResponseEntity.ok("Planning deleted !");
+            return ResponseEntity.ok("Planning deleted !");
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorResponse("No planning with this id was found", 404));

@@ -1,5 +1,6 @@
 package com.planify.server.controller.returnsClass;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.planify.server.models.Planning;
 import com.planify.server.models.constraints.ConstraintSynchroniseWithTAF;
 import com.planify.server.models.constraints.ConstraintsOfUE;
@@ -30,6 +31,7 @@ public class Config {
 
     private List<CUE> constraintsOfUEs;
 
+    @JsonProperty("UEInterlacing")
     private Boolean UEInterlacing;
 
     private Boolean middayBreak;
@@ -240,24 +242,28 @@ public class Config {
         this.weightTimeWithoutUE = weightTimeWithoutUE;
     }
 
-    public Config(Planning planning) {
-
+    public static List<CUE> extractsCues(Planning planning) {
         List<CUE> cues = new ArrayList<>();
         if (planning.getConstraintsOfUEs()!=null && !planning.getConstraintsOfUEs().isEmpty()) {
             for (ConstraintsOfUE c : planning.getConstraintsOfUEs()) {
                 cues.add(new CUE(c));
             }
         }
+        return cues;
+    }
 
+    public static List<CSyncrho> extractCSynchro(Planning planning) {
         List<CSyncrho> cs = new ArrayList<>();
         if (planning.getConstraintsSynchronisation()!=null && !planning.getConstraintsSynchronisation().isEmpty()) {
             for (ConstraintSynchroniseWithTAF c : planning.getConstraintsSynchronisation()) {
                 cs.add(new CSyncrho(c));
             }
         }
+        return cs;
+    }
 
-
-        Config config = new Config(
+    public Config(Planning planning) {
+        this(
                 planning.getId(),
                 planning.getName(),
                 planning.getCalendar().getId(),
@@ -266,8 +272,8 @@ public class Config {
                 planning.isLecturersUnavailability(),
                 planning.getWeightLecturersUnavailability(),
                 planning.isSynchronise(),
-                cs,
-                cues,
+                extractCSynchro(planning),
+                extractsCues(planning),
                 planning.isUEInterlacing(),
                 planning.isMiddayBreak(),
                 planning.getStartMiddayBreak(),
@@ -362,11 +368,12 @@ public class Config {
         this.constraintsOfUEs = constraintsOfUEs;
     }
 
-    public Boolean isUEInterlacing() {
+    public Boolean getUEInterlacing() {
         return UEInterlacing;
     }
 
-    public void setUEInterlacing(boolean UEInterlacing) {
+    @JsonProperty("UEInterlacing")
+    public void setUEInterlacing(Boolean UEInterlacing) {
         this.UEInterlacing = UEInterlacing;
     }
 

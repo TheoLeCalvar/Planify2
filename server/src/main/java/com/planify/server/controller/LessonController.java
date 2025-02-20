@@ -733,6 +733,7 @@ public class LessonController {
                     for (Planning planning : plannings) {
                         List<ScheduledLesson> lessons = planning.getScheduledLessons();
                         if (lessons == null || lessons.isEmpty()) {
+                            System.out.println("iD " + planning.getId());
                             configs.add(new Config(planning));
                         }
                     }
@@ -757,12 +758,13 @@ public class LessonController {
 
         Planning planning = new Planning(
                 calendarService.findById(config.getCalendar()).orElseThrow(() -> new IllegalArgumentException("The Calendar doesn't exist")),
+                config.getName(),
                 config.isGlobalUnavailability(),
                 config.getWeightGlobalUnavailability(),
                 config.isLecturersUnavailability(),
                 config.getWeightLecturersUnavailability(),
                 config.isSynchronise(),
-                config.isUEInterlacing(),
+                config.getUEInterlacing(),
                 config.isMiddayBreak(),
                 config.getStartMiddayBreak(),
                 config.getEndMiddayBreak(),
