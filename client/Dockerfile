@@ -1,29 +1,30 @@
-# Stage 1: Build the React app with Vite
+# Utiliser l'image Node 22 pour la construction
 FROM node:22 AS build
 
-# Set the working directory
+# Définir le répertoire de travail
 WORKDIR /app
 
-# Copy the package.json and package-lock.json files
-COPY package.json .
-
-# Install dependencies
-RUN npm install
-
-# Copy the rest of the application files
+# Copier les fichiers de l'application
 COPY . .
 
-# Build the app for production
-RUN npm run build
+# Installer les dépendances
+RUN npm install
 
-# Stage 2: Serve the built app using a lightweight server
-FROM nginx:latest
+# Passer les variables d'environnement au moment de la construction
+ARG VITE_API_URL
+ARG VITE_USE_MOCK
 
-# Copy the built files from the previous stage
+# Construire l'application avec les variables d'environnement
+RUN VITE_API_URL=$VITE_API_URL VITE_USE_MOCK=$VITE_USE_MOCK npm run build
+
+# Étape de production
+FROM nginx:alpine
+
+# Copier les fichiers statiques de la construction précédente
 COPY --from=build /app/dist /usr/share/nginx/html
 
-# Expose port 80 for the server
+# Exposer le port 80
 EXPOSE 80
 
-# Start Nginx server
+# Lancer nginx
 CMD ["nginx", "-g", "daemon off;"]
