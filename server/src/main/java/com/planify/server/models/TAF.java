@@ -3,6 +3,7 @@ package com.planify.server.models;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.planify.server.models.constraints.ConstraintSynchroniseWithTAF;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -34,7 +35,7 @@ public class TAF {
 
     @OneToMany(mappedBy = "taf", fetch = FetchType.EAGER)
     private List<TAFManager> TAFmanagers = new ArrayList<>();
-
+    
     public TAF() {
     }
 
@@ -84,7 +85,7 @@ public class TAF {
     }
 
     public void setEndDate(String string) {
-        this.description = string;
+        this.endDate = string;
     }
 
     public List<UE> getUes() {

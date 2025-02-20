@@ -1,6 +1,9 @@
 package com.planify.server.models;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
@@ -76,6 +79,20 @@ public class Synchronization {
 
     public void setLesson2(Lesson l) {
         this.lesson2 = l;
+    }
+
+    public List<Lesson> getLessons() {
+        List<Lesson> ll = new ArrayList<>();
+        ll.add(this.lesson1);
+        ll.add(this.lesson2);
+        return ll;
+    }
+
+    public List<Long> getLessonIds() {
+        List<Long> ll = new ArrayList<>();
+        ll.add(this.lesson1.getId());
+        ll.add(this.lesson2.getId());
+        return ll;
     }
 
 }

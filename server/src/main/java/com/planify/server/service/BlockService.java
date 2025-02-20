@@ -32,6 +32,10 @@ public class BlockService {
         return block;
     }
 
+    public List<Block> findByFirstLesson(Lesson lesson) {
+        return blockRepository.findByFirstLesson(lesson);
+    }
+
     public List<Block> findAll() {
         return blockRepository.findAll();
     }

@@ -92,4 +92,8 @@ public class AntecedenceService {
         }
     }
 
+    public List<Antecedence> findByNextLesson(Lesson lesson) {
+        return antecedenceRepository.findByNextLesson(lesson);
+    }
+
 }

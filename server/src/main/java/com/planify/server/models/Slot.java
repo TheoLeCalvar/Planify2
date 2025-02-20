@@ -1,8 +1,14 @@
 package com.planify.server.models;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.query.sqm.TemporalUnit;
+import org.springframework.cglib.core.Local;
+
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -21,6 +27,12 @@ public class Slot implements Comparable<Slot> {
 
     private int number;
 
+    @Column(name = "start_date")
+    private LocalDateTime start;
+
+    @Column(name = "end_date")
+    private LocalDateTime end;
+
     @ManyToOne
     @JoinColumn(name = "idDay")
     private Day day;
@@ -33,6 +45,14 @@ public class Slot implements Comparable<Slot> {
     private List<UserUnavailability> userUnavailabilities = new ArrayList<>();
 
     public Slot() {
+    }
+
+    public Slot(int number, Day day, Calendar calendar, LocalDateTime start, LocalDateTime end) {
+        this.number = number;
+        this.day = day;
+        this.calendar = calendar;
+        this.start = start;
+        this.end = end;
     }
 
     public Slot(int number, Day day, Calendar calendar) {
@@ -55,6 +75,22 @@ public class Slot implements Comparable<Slot> {
 
     public void setNumber(int number) {
         this.number = number;
+    }
+
+    public LocalDateTime getStart() {
+        return this.start;
+    }
+
+    public void setStart(LocalDateTime start) {
+        this.start = start;
+    }
+
+    public LocalDateTime getEnd() {
+        return this.end;
+    }
+
+    public void setEnd(LocalDateTime end) {
+        this.end = end;
     }
 
     public Day getDay() {
@@ -80,13 +116,19 @@ public class Slot implements Comparable<Slot> {
     public void setUserUnavailabilities(List<UserUnavailability> list) {
         this.userUnavailabilities = list;
     }
-
+    
+    public long getDurationMinutes() {
+    	return ChronoUnit.MINUTES.between(this.getStart(), this.getEnd());
+    }
+    
+    public LocalDateTime getMiddle() {
+    	return this.getStart().plusMinutes(this.getDurationMinutes() / 2);
+    }
+    
 	@Override
 	public int compareTo(Slot o) {
-		int thisDay = this.getDayInt();
-		int oDay = o.getDayInt();
-		if (thisDay != oDay) return thisDay - oDay;
-		return this.getNumber() - o.getNumber();
+		if (this.getDurationMinutes() != o.getDurationMinutes()) throw new ClassCastException("The two slots don't have the same duration");
+		return this.getStart().compareTo(o.getStart());
 	}
 	
 	public int getDayInt() {

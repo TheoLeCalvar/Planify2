@@ -7,16 +7,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import com.planify.server.models.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.planify.server.models.Calendar;
-import com.planify.server.models.Day;
-import com.planify.server.models.Slot;
-import com.planify.server.models.TAF;
-import com.planify.server.models.Week;
 import com.planify.server.repo.CalendarRepository;
 
 @Service
@@ -32,6 +28,10 @@ public class CalendarService {
     @Lazy
     @Autowired
     private TAFService tafService;
+
+    @Lazy
+    @Autowired
+    private PlanningService planningService;
 
     @Transactional
     public Calendar addCalendar(TAF taf) {
@@ -76,6 +76,12 @@ public class CalendarService {
             List<Slot> slots = new ArrayList<Slot>(calendar.getSlots());
             for (Slot s : slots) {
                 slotService.deleteSlot(s.getId());
+            }
+
+            //Delete the planning
+            List<Planning> plannings = calendar.getPlannings();
+            for (Planning planning: plannings) {
+                planningService.delete(planning.getId());
             }
 
             calendarRepository.deleteById(id);

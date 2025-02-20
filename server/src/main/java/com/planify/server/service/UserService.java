@@ -40,7 +40,7 @@ public class UserService {
     @Autowired
     private TAFManagerService tafManagerService;
 
-    public User addUser(String name, String lastName, String mail, char[] password) {
+    public User addUser(String name, String lastName, String mail, String password) {
         User user = userRepository.save(new User(name, lastName, mail, password));
         return user;
     }
@@ -87,6 +87,10 @@ public class UserService {
 
     public Optional<User> findById(Long id) {
         return userRepository.findById(id);
+    }
+
+    public Optional<User> findByMail(String mail) {
+        return userRepository.findByMail(mail);
     }
 
     public List<User> findAll() {
