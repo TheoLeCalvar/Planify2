@@ -452,7 +452,7 @@ public class Planning {
 			cUe.setMinLessonInWeek(2);
 			
 			//Min Max number of weeks to do all the lessons of the Ue.
-			cUe.setSpreading(true);
+			cUe.setSpreading(false));
 			cUe.setMaxSpreading(12);
 			cUe.setMinSpreading(2);
 			
