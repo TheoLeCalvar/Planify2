@@ -1,5 +1,6 @@
 package com.planify.server.models.constraints;
 
+import com.planify.server.controller.returnsClass.Config;
 import com.planify.server.models.Planning;
 import com.planify.server.models.UE;
 import jakarta.persistence.*;
@@ -193,5 +194,17 @@ public class ConstraintsOfUE {
                 ", ue=" + ue +
                 ", planning=" + planning +
                 '}';
+    }
+
+    public void updateConfig(Config.CUE cue) {
+        if (cue.isLessonCountInWeek() != null) this.lessonCountInWeek = cue.isLessonCountInWeek();
+        if (cue.getMaxLessonInWeek() != null) this.maxLessonInWeek = cue.getMaxLessonInWeek();
+        if (cue.getMinLessonInWeek() != null) this.minLessonInWeek= cue.getMinLessonInWeek();
+        if (cue.isMaxTimeWithoutLesson() != null) this.maxTimeWithoutLesson = cue.isMaxTimeWithoutLesson();
+        if (cue.isMaxTimeWLUnitInWeeks() != null) this.maxTimeWLUnitInWeeks = cue.isMaxTimeWLUnitInWeeks();
+        if (cue.getMaxTimeWLDuration() != null) this.maxTimeWLDuration = cue.getMaxTimeWLDuration();
+        if (cue.isSpreading() != null) this.spreading = cue.isSpreading();
+        if (cue.getMaxSpreading() != null) this.maxSpreading = cue.getMaxSpreading();
+        if (cue.getMinSpreading() != null) this.minSpreading = cue.getMinSpreading();
     }
 }
