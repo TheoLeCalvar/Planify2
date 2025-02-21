@@ -11,11 +11,18 @@ import {
   TextField,
   Button,
   Box,
+  IconButton,
+  Breadcrumbs,
+  Stack,
+  Tooltip,
 } from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
+import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 
 // Local imports
 import { LessonsContext } from "@/hooks/LessonsContext";
 import UserSelector from "@/components/UserSelector";
+import LessonSelector from "@/components/LessonSelector";
 
 // Extracted style objects
 const styles = {
@@ -69,6 +76,10 @@ const LessonDialog = ({ open, onClose, onSubmit, initialData }) => {
     initialData?.description || "",
   );
   const [lecturers, setLecturers] = useState(initialData?.lecturers || []);
+  const [synchroniseDialogOpen, setSynchroniseDialogOpen] = useState(false);
+  const [synchronisedLesson, setSynchronisedLesson] = useState(
+    initialData?.synchronise || [],
+  );
 
   const { lecturersList: options, setLecturersList } =
     useContext(LessonsContext);
@@ -106,8 +117,14 @@ const LessonDialog = ({ open, onClose, onSubmit, initialData }) => {
       title,
       description,
       lecturers,
+      synchronise: synchronisedLesson,
     });
     onClose();
+  };
+
+  const handleValidateSynchronise = (lesson) => {
+    setSynchronisedLesson([lesson]);
+    setSynchroniseDialogOpen(false);
   };
 
   return (
@@ -127,6 +144,55 @@ const LessonDialog = ({ open, onClose, onSubmit, initialData }) => {
               options={options}
               setLecturers={setLecturers}
             />
+            {synchronisedLesson.length > 0 ? (
+              <Stack direction="row" alignItems="center" gap={3}>
+                <p>Synchronisé avec le cours : </p>
+                <Breadcrumbs
+                  aria-label="breadcrumb"
+                  separator={<NavigateNextIcon fontSize="small" />}
+                >
+                  {[
+                    synchronisedLesson[0].taf,
+                    synchronisedLesson[0].ue,
+                    synchronisedLesson[0].name,
+                  ].map((b, index) => (
+                    <span key={index}>{b}</span>
+                  ))}
+                </Breadcrumbs>
+                <Tooltip title="Supprimer la synchronisation">
+                  <IconButton
+                    onClick={() => setSynchronisedLesson([])}
+                    sx={{ marginLeft: "auto" }}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </Tooltip>
+              </Stack>
+            ) : (
+              <Button
+                onClick={() => setSynchroniseDialogOpen(true)}
+                color="primary"
+                variant="outlined"
+              >
+                Synchroniser avec un autre cours
+              </Button>
+            )}
+            {synchroniseDialogOpen && (
+              <Dialog open={synchroniseDialogOpen}>
+                <DialogTitle>Synchroniser avec un autre cours...</DialogTitle>
+                <DialogContent>
+                  <LessonSelector onValidate={handleValidateSynchronise} />
+                </DialogContent>
+                <DialogActions>
+                  <Button
+                    onClick={() => setSynchroniseDialogOpen(false)}
+                    color="secondary"
+                  >
+                    Annuler
+                  </Button>
+                </DialogActions>
+              </Dialog>
+            )}
           </Box>
         </DialogContent>
         <DialogActions>
@@ -138,7 +204,6 @@ const LessonDialog = ({ open, onClose, onSubmit, initialData }) => {
           </Button>
         </DialogActions>
       </Dialog>
-      
     </>
   );
 };
@@ -154,6 +219,7 @@ LessonDialog.propTypes = {
     lecturers: PropTypes.arrayOf(
       PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     ),
+    synchronise: PropTypes.array,
   }),
 };
 

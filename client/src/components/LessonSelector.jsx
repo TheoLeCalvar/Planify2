@@ -16,6 +16,7 @@ import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import { motion, AnimatePresence } from "framer-motion";
 import axiosInstance from "@/config/axiosConfig";
+import { useOutletContext } from "react-router-dom";
 
 const LessonSelector = ({ onValidate }) => {
   const [currentItems, setCurrentItems] = useState([]);
@@ -23,9 +24,14 @@ const LessonSelector = ({ onValidate }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const context = useOutletContext();
+  const tafId = context.taf.id;
+
   const fetchItems = async (parents) => {
     if (parents.length === 0) {
-      return axiosInstance.get("/alltaf").then((response) => response.data);
+      return axiosInstance
+        .get("/alltaf")
+        .then((response) => response.data.filter((taf) => taf.id != tafId));
     } else if (parents.length == 1) {
       return axiosInstance
         .get(`/taf/${parents[0].id}`)
@@ -59,7 +65,7 @@ const LessonSelector = ({ onValidate }) => {
 
   const handleItemClick = async (item) => {
     if (breadcrumb.length === 3) {
-      onValidate(item.id);
+      onValidate({ ...item, taf: breadcrumb[0].name, ue: breadcrumb[1].name });
       return;
     }
     if (item.empty) return;
@@ -179,6 +185,11 @@ const LessonSelector = ({ onValidate }) => {
                   <Divider />
                 </Fragment>
               ))}
+              {filteredItems.length === 0 && (
+                <ListItem>
+                  <ListItemText primary="Aucun élement..." />
+                </ListItem>
+              )}
             </List>
           </motion.div>
         </AnimatePresence>
