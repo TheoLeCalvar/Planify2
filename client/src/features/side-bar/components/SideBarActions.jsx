@@ -7,6 +7,7 @@ import locale from "@/config/locale.json";
 
 // Styles
 import styles from "./SideBarActions.styles";
+import ConfirmationButton from "@/components/ConfirmationButton";
 
 const SidebarActions = ({
   tafID,
@@ -29,18 +30,20 @@ const SidebarActions = ({
         {resultPlanning?.length > 0 && (
           <Link to={`/taf/${tafID}/results`}>
             <Button variant="outlined" sx={{ width: "100%" }}>
-              Voir les calendriers
+              Voir les plannings
             </Button>
           </Link>
         )}
-        <Button
+        <ConfirmationButton
           onClick={handleGenerateCalendar}
           variant="outlined"
           sx={{ width: "100%" }}
           disabled={generatingCalendar}
-        >
-          {generatingCalendar ? "Génération..." : "Générer le calendrier"}
-        </Button>
+          buttonText={
+            generatingCalendar ? "Génération..." : "Générer le planning"
+          }
+          dialogMessage="Êtes-vous sûr de vouloir générer un nouveau planning ?"
+        />
       </Stack>
     </Box>
   );
