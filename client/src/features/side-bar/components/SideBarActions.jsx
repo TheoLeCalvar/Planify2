@@ -8,13 +8,21 @@ import locale from "@/config/locale.json";
 // Styles
 import styles from "./SideBarActions.styles";
 import ConfirmationButton from "@/components/ConfirmationButton";
+import axiosInstance from "@/config/axiosConfig";
+import { toast } from "react-toastify";
 
-const SidebarActions = ({
-  tafID,
-  resultPlanning,
-  handleGenerateCalendar,
-  generatingCalendar,
-}) => {
+const SidebarActions = ({ tafID, resultPlanning }) => {
+  const handleGenerateCalendar = () => {
+    axiosInstance
+      .get(`/solver/run/${tafID}`)
+      .then(() => {
+        toast.info("Génération du planning... ");
+      })
+      .catch(() => {
+        toast.error("Erreur lors de la génération du planning");
+      });
+  };
+
   return (
     <Box sx={styles.container}>
       <Stack spacing={2}>
@@ -35,13 +43,10 @@ const SidebarActions = ({
           </Link>
         )}
         <ConfirmationButton
-          onClick={handleGenerateCalendar}
+          onConfirm={handleGenerateCalendar}
           variant="outlined"
           sx={{ width: "100%" }}
-          disabled={generatingCalendar}
-          buttonText={
-            generatingCalendar ? "Génération..." : "Générer le planning"
-          }
+          buttonText="Générer le planning"
           dialogMessage="Êtes-vous sûr de vouloir générer un nouveau planning ?"
         />
       </Stack>

@@ -20,6 +20,7 @@ import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import Block from "./Block";
 import BlockDialog from "./BlockDialog";
 import LessonDialog from "./LessonDialog";
+import { toast } from "react-toastify";
 
 // Helper: Detects cycles in block dependencies using DFS.
 const hasDependencyCycle = (blocks) => {
@@ -214,6 +215,7 @@ const BlockManager = ({
   const handleSaveBlock = (block) => {
     if (block.id) {
       // Update existing block.
+      toast.info("Bloc mis à jour", { autoClose: 1000 });
       setBlocks((prev) => prev.map((b) => (b.id === block.id ? block : b)));
     } else {
       // If there are lessons, assign them new ids and add the new block.
@@ -224,11 +226,13 @@ const BlockManager = ({
         }));
       }
       setBlocks((prev) => [...prev, { id: Date.now(), lessons: [], ...block }]);
+      toast.info("Bloc ajouté", { autoClose: 1000 });
     }
   };
 
   const handleDeleteBlock = (blockId) => {
     setBlocks((prev) => prev.filter((block) => block.id !== blockId));
+    toast.info("Bloc supprimé", { autoClose: 1000 });
   };
 
   /* === Drag & Drop Handler === */
@@ -318,6 +322,7 @@ const BlockManager = ({
         return { ...block, lessons: updatedLessons };
       }),
     );
+    toast.info("Cours supprimé", { autoClose: 1000 });
   };
 
   const handleSaveLesson = (lesson) => {
@@ -334,6 +339,7 @@ const BlockManager = ({
         return block;
       }),
     );
+    toast.info("Cours enregistré", { autoClose: 1000 });
   };
 
   return (

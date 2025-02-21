@@ -15,6 +15,7 @@ import UserSelector from "@/components/UserSelector";
 import { Typography } from "@mui/material";
 import ConfirmationButton from "@/components/ConfirmationButton";
 import PropTypes from "prop-types";
+import { toast } from "react-toastify";
 
 export async function action({ request, params }) {
   //TODO: Update section with backend call
@@ -33,16 +34,32 @@ export async function action({ request, params }) {
     console.log(updates);
   } else {
     if (params.idUE) {
-      await axiosInstance.put(`/ue/${params.idUE}`, updates);
+      return await axiosInstance
+        .put(`/ue/${params.idUE}`, updates)
+        .then(() => {
+          toast.success("UE mise à jour");
+          return redirect("..");
+        })
+        .catch(() => {
+          toast.error("Erreur lors de la mise à jour de l'UE");
+          return null;
+        });
     } else {
-      await axiosInstance.post(`/ue`, {
-        ...updates,
-        tafId: parseInt(params.idTAF),
-      });
+      return await axiosInstance
+        .post(`/ue`, {
+          ...updates,
+          tafId: parseInt(params.idTAF),
+        })
+        .then(() => {
+          toast.success("UE créée");
+          return redirect("..");
+        })
+        .catch(() => {
+          toast.error("Erreur lors de la création de l'UE");
+          return null;
+        });
     }
   }
-
-  return redirect("..");
 }
 
 const DeleteUEButton = ({ idUE }) => {
@@ -50,10 +67,16 @@ const DeleteUEButton = ({ idUE }) => {
   const revalidator = useRevalidator();
 
   const handleDelete = () => {
-    axiosInstance.delete(`/ue/${idUE}`).then(() => {
-      navigate("../..");
-      revalidator.revalidate();
-    });
+    axiosInstance
+      .delete(`/ue/${idUE}`)
+      .then(() => {
+        toast.success("UE supprimée");
+        navigate("../..");
+        revalidator.revalidate();
+      })
+      .catch(() => {
+        toast.error("Erreur lors de la suppression de l'UE");
+      });
   };
 
   return (

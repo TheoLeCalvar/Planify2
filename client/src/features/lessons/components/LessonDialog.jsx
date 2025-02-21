@@ -23,6 +23,7 @@ import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import { LessonsContext } from "@/hooks/LessonsContext";
 import UserSelector from "@/components/UserSelector";
 import LessonSelector from "@/components/LessonSelector";
+import { toast } from "react-toastify";
 
 // Extracted style objects
 const styles = {
@@ -114,17 +115,24 @@ const LessonDialog = ({ open, onClose, onSubmit, initialData }) => {
     updateSelectedLecturers();
     onSubmit({
       id: initialData?.id,
-      title,
+      title: title.trim(),
       description,
       lecturers,
       synchronise: synchronisedLesson,
     });
+    toast.info("Cours enregistré", { autoClose: 1000 });
     onClose();
   };
 
   const handleValidateSynchronise = (lesson) => {
     setSynchronisedLesson([lesson]);
     setSynchroniseDialogOpen(false);
+    toast.info("Synchronisation du cours activée", { autoClose: 1000 });
+  };
+
+  const handleCancelSynchronise = () => {
+    setSynchronisedLesson([]);
+    toast.info("Synchronisation du cours supprimée", { autoClose: 1000 });
   };
 
   return (
@@ -161,7 +169,7 @@ const LessonDialog = ({ open, onClose, onSubmit, initialData }) => {
                 </Breadcrumbs>
                 <Tooltip title="Supprimer la synchronisation">
                   <IconButton
-                    onClick={() => setSynchronisedLesson([])}
+                    onClick={handleCancelSynchronise}
                     sx={{ marginLeft: "auto" }}
                   >
                     <DeleteIcon />
