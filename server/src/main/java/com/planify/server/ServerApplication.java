@@ -714,8 +714,8 @@ public class ServerApplication {
 		UE ue1 = ueService.addUE("1", null, taf1);
 		UE ue2 = ueService.addUE("2", null, taf2);
 		
-		Lesson lesson1 = lessonService.add("1", null, ue1);
-		Lesson lesson2 = lessonService.add("2", null, ue2);
+		Lesson lesson1 = lessonService.add("1","string", ue1);
+		Lesson lesson2 = lessonService.add("2","a", ue2);
 		
 		synchronizationService.addSynchronization(lesson1, lesson2);
 		
@@ -755,6 +755,7 @@ public class ServerApplication {
 		Lesson lesson1 = lessonService.add("Lesson1", "", ue1);
 		Lesson lesson2 = lessonService.add("Lesson2", "", ue1);
 		Lesson lesson3 = lessonService.add("Lesson3", "", ue2);
+
 
 		globalUnavailabilityService.addGlobalUnavailability(true, slot3);
 		globalUnavailabilityService.addGlobalUnavailability(true, slot2);
@@ -798,6 +799,7 @@ public class ServerApplication {
 		Lesson lesson1 = lessonService.add("Lesson4", "", ue1);
 		Lesson lesson2 = lessonService.add("Lesson5", "", ue1);
 		Lesson lesson3 = lessonService.add("Lesson6", "", ue2);
+
 		
 		
 		User helene = userService.addUser("Hélène", "Coullon", "helene.coullon@imt-atlantique.fr", "password");
