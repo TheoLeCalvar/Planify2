@@ -92,6 +92,25 @@ DependencyCycleError.propTypes = {
   blocks: PropTypes.array.isRequired,
 };
 
+const EmptyBlockError = ({ blocks }) => {
+  const errorBlock = blocks.find((block) => block.lessons.length === 0);
+  if (!errorBlock) return null;
+  return (
+    <Box sx={styles.errorBox}>
+      <Typography variant="body2" color="error">
+        Erreur : tous les blocs doivent contenir au moins un cours.
+      </Typography>
+      <Typography variant="body2" color="error">
+        Bloc vide : {errorBlock.title}
+      </Typography>
+    </Box>
+  );
+};
+
+EmptyBlockError.propTypes = {
+  blocks: PropTypes.array.isRequired,
+};
+
 // Subcomponent: Renders the blocks in a drag & drop context.
 const BlocksDragDropList = ({
   blocks,
@@ -327,6 +346,7 @@ const BlockManager = ({
           dependencyCycle={dependencyCycle}
           blocks={blocks}
         />
+        <EmptyBlockError blocks={blocks} />
         <BlocksDragDropList
           blocks={blocks}
           onDragEnd={handleDragEnd}

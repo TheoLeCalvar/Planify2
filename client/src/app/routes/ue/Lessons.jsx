@@ -153,7 +153,11 @@ export default function UELessons() {
             method: "post",
           })
         }
-        disabled={!!dependencyError || busy}
+        disabled={
+          !!dependencyError ||
+          busy ||
+          lessonsData.some((block) => block.lessons.length === 0)
+        }
         sx={styles.fab}
       >
         {busy ? (
