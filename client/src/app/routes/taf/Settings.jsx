@@ -28,6 +28,7 @@ import axiosInstance from "@/config/axiosConfig";
 import { USE_MOCK_DATA } from "@/config/constants";
 import UserSelector from "@/components/UserSelector";
 import ConfirmationButton from "@/components/ConfirmationButton";
+import { toast } from "react-toastify";
 
 dayjs.extend(customParseFormat);
 
@@ -46,13 +47,29 @@ export async function action({ request, params }) {
     await delay();
   } else {
     if (params.idTAF) {
-      await axiosInstance.put(`/taf/${params.idTAF}`, data);
+      return await axiosInstance
+        .put(`/taf/${params.idTAF}`, data)
+        .then(() => {
+          toast.success("TAF mise à jour");
+          return redirect("..");
+        })
+        .catch(() => {
+          toast.error("Erreur lors de la mise à jour du TAF");
+          return null;
+        });
     } else {
-      await axiosInstance.post(`/taf`, data);
+      return await axiosInstance
+        .post(`/taf`, data)
+        .then(() => {
+          toast.success("TAF créé");
+          return redirect("..");
+        })
+        .catch(() => {
+          toast.error("Erreur lors de la création du TAF");
+          return null;
+        });
     }
   }
-
-  return redirect("..");
 }
 
 const DeleteTAFButton = ({ idTAF }) => {
@@ -60,10 +77,16 @@ const DeleteTAFButton = ({ idTAF }) => {
   const revalidator = useRevalidator();
 
   const handleDelete = () => {
-    axiosInstance.delete(`/taf/${idTAF}`).then(() => {
-      navigate("../..");
-      revalidator.revalidate();
-    });
+    axiosInstance
+      .delete(`/taf/${idTAF}`)
+      .then(() => {
+        toast.success("TAF supprimée");
+        navigate("../..");
+        revalidator.revalidate();
+      })
+      .catch(() => {
+        toast.error("Erreur lors de la suppression de la TAF");
+      });
   };
 
   return (

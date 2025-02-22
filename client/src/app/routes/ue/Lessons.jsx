@@ -4,6 +4,7 @@ import {
   useLoaderData,
   useOutletContext,
   useFetcher,
+  redirect,
 } from "react-router-dom";
 import BlockManager from "@/features/lessons/components/BlockManager";
 import { useEffect, useState } from "react";
@@ -12,6 +13,7 @@ import { Fab } from "@mui/material";
 import { LessonsContext } from "@/hooks/LessonsContext";
 import { USE_MOCK_DATA } from "@/config/constants";
 import axiosInstance from "@/config/axiosConfig";
+import { toast } from "react-toastify";
 
 const styles = {
   fab: {
@@ -113,8 +115,16 @@ export async function action({ request, params }) {
     return { ok: true };
   }
 
-  const result = await axiosInstance.put(`/ue/${params.idUE}/lesson`, data);
-  return { ok: result.status === 200 };
+  return await axiosInstance
+    .put(`/ue/${params.idUE}/lesson`, data)
+    .then(() => {
+      toast.success("Cours de l'UE mis à jour");
+      return redirect("..");
+    })
+    .catch(() => {
+      toast.error("Erreur lors de la mise à jour des cours");
+      return null;
+    });
 }
 
 export default function UELessons() {
@@ -153,7 +163,11 @@ export default function UELessons() {
             method: "post",
           })
         }
-        disabled={!!dependencyError || busy}
+        disabled={
+          !!dependencyError ||
+          busy ||
+          lessonsData.some((block) => block.lessons.length === 0)
+        }
         sx={styles.fab}
       >
         {busy ? (
