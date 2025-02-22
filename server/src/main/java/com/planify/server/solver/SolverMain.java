@@ -160,6 +160,10 @@ public class SolverMain {
 	 * @return The results generated (also stored automatically in the database).
 	 */
 	public static List<Result> generatePlanning(Planning planning){
+		System.out.println(planning.getCalendar().getSlots().stream().map(s -> s.toString()).reduce("", String::concat));
+		System.out.println(planning.getCalendar().getTaf().getUes().stream().map(u -> u.toString()).reduce("", String::concat));
+		System.out.println(planning.getCalendar().getTaf().getUes().stream().flatMap(u -> u.getLessons().stream().map(l -> l.toString())).reduce("", String::concat));
+		
 		if (!planning.isSynchronise() || planning.getConstraintsSynchronisation().isEmpty()) {
 			System.out.println("Generate Planning " + planning.getId());
 			return generatePlanningWithoutSync(planning);
@@ -554,6 +558,8 @@ public class SolverMain {
 		int[] globInt = new int[] {};
 		if (global) globInt = slots.stream().mapToInt(s -> getIdMSlotGlobal(s)).toArray();
 		int[] dayInt = new int[] {};
+		System.out.println(slots.stream().map(s -> s.toString()).reduce("", String::concat));
+		System.out.println(idMDay.keySet().toString());
 		if (day) dayInt = slots.stream().mapToInt(s -> getIdMDay(s.getDay())).toArray();
 		int[] weekInt = new int[] {};
 		if (week) weekInt = slots.stream().mapToInt(s -> getIdMWeek(s.getDay().getWeek())).toArray();
@@ -829,12 +835,12 @@ public class SolverMain {
 		 List<BoolVar> penalties = new ArrayList<>();
 		 
 		 for (Slot slot : slots) {
-		        if (services.getGlobalUnavailabilityService().findBySlot(slot).filter(g -> !g.getStrict()).isPresent()) {
-		            BoolVar lessonWhenNotPrefered = model.boolVar("");
+			 if (services.getGlobalUnavailabilityService().findBySlot(slot).filter(g -> !g.getStrict()).isPresent()) {
+				 	BoolVar lessonWhenNotPrefered = model.boolVar("");
 		            model.reification(lessonWhenNotPrefered, model.arithm(this.getSlotVarLesson(slot), "!=", 0));
 		        	penalties.add(lessonWhenNotPrefered);
-		        }
-		    }
+		     }
+		 }
 		 IntVar[] penaltiesArray = penalties.toArray(new IntVar[penalties.size()]);
 		 
 		 IntVar totalNonPreferred = model.intVar("totalNonPreferred", 0, penaltiesArray.length);
@@ -851,7 +857,7 @@ public class SolverMain {
 	    		isNotPreferredVars.add(isNotPreferredVar);
 	    	}
 	    }
-		return model.sum("NotPreferredAllocations", isNotPreferredVars.stream().toArray(IntVar[]::new));
+	    return model.sum("NotPreferredAllocations", isNotPreferredVars.stream().toArray(IntVar[]::new));
 	}
 	
 	private IntVar setPreferenceCenteredLessons(Model model) {
@@ -871,16 +877,18 @@ public class SolverMain {
 		ICostAutomaton cAutoForward = CostAutomaton.makeSingleResource(automaton, costsForward, 0, nbMaxSlotsDay - 1);
 		ICostAutomaton cAutoBackward = CostAutomaton.makeSingleResource(automaton, costsBackward, 0, nbMaxSlotsDay - 1);
 		for (Day day : days) {
-			IntVar costForward = model.intVar("CostForwardCentered day " + getIdMDay(day), 0, nbMaxSlotsDay - 1);
-			IntVar costBackward = model.intVar("CostBackwardCentered day " + getIdMDay(day), 0, nbMaxSlotsDay - 1);
-			IntVar costDay = model.intVar("CostDayCentered day " + getIdMDay(day), 0, nbMaxSlotsDay - 2);
 			IntVar[] vars = getSlotsByDayOrdered(day).stream().map(s -> getSlotVarUe(s)).toArray(IntVar[]::new);
-			IntVar[] varsReversed = new IntVar[vars.length];
-			for (int i = 0; i < vars.length; i ++) varsReversed[vars.length - 1 - i] = vars[i];
-			model.costRegular(vars, costForward, cAutoForward).post();
-			model.costRegular(varsReversed, costBackward, cAutoBackward).post();
-			model.arithm(costDay, "=", costForward, "-", costBackward).post();
-			penaltiesNotCentered.add(costDay);
+			if (vars.length > 0) {
+				IntVar costForward = model.intVar("CostForwardCentered day " + getIdMDay(day), 0, vars.length - 1);
+				IntVar costBackward = model.intVar("CostBackwardCentered day " + getIdMDay(day), 0, vars.length - 1);
+				IntVar costDay = model.intVar("CostDayCentered day " + getIdMDay(day), 0, vars.length - 2);
+				IntVar[] varsReversed = new IntVar[vars.length];
+				for (int i = 0; i < vars.length; i ++) varsReversed[vars.length - 1 - i] = vars[i];
+				model.costRegular(vars, costForward, cAutoForward).post();
+				model.costRegular(varsReversed, costBackward, cAutoBackward).post();
+				model.arithm(costDay, "=", costForward, "-", costBackward).post();
+				penaltiesNotCentered.add(costDay);
+			}
 		}
 		return model.sum("preferenceCenteredLesson", penaltiesNotCentered.stream().toArray(IntVar[]::new));
 	}
@@ -1076,6 +1084,9 @@ public class SolverMain {
 	 * @param solver The solver of the model.
 	 */
 	private static void setStrategy(SolverMain[] solMains, Solver solver) {
+		// 2 semaines, mardi mercredi, préférence globale pas premier, dernier et milieu.
+		// 2 ues, [2,2,1,1,1], [3,1,1,2]
+		// 69 obj.
 		IntVar[] decisionVars = ArrayUtils.flatten(IntStream.range(0, solMains.length).
 									mapToObj(i -> solMains[i].getDecisionVars()).toArray(IntVar[][]::new));  
 		solver.setSearch(Search.minDomLBSearch(decisionVars));
