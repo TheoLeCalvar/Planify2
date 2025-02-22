@@ -2,6 +2,7 @@ package com.planify.server.models.constraints;
 
 import java.io.Serializable;
 
+import com.planify.server.controller.returnsClass.Config;
 import com.planify.server.models.Planning;
 import jakarta.persistence.*;
 
@@ -118,5 +119,10 @@ public class ConstraintSynchroniseWithTAF {
                 ", enabled=" + enabled +
                 ", generateOtherPlanning=" + generateOtherPlanning +
                 '}';
+    }
+
+    public void updateConfig(Config.CSyncrho cs) {
+        if (cs.isEnabled() != null) this.enabled = cs.isEnabled();
+        if (cs.isGenerateOtherPlanning() != null) this.generateOtherPlanning = cs.isGenerateOtherPlanning();;
     }
 }

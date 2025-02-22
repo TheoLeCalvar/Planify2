@@ -10,6 +10,8 @@ import java.util.stream.Stream;
 import com.planify.server.controller.returnsClass.*;
 import com.planify.server.models.*;
 import com.planify.server.models.Calendar;
+import com.planify.server.models.constraints.ConstraintSynchroniseWithTAF;
+import com.planify.server.models.constraints.ConstraintsOfUE;
 import com.planify.server.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -219,63 +221,69 @@ public class LessonController {
 
                 for (BlockShort block : blocks) {
 
-                    // Put the lessons of the block in the DB
-                    List<Lesson> reaLessons = new ArrayList<Lesson>();
-                    for (LessonShort lesson : block.getLessons()) {
-                        Lesson realLesson = lessonService.add(lesson.getTitle(), lesson.getDescription(), ue);
-                        reaLessons.add(realLesson);
+                    if (block.getLessons()!=null && !block.getLessons().isEmpty()) {
 
-                        // Save the lecturers of the lesson
-                        if (!(lesson.getLecturers() == null)) {
-                            for (Long lecturerId : lesson.getLecturers()) {
-                                Optional<User> user = userService.findById(lecturerId);
-                                if (user.isEmpty()) {
-                                    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                            .body(new ErrorResponse("The user " + Long.toString(lecturerId)
-                                                    + " is not found. (Lecturer of lesson: " + lesson.getTitle() + ")",
-                                                    404));
+                        // Put the lessons of the block in the DB
+                        List<Lesson> reaLessons = new ArrayList<Lesson>();
+
+                        for (LessonShort lesson : block.getLessons()) {
+                            Lesson realLesson = lessonService.add(lesson.getTitle(), lesson.getDescription(), ue);
+                            reaLessons.add(realLesson);
+
+                            // Save the lecturers of the lesson
+                            if (!(lesson.getLecturers() == null)) {
+                                for (Long lecturerId : lesson.getLecturers()) {
+                                    Optional<User> user = userService.findById(lecturerId);
+                                    if (user.isEmpty()) {
+                                        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                                .body(new ErrorResponse("The user " + Long.toString(lecturerId)
+                                                        + " is not found. (Lecturer of lesson: " + lesson.getTitle() + ")",
+                                                        404));
+                                    }
+                                    lessonLecturerService.addLessonLecturer(user.get(), realLesson);
                                 }
-                                lessonLecturerService.addLessonLecturer(user.get(), realLesson);
                             }
+
+                            // Add the synchronisation
+                            System.out.println(GREEN + "Synchronisation:" + lesson.getSynchronise() + RESET);
+                            if (lesson.getSynchronise()!=null && !lesson.getSynchronise().isEmpty()) {
+                                for (LessonSynchronised s : lesson.getSynchronise()) {
+                                    Lesson lesson2 = lessonService.findById(s.getId()).orElseThrow(() ->new IllegalArgumentException("The Lesson doesn't exist"));
+                                    synchronizationService.addSynchronization(realLesson,lesson2);
+                                }
+                            }
+
                         }
 
-                        // Add the synchronisation
-                        System.out.println(GREEN + "Synchronisation:" + lesson.getSynchronise() + RESET);
-                        if (lesson.getSynchronise()!=null && !lesson.getSynchronise().isEmpty()) {
-                            for (Long s : lesson.getSynchronise()) {
-                                Lesson lesson2 = lessonService.findById(s).orElseThrow(() ->new IllegalArgumentException("The Lesson doesn't exist"));
-                                synchronizationService.addSynchronization(realLesson,lesson2);
-                            }
+                        System.out.println(GREEN + "Lessons of block " + block.getTitle() + " have been added" + RESET);
+
+                        // Add the block to the DB
+                        blockService.addBlock(block.getTitle(), reaLessons.get(0), block.getDescription());
+
+                        System.out.println(GREEN + "Block " + block.getTitle() + " has been added" + RESET);
+
+                        // Add the antecedence for lesson in two differents block
+                        for (Long anteriorBlock : block.getDependencies()) {
+                            Lesson anteriorLesson = lastLessonOfBlocks.get(anteriorBlock);
+                            antecedenceService.addAntecedence(anteriorLesson, reaLessons.get(0));
+                            System.out.println(GREEN + "Antecedence of Lessons between " + Long.toString(anteriorBlock)
+                                    + " and " + block.getTitle() + " has been added" + RESET);
                         }
 
+                        // Add the antecedence and the sequencing for the lessons in a same block
+                        for (int i = 0; i < reaLessons.size() - 1; i++) {
+                            antecedenceService.addAntecedence(reaLessons.get(i), reaLessons.get(i + 1));
+                            sequencingService.add(reaLessons.get(i), reaLessons.get(i + 1));
+                        }
+
+                        System.out.println(GREEN + "Antecedence and Sequencing in the " + block.getTitle()
+                                + " have been added" + RESET);
+
+
+                        lastLessonOfBlocks.put(block.getId(), reaLessons.get(reaLessons.size() - 1));
+
                     }
 
-                    System.out.println(GREEN + "Lessons of block " + block.getTitle() + " have been added" + RESET);
-
-                    // Add the block to the DB
-                    blockService.addBlock(block.getTitle(), reaLessons.get(0), block.getDescription());
-
-                    System.out.println(GREEN + "Block " + block.getTitle() + " has been added" + RESET);
-
-                    // Add the antecedence for lesson in two differents block
-                    for (Long anteriorBlock : block.getDependencies()) {
-                        Lesson anteriorLesson = lastLessonOfBlocks.get(anteriorBlock);
-                        antecedenceService.addAntecedence(anteriorLesson, reaLessons.get(0));
-                        System.out.println(GREEN + "Antecedence of Lessons between " + Long.toString(anteriorBlock)
-                                + " and " + block.getTitle() + " has been added" + RESET);
-                    }
-
-                    // Add the antecedence and the sequencing for the lessons in a same block
-                    for (int i = 0; i < reaLessons.size() - 1; i++) {
-                        antecedenceService.addAntecedence(reaLessons.get(i), reaLessons.get(i + 1));
-                        sequencingService.add(reaLessons.get(i), reaLessons.get(i + 1));
-                    }
-
-                    System.out.println(GREEN + "Antecedence and Sequencing in the " + block.getTitle()
-                            + " have been added" + RESET);
-
-
-                    lastLessonOfBlocks.put(block.getId(), reaLessons.get(reaLessons.size() - 1));
                 }
 
                 return ResponseEntity.ok(blocks);
@@ -331,13 +339,15 @@ public class LessonController {
 
             // Finding synchronization
             Long actualId1 = currentLesson.getId();
-            List<Long> synchronised1 = Optional.ofNullable(currentLesson.getSynchronizations())
+            List<Lesson> synchronised1 = Optional.ofNullable(currentLesson.getSynchronizations())
                     .orElse(Collections.emptyList())
                     .stream()
-                    .flatMap(s -> Optional.ofNullable(s.getLessonIds()).orElse(Collections.emptyList()).stream()) // Évite null sur getLessonIds()
+                    .flatMap(s -> Optional.ofNullable(s.getLessons()).orElse(Collections.emptyList()).stream()) // Évite null sur getLessonIds()
                     .distinct()
-                    .filter(id -> !Objects.equals(id, actualId1))
+                    .filter(lesson -> !Objects.equals(lesson.getId(), actualId1))
                     .toList();
+
+            List<LessonSynchronised> lessonSynchroniseds1 = synchronised1.stream().map(lesson -> new LessonSynchronised(lesson.getId(), lesson.getUe().getTaf().getName(), lesson.getUe().getName())).toList();
 
             LessonShort currentLessonShort = new LessonShort(
                     currentLesson.getId(),
@@ -345,7 +355,7 @@ public class LessonController {
                     currentLesson.getDescription(),
                     currentLesson.getLessonLecturers().stream().map(lecturer -> lecturer.getId().getIdUser())
                             .collect(Collectors.toList()),
-                    synchronised1
+                    lessonSynchroniseds1
             );
             lessonShorts.add(currentLessonShort);
             while (!currentLesson.getSequencingsAsPrevious().isEmpty()) {
@@ -354,14 +364,15 @@ public class LessonController {
                 currentLesson = sequencing.getNextLesson();
                 // Finding synchronization
                 Long actualId = currentLesson.getId();
-                List<Long> synchronised = Optional.ofNullable(currentLesson.getSynchronizations())
+                List<Lesson> synchronised = Optional.ofNullable(currentLesson.getSynchronizations())
                         .orElse(Collections.emptyList())
                         .stream()
-                        .flatMap(s -> Optional.ofNullable(s.getLessonIds()).orElse(Collections.emptyList()).stream()) // Évite null sur getLessonIds()
+                        .flatMap(s -> Optional.ofNullable(s.getLessons()).orElse(Collections.emptyList()).stream()) // Évite null sur getLessonIds()
                         .distinct()
-                        .filter(id -> !Objects.equals(id, actualId))
+                        .filter(lesson -> !Objects.equals(lesson.getId(), actualId))
                         .toList();
 
+                List<LessonSynchronised> lessonSynchroniseds = synchronised.stream().map(lesson -> new LessonSynchronised(lesson.getId(), lesson.getUe().getTaf().getName(), lesson.getUe().getName())).toList();
 
                 currentLessonShort = new LessonShort(
                         currentLesson.getId(),
@@ -369,7 +380,7 @@ public class LessonController {
                         currentLesson.getDescription(),
                         currentLesson.getLessonLecturers().stream().map(lecturer -> lecturer.getId().getIdUser())
                                 .collect(Collectors.toList()),
-                        synchronised
+                        lessonSynchroniseds
                 );
                 lessonShorts.add(currentLessonShort);
             }
@@ -690,6 +701,10 @@ public class LessonController {
             Optional<Slot> slotOpt = slotService.findById(userAvailability.getId());
             if (slotOpt.isPresent()) {
                 Slot slot = slotOpt.get();
+                Optional<UserUnavailability> userUnavailabilityOpt = userUnavailabilityService.findBySlotAndByUser(slot, user);
+                if (userUnavailabilityOpt.isPresent()) {
+                    userUnavailabilityService.deleteUserUnavailability(userUnavailabilityOpt.get().getId());
+                }
                 if (userAvailability.getStatus() == AvailabilityEnum.UNAVAILABLE) {
                     UserUnavailability userUnavailability = userUnavailabilityService.addUserUnavailability(slot, user, true);
                     userUnavailabilityService.save(userUnavailability);
@@ -698,20 +713,113 @@ public class LessonController {
                     UserUnavailability userUnavailability = userUnavailabilityService.addUserUnavailability(slot, user, false);
                     userUnavailabilityService.save(userUnavailability);
                 }
-                if (userAvailability.getStatus() == AvailabilityEnum.AVAILABLE) {
-                    if (userUnavailabilityService.existsBySlotAndByUser(slot, user)) {
-                        Optional<UserUnavailability> userUnavailability = userUnavailabilityService.findBySlotAndByUser(slot, user);
-                        if (userUnavailability.isPresent()) {
-                            userUnavailabilityService.deleteUserUnavailability(userUnavailability.get().getId());
-                        }
-                    }
-                    UserUnavailability userUnavailability = userUnavailabilityService.addUserUnavailability(slot, user, false);
-                    userUnavailabilityService.save(userUnavailability);
-                }
             }
         }
         
        return ResponseEntity.ok("ok");
+
+    }
+
+    @GetMapping(value = "/taf/{tafId}/configs", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getPlannings(@PathVariable Long tafId) {
+        if (!tafService.existsById(tafId)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("TAF not found");
+        }
+        List<ConfigShort> configs = new ArrayList<>();
+        TAF taf = tafService.findById(tafId).get();
+        List<Calendar> calendars= taf.getCalendars();
+        if (calendars!=null && !calendars.isEmpty()) {
+            for (Calendar calendar : calendars) {
+                List<Planning> plannings = calendar.getPlannings();
+                if (plannings!=null && !plannings.isEmpty()) {
+                    for (Planning planning : plannings) {
+                        List<ScheduledLesson> lessons = planning.getScheduledLessons();
+                        if (lessons == null || lessons.isEmpty()) {
+                            System.out.println("iD " + planning.getId());
+                            configs.add(new ConfigShort(planning));
+                        }
+                    }
+                }
+            }
+        }
+        return ResponseEntity.ok(configs);
+    }
+
+    @PostMapping(value = "/taf/{tafId}/configs", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> addPlanning(@PathVariable Long tafId, @RequestBody Config config) {
+        if (!tafService.existsById(tafId)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("TAF not found");
+        }
+        if (config==null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorResponse("The body is empty", 400));
+        }
+
+        TAF taf = tafService.findById(tafId).get();
+
+        Planning planning = new Planning(
+                calendarService.findById(config.getCalendar()).orElseThrow(() -> new IllegalArgumentException("The Calendar doesn't exist")),
+                config.getName(),
+                config.isGlobalUnavailability(),
+                config.getWeightGlobalUnavailability(),
+                config.isLecturersUnavailability(),
+                config.getWeightLecturersUnavailability(),
+                config.isSynchronise(),
+                config.getUEInterlacing(),
+                config.isMiddayBreak(),
+                config.getStartMiddayBreak(),
+                config.getEndMiddayBreak(),
+                config.isMiddayGrouping(),
+                config.getWeightMiddayGrouping(),
+                config.isLessonBalancing(),
+                config.getWeightLessonBalancing(),
+                config.getWeightLessonGrouping(),
+                config.isLessonGrouping(),
+                config.getWeightTimeWithoutUE()
+        );
+
+        //Addition of the synchronisation's constraints
+        List<ConstraintSynchroniseWithTAF> cSynchronisations = new ArrayList<>();
+        if (config.getConstraintsSynchronisation()!=null && !config.getConstraintsSynchronisation().isEmpty()) {
+            for (Config.CSyncrho cs : config.getConstraintsSynchronisation()) {
+                ConstraintSynchroniseWithTAF c = new ConstraintSynchroniseWithTAF(
+                        planning,
+                        planningService.findById(cs.getOtherPlanning()).orElseThrow(() -> new IllegalArgumentException("The Other Planning doesn't exist")),
+                        cs.isEnabled(),
+                        cs.isGenerateOtherPlanning()
+                );
+                cSynchronisations.add(c);
+            }
+        }
+        planning.setConstrainedSynchronisations(cSynchronisations);
+
+        //Addition of the UEs constraints
+        List<ConstraintsOfUE> cUEs = new ArrayList<>();
+        if (config.getConstraintsOfUEs()!=null && !config.getConstraintsOfUEs().isEmpty()) {
+            for (Config.CUE cue : config.getConstraintsOfUEs()) {
+                ConstraintsOfUE c = new ConstraintsOfUE(
+                        ueService.findById(cue.getUe()).orElseThrow(() -> new IllegalArgumentException("The UE doesn't exist")),
+                        planning,
+                        cue.isLessonCountInWeek(),
+                        cue.getMaxLessonInWeek(),
+                        cue.getMinLessonInWeek(),
+                        cue.isMaxTimeWithoutLesson(),
+                        cue.isMaxTimeWLUnitInWeeks(),
+                        cue.getMaxTimeWLDuration(),
+                        cue.isSpreading(),
+                        cue.getMaxSpreading(),
+                        cue.getMaxSpreading()
+                );
+                cUEs.add(c);
+            }
+        }
+        planning.setConstraintsOfUEs(cUEs);
+
+        planningService.save(planning);
+        return ResponseEntity.ok("New planning added !");
+
 
     }
 

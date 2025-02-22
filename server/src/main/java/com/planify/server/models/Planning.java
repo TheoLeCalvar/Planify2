@@ -1,5 +1,6 @@
 package com.planify.server.models;
 
+import com.planify.server.controller.returnsClass.Config;
 import com.planify.server.models.constraints.ConstraintSynchroniseWithTAF;
 import com.planify.server.models.constraints.ConstraintsOfUE;
 import jakarta.persistence.*;
@@ -8,6 +9,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Entity
 public class Planning {
@@ -91,8 +93,9 @@ public class Planning {
         this.timestamp = LocalDateTime.now();
     }
 
-    public Planning(Calendar calendar, boolean globalUnavailability, int weightGlobalUnavailability, boolean lecturersUnavailability, int weightLecturersUnavailability, boolean synchronise, List<ConstraintSynchroniseWithTAF> constraintsSynchronisation, List<ConstraintsOfUE> constraintsOfUEs, int weightMaxTimeWithoutLesson, boolean UEInterlacing, boolean middayBreak, LocalTime startMiddayBreak, LocalTime endMiddayBreak, boolean middayGrouping, int weightMiddayGrouping, boolean lessonBalancing, int weightLessonBalancing, int weightLessonGrouping, boolean lessonGrouping, int weightTimeWithoutUE) {
+    public Planning(Calendar calendar, String name, boolean globalUnavailability, int weightGlobalUnavailability, boolean lecturersUnavailability, int weightLecturersUnavailability, boolean synchronise, List<ConstraintSynchroniseWithTAF> constraintsSynchronisation, List<ConstraintsOfUE> constraintsOfUEs, int weightMaxTimeWithoutLesson, boolean UEInterlacing, boolean middayBreak, LocalTime startMiddayBreak, LocalTime endMiddayBreak, boolean middayGrouping, int weightMiddayGrouping, boolean lessonBalancing, int weightLessonBalancing, int weightLessonGrouping, boolean lessonGrouping, int weightTimeWithoutUE) {
         this.calendar = calendar;
+        this.name = name;
         this.scheduledLessons = new ArrayList<ScheduledLesson>();
         this.timestamp = LocalDateTime.now();
         this.globalUnavailability = globalUnavailability;
@@ -116,7 +119,30 @@ public class Planning {
         this.weightTimeWithoutUE = weightTimeWithoutUE;
     }
 
-
+    public Planning(Calendar calendar, String name, boolean globalUnavailability, int weightGlobalUnavailability, boolean lecturersUnavailability, int weightLecturersUnavailability, boolean synchronise, boolean UEInterlacing, boolean middayBreak, LocalTime startMiddayBreak, LocalTime endMiddayBreak, boolean middayGrouping, int weightMiddayGrouping, boolean lessonBalancing, int weightLessonBalancing, int weightLessonGrouping, boolean lessonGrouping, int weightTimeWithoutUE) {
+        this.calendar = calendar;
+        this.name = name;
+        this.scheduledLessons = new ArrayList<ScheduledLesson>();
+        this.timestamp = LocalDateTime.now();
+        this.globalUnavailability = globalUnavailability;
+        this.weightGlobalUnavailability = weightGlobalUnavailability;
+        this.lecturersUnavailability = lecturersUnavailability;
+        this.weightLecturersUnavailability = weightLecturersUnavailability;
+        this.synchronise = synchronise;
+        this.constraintsSynchronisation = new ArrayList<>();
+        this.constraintsOfUEs = new ArrayList<>();
+        this.UEInterlacing = UEInterlacing;
+        this.middayBreak = middayBreak;
+        this.startMiddayBreak = startMiddayBreak;
+        this.endMiddayBreak = endMiddayBreak;
+        this.middayGrouping = middayGrouping;
+        this.weightMiddayGrouping = weightMiddayGrouping;
+        this.lessonBalancing = lessonBalancing;
+        this.weightLessonBalancing = weightLessonBalancing;
+        this.weightLessonGrouping = weightLessonGrouping;
+        this.lessonGrouping = lessonGrouping;
+        this.weightTimeWithoutUE = weightTimeWithoutUE;
+    }
 
 
 
@@ -345,5 +371,51 @@ public class Planning {
                 ", calendar=" + calendar.getId() +
                 ", scheduledLesson= " + scheduledLessons +
                 '}';
+    }
+
+    public void updateConfig(Config config) {
+        if (config.getName() != null) this.setName(config.getName());
+        if (config.isGlobalUnavailability() != null) this.setGlobalUnavailability(config.isGlobalUnavailability());
+        if (config.getWeightGlobalUnavailability() != null) this.setWeightGlobalUnavailability(config.getWeightGlobalUnavailability());
+        if (config.isLecturersUnavailability() != null) this.setLecturersUnavailability(config.isLecturersUnavailability());
+        if (config.getWeightLecturersUnavailability() != null) this.setWeightLecturersUnavailability(config.getWeightLecturersUnavailability());
+        if (config.isSynchronise() != null) this.setSynchronise(config.isSynchronise());
+        if (config.getUEInterlacing() != null) this.setUEInterlacing(config.getUEInterlacing());
+        if (config.isMiddayBreak() != null) this.setMiddayBreak(config.isMiddayBreak());
+        if (config.getStartMiddayBreak() != null) this.setStartMiddayBreak(config.getStartMiddayBreak());
+        if (config.getEndMiddayBreak() != null) this.setEndMiddayBreak(config.getEndMiddayBreak());
+        if (config.isMiddayGrouping() != null) this.setMiddayGrouping(config.isMiddayGrouping());
+        if (config.getWeightMiddayGrouping() != null) this.setWeightMiddayGrouping(config.getWeightMiddayGrouping());
+        if (config.isLessonBalancing() != null) this.setLessonBalancing(config.isLessonBalancing());
+        if (config.getWeightLessonBalancing() != null) this.setWeightLessonBalancing(config.getWeightLessonBalancing());
+        if (config.isLessonGrouping() != null) this.setLessonGrouping(config.isLessonGrouping());
+        if (config.getWeightLessonGrouping() != null) this.setWeightLessonGrouping(config.getWeightLessonGrouping());
+        if (config.getWeightTimeWithoutUE() != null) this.setWeightTimeWithoutUE(config.getWeightTimeWithoutUE());
+
+        if (config.getConstraintsSynchronisation() != null && !config.getConstraintsSynchronisation().isEmpty()) {
+            for (Config.CSyncrho cs : config.getConstraintsSynchronisation()) {
+                if (cs.getOtherPlanning() != null) {
+                    for (ConstraintSynchroniseWithTAF c :this.getConstraintsSynchronisation()) {
+                        if (cs.getOtherPlanning() == c.getPlanning().getId()) {
+                            c.updateConfig(cs);
+                        }
+                    }
+                }
+            }
+        }
+
+        if (config.getConstraintsOfUEs() != null && !config.getConstraintsOfUEs().isEmpty() ) {
+            for (Config.CUE cue : config.getConstraintsOfUEs()) {
+                if (cue.getUe() != null) {
+                    for (ConstraintsOfUE c : this.constraintsOfUEs) {
+                        if (cue.getUe() == c.getUe().getId()) {
+                            c.updateConfig(cue);
+                        }
+                    }
+                }
+            }
+        }
+
+
     }
 }

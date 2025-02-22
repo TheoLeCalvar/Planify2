@@ -1,0 +1,7 @@
+.generic-week-calendar .sx__week-grid__date-number{
+    display: none;
+}
+
+.generic-week-calendar .sx__calendar-header{
+    display: none;
+}

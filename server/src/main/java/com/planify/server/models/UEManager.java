@@ -1,6 +1,7 @@
 package com.planify.server.models;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EmbeddedId;
@@ -95,5 +96,18 @@ public class UEManager {
         if (this.user != null) {
             this.id = new UEManagerId(this.user.getId(), ue.getId());
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        UEManager ueManager = (UEManager) o;
+        return Objects.equals(id, ueManager.id) && Objects.equals(user, ueManager.user) && Objects.equals(ue, ueManager.ue);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, user, ue);
     }
 }
