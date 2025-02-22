@@ -584,7 +584,7 @@ public class ServerApplication {
 
 	private static void testSolver(ApplicationContext context) {
 		//testSynchronisationSeparation(context);
-		testSolver1(context, setSettingsPlanning(planningSolverTestMinMaxLessonsUeWeek()));
+		testSolver1(context, setSettingsPlanning(planningSolverTestEfficiency1()));
 		//testSolver2(context);
 		//testSolver2bis(context);
 		//testSolver3(context);
@@ -623,10 +623,10 @@ public class ServerApplication {
 			//Max Lessons in a week for this UE.
 			cUe.setLessonCountInWeek(true);
 			cUe.setMaxLessonInWeek(6);
-			cUe.setMinLessonInWeek(2);
+			cUe.setMinLessonInWeek(1);
 			
 			//Min Max number of weeks to do all the lessons of the Ue.
-			cUe.setSpreading(true);
+			cUe.setSpreading(false);
 			cUe.setMaxSpreading(12);
 			cUe.setMinSpreading(2);
 			
@@ -822,6 +822,53 @@ public class ServerApplication {
 		return planning;
 	}
 	
+	private static Planning planningSolverTestEfficiency1() {
+		TAF login = tafService.addTAF("Login", "", "", "");
+		Calendar cal = calendarService.addCalendar(login);
+		Planning planning = planningService.addPlanning(cal);
+		List<Week> weeks = new ArrayList<Week>();
+		List<List<Day>> days = new ArrayList<List<Day>>();
+		List<List<List<Slot>>> slots = new ArrayList<List<List<Slot>>>();
+		LocalDate startSlotDay = LocalDate.of(2022, 9, 9);
+		for (int i = 0; i < 2; i ++) {
+			weeks.add(weekService.addWeek(i, 2022));
+			days.add(new ArrayList<Day>());
+			slots.add(new ArrayList<List<Slot>>());
+			for (int j = 0; j < 5; j ++) {
+				days.getLast().add(dayService.addDay(j, weeks.getLast()));
+				slots.getLast().add(new ArrayList<Slot>());
+				LocalTime startSlotHour = LocalTime.of(8, 0);
+				for (int k = 0; k < ((j == 3) ? 4 : 7); k ++) {
+					slots.getLast().getLast().add(slotService.add(k, days.getLast().getLast(), cal, LocalDateTime.of(startSlotDay, startSlotHour), LocalDateTime.of(startSlotDay, startSlotHour.plusMinutes(75))));
+					startSlotHour = startSlotHour.plusMinutes(90);
+				}
+				startSlotDay = startSlotDay.plusDays(1);
+				if (j == 1 || j == 2) {
+					globalUnavailabilityService.addGlobalUnavailability(false, slots.getLast().getLast().get(0));
+					globalUnavailabilityService.addGlobalUnavailability(false, slots.getLast().getLast().get(3));
+					globalUnavailabilityService.addGlobalUnavailability(false, slots.getLast().getLast().get(6));
+				}
+				else {
+					for (Slot slot : slots.getLast().getLast())
+						globalUnavailabilityService.addGlobalUnavailability(true, slot);
+				}
+			}
+			startSlotDay = startSlotDay.plusDays(4);
+		}
+		UE ue1 = ueService.addUE("UE-1", "", login);
+		UE ue2 = ueService.addUE("UE-2", "", login);
+		
+		List<Lesson> lessonsUE1 = createTypeLesson(7,"UE1", ue1);
+		List<Lesson> lessonsUE2 = createTypeLesson(7,"UE2", ue2);
+		sequencingService.add(lessonsUE1.get(0), lessonsUE1.get(1));
+		sequencingService.add(lessonsUE1.get(2), lessonsUE1.get(3));
+		sequencingService.add(lessonsUE2.get(0), lessonsUE2.get(1));
+		sequencingService.add(lessonsUE2.get(1), lessonsUE2.get(2));
+		sequencingService.add(lessonsUE2.get(5), lessonsUE2.get(6));
+		
+		return planning;
+	}
+	
 	private static Planning planningSolverOneDay() {
 		TAF dcl = tafService.addTAF("DCL-Day", "", "", "");
 		Calendar cal = calendarService.addCalendar(dcl);
@@ -861,7 +908,7 @@ public class ServerApplication {
 	}
 	
 	private static Planning planningSolverTestMinMaxLessonsUeWeek() {
-		TAF dcl = tafService.addTAF("DCL-Day", "", "", "");
+		TAF dcl = tafService.addTAF("DCL-Weeks", "", "", "");
 		Calendar cal = calendarService.addCalendar(dcl);
 		Planning planning = planningService.addPlanning(cal);
 		List<Week> weeks = new ArrayList<Week>();
@@ -1054,6 +1101,14 @@ public class ServerApplication {
 		for (int i = 0; i < nb; i ++) {
 			Lesson cours = lessonService.add(name + i, "", ue);
 			if (i != 0) antecedenceService.addAntecedence(lCours.getLast(), cours);
+			lCours.add(cours);
+		}
+		return lCours;
+	}
+	private static List<Lesson> createTypeLesson(int nb, String name, UE ue){
+		List<Lesson> lCours = new ArrayList<Lesson>();
+		for (int i = 0; i < nb; i ++) {
+			Lesson cours = lessonService.add(name + i, "", ue);
 			lCours.add(cours);
 		}
 		return lCours;

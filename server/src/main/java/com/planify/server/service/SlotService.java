@@ -127,7 +127,18 @@ public class SlotService {
         }
         return slots;
     }
-
+    
+    public List<Slot> findSlotsByWeekAndCalendarWithoutUnavailableDays(Week week, Calendar calendar) {
+    	List<Day> days = week.getDays();
+    	days.removeIf(d -> d.getSlots().stream().map(s -> globalUnavailabilityService.findBySlot(s).filter(g -> g.getStrict()).isPresent()).reduce(true, Boolean::logicalAnd));
+        days.sort(Comparator.comparing(Day::getNumber));
+        List<Slot> slots = new ArrayList<Slot>();
+        for (Day day : days) {
+            slots.addAll(this.findSlotsByDayAndCalendar(day, calendar));
+        }
+        return slots;
+    }
+    
     @Transactional
     public boolean deleteSlot(Long id) {
         if (slotRepository.existsById(id)) {

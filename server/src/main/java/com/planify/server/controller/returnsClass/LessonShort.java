@@ -15,7 +15,7 @@ public class LessonShort {
 
     private List<Long> lecturers;
 
-    private List<Long> synchronise;
+    private List<LessonSynchronised> synchronise;
 
     public LessonShort() {
     }
@@ -27,7 +27,7 @@ public class LessonShort {
         this.lecturers = lecturers;
     }
 
-    public LessonShort(Long id, String title, String description, List<Long> lecturers, List<Long> synchronise) {
+    public LessonShort(Long id, String title, String description, List<Long> lecturers, List<LessonSynchronised> synchronise) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -67,11 +67,11 @@ public class LessonShort {
         this.lecturers = lects;
     }
 
-    public List<Long> getSynchronise() {
+    public List<LessonSynchronised> getSynchronise() {
         return synchronise;
     }
 
-    public void setSynchronise(List<Long> synchronise) {
+    public void setSynchronise(List<LessonSynchronised> synchronise) {
         this.synchronise = synchronise;
     }
 }
