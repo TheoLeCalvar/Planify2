@@ -32,6 +32,10 @@ public class CalendarService {
     @Lazy
     @Autowired
     private PlanningService planningService;
+    
+    @Lazy
+    @Autowired
+    private GlobalUnavailabilityService globalUnavailabilityService;
 
     @Transactional
     public Calendar addCalendar(TAF taf) {
@@ -99,6 +103,13 @@ public class CalendarService {
             return new ArrayList<Slot>();
         }
     }
+    
+    public List<Slot> getSlotsOrderedWithoutUnavailableDays(Long calendarId) {
+    	if (calendarRepository.existsById(calendarId)) {
+    		return this.getDaysSortedWithoutUnavailable(calendarId).stream().flatMap(d -> d.getSlots().stream()).toList();
+    	}
+    	return new ArrayList<Slot>();
+    }
 
     public int getNumberOfSlots(Long idCalendar) {
         if (calendarRepository.existsById(idCalendar)) {
@@ -112,29 +123,53 @@ public class CalendarService {
     public List<Day> getDaysSorted(Long calendarId) {
         if (calendarRepository.existsById(calendarId)) {
             List<Slot> slots = slotService.getSlotsSorted(calendarId);
-            List<Day> days = new ArrayList<Day>();
-            for (Slot s : slots) {
-                days.add(s.getDay());
-            }
-            Set<Day> uniqueSet = new LinkedHashSet<>(days);
-            return new ArrayList<>(uniqueSet);
-        } else {
-            return new ArrayList<Day>();
+            return getDaysSortedFromSlots(slots);
         }
+        return new ArrayList<Day>();
+    }
+    
+    public List<Day> getDaysSortedWithoutUnavailable(Long calendarId) {
+    	if (calendarRepository.existsById(calendarId)) {
+    		List<Slot> slots = slotService.getSlotsSorted(calendarId);
+    		slots.removeIf(s -> globalUnavailabilityService.findBySlot(s).filter(g -> g.getStrict()).isPresent());
+    		return getDaysSortedFromSlots(slots);
+    	}
+    	return new ArrayList<Day>();
+    }
+    
+    private List<Day> getDaysSortedFromSlots(List<Slot> slots) {
+    	Set<Day> days = new LinkedHashSet<Day>();
+        for (Slot s : slots) {
+            days.add(s.getDay());
+        }
+        return new ArrayList<>(days);
     }
 
     public List<Week> getWeeksSorted(Long idCalendar) {
-        if (calendarRepository.existsById(idCalendar)) {
-            List<Day> days = this.getDaysSorted(idCalendar);
-            List<Week> weeks = new ArrayList<Week>();
-            for (Day d : days) {
-                weeks.add(d.getWeek());
-            }
-            Set<Week> uniqueSet = new LinkedHashSet<>(weeks);
-            return new ArrayList<>(uniqueSet);
+    	if (calendarRepository.existsById(idCalendar)) {
+            List<Slot> slots = this.getSlotsOrdered(idCalendar);
+            return getWeeksSortedFromSlots(slots);
         } else {
             return new ArrayList<Week>();
         }
+    }
+    
+    public List<Week> getWeeksSortedWithoutUnavailable(Long idCalendar) {
+    	if (calendarRepository.existsById(idCalendar)) {
+            List<Slot> slots = this.getSlotsOrdered(idCalendar);
+            slots.removeIf(s -> globalUnavailabilityService.findBySlot(s).filter(g -> g.getStrict()).isPresent());
+            return getWeeksSortedFromSlots(slots);
+        } else {
+            return new ArrayList<Week>();
+        }
+    }
+    
+    private List<Week> getWeeksSortedFromSlots(List<Slot> slots) {
+    	Set<Week> weeks = new LinkedHashSet<Week>();
+        for (Slot s : slots) {
+            weeks.add(s.getDay().getWeek());
+        }
+        return new ArrayList<>(weeks);
     }
 
 }

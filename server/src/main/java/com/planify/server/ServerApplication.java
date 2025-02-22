@@ -860,7 +860,7 @@ public class ServerApplication {
 	}
 	
 	private static Planning planningSolverTestMinMaxLessonsUeWeek() {
-		TAF dcl = tafService.addTAF("DCL-Day", "", "", "");
+		TAF dcl = tafService.addTAF("DCL-Weeks", "", "", "");
 		Calendar cal = calendarService.addCalendar(dcl);
 		Planning planning = planningService.addPlanning(cal);
 		List<Week> weeks = new ArrayList<Week>();
