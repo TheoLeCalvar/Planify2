@@ -712,7 +712,7 @@ public class SolverMain {
 				int[] valsVars;
 				if (cUe.isMaxTimeWLUnitInWeeks()) {
 					vars = ue.getLessons().stream().map(l -> new IntVar[] {getLessonVarWeek(l)}).toArray(IntVar[][]::new);
-					valsVars = IntStream.range(1,1 + getWeeksOrdered().size()).toArray();
+					valsVars = IntStream.range(1,1 + getWeeksOrderedWU().size()).toArray();
 				}
 				else {
 					vars = ue.getLessons().stream().map(l -> new IntVar[] {getLessonVarDay(l)}).toArray(IntVar[][]::new);
@@ -926,7 +926,7 @@ public class SolverMain {
 		ArrayList<IntVar> penalties = new ArrayList<>();		
 		
 	    int totalCourses = getNumberOfLessons(); 
-	    List<Day> days = getDaysOrdered();
+	    List<Day> days = getDaysOrderedWU();
 	    int totalDays = days.size();
 	    int averageCoursesPerDay = totalCourses/ totalDays; //return an int (eclidean division)
 	    //IntVar averageCoursesPerDay = model.intVar("AverageCoursesPerDay", totalCourses / totalDays);
