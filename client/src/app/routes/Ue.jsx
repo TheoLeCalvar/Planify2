@@ -51,6 +51,7 @@ export default function UE() {
   const tabs = [
     { label: "Général", path: "" },
     { label: "Paramètres", path: "settings" },
+    { label: "Contraintes de génération", path: "config" },
     { label: "Cours", path: "lessons" },
   ];
 
