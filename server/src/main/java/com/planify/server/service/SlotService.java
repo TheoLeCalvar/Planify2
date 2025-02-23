@@ -114,7 +114,7 @@ public class SlotService {
 
     public List<Slot> findSlotsByDayAndCalendar(Day day, Calendar calendar) {
         List<Slot> slots = this.slotRepository.findByDayAndCalendar(day, calendar);
-        slots.sort(Comparator.comparing(Slot::getNumber));
+        slots.sort(Comparator.comparing(Slot::getStart));
         return slots;
     }
 
