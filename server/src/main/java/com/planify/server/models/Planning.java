@@ -332,6 +332,14 @@ public class Planning {
     	return this.getConstraintsOfUEs().stream().filter(c -> c.isMaxTimeWithoutLesson()).findAny().isPresent();
     }
     
+    public boolean isMaxTimeWLUnitInDays() {
+    	return this.getConstraintsOfUEs().stream().filter(c -> !c.isMaxTimeWLUnitInWeeks()).findAny().isPresent();
+    }
+    
+    public boolean isMaxTimeWLUnitInWeeks() {
+    	return this.getConstraintsOfUEs().stream().filter(c -> c.isMaxTimeWLUnitInWeeks()).findAny().isPresent();
+    }
+    
     public boolean isSpreadingUe() {
     	return this.getConstraintsOfUEs().stream().filter(c -> c.isSpreading()).findAny().isPresent();
     }

@@ -669,7 +669,6 @@ public class ServerApplication {
 	private static void testSolver1(ApplicationContext context, Planning planning) {		
 		SolverServices solverServices = context.getBean(SolverServices.class);
 		SolverMain.setServices(solverServices);
-		System.out.println("Yo");
 		SolverMain.generatePlanningString(planning);
 	}
 	

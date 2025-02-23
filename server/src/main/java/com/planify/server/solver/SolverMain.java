@@ -98,6 +98,17 @@ public class SolverMain {
 	private int getNumberOfLessons() {return services.getTafService().numberOfLessons(planning.getCalendar().getTaf().getId());}
 	private ConstraintsOfUE getConstraintsOfUe(UE ue) {return getPlanning().getConstraintsOfUEs().stream().filter(c -> c.getUe().getId() == ue.getId()).findAny().get();}
 	
+	private static boolean isUesNeeded(Planning planning) {return planning.isLessonGrouping()
+															|| planning.isMiddayGrouping()
+															|| planning.isUEInterlacing()
+															|| planning.isLessonCountInWeek()
+															|| planning.isMaxTimeWithoutLesson();}
+	
+	private static boolean isDaysNeeded(Planning planning) {return planning.isMaxTimeWithoutLesson() && planning.isMaxTimeWLUnitInDays();}
+	
+	private static boolean isWeeksNeeded(Planning planning) {return planning.isMaxTimeWithoutLesson() && planning.isMaxTimeWLUnitInWeeks()
+															|| planning.isSpreadingUe();}
+	
 	private Integer getIdMSlot(Slot slot) {return idMSlot.getValue(slot.getId());}
 	private Integer[] getIdMSlot(Slot[] slots) {return IntStream.range(0, slots.length).mapToObj(i -> getIdMSlot(slots[i])).toArray(Integer[]::new);}
 	private Long getIdSlot(Integer idM) {return idMSlot.getKey(idM);}
@@ -206,7 +217,7 @@ public class SolverMain {
 		SolverMain solMain = new SolverMain(planning);
 		int nbSlots = solMain.getNumberOfSlotsWUD();
 		int nbLessons = solMain.getNumberOfLessons();
-		solMain.initialiseVars(model, nbSlots, nbLessons, true, true, true);
+		solMain.initialiseVars(model, nbSlots, nbLessons, isUesNeeded(planning), isDaysNeeded(planning), isWeeksNeeded(planning));
 		solMain.setConstraints(model);
 		IntVar obj = solMain.setPreferences(model);
 		setStrategy(solMain, solver);
@@ -237,7 +248,7 @@ public class SolverMain {
 		SolverMain solMain = new SolverMain(planning);
 		int nbSlots = solMain.getNumberOfSlotsWUD();
 		int nbLessons = solMain.getNumberOfLessons();
-		solMain.initialiseVars(model, nbSlots, nbLessons, true, true, true);
+		solMain.initialiseVars(model, nbSlots, nbLessons, isUesNeeded(planning), isDaysNeeded(planning), isWeeksNeeded(planning));
 		solMain.setConstraints(model);
 		IntVar obj = solMain.setPreferences(model);
 		setStrategy(solMain, solver);
@@ -316,7 +327,7 @@ public class SolverMain {
 	 * @param idToIdMGlobal The correspondence between the id of a slot and the globalId used for synchronizations. (Can be generated using getIdToIdMGlobalPlannings).
 	 */
 	private void initialiseVars(Model model, int nbSlots, int nbLessons, HashMap<Long, Integer> idToIdMGlobal) {
-		initialiseVars(model, nbSlots, nbLessons, true, true, true);
+		initialiseVars(model, nbSlots, nbLessons, isUesNeeded(getPlanning()), isDaysNeeded(getPlanning()), isWeeksNeeded(getPlanning()));
 		initialiseSync(model, idToIdMGlobal);
 	}
 	
@@ -516,8 +527,8 @@ public class SolverMain {
 	private void setConstraints(Model model) {
 		//model.allDifferent(lessonVarSlot.values().toArray(IntVar[]::new)).post();
 		//model.allDifferentExcept0(slotVarLesson.values().toArray(IntVar[]::new)).post();
-		setConstraintLinkLessonsSlots(model, true);
-		setConstraintLinkSlotGlobalDayWeek(model, this.IdMSlotGlobal != null, true, true);
+		setConstraintLinkLessonsSlots(model, isUesNeeded(getPlanning()));
+		setConstraintLinkSlotGlobalDayWeek(model, this.IdMSlotGlobal != null, isDaysNeeded(planning), isWeeksNeeded(planning));
 		setConstraintSequences(model);
 		setConstraintAntecedences(model);
 		setConstraintGlobalUnavailability(model);
@@ -1170,7 +1181,7 @@ public class SolverMain {
 		getSlotsOrderedWUD().forEach(s -> res.append("{id : " + s.getId() + 
 												(IdMSlotGlobal != null ? ", idGlob : " + getIdMSlotGlobal(s) : "") +
 												(solution.getIntVal(getSlotVarLesson(s)) != 0 ? ", lessonId : " + this.getIdLesson(solution.getIntVal(getSlotVarLesson(s))) :  "") +
-												(true && solution.getIntVal(getSlotVarUe(s)) != 0 ? ", UeId : " + this.getIdUe(solution.getIntVal(getSlotVarUe(s))) :  "") +
+												(isUesNeeded(getPlanning()) ? ", UeId : " + this.getIdUe(solution.getIntVal(getSlotVarUe(s))) :  "") +
 												"},"));
 		res.deleteCharAt(res.length() - 1);
 		res.append("]\r\n");
@@ -1178,8 +1189,8 @@ public class SolverMain {
 		getLessons().forEach(l -> res.append("{id : " + l.getId() +
 												", slotId : " + this.getIdSlot(solution.getIntVal(getLessonVarSlot(l))) +
 												(IdMSlotGlobal != null ? ", idGlobVar : " + solution.getIntVal(getLessonVarSlotGlobal(l)) : "") +
-												(!lessonVarDay.isEmpty() ? ", idDayVar : " + solution.getIntVal(getLessonVarDay(l)) : "") +
-												(!lessonVarWeek.isEmpty() ? ", idWeekVar : " + solution.getIntVal(getLessonVarWeek(l)) : "") +
+												(isDaysNeeded(getPlanning()) ? ", idDayVar : " + solution.getIntVal(getLessonVarDay(l)) : "") +
+												(isWeeksNeeded(getPlanning()) ? ", idWeekVar : " + solution.getIntVal(getLessonVarWeek(l)) : "") +
 												"},"));
 		res.deleteCharAt(res.length() - 1);
 		res.append("]");
