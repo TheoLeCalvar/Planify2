@@ -53,7 +53,6 @@ export default function TAFResults() {
             value={selectedResult}
             onChange={handleChange}
             label="Choisir un EDT généré"
-            displayEmpty
           >
             {options.map((option) => (
               <MenuItem key={option.id} value={option.id}>

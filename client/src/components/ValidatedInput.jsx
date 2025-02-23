@@ -37,7 +37,7 @@ export default function ValidatedInput({
   // Validation locale
   const handleValidation = (value) => {
     let validationError = "";
-    if (required && !value) {
+    if (required && (!value || value.trim?.() === "")) {
       validationError = `Ce champ est requis.`;
     } else if (validate) {
       validationError = validate(name, value, formValue); // Appel de la fonction de validation passée en prop
@@ -88,6 +88,9 @@ export default function ValidatedInput({
             name,
             value,
             onChange: handleChange,
+            error: !!error,
+            helperText: error,
+            required,
             slotProps: {
               textField: {
                 helperText: error,
