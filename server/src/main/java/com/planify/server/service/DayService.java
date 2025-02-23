@@ -89,7 +89,7 @@ public class DayService {
     	for (Slot slot : day.getSlots())
     		if (slot.getCalendar().getId() == calendar.getId())
     			slots.add(slot);
-    	slots.sort(null);
+    	slots.sort(Comparator.comparing(Slot::getStart));
     	return slots;
     }
 
