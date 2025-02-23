@@ -65,7 +65,6 @@ public class SolverMain {
 	private BijectiveHashMap<Long, Integer> idMUe;
 	private BijectiveHashMap<Long, Integer> idMDay;
 	private BijectiveHashMap<Long, Integer> idMWeek;
-	private List<IntVar> countsDebug;
 	
 	private HashMap<Long, Integer> IdMSlotGlobal;
 
@@ -82,7 +81,6 @@ public class SolverMain {
 		idMUe = new BijectiveHashMap<Long, Integer>();
 		idMDay = new BijectiveHashMap<Long, Integer>();
 		idMWeek = new BijectiveHashMap<Long, Integer>();
-		countsDebug = new ArrayList<IntVar>();
 	}
 	
 	private Planning getPlanning() {return this.planning;}
@@ -160,10 +158,10 @@ public class SolverMain {
 	 * @return The results generated (also stored automatically in the database).
 	 */
 	public static List<Result> generatePlanning(Planning planning){
-		System.out.println(planning.getCalendar().getSlots().stream().map(s -> s.toString()).reduce("", String::concat));
+		/*System.out.println(planning.getCalendar().getSlots().stream().map(s -> s.toString()).reduce("", String::concat));
 		System.out.println(planning.getCalendar().getTaf().getUes().stream().map(u -> u.toString()).reduce("", String::concat));
 		System.out.println(planning.getCalendar().getTaf().getUes().stream().flatMap(u -> u.getLessons().stream().map(l -> l.toString())).reduce("", String::concat));
-		
+		*/
 		if (!planning.isSynchronise() || planning.getConstraintsSynchronisation().isEmpty()) {
 			System.out.println("Generate Planning " + planning.getId());
 			return generatePlanningWithoutSync(planning);
@@ -214,6 +212,7 @@ public class SolverMain {
 		setStrategy(solMain, solver);
 		solver.showSolutions();
 		Solution solution;
+		System.out.println("Start Solving !");
 		if (obj != null) solution = solver.findOptimalSolution(obj, false);
 		else solution = solver.findSolution();
 		//System.out.println(model);
@@ -275,16 +274,12 @@ public class SolverMain {
 	 * @return The results generated (also stored automatically in the database for each planning to generate).
 	 */
 	public static List<Result> generatePlannings(Planning[] planningsToGenerate, Planning[] planningsGenerated) {
-		System.out.println("Yo");
 		Model model = new Model();
 		Solver solver = model.getSolver();
 		IntVar[] objs = new IntVar[planningsToGenerate.length];
 		SolverMain[] solMains = new SolverMain[planningsToGenerate.length];
-		System.out.println("Yo1");
 		HashMap<Long, Integer> idToIdMGlobal = getIdToIdMGlobalPlannings(planningsToGenerate);
-		System.out.println("Yo2");
 		for (int i = 0; i < planningsToGenerate.length; i ++) {
-			System.out.println("Ya" + i);
 			SolverMain solMain = new SolverMain(planningsToGenerate[i]);
 			solMains[i] = solMain;
 			int nbSlots = solMain.getNumberOfSlotsWUD();
@@ -297,8 +292,10 @@ public class SolverMain {
 		setSynchronisationConstraints(model, solMains, planningsGenerated);
 		IntVar globObj = model.sum("globObj", objs);
 		setStrategy(solMains, solver);
+		//solver.showSolutions();
+		System.out.println("Start Solving !");
 		Solution solution = solver.findOptimalSolution(globObj, false);
-		System.out.println(model);
+		//System.out.println(model);
 		solver.printShortStatistics();
 		if (solution == null)
 			return null;
@@ -699,7 +696,6 @@ public class SolverMain {
 				//System.out.println(valsCnt[valsCnt.length - 1]);
 				IntVar cnt = model.intVar("Cnt min max " + ue.getName() + ", Week :" + week.getNumber(), valsCnt);
 				model.count(getIdMUe(ue), varSlots, cnt).post();
-				countsDebug.add(cnt);
 			}
 		}
 	}
@@ -1188,7 +1184,6 @@ public class SolverMain {
 		res.deleteCharAt(res.length() - 1);
 		res.append("]");
 		res.append("]\r\n");
-		countsDebug.forEach(c -> res.append(c.getName() + " " +  solution.getIntVal(c) + ";"));
 		
 		return res.toString();
 	}	
