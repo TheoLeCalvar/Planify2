@@ -487,12 +487,12 @@ public class SolverMain {
 								comparison = slots.get(i).get(iSlots[i]).getEnd().compareTo(slots.get(iMins.get(0)).get(iSlots[iMins.get(0)]).getEnd());
 						}
 						if (comparison < 0) {
-							System.out.println("Lower " + iSlots[i]);
+							//System.out.println("Lower " + iSlots[i]);
 							iMins.clear();
 							iMins.add(i);
 						}
 						if (comparison == 0) {
-							System.out.println("Equal " + iSlots[i]);
+							//System.out.println("Equal " + iSlots[i]);
 							iMins.add(i);
 						}
 					}
@@ -833,7 +833,7 @@ public class SolverMain {
 		if (planning.isLecturersUnavailability()) preferences.add(setPreferencesLecturers(model).mul(planning.getWeightLecturersUnavailability()).intVar());
 		if (planning.isMiddayGrouping()) preferences.add(setPreferenceCenteredLessons(model).mul(planning.getWeightMiddayGrouping()).intVar());
 		if (planning.isLessonGrouping()) preferences.add(setPreferenceRegroupLessonsByNbSlots(model).mul(planning.getWeightLessonGrouping()).intVar());
-		if (planning.isMaxTimeWithoutLesson()) preferences.add(setPreferenceMaxBreakWithoutLessonUe(model).mul(planning.getWeightMaxTimeWithoutLesson()).intVar()); //TODO Maybe change the mul factor to have something proportionnal with the valMax (i.e. having a fixed cost when the break is the double than the prefered max because now the cost is of one for each unit of time)
+		if (planning.isMaxTimeWithoutLesson()) preferences.add(setPreferenceMaxBreakWithoutLessonUe(model).mul(planning.getWeightMaxTimeWithoutLesson()).intVar()); //Maybe change the mul factor to have something proportionnal with the valMax (i.e. having a fixed cost when the break is the double than the prefered max because now the cost is of one for each unit of time)
 		if (planning.isLessonBalancing()) preferences.add(setPreferenceBalancedLesson(model).mul(planning.getWeightLessonBalancing()).intVar());
 		return (preferences.isEmpty()) ? null : model.sum("Preferences", preferences.stream().filter(v -> v != null).toArray(IntVar[]::new));
 	}
@@ -959,7 +959,8 @@ public class SolverMain {
 		List<IntVar> distancesFromPreferedValues = new ArrayList<IntVar>();
  		List<UE> ues = getUes();
 		int nbUe = ues.size();
- 		int[][] preferedVals = IntStream.range(0, nbUe).mapToObj(i -> new int[] {2,3}).toArray(int[][]::new);
+		int[] nbLessonsPrefered = new int[] {2,3}; //TODO Add the configuration for each ue.
+ 		int[][] preferedVals = IntStream.range(0, nbUe).mapToObj(i -> nbLessonsPrefered).toArray(int[][]::new);
  		int[][] costs = IntStream.range(0, nbUe).mapToObj(i -> getCostsTblRegroupLessons(preferedVals[i], nbMaxSlotsDay)).toArray(int[][]::new);
 		int iDay = 0;
 		int[] idUes = getArrayInt(getIdMUe(ues.stream().toArray(UE[]::new)));
