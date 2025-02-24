@@ -26,6 +26,8 @@ public class Planning {
     @JoinColumn(name = "idCalendar")
     private Calendar calendar;
 
+    private Status status;
+
     // Constraints
 
     // respect of the preference of the global unavailability
@@ -81,7 +83,9 @@ public class Planning {
     private List<ScheduledLesson> scheduledLessons = new ArrayList<ScheduledLesson>();
 
 
-
+    public enum Status {
+        GENERATED, PROCESSING, NOT_GENERATED, WAITING_TO_BE_PROCESSED
+    }
 
 
     public Planning() {
@@ -91,6 +95,7 @@ public class Planning {
         this.calendar = calendar;
         this.scheduledLessons = new ArrayList<ScheduledLesson>();
         this.timestamp = LocalDateTime.now();
+        this.status = Status.NOT_GENERATED;
     }
 
     public Planning(Calendar calendar, String name, boolean globalUnavailability, int weightGlobalUnavailability, boolean lecturersUnavailability, int weightLecturersUnavailability, boolean synchronise, List<ConstraintSynchroniseWithTAF> constraintsSynchronisation, List<ConstraintsOfUE> constraintsOfUEs, int weightMaxTimeWithoutLesson, boolean UEInterlacing, boolean middayBreak, LocalTime startMiddayBreak, LocalTime endMiddayBreak, boolean middayGrouping, int weightMiddayGrouping, boolean lessonBalancing, int weightLessonBalancing, int weightLessonGrouping, boolean lessonGrouping, int weightTimeWithoutUE) {
@@ -117,6 +122,7 @@ public class Planning {
         this.weightLessonGrouping = weightLessonGrouping;
         this.lessonGrouping = lessonGrouping;
         this.weightTimeWithoutUE = weightTimeWithoutUE;
+        this.status = Status.NOT_GENERATED;
     }
 
     public Planning(Calendar calendar, String name, boolean globalUnavailability, int weightGlobalUnavailability, boolean lecturersUnavailability, int weightLecturersUnavailability, boolean synchronise, boolean UEInterlacing, boolean middayBreak, LocalTime startMiddayBreak, LocalTime endMiddayBreak, boolean middayGrouping, int weightMiddayGrouping, boolean lessonBalancing, int weightLessonBalancing, int weightLessonGrouping, boolean lessonGrouping, int weightTimeWithoutUE) {
@@ -142,11 +148,8 @@ public class Planning {
         this.weightLessonGrouping = weightLessonGrouping;
         this.lessonGrouping = lessonGrouping;
         this.weightTimeWithoutUE = weightTimeWithoutUE;
+        this.status = Status.NOT_GENERATED;
     }
-
-
-
-
 
     public Long getId() {
         return id;
@@ -362,6 +365,27 @@ public class Planning {
 
     public void setConstrainedSynchronisations(List<ConstraintSynchroniseWithTAF> constrainedSynchronisations) {
         this.constrainedSynchronisations = constrainedSynchronisations;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
+
+    public void waitForProcessing() {
+        this.status = Status.WAITING_TO_BE_PROCESSED;
+    }
+
+    public void startProcessing() {
+        this.status = Status.PROCESSING;
+    }
+
+    public void endProcessing() {
+        this.status = Status.GENERATED;
     }
 
     @Override
