@@ -30,6 +30,10 @@ public class DayService {
     @Lazy
     @Autowired
     private WeekService weekService;
+    
+    @Lazy
+    @Autowired
+    private GlobalUnavailabilityService globalUnavailabilityService;
 
     @Transactional
     public Day addDay(int number, Week week) {
@@ -92,7 +96,13 @@ public class DayService {
     	slots.sort(Comparator.comparing(Slot::getStart));
     	return slots;
     }
-
+    
+    public boolean isDayAvailableForCalendar(Day day, Calendar calendar) {
+    	return day.getSlots().stream().filter(s -> s.getCalendar().getId() == calendar.getId())
+									.anyMatch(s -> globalUnavailabilityService.findBySlot(s)
+													.filter(g -> g.getStrict()).isEmpty());
+    }
+    
     @Transactional
     public boolean deleteDay(Long id) {
         if (dayRepository.existsById(id)) {

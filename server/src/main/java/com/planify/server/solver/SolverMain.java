@@ -28,6 +28,7 @@ import org.chocosolver.solver.search.strategy.selectors.variables.DomOverWDeg;
 import org.chocosolver.solver.search.strategy.selectors.variables.FirstFail;
 import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
+import org.chocosolver.util.ESat;
 import org.chocosolver.util.tools.ArrayUtils;
 
 import com.planify.server.models.Antecedence;
@@ -168,7 +169,7 @@ public class SolverMain {
 	 * @param planning The planning to generate.
 	 * @return The results generated (also stored automatically in the database).
 	 */
-	public static List<Result> generatePlanning(Planning planning){
+	public static boolean generatePlanning(Planning planning){
 		/*System.out.println(planning.getCalendar().getSlots().stream().map(s -> s.toString()).reduce("", String::concat));
 		System.out.println(planning.getCalendar().getTaf().getUes().stream().map(u -> u.toString()).reduce("", String::concat));
 		System.out.println(planning.getCalendar().getTaf().getUes().stream().flatMap(u -> u.getLessons().stream().map(l -> l.toString())).reduce("", String::concat));
@@ -211,8 +212,7 @@ public class SolverMain {
 	 * @param planning The planning to generate.
 	 * @return The results generated (also stored automatically in the database).
 	 */
-	public static List<Result> generatePlanningWithoutSync(Planning planning) {
-		planning.startProcessing();
+	public static boolean generatePlanningWithoutSync(Planning planning) {
 		Model model = new Model();
 		Solver solver = model.getSolver();
 		SolverMain solMain = new SolverMain(planning);
@@ -230,13 +230,10 @@ public class SolverMain {
 		//System.out.println(model);
 		solver.printShortStatistics();
 		if (!solution.exists())
-			return new ArrayList<Result>();
+			return false;
 		System.out.println(solMain.showSolutionsDebug(solution));
 		System.out.println(solMain.makeSolutionString(solution));
-		List<Result> results = solMain.makeSolution(solution);
-		services.getPlanningService().addScheduledLessons(planning, results);
-		planning.endProcessing();
-		return results;
+		return true;
 	}
 	
 	/**
@@ -245,7 +242,6 @@ public class SolverMain {
 	 * @return The results generated in a json format (not stored automatically in the database).
 	 */
 	public static String generatePlanningString(Planning planning) {
-		planning.startProcessing();
 		Model model = new Model();
 		Solver solver = model.getSolver();
 		SolverMain solMain = new SolverMain(planning);
@@ -255,21 +251,19 @@ public class SolverMain {
 		solMain.setConstraints(model);
 		IntVar obj = solMain.setPreferences(model);
 		setStrategy(solMain, solver);
-		Solution solution;
 		System.out.println("Start Solving !");
 		//solver.verboseSolving(1000);
 		solver.showSolutions();
 		//solver.showDecisions();
-		if (obj != null) solution = solver.findOptimalSolution(obj, false);
-		else solution = solver.findSolution();
+		if (obj != null) model.setObjective(false, obj);
+		Solution solution = solveModelPlanning(model, solMain);
 		//solution = solver.findSolution();
 		System.out.println(Arrays.deepToString(model.getVars()));
 		solver.printShortStatistics();
-		if (!solution.exists())
+		if (solution == null)
 			return "";
 		System.out.println(solMain.showSolutionsDebug(solution));
 		System.out.println(solMain.makeSolutionString(solution));
-		planning.endProcessing();
 		return solMain.makeSolutionString(solution);
 	}
 	
@@ -278,7 +272,7 @@ public class SolverMain {
 	 * @param planningsToGenerate The plannings to generate.
 	 * @return The results generated (also stored automatically in the database for each planning).
 	 */
-	public static List<Result> generatePlannings(Planning[] planningsToGenerate) {
+	public static boolean generatePlannings(Planning[] planningsToGenerate) {
 		return generatePlannings(planningsToGenerate, new Planning[] {});
 	}
 	
@@ -288,7 +282,7 @@ public class SolverMain {
 	 * @param planningsGenerated The plannings already generated to consider in the synchronizations.
 	 * @return The results generated (also stored automatically in the database for each planning to generate).
 	 */
-	public static List<Result> generatePlannings(Planning[] planningsToGenerate, Planning[] planningsGenerated) {
+	public static boolean generatePlannings(Planning[] planningsToGenerate, Planning[] planningsGenerated) {
 		Model model = new Model();
 		Solver solver = model.getSolver();
 		IntVar[] objs = new IntVar[planningsToGenerate.length];
@@ -308,20 +302,40 @@ public class SolverMain {
 		IntVar globObj = model.sum("globObj", objs);
 		setStrategy(solMains, solver);
 		//solver.showSolutions();
-		System.out.println("Start Solving !");
-		Solution solution = solver.findOptimalSolution(globObj, false);
+		if (globObj != null) model.setObjective(false, globObj);
+		Solution solution = solveModelPlannings(model, solMains);
 		//System.out.println(model);
 		solver.printShortStatistics();
 		if (solution == null)
-			return null;
-		List<Result> allResults = new ArrayList<Result>();
+			return false;
 		for (int i = 0; i < planningsToGenerate.length; i ++) {
-			List<Result> results = solMains[i].makeSolution(solution);
 			System.out.println(solMains[i].showSolutionsDebug(solution));
-			allResults.addAll(results);
-			planningsToGenerate[i].endProcessing();
 		}
-		return allResults;
+		return true;
+	}
+	
+	private static Solution solveModelPlanning(Model model, SolverMain solMain) {
+		System.out.println("Start Solving !");
+		Solution s = new Solution(model);
+		while (model.getSolver().solve()) {
+		     s.record();
+		     List<Result> results = solMain.makeSolution(s);
+		     services.getPlanningService().addScheduledLessons(solMain.getPlanning(), results);
+		}
+		return model.getSolver().isFeasible() == ESat.TRUE ? s : null;
+	}
+	
+	private static Solution solveModelPlannings(Model model, SolverMain[] solMains) {
+		System.out.println("Start Solving !");
+		Solution s = new Solution(model);
+		while (model.getSolver().solve()) {
+		     s.record();
+		     for (SolverMain solMain : solMains) {
+			     List<Result> results = solMain.makeSolution(s);
+			     services.getPlanningService().addScheduledLessons(solMain.getPlanning(), results);
+		     }
+		}
+		return model.getSolver().isFeasible() == ESat.TRUE ? s : null;
 	}
 	
 	/**
@@ -474,6 +488,8 @@ public class SolverMain {
 		while (testiLengths(iSlots, lengthSlots)) {
 			List<Integer> iMins = new ArrayList<Integer>();
 			for (int i = 0; i < plannings.length; i ++) {
+				System.out.println(i);
+				System.out.println(iSlots[i] < lengthSlots[i]);
 				if (iSlots[i] < lengthSlots[i]) {
 					if (iMins.size() == 0) {
 						iMins.add(i);
@@ -648,8 +664,8 @@ public class SolverMain {
 
 	private void setConstraintLecturerUnavailability(Model model) {
 		for (Lesson lesson : getLessons())
-			for (Slot slot : services.getLessonService().findLessonLecturersUnavailabilitiesByLessonAndCalendar(lesson, planning.getCalendar()))
-				model.arithm(getLessonVarSlot(lesson), "!=", getIdMSlot(slot)).post();					
+			for (Slot slot : services.getLessonService().findLessonLecturersUnavailabilitiesByLessonAndCalendarWUD(lesson, planning.getCalendar()))
+				model.arithm(getLessonVarSlot(lesson), "!=", getIdMSlot(slot)).post();
 	}
 	
 	private void setConstraintLunchBreak(Model model) {

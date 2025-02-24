@@ -29,20 +29,24 @@ public class SolverExecutor {
 		nbGene ++;
 	}
 	
-	private static void generatePlanning(Planning planning, int nbAttempts, int nbGene, Function<Planning, List<Result>> generate) {
+	private static void generatePlanning(Planning planning, int nbAttempts, int nbGene, Function<Planning, Boolean> generate) {
 		Runnable task = new Runnable() {
     		@Override
     		public void run() {
     			try {
+    				planning.startProcessing();
     				System.out.println(GREEN + nbGene + " Launch background execution for " + planning.getCalendar().getTaf().getName() + " (planningId :" + planning.getId() + ", attempt : " + nbAttempts + ")" + RESET);
     				generate.apply(planning);
+    				planning.endProcessing();
     			}
     			catch (Throwable e) {
     				System.out.println(RED + nbGene +  " Unhandled Error or Exception for " + planning.getCalendar().getTaf().getName() + " (planningId :" + planning.getId() + ", attempt : " + nbAttempts + ")" + RESET);
     				if (nbAttempts < MAX_ATTEMPTS)
     					generatePlanning(planning, nbAttempts + 1, nbGene, generate);
-    				else
+    				else {
     					System.out.println(RED + nbGene + " Generation Aborted." + RESET);
+    					planning.endProcessing();
+    				}
     			}
     		}
     	};
@@ -63,19 +67,23 @@ public class SolverExecutor {
     		@Override
     		public void run() {
     			try {
+    				for (Planning planning : planningsToGenerate) planning.startProcessing();
     				System.out.println(GREEN + nbGene + " Launch background execution for [" +
     										Arrays.stream(planningsToGenerate).map(p -> p.getCalendar().getTaf().getName() + "(" + p.getId() + ")").reduce("", String::concat) +
     										"], [" +
     										Arrays.stream(planningsGenerated).map(p -> p.getCalendar().getTaf().getName() + "(" + p.getId() + ")").reduce("", String::concat) +
     										"] (attempt : " + nbAttempts + ")" + RESET);
     				SolverMain.generatePlannings(planningsToGenerate, planningsGenerated);
+    				for (Planning planning : planningsToGenerate) planning.endProcessing();
     			}
     			catch (Throwable e) {
     				System.out.println(RED + nbGene + " Launch background execution for " + Arrays.stream(planningsToGenerate).map(p -> p.getCalendar().getTaf().getName() + "(" + p.getId() + ")").reduce("", String::concat) + " (attempt : " + nbAttempts + ")" + RESET);
     				if (nbAttempts < MAX_ATTEMPTS)
     					generatePlannings(planningsToGenerate, planningsGenerated, nbAttempts + 1, nbGene);
-    				else
+    				else {
     					System.out.println(RED + nbGene + " Generation Aborted." + RESET);
+        				for (Planning planning : planningsToGenerate) planning.endProcessing();
+    				}
     			}
     		}
     	};
