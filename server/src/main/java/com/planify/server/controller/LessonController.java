@@ -158,9 +158,7 @@ public class LessonController {
                 if (plannings!=null) {
                     for (Planning planning : plannings) {
                         if (planning.getStatus() == Planning.Status.GENERATED) {
-                            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-                            String formatted = planning.getTimestamp().format(formatter);
-                            resultPlanning.add(new PlanningReturn(planning.getId(), formatted, planning.getName()));
+                            resultPlanning.add(new PlanningReturn(planning.getId(), planning.getTimestamp(), planning.getName()));
                         }
                     }
                 }

@@ -5,8 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import com.planify.server.controller.returnsClass.CheckOK;
 import com.planify.server.controller.returnsClass.Config;
 import com.planify.server.controller.returnsClass.PlanningReturn;
+import com.planify.server.controller.returnsClass.TAFSynchronised;
 import com.planify.server.models.*;
 import com.planify.server.service.PlanningService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -116,8 +118,30 @@ public class CalendarController {
                         .body(new ErrorResponse("Lecturer availability not filled", 409));
             }
         }
-        
-        return ResponseEntity.ok("Checklist OK");
+
+        // Find the TAF with which there is a synchronisation
+        List<Lesson> allLessons = taf.getUes().stream()
+                .flatMap(ue -> ue.getLessons().stream())
+                .toList();
+        List<TAF> tafs = allLessons.stream()
+                .flatMap(lesson -> lesson.synchronisedWith().stream())
+                .toList();
+        List<TAFSynchronised> tafSynchroniseds = new ArrayList<>();
+        if (tafs != null) {
+            for (TAF sTaf : tafs) {
+                List<PlanningReturn> returns = new ArrayList<>();
+                List<Planning> plannings = sTaf.getCalendars().getFirst().getPlannings();
+                for (Planning p : plannings) {
+                    PlanningReturn pr = new PlanningReturn(p.getId(), p.getName(), p.getTimestamp(), p.getStatus());
+                    returns.add(pr);
+                }
+                TAFSynchronised tafSynchronised = new TAFSynchronised(sTaf.getId(), sTaf.getName(),returns);
+                tafSynchroniseds.add(tafSynchronised);
+            }
+        }
+        CheckOK ok = new CheckOK(tafSynchroniseds);
+
+        return ResponseEntity.ok("ok");
     }
 
     @GetMapping(value = "/solver/history/{idTaf}", produces = MediaType.APPLICATION_JSON_VALUE )
@@ -134,9 +158,7 @@ public class CalendarController {
                 List<Planning> plannings = planningService.findByCalendar(calendar);
                 if (plannings!=null) {
                     for (Planning planning : plannings) {
-                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-                        String formatted = planning.getTimestamp().format(formatter);
-                        answer.add(new PlanningReturn(planning.getId(), formatted, planning.getName()));
+                        answer.add(new PlanningReturn(planning.getId(), planning.getTimestamp(), planning.getName()));
                     }
                 }
             }
