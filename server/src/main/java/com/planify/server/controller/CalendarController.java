@@ -74,24 +74,26 @@ public class CalendarController {
 
     @GetMapping(value = "/solver/check/<configId>", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> checkSolverMain(@PathVariable Long configId) {
-        /*Optional<Planning> planning = planningService.findById(configId);
-        if (planning.isEmpty()) {
+        Optional<Planning> oPlanning = planningService.findById(configId);
+        if (oPlanning.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ErrorResponse("No Planning with this id was found", 404));
         }
-        Planning realPlanning = planning.get();*/
+        Planning planning = oPlanning.get();
 
-        // A supprimer
-        TAF taf = tafService.findById(configId).orElseThrow(() -> new IllegalArgumentException("TAF not found"));
-        if (taf.getCalendars().isEmpty()) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(new ErrorResponse("No calendar", 409));
-        }
-        Calendar calendar = taf.getCalendars().getFirst();
+        Calendar calendar = planning.getCalendar();
+        TAF taf = calendar.getTaf();
+
         if (calendar.getSlots().isEmpty()) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(new ErrorResponse("No slots", 409));
         }
+
+        if (taf.getCalendars().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(new ErrorResponse("No calendar", 409));
+        }
+
         if (taf.getUes().isEmpty()) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(new ErrorResponse("No UE", 409));
@@ -114,12 +116,6 @@ public class CalendarController {
                         .body(new ErrorResponse("Lecturer availability not filled", 409));
             }
         }
-        
-
-        //Planning realPlanning = Planning.setSettingsPlanning(planningService.addPlanning(calendar));
-        // Fin de à supprimer
-        
-        //SolverExecutor.generatePlanning(realPlanning);
         
         return ResponseEntity.ok("Checklist OK");
     }

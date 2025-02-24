@@ -1,5 +1,6 @@
 package com.planify.server.controller.returnsClass;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.planify.server.models.Planning;
 import com.planify.server.models.constraints.ConstraintSynchroniseWithTAF;
@@ -31,13 +32,17 @@ public class Config {
 
     private List<CUE> constraintsOfUEs;
 
+    private int weightMaxTimeWithoutLesson;
+
     @JsonProperty("UEInterlacing")
     private Boolean UEInterlacing;
 
     private Boolean middayBreak;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
     private LocalTime startMiddayBreak;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
     private  LocalTime endMiddayBreak;
 
     private Boolean middayGrouping;
@@ -216,7 +221,7 @@ public class Config {
     public Config() {
     }
 
-    public Config(Long id, String name, Long calendar, boolean globalUnavailability, int weightGlobalUnavailability, boolean lecturersUnavailability, int weightLecturersUnavailability, boolean synchronise, List<CSyncrho> constraintsSynchronisation, List<CUE> constraintsOfUEs, boolean UEInterlacing, boolean middayBreak, LocalTime startMiddayBreak, LocalTime endMiddayBreak, boolean middayGrouping, int weightMiddayGrouping, boolean lessonBalancing, int weightLessonBalancing, boolean lessonGrouping, int weightLessonGrouping) {
+    public Config(Long id, String name, Long calendar, boolean globalUnavailability, int weightGlobalUnavailability, boolean lecturersUnavailability, int weightLecturersUnavailability, boolean synchronise, List<CSyncrho> constraintsSynchronisation, List<CUE> constraintsOfUEs, boolean UEInterlacing, boolean middayBreak, LocalTime startMiddayBreak, LocalTime endMiddayBreak, boolean middayGrouping, int weightMiddayGrouping, boolean lessonBalancing, int weightLessonBalancing, boolean lessonGrouping, int weightLessonGrouping, int weightMaxTimeWithoutLesson) {
         this.id = id;
         this.name = name;
         this.calendar = calendar;
@@ -237,6 +242,7 @@ public class Config {
         this.weightLessonBalancing = weightLessonBalancing;
         this.lessonGrouping = lessonGrouping;
         this.weightLessonGrouping = weightLessonGrouping;
+        this.weightMaxTimeWithoutLesson = weightMaxTimeWithoutLesson;
     }
 
     public static List<CUE> extractsCues(Planning planning) {
@@ -280,7 +286,8 @@ public class Config {
                 planning.isLessonBalancing(),
                 planning.getWeightLessonBalancing(),
                 planning.isLessonGrouping(),
-                planning.getWeightLessonGrouping()
+                planning.getWeightLessonGrouping(),
+                planning.getWeightMaxTimeWithoutLesson()
         );
     }
 
@@ -445,5 +452,11 @@ public class Config {
         this.weightLessonGrouping = weightLessonGrouping;
     }
 
+    public int getWeightMaxTimeWithoutLesson() {
+        return weightMaxTimeWithoutLesson;
+    }
 
+    public void setWeightMaxTimeWithoutLesson(int weightMaxTimeWithoutLesson) {
+        this.weightMaxTimeWithoutLesson = weightMaxTimeWithoutLesson;
+    }
 }
