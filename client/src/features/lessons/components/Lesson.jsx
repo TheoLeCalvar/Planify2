@@ -151,6 +151,9 @@ const Lesson = ({ lesson, onEdit, onDelete, onDuplicate }) => {
           alignItems="center"
         >
           <LessonTitle title={lesson.title} />
+          {lesson.synchronise.length > 0 && lesson.synchronise[0] && (
+            <Chip label="Synchronisé" color="primary" variant="outlined" />
+          )}
           <LecturerList
             lecturers={lesson.lecturers}
             getLecturerName={getLecturerName}
@@ -176,6 +179,7 @@ Lesson.propTypes = {
     lecturers: PropTypes.arrayOf(
       PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     ),
+    synchronise: PropTypes.array,
   }).isRequired,
   onEdit: PropTypes.func.isRequired,
   onDelete: PropTypes.func.isRequired,

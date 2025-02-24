@@ -1,10 +1,13 @@
 package com.planify.server.solver;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Function;
 
 import com.planify.server.models.Planning;
+import com.planify.server.models.Result;
 
 public class SolverExecutor {
 	private static ExecutorService exec = Executors.newFixedThreadPool(3);
@@ -17,22 +20,27 @@ public class SolverExecutor {
     static final String GREEN = "\u001B[32m";
 	
 	public static void generatePlanning(Planning planning) {
-		generatePlanning(planning, 0, nbGene);
+		generatePlanning(planning, 0, nbGene, SolverMain::generatePlanning);
 		nbGene ++;
 	}
 	
-	private static void generatePlanning(Planning planning, int nbAttempts, int nbGene) {
+	public static void generatePlanningWithoutSync(Planning planning) {
+		generatePlanning(planning, 0, nbGene, SolverMain::generatePlanningWithoutSync);
+		nbGene ++;
+	}
+	
+	private static void generatePlanning(Planning planning, int nbAttempts, int nbGene, Function<Planning, List<Result>> generate) {
 		Runnable task = new Runnable() {
     		@Override
     		public void run() {
     			try {
     				System.out.println(GREEN + nbGene + " Launch background execution for " + planning.getCalendar().getTaf().getName() + " (planningId :" + planning.getId() + ", attempt : " + nbAttempts + ")" + RESET);
-    				SolverMain.generatePlanning(planning);
+    				generate.apply(planning);
     			}
     			catch (Throwable e) {
     				System.out.println(RED + nbGene +  " Unhandled Error or Exception for " + planning.getCalendar().getTaf().getName() + " (planningId :" + planning.getId() + ", attempt : " + nbAttempts + ")" + RESET);
     				if (nbAttempts < MAX_ATTEMPTS)
-    					generatePlanning(planning, nbAttempts + 1, nbGene);
+    					generatePlanning(planning, nbAttempts + 1, nbGene, generate);
     				else
     					System.out.println(RED + nbGene + " Generation Aborted." + RESET);
     			}
