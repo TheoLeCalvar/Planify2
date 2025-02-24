@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.planify.server.models.LessonLecturer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -93,6 +94,20 @@ public class SynchronizationService {
                 .collect(Collectors.toList());
 
         return synchronizations;
+    }
+
+    public boolean deleteSynchronisationFromLesson(SynchronizationId id) {
+
+        if (synchronizationRepository.existsById(id)) {
+            Synchronization s = synchronizationRepository.findById(id).get();
+
+            // Then delete it
+            synchronizationRepository.deleteById(id);
+
+            return true;
+        } else {
+            return false;
+        }
     }
 
 }

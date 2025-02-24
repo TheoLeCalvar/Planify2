@@ -57,7 +57,7 @@ public class Lesson {
     }
 
     public String toString() {
-        return "Lesson " + Long.toString(this.id) + "\n Name: " + this.name + "\n UE: " + this.ue.getDescription();
+        return "Lesson " + Long.toString(this.id) + "\n Name: " + this.name + "\n UE: " + this.ue.getName();
     }
 
     public long getId() {
@@ -142,6 +142,33 @@ public class Lesson {
 
     public void setSynchronizations2(List<Synchronization> synchronizations2) {
         this.synchronizations2 = synchronizations2;
+    }
+
+    public List<Synchronization> getSynchronizations() {
+        List<Synchronization> ls = this.getSynchronizations1();
+        ls.addAll(0, this.getSynchronizations2());
+        return ls;
+    }
+
+    public boolean isSynchronised() {
+        if (this.getSynchronizations().isEmpty()) {
+            return false;
+        }
+        return true;
+    }
+
+    public List<TAF> synchronisedWith() {
+        if (this.isSynchronised()) {
+            List<TAF> tafs1 = new ArrayList<>(this.getSynchronizations1().stream().flatMap(s -> s.getLessons().stream().map(l -> l.getUe().getTaf())).toList());
+            List<TAF> tafs2 = new ArrayList<>(this.getSynchronizations2().stream().flatMap(s -> s.getLessons().stream().map(l -> l.getUe().getTaf())).toList());
+            tafs1.addAll(0,tafs2);
+            TAF thisTAF = this.ue.getTaf();
+            tafs1.stream().distinct().filter(taf -> !taf.equals(thisTAF)).toList();
+            return tafs1;
+        }
+        else {
+            return new ArrayList<>();
+        }
     }
 
 }

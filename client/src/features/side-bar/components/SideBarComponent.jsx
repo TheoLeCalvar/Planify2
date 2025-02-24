@@ -7,9 +7,9 @@ import { Outlet, useOutletContext } from "react-router-dom";
 import useStore from "@/store/store";
 
 // Custom components
-import SidebarNavigation from "./SidebarNavigation";
+import SidebarNavigation from "./SideBarNavigation";
 import LessonList from "./LessonList";
-import SidebarActions from "./SidebarActions";
+import SidebarActions from "./SideBarActions";
 
 // Styles
 import styles from "./SideBarComponent.styles";

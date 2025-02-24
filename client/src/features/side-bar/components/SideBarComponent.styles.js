@@ -22,7 +22,6 @@ const styles = {
   mainContent: {
     flexGrow: 1,
     padding: 3,
-    paddingTop: `${appBarHeight}px`,
   },
 };
 

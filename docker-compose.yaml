@@ -3,7 +3,22 @@ services:
     build:
       context: ./client
       dockerfile: Dockerfile.dev
+      args:
+        VITE_API_URL: "http://localhost:8080"
+        VITE_USE_MOCK: "false"
     image: planify-client
     container_name: planify_client
     ports:
       - "5173:5173"
+    volumes:
+      - ./client:/app        # Mount the local client directory to /app in the container
+      - /app/node_modules    # Prevent overwriting container’s node_modules with host files
+    depends_on:
+      - server
+
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080" # Expose port 8080 of the container to port 8080 on the host

@@ -22,6 +22,8 @@ public interface TAFManagerRepository extends JpaRepository<TAFManager, TAFManag
 
     List<TAFManager> findByTaf(TAF taf);
 
+    boolean existsByUser(User user);
+
     TAFManager save(TAFManager tafManager);
 
     void deleteById(TAFManagerId id);

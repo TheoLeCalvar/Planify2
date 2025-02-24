@@ -75,9 +75,10 @@ public class UEService {
 
             // Delete the UE Managers associated with this UE
             List<UEManager> listUeManagers = ue.getUeManagers();
-            for (UEManager m : listUeManagers) {
-                ueManagerService.deleteUEManager(m.getId());
+            if (listUeManagers != null && !listUeManagers.isEmpty()) {
+                listUeManagers.forEach(uem -> ueManagerService.deleteUEManagerWhenDeletingUE(uem.getId()));
             }
+
 
             // Delete ue in the UE's table
             ueRepository.delete(ue);

@@ -31,6 +31,7 @@ public class Block {
         this.description = description;
     }
 
+
     public String toString() {
         return "Block \n Title: " + this.title + "\n First Lesson " + "" + this.firstLesson.getName();
     }

@@ -23,6 +23,7 @@ public class BlockService {
         return block;
     }
 
+
     public void save(Block block) {
         blockRepository.save(block);
     }
@@ -30,6 +31,10 @@ public class BlockService {
     public Optional<Block> findById(Long id) {
         Optional<Block> block = blockRepository.findById(id);
         return block;
+    }
+
+    public List<Block> findByFirstLesson(Lesson lesson) {
+        return blockRepository.findByFirstLesson(lesson);
     }
 
     public List<Block> findAll() {

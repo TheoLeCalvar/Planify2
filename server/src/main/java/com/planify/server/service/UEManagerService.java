@@ -3,6 +3,8 @@ package com.planify.server.service;
 import java.util.List;
 import java.util.Optional;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +25,9 @@ public class UEManagerService {
 
     @Autowired
     private UEService ueService;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     public UEManager addUEManager(User user, UE ue) {
         // Add UEManager to the table
@@ -76,6 +81,38 @@ public class UEManagerService {
 
             // Delete the ue's manager in the UEManager's table
             ueManagerRepository.delete(ueManager);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    public boolean deleteUEManagerWhenDeletingUE(UEManagerId id) {
+        if (ueManagerRepository.existsById(id)) {
+            UEManager ueManager = ueManagerRepository.findById(id).get();
+
+            // Delete the UEManager in the User's UeManagers
+            User user = userService.findById(ueManager.getUser().getId()).get();
+            List<UEManager> listManagerFromUser = user.getUeManagers();
+            System.out.println("user.managers avant : ");
+            for (UEManager uem : listManagerFromUser) {
+                System.out.println(uem.toString());
+            }
+            listManagerFromUser.remove(ueManager);
+            user.setUeManagers(listManagerFromUser);
+            userService.save(user);
+            System.out.println("user.managers après : ");
+            User user1 = userService.findById(ueManager.getUser().getId()).get();
+            List<UEManager> listManagerFromUser1 = user1.getUeManagers();
+            for (UEManager uem : listManagerFromUser1) {
+                System.out.println(uem.toString());
+            }
+
+            // Delete the ue's manager in the UEManager's table
+            ueManagerRepository.delete(ueManager);
+
+            entityManager.refresh(user);
 
             return true;
         }
