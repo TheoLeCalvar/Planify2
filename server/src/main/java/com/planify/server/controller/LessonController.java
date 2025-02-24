@@ -789,8 +789,7 @@ public class LessonController {
                 config.isLessonBalancing(),
                 config.getWeightLessonBalancing(),
                 config.getWeightLessonGrouping(),
-                config.isLessonGrouping(),
-                config.getWeightTimeWithoutUE()
+                config.isLessonGrouping()
         );
 
         //Addition of the synchronisation's constraints
