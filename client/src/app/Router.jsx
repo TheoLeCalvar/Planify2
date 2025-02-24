@@ -19,6 +19,7 @@ import Settings from "./routes/ue/Settings";
 import Lessons from "./routes/ue/Lessons";
 import TAFAllSettings from "./routes/taf/SettingsRouter";
 import TAFConfigs from "./routes/taf/Configs";
+import ContentPadding from "./routes/layout/ContentPadding";
 
 // Loader functions
 import { loader as TAFLoader } from "./routes/Taf";
@@ -150,9 +151,15 @@ const tafRoute = [
     ],
   },
   {
-    path: "taf/new",
-    element: <TAFSettings />,
-    action: editTAFSettingsAction,
+    path: "",
+    element: <ContentPadding />,
+    children: [
+      {
+        path: "taf/new",
+        element: <TAFSettings />,
+        action: editTAFSettingsAction,
+      }
+    ]
   },
 ];
 
