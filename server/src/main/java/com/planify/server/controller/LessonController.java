@@ -157,9 +157,11 @@ public class LessonController {
                 List<Planning> plannings = planningService.findByCalendar(calendar);
                 if (plannings!=null) {
                     for (Planning planning : plannings) {
-                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-                        String formatted = planning.getTimestamp().format(formatter);
-                        resultPlanning.add(new PlanningReturn(planning.getId(), formatted, planning.getName()));
+                        if (planning.getStatus() == Planning.Status.GENERATED) {
+                            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                            String formatted = planning.getTimestamp().format(formatter);
+                            resultPlanning.add(new PlanningReturn(planning.getId(), formatted, planning.getName()));
+                        }
                     }
                 }
             }
@@ -697,6 +699,8 @@ public class LessonController {
 
         User user = userOpt.get();
 
+        user.setLastUpdatedAvailability(LocalDateTime.now());
+
         for (UserUnavailabilityShort userAvailability : userAvailabilities) {
             Optional<Slot> slotOpt = slotService.findById(userAvailability.getId());
             if (slotOpt.isPresent()) {
@@ -759,8 +763,17 @@ public class LessonController {
 
         TAF taf = tafService.findById(tafId).get();
 
+
+        Calendar calendar;
+        try {
+            calendar = taf.getCalendars().getFirst();
+        } catch (Exception e) {
+            System.out.println("The calendar doesn't exist");
+            throw new RuntimeException(e);
+        }
+
         Planning planning = new Planning(
-                calendarService.findById(config.getCalendar()).orElseThrow(() -> new IllegalArgumentException("The Calendar doesn't exist")),
+                calendar,
                 config.getName(),
                 config.isGlobalUnavailability(),
                 config.getWeightGlobalUnavailability(),
@@ -776,8 +789,7 @@ public class LessonController {
                 config.isLessonBalancing(),
                 config.getWeightLessonBalancing(),
                 config.getWeightLessonGrouping(),
-                config.isLessonGrouping(),
-                config.getWeightTimeWithoutUE()
+                config.isLessonGrouping()
         );
 
         //Addition of the synchronisation's constraints
@@ -797,28 +809,26 @@ public class LessonController {
 
         //Addition of the UEs constraints
         List<ConstraintsOfUE> cUEs = new ArrayList<>();
-        if (config.getConstraintsOfUEs()!=null && !config.getConstraintsOfUEs().isEmpty()) {
-            for (Config.CUE cue : config.getConstraintsOfUEs()) {
-                ConstraintsOfUE c = new ConstraintsOfUE(
-                        ueService.findById(cue.getUe()).orElseThrow(() -> new IllegalArgumentException("The UE doesn't exist")),
-                        planning,
-                        cue.isLessonCountInWeek(),
-                        cue.getMaxLessonInWeek(),
-                        cue.getMinLessonInWeek(),
-                        cue.isMaxTimeWithoutLesson(),
-                        cue.isMaxTimeWLUnitInWeeks(),
-                        cue.getMaxTimeWLDuration(),
-                        cue.isSpreading(),
-                        cue.getMaxSpreading(),
-                        cue.getMaxSpreading()
-                );
-                cUEs.add(c);
-            }
+        for (UE ue : taf.getUes()) {
+            ConstraintsOfUE c = new ConstraintsOfUE(
+                    ue,
+                    planning,
+                    true,
+                    6,
+                    1,
+                    false,
+                    true,
+                    2,
+                    false,
+                    12,
+                    1
+            );
+            cUEs.add(c);
         }
         planning.setConstraintsOfUEs(cUEs);
 
         planningService.save(planning);
-        return ResponseEntity.ok("New planning added !");
+        return ResponseEntity.ok("New config added !");
 
 
     }

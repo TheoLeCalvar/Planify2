@@ -20,12 +20,12 @@ public class SolverExecutor {
     static final String GREEN = "\u001B[32m";
 	
 	public static void generatePlanning(Planning planning) {
-		generatePlanning(planning, 0, nbGene, SolverMain::generatePlanning);
+		generatePlanning(new Planning(planning), 0, nbGene, SolverMain::generatePlanning);
 		nbGene ++;
 	}
 	
 	public static void generatePlanningWithoutSync(Planning planning) {
-		generatePlanning(planning, 0, nbGene, SolverMain::generatePlanningWithoutSync);
+		generatePlanning(new Planning(planning), 0, nbGene, SolverMain::generatePlanningWithoutSync);
 		nbGene ++;
 	}
 	
@@ -50,11 +50,11 @@ public class SolverExecutor {
 	}
 	
 	public static void generatePlannings(Planning[] planningsToGenerate) {
-		generatePlannings(planningsToGenerate, new Planning[] {});
+		generatePlannings(Planning.planningsToGenerate(planningsToGenerate), new Planning[] {});
 	}
 	
 	public static void generatePlannings(Planning[] planningsToGenerate, Planning[] planningsGenerated) {
-		generatePlannings(planningsToGenerate, planningsGenerated, 0, nbGene);
+		generatePlannings(Planning.planningsToGenerate(planningsToGenerate), planningsGenerated, 0, nbGene);
 		nbGene ++;
 	}
 	

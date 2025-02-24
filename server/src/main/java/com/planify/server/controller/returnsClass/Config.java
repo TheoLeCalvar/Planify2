@@ -52,8 +52,6 @@ public class Config {
 
     private Integer weightLessonGrouping;
 
-    private Integer weightTimeWithoutUE;
-
     public static class CSyncrho {
         private Long otherPlanning;
         private Boolean enabled;
@@ -218,7 +216,7 @@ public class Config {
     public Config() {
     }
 
-    public Config(Long id, String name, Long calendar, boolean globalUnavailability, int weightGlobalUnavailability, boolean lecturersUnavailability, int weightLecturersUnavailability, boolean synchronise, List<CSyncrho> constraintsSynchronisation, List<CUE> constraintsOfUEs, boolean UEInterlacing, boolean middayBreak, LocalTime startMiddayBreak, LocalTime endMiddayBreak, boolean middayGrouping, int weightMiddayGrouping, boolean lessonBalancing, int weightLessonBalancing, boolean lessonGrouping, int weightLessonGrouping, int weightTimeWithoutUE) {
+    public Config(Long id, String name, Long calendar, boolean globalUnavailability, int weightGlobalUnavailability, boolean lecturersUnavailability, int weightLecturersUnavailability, boolean synchronise, List<CSyncrho> constraintsSynchronisation, List<CUE> constraintsOfUEs, boolean UEInterlacing, boolean middayBreak, LocalTime startMiddayBreak, LocalTime endMiddayBreak, boolean middayGrouping, int weightMiddayGrouping, boolean lessonBalancing, int weightLessonBalancing, boolean lessonGrouping, int weightLessonGrouping) {
         this.id = id;
         this.name = name;
         this.calendar = calendar;
@@ -239,7 +237,6 @@ public class Config {
         this.weightLessonBalancing = weightLessonBalancing;
         this.lessonGrouping = lessonGrouping;
         this.weightLessonGrouping = weightLessonGrouping;
-        this.weightTimeWithoutUE = weightTimeWithoutUE;
     }
 
     public static List<CUE> extractsCues(Planning planning) {
@@ -283,8 +280,7 @@ public class Config {
                 planning.isLessonBalancing(),
                 planning.getWeightLessonBalancing(),
                 planning.isLessonGrouping(),
-                planning.getWeightLessonGrouping(),
-                planning.getWeightTimeWithoutUE()
+                planning.getWeightLessonGrouping()
         );
     }
 
@@ -447,14 +443,6 @@ public class Config {
 
     public void setWeightLessonGrouping(int weightLessonGrouping) {
         this.weightLessonGrouping = weightLessonGrouping;
-    }
-
-    public Integer getWeightTimeWithoutUE() {
-        return weightTimeWithoutUE;
-    }
-
-    public void setWeightTimeWithoutUE(int weightTimeWithoutUE) {
-        this.weightTimeWithoutUE = weightTimeWithoutUE;
     }
 
 

@@ -212,6 +212,7 @@ public class SolverMain {
 	 * @return The results generated (also stored automatically in the database).
 	 */
 	public static List<Result> generatePlanningWithoutSync(Planning planning) {
+		planning.startProcessing();
 		Model model = new Model();
 		Solver solver = model.getSolver();
 		SolverMain solMain = new SolverMain(planning);
@@ -234,6 +235,7 @@ public class SolverMain {
 		System.out.println(solMain.makeSolutionString(solution));
 		List<Result> results = solMain.makeSolution(solution);
 		services.getPlanningService().addScheduledLessons(planning, results);
+		planning.endProcessing();
 		return results;
 	}
 	
@@ -243,6 +245,7 @@ public class SolverMain {
 	 * @return The results generated in a json format (not stored automatically in the database).
 	 */
 	public static String generatePlanningString(Planning planning) {
+		planning.startProcessing();
 		Model model = new Model();
 		Solver solver = model.getSolver();
 		SolverMain solMain = new SolverMain(planning);
@@ -266,6 +269,7 @@ public class SolverMain {
 			return "";
 		System.out.println(solMain.showSolutionsDebug(solution));
 		System.out.println(solMain.makeSolutionString(solution));
+		planning.endProcessing();
 		return solMain.makeSolutionString(solution);
 	}
 	
@@ -315,6 +319,7 @@ public class SolverMain {
 			List<Result> results = solMains[i].makeSolution(solution);
 			System.out.println(solMains[i].showSolutionsDebug(solution));
 			allResults.addAll(results);
+			planningsToGenerate[i].endProcessing();
 		}
 		return allResults;
 	}

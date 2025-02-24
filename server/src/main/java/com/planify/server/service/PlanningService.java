@@ -37,7 +37,7 @@ public class PlanningService {
     }
 
     public Planning addPlanning(Calendar calendar, String name, boolean globalUnavailability, int weightGlobalUnavailability, boolean lecturersUnavailability, int weightLecturersUnavailability, boolean synchronise, List<ConstraintSynchroniseWithTAF> constraintsSynchronisation, List<ConstraintsOfUE> constraintsOfUEs, int weightMaxTimeWithoutLesson, boolean UEInterlacing, boolean middayBreak, LocalTime startMiddayBreak, LocalTime endMiddayBreak, boolean middayGrouping, int weightMiddayGrouping, boolean lessonBalancing, int weightLessonBalancing, int weightLessonGrouping, boolean lessonGrouping, int weightTimeWithoutUE) {
-        Planning planning = new Planning(calendar, name, globalUnavailability, weightGlobalUnavailability, lecturersUnavailability, weightLecturersUnavailability, synchronise, constraintsSynchronisation, constraintsOfUEs, weightMaxTimeWithoutLesson, UEInterlacing, middayBreak, startMiddayBreak, endMiddayBreak,middayGrouping, weightMiddayGrouping,lessonBalancing, weightLessonBalancing, weightLessonGrouping, lessonGrouping, weightTimeWithoutUE);
+        Planning planning = new Planning(calendar, name, globalUnavailability, weightGlobalUnavailability, lecturersUnavailability, weightLecturersUnavailability, synchronise, constraintsSynchronisation, constraintsOfUEs, weightMaxTimeWithoutLesson, UEInterlacing, middayBreak, startMiddayBreak, endMiddayBreak,middayGrouping, weightMiddayGrouping,lessonBalancing, weightLessonBalancing, weightLessonGrouping, lessonGrouping);
         planningRepository.save(planning);
         return planning;
     }
