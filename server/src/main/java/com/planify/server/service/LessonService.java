@@ -123,6 +123,7 @@ public class LessonService {
                 .filter(unavailability -> (!unavailability.getStrict())
                         && (unavailability.getSlot().getCalendar() == calendar))
                 .map(UserUnavailability::getSlot)
+                .filter(slot -> dayService.isDayAvailableForCalendar(slot.getDay(), calendar))
                 .collect(Collectors.toList());
 
         return slots;
