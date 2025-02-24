@@ -7,15 +7,12 @@ import { Outlet, useOutletContext } from "react-router-dom";
 import useStore from "@/store/store";
 
 // Custom components
-import SidebarNavigation from "./SidebarNavigation";
+import SidebarNavigation from "./SideBarNavigation";
 import LessonList from "./LessonList";
-import SidebarActions from "./SidebarActions";
+import SidebarActions from "./SideBarActions";
 
 // Styles
 import styles from "./SideBarComponent.styles";
-
-// Custom hook for calendar generation
-import useCalendarGeneration from "@/features/side-bar/hooks/useCalendarGeneration";
 
 const SideBar = () => {
   const isOpen = useStore((state) => state.sideBarOpen);
@@ -23,10 +20,6 @@ const SideBar = () => {
   // Get the taf object from the outlet context
   const { taf } = useOutletContext();
   const { UE: lessons, id: tafID, resultPlanning } = taf;
-
-  // Use our custom hook for calendar generation
-  const { generatingCalendar, handleGenerateCalendar } =
-    useCalendarGeneration(tafID);
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -40,12 +33,7 @@ const SideBar = () => {
         <Box sx={styles.sidebarContainer} role="presentation">
           <SidebarNavigation />
           <LessonList lessons={lessons} tafID={tafID} />
-          <SidebarActions
-            tafID={tafID}
-            resultPlanning={resultPlanning}
-            handleGenerateCalendar={handleGenerateCalendar}
-            generatingCalendar={generatingCalendar}
-          />
+          <SidebarActions tafID={tafID} resultPlanning={resultPlanning} />
         </Box>
       </Drawer>
 

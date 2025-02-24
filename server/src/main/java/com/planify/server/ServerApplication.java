@@ -118,8 +118,8 @@ public class ServerApplication {
 		System.out.println("Nb lecturers : " + lessonService.findById(lesson00.getId()).get().getLessonLecturers().size());
 		System.out.println("Fin Test !!!!!!!!!!");
 		*/
-		testSolver(context);
-		if (weekService != null) return; //Just to not have warnings when we want to stops tests here.
+		//testSolver(context);
+		//if (weekService != null) return; //Just to not have warnings when we want to stops tests here.
 		/*
 		// Test of calendarService.getSlotsOrdered(idCalendar), getNumberOfSlots,
 		// getDaysSorted
@@ -584,7 +584,7 @@ public class ServerApplication {
 
 	private static void testSolver(ApplicationContext context) {
 		//testSynchronisationSeparation(context);
-		testSolver1(context, setSettingsPlanning(planningSolverTestMinMaxLessonsUeWeek()));
+		testSolver1(context, setSettingsPlanning(planningSolverTestEfficiency1()));
 		//testSolver2(context);
 		//testSolver2bis(context);
 		//testSolver3(context);
@@ -597,15 +597,15 @@ public class ServerApplication {
 		planning.setEndMiddayBreak(LocalTime.of(13, 30));
 		planning.setUEInterlacing(true);
 		
-		planning.setGlobalUnavailability(false);
+		planning.setGlobalUnavailability(true);
 		planning.setWeightGlobalUnavailability(30);
 		planning.setLecturersUnavailability(true);
 		planning.setWeightLecturersUnavailability(19);
-		planning.setLessonBalancing(false);
-		planning.setWeightLessonBalancing(0);
-		planning.setLessonGrouping(false);
+		planning.setLessonBalancing(true);
+		planning.setWeightLessonBalancing(2);
+		planning.setLessonGrouping(true);
 		planning.setWeightLessonGrouping(5);
-		planning.setMiddayGrouping(false);
+		planning.setMiddayGrouping(true);
 		planning.setWeightMiddayGrouping(1);
 		
 		planning.setWeightMaxTimeWithoutLesson(11);
@@ -623,16 +623,16 @@ public class ServerApplication {
 			//Max Lessons in a week for this UE.
 			cUe.setLessonCountInWeek(true);
 			cUe.setMaxLessonInWeek(6);
-			cUe.setMinLessonInWeek(2);
+			cUe.setMinLessonInWeek(1);
 			
 			//Min Max number of weeks to do all the lessons of the Ue.
-			cUe.setSpreading(true);
+			cUe.setSpreading(false);
 			cUe.setMaxSpreading(12);
-			cUe.setMinSpreading(3);
+			cUe.setMinSpreading(2);
 			
 			planning.getConstraintsOfUEs().add(cUe);
 		}
-		
+		System.out.println("Planning parameters set !");
 		return planning;
 	}
 	
@@ -669,7 +669,8 @@ public class ServerApplication {
 	private static void testSolver1(ApplicationContext context, Planning planning) {		
 		SolverServices solverServices = context.getBean(SolverServices.class);
 		SolverMain.setServices(solverServices);
-		SolverMain.generatePlanningWithoutSync(planning);
+		System.out.println("Yo");
+		SolverMain.generatePlanningString(planning);
 	}
 	
 	private static void testSolver2(ApplicationContext context) {
@@ -821,6 +822,53 @@ public class ServerApplication {
 		return planning;
 	}
 	
+	private static Planning planningSolverTestEfficiency1() {
+		TAF login = tafService.addTAF("Login", "", "", "");
+		Calendar cal = calendarService.addCalendar(login);
+		Planning planning = planningService.addPlanning(cal);
+		List<Week> weeks = new ArrayList<Week>();
+		List<List<Day>> days = new ArrayList<List<Day>>();
+		List<List<List<Slot>>> slots = new ArrayList<List<List<Slot>>>();
+		LocalDate startSlotDay = LocalDate.of(2022, 9, 9);
+		for (int i = 0; i < 2; i ++) {
+			weeks.add(weekService.addWeek(i, 2022));
+			days.add(new ArrayList<Day>());
+			slots.add(new ArrayList<List<Slot>>());
+			for (int j = 0; j < 5; j ++) {
+				days.getLast().add(dayService.addDay(j, weeks.getLast()));
+				slots.getLast().add(new ArrayList<Slot>());
+				LocalTime startSlotHour = LocalTime.of(8, 0);
+				for (int k = 0; k < ((j == 3) ? 4 : 7); k ++) {
+					slots.getLast().getLast().add(slotService.add(k, days.getLast().getLast(), cal, LocalDateTime.of(startSlotDay, startSlotHour), LocalDateTime.of(startSlotDay, startSlotHour.plusMinutes(75))));
+					startSlotHour = startSlotHour.plusMinutes(90);
+				}
+				startSlotDay = startSlotDay.plusDays(1);
+				if (j == 1 || j == 2) {
+					globalUnavailabilityService.addGlobalUnavailability(false, slots.getLast().getLast().get(0));
+					globalUnavailabilityService.addGlobalUnavailability(false, slots.getLast().getLast().get(3));
+					globalUnavailabilityService.addGlobalUnavailability(false, slots.getLast().getLast().get(6));
+				}
+				else {
+					for (Slot slot : slots.getLast().getLast())
+						globalUnavailabilityService.addGlobalUnavailability(true, slot);
+				}
+			}
+			startSlotDay = startSlotDay.plusDays(4);
+		}
+		UE ue1 = ueService.addUE("UE-1", "", login);
+		UE ue2 = ueService.addUE("UE-2", "", login);
+		
+		List<Lesson> lessonsUE1 = createTypeLesson(7,"UE1", ue1);
+		List<Lesson> lessonsUE2 = createTypeLesson(7,"UE2", ue2);
+		sequencingService.add(lessonsUE1.get(0), lessonsUE1.get(1));
+		sequencingService.add(lessonsUE1.get(2), lessonsUE1.get(3));
+		sequencingService.add(lessonsUE2.get(0), lessonsUE2.get(1));
+		sequencingService.add(lessonsUE2.get(1), lessonsUE2.get(2));
+		sequencingService.add(lessonsUE2.get(5), lessonsUE2.get(6));
+		
+		return planning;
+	}
+	
 	private static Planning planningSolverOneDay() {
 		TAF dcl = tafService.addTAF("DCL-Day", "", "", "");
 		Calendar cal = calendarService.addCalendar(dcl);
@@ -860,7 +908,7 @@ public class ServerApplication {
 	}
 	
 	private static Planning planningSolverTestMinMaxLessonsUeWeek() {
-		TAF dcl = tafService.addTAF("DCL-Day", "", "", "");
+		TAF dcl = tafService.addTAF("DCL-Weeks", "", "", "");
 		Calendar cal = calendarService.addCalendar(dcl);
 		Planning planning = planningService.addPlanning(cal);
 		List<Week> weeks = new ArrayList<Week>();
@@ -875,7 +923,7 @@ public class ServerApplication {
 				days.getLast().add(dayService.addDay(j, weeks.getLast()));
 				slots.getLast().add(new ArrayList<Slot>());
 				LocalTime startSlotHour = LocalTime.of(8, 0);
-				for (int k = 0; k < 7; k ++) {
+				for (int k = 0; k < 4; k ++) {
 					slots.getLast().getLast().add(slotService.add(k, days.getLast().getLast(), cal, LocalDateTime.of(startSlotDay, startSlotHour), LocalDateTime.of(startSlotDay, startSlotHour.plusMinutes(75))));
 					startSlotHour = startSlotHour.plusMinutes(90);
 				}
@@ -886,7 +934,7 @@ public class ServerApplication {
 		}
 		UE ue = ueService.addUE("UE", "", dcl);
 		List<Lesson> lessons = new ArrayList<Lesson>();
-		for (int l = 0; l < 7; l ++)
+		for (int l = 0; l < 10; l ++)
 			lessons.add(lessonService.add("Lesson " + l, "", ue));
 		return planning;
 	}
@@ -1053,6 +1101,14 @@ public class ServerApplication {
 		for (int i = 0; i < nb; i ++) {
 			Lesson cours = lessonService.add(name + i, "", ue);
 			if (i != 0) antecedenceService.addAntecedence(lCours.getLast(), cours);
+			lCours.add(cours);
+		}
+		return lCours;
+	}
+	private static List<Lesson> createTypeLesson(int nb, String name, UE ue){
+		List<Lesson> lCours = new ArrayList<Lesson>();
+		for (int i = 0; i < nb; i ++) {
+			Lesson cours = lessonService.add(name + i, "", ue);
 			lCours.add(cours);
 		}
 		return lCours;

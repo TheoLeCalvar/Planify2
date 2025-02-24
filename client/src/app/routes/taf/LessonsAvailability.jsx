@@ -13,11 +13,12 @@ import ExportButton from "@/features/calendar/components/ExportButton";
 import generateClassSlots from "@/features/calendar/utils/classSlot";
 import ResetButton from "@/features/calendar/components/ResetButton";
 import ImportExclusionButton from "@/features/calendar/components/ImportExclusionButton";
-import { useOutletContext, useLoaderData } from "react-router-dom";
+import { useOutletContext, useLoaderData, redirect } from "react-router-dom";
 import SaveButton from "@/features/calendar/components/SaveButton";
 import { USE_MOCK_DATA } from "@/config/constants";
 import axiosInstance from "@/config/axiosConfig";
 import { JSONToCalendarEvent } from "@/features/calendar/utils/calendarEvent";
+import { toast } from "react-toastify";
 
 export async function loader({ params }) {
   if (USE_MOCK_DATA) {
@@ -36,11 +37,18 @@ export async function action({ request, params }) {
     return { ok: true };
   }
 
-  const result = await axiosInstance.put(
-    `/taf/${params.idTAF}/availability`,
-    data,
-  );
-  return { ok: result.status === 200 };
+  return await axiosInstance
+    .put(`/taf/${params.idTAF}/availability`, data)
+    .then(() => {
+      toast.success("Disponibilité des créneaux de cours mise à jour");
+      return redirect("..");
+    })
+    .catch(() => {
+      toast.error(
+        "Erreur lors de la mise à jour de la disponibilité des créneaux de cours",
+      );
+      return null;
+    });
 }
 
 export default function LessonsAvailability() {
