@@ -699,6 +699,8 @@ public class LessonController {
 
         User user = userOpt.get();
 
+        user.setLastUpdatedAvailability(LocalDateTime.now());
+
         for (UserUnavailabilityShort userAvailability : userAvailabilities) {
             Optional<Slot> slotOpt = slotService.findById(userAvailability.getId());
             if (slotOpt.isPresent()) {
