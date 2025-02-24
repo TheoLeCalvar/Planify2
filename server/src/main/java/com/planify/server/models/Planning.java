@@ -75,8 +75,6 @@ public class Planning {
     private boolean lessonGrouping;
     private int weightLessonGrouping;
 
-    // Weight of time without an UE
-    private int weightTimeWithoutUE;
 
     // Result
     @ElementCollection
@@ -98,7 +96,7 @@ public class Planning {
         this.status = Status.NOT_GENERATED;
     }
 
-    public Planning(Calendar calendar, String name, boolean globalUnavailability, int weightGlobalUnavailability, boolean lecturersUnavailability, int weightLecturersUnavailability, boolean synchronise, List<ConstraintSynchroniseWithTAF> constraintsSynchronisation, List<ConstraintsOfUE> constraintsOfUEs, int weightMaxTimeWithoutLesson, boolean UEInterlacing, boolean middayBreak, LocalTime startMiddayBreak, LocalTime endMiddayBreak, boolean middayGrouping, int weightMiddayGrouping, boolean lessonBalancing, int weightLessonBalancing, int weightLessonGrouping, boolean lessonGrouping, int weightTimeWithoutUE) {
+    public Planning(Calendar calendar, String name, boolean globalUnavailability, int weightGlobalUnavailability, boolean lecturersUnavailability, int weightLecturersUnavailability, boolean synchronise, List<ConstraintSynchroniseWithTAF> constraintsSynchronisation, List<ConstraintsOfUE> constraintsOfUEs, int weightMaxTimeWithoutLesson, boolean UEInterlacing, boolean middayBreak, LocalTime startMiddayBreak, LocalTime endMiddayBreak, boolean middayGrouping, int weightMiddayGrouping, boolean lessonBalancing, int weightLessonBalancing, int weightLessonGrouping, boolean lessonGrouping) {
         this.calendar = calendar;
         this.name = name;
         this.scheduledLessons = new ArrayList<ScheduledLesson>();
@@ -121,11 +119,10 @@ public class Planning {
         this.weightLessonBalancing = weightLessonBalancing;
         this.weightLessonGrouping = weightLessonGrouping;
         this.lessonGrouping = lessonGrouping;
-        this.weightTimeWithoutUE = weightTimeWithoutUE;
         this.status = Status.NOT_GENERATED;
     }
 
-    public Planning(Calendar calendar, String name, boolean globalUnavailability, int weightGlobalUnavailability, boolean lecturersUnavailability, int weightLecturersUnavailability, boolean synchronise, boolean UEInterlacing, boolean middayBreak, LocalTime startMiddayBreak, LocalTime endMiddayBreak, boolean middayGrouping, int weightMiddayGrouping, boolean lessonBalancing, int weightLessonBalancing, int weightLessonGrouping, boolean lessonGrouping, int weightTimeWithoutUE) {
+    public Planning(Calendar calendar, String name, boolean globalUnavailability, int weightGlobalUnavailability, boolean lecturersUnavailability, int weightLecturersUnavailability, boolean synchronise, boolean UEInterlacing, boolean middayBreak, LocalTime startMiddayBreak, LocalTime endMiddayBreak, boolean middayGrouping, int weightMiddayGrouping, boolean lessonBalancing, int weightLessonBalancing, int weightLessonGrouping, boolean lessonGrouping) {
         this.calendar = calendar;
         this.name = name;
         this.scheduledLessons = new ArrayList<ScheduledLesson>();
@@ -147,7 +144,6 @@ public class Planning {
         this.weightLessonBalancing = weightLessonBalancing;
         this.weightLessonGrouping = weightLessonGrouping;
         this.lessonGrouping = lessonGrouping;
-        this.weightTimeWithoutUE = weightTimeWithoutUE;
         this.status = Status.NOT_GENERATED;
     }
 
@@ -343,14 +339,6 @@ public class Planning {
     	return this.getConstraintsOfUEs().stream().filter(c -> c.isLessonCountInWeek()).findAny().isPresent();
     }
 
-    public int getWeightTimeWithoutUE() {
-        return weightTimeWithoutUE;
-    }
-
-    public void setWeightTimeWithoutUE(int weightTimeWithoutUE) {
-        this.weightTimeWithoutUE = weightTimeWithoutUE;
-    }
-
     public String getName() {
         return name;
     }
@@ -414,7 +402,6 @@ public class Planning {
         if (config.getWeightLessonBalancing() != null) this.setWeightLessonBalancing(config.getWeightLessonBalancing());
         if (config.isLessonGrouping() != null) this.setLessonGrouping(config.isLessonGrouping());
         if (config.getWeightLessonGrouping() != null) this.setWeightLessonGrouping(config.getWeightLessonGrouping());
-        if (config.getWeightTimeWithoutUE() != null) this.setWeightTimeWithoutUE(config.getWeightTimeWithoutUE());
 
         if (config.getConstraintsSynchronisation() != null && !config.getConstraintsSynchronisation().isEmpty()) {
             for (Config.CSyncrho cs : config.getConstraintsSynchronisation()) {
