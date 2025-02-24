@@ -635,6 +635,7 @@ public class LessonController {
             User user = userService.findById(managerId).orElseThrow(() -> new IllegalArgumentException("The User doesn't exist"));
             tafManagerService.addTAFManager(user,taf);
         }
+        Calendar c = calendarService.addCalendar(taf);
         return ResponseEntity.ok("Taf had been added");
     }
 
@@ -809,21 +810,23 @@ public class LessonController {
 
         //Addition of the UEs constraints
         List<ConstraintsOfUE> cUEs = new ArrayList<>();
-        for (UE ue : taf.getUes()) {
-            ConstraintsOfUE c = new ConstraintsOfUE(
-                    ue,
-                    planning,
-                    true,
-                    6,
-                    1,
-                    false,
-                    true,
-                    2,
-                    false,
-                    12,
-                    1
-            );
-            cUEs.add(c);
+        if (taf.getUes()!=null) {
+            for (UE ue : taf.getUes()) {
+                ConstraintsOfUE c = new ConstraintsOfUE(
+                        ue,
+                        planning,
+                        true,
+                        6,
+                        1,
+                        false,
+                        true,
+                        2,
+                        false,
+                        12,
+                        1
+                );
+                cUEs.add(c);
+            }
         }
         planning.setConstraintsOfUEs(cUEs);
 
