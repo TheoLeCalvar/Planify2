@@ -56,6 +56,46 @@ public class CalendarController {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(new ErrorResponse("No UE", 409));
         }
+        for (UE ue : taf.getUes()) {
+            if (ue.getLessons().isEmpty()) {
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                        .body(new ErrorResponse("No lessons in UE", 409));
+            }
+        }
+        
+
+        Planning realPlanning = Planning.setSettingsPlanning(planningService.addPlanning(calendar));
+        // Fin de à supprimer
+        
+        SolverExecutor.generatePlanning(realPlanning);
+        
+        return ResponseEntity.ok("The solver is launched ! (PlanningId : " + realPlanning.getId() + ")");
+    }
+
+    @GetMapping(value = "/solver/check/<configId>", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> checkSolverMain(@PathVariable Long configId) {
+        /*Optional<Planning> planning = planningService.findById(configId);
+        if (planning.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorResponse("No Planning with this id was found", 404));
+        }
+        Planning realPlanning = planning.get();*/
+
+        // A supprimer
+        TAF taf = tafService.findById(configId).orElseThrow(() -> new IllegalArgumentException("TAF not found"));
+        if (taf.getCalendars().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(new ErrorResponse("No calendar", 409));
+        }
+        Calendar calendar = taf.getCalendars().getFirst();
+        if (calendar.getSlots().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(new ErrorResponse("No slots", 409));
+        }
+        if (taf.getUes().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(new ErrorResponse("No UE", 409));
+        }
         List<LessonLecturer> lessonLecturers = new ArrayList<>();
         List<Lesson> lessons = new ArrayList<>();
         for (UE ue : taf.getUes()) {
@@ -76,12 +116,12 @@ public class CalendarController {
         }
         
 
-        Planning realPlanning = Planning.setSettingsPlanning(planningService.addPlanning(calendar));
+        //Planning realPlanning = Planning.setSettingsPlanning(planningService.addPlanning(calendar));
         // Fin de à supprimer
         
-        SolverExecutor.generatePlanning(realPlanning);
+        //SolverExecutor.generatePlanning(realPlanning);
         
-        return ResponseEntity.ok("The solver is launched ! (PlanningId : " + realPlanning.getId() + ")");
+        return ResponseEntity.ok("Checklist OK");
     }
 
     @GetMapping(value = "/solver/history/{idTaf}", produces = MediaType.APPLICATION_JSON_VALUE )
