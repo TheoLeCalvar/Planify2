@@ -121,6 +121,12 @@ public class Planning {
         this.lessonGrouping = planning.lessonGrouping;
         this.status = Status.WAITING_TO_BE_PROCESSED;
     }
+    
+    public static Planning[] planningsToGenerate(Planning[] planningsToGenerate) {
+    	Planning[] plannings = new Planning[planningsToGenerate.length];
+    	for (int i = 0; i < plannings.length; i ++) plannings[i] = new Planning(planningsToGenerate[i]);
+    	return plannings;
+    }
 
     public Planning(Calendar calendar, String name, boolean globalUnavailability, int weightGlobalUnavailability, boolean lecturersUnavailability, int weightLecturersUnavailability, boolean synchronise, List<ConstraintSynchroniseWithTAF> constraintsSynchronisation, List<ConstraintsOfUE> constraintsOfUEs, int weightMaxTimeWithoutLesson, boolean UEInterlacing, boolean middayBreak, LocalTime startMiddayBreak, LocalTime endMiddayBreak, boolean middayGrouping, int weightMiddayGrouping, boolean lessonBalancing, int weightLessonBalancing, int weightLessonGrouping, boolean lessonGrouping) {
         this.calendar = calendar;
