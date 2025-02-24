@@ -43,7 +43,39 @@ public class CalendarController {
 
         // A supprimer
         TAF taf = tafService.findById(configId).orElseThrow(() -> new IllegalArgumentException("TAF not found"));
+        if (taf.getCalendars().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(new ErrorResponse("No calendar", 409));
+        }
         Calendar calendar = taf.getCalendars().getFirst();
+        if (calendar.getSlots().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(new ErrorResponse("No slots", 409));
+        }
+        if (taf.getUes().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(new ErrorResponse("No UE", 409));
+        }
+        List<LessonLecturer> lessonLecturers = new ArrayList<>();
+        List<Lesson> lessons = new ArrayList<>();
+        for (UE ue : taf.getUes()) {
+            if (ue.getLessons().isEmpty()) {
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                        .body(new ErrorResponse("No lessons in UE", 409));
+            }
+            lessons.addAll(ue.getLessons());
+        }
+        for (Lesson lesson : lessons) {
+            lessonLecturers.addAll(lesson.getLessonLecturers());
+        }
+        for (LessonLecturer lecturer : lessonLecturers) {
+            if (lecturer.getUser().getLastUpdatedAvailability() == null) {
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                        .body(new ErrorResponse("Lecturer availability not filled", 409));
+            }
+        }
+        
+
         Planning realPlanning = Planning.setSettingsPlanning(planningService.addPlanning(calendar));
         // Fin de à supprimer
         
