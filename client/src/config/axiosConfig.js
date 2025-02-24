@@ -30,15 +30,28 @@ axiosInstance.interceptors.response.use(
   (error) => {
     // Vous pouvez gérer les erreurs ici, comme des redirections si l'utilisateur n'est pas authentifié
     console.log("Erreur capturée par Axios", error);
-    if (error.request) {
-      return Promise.reject({ ...error, statusText: "Serveur injoignable" });
-    } else if (!error.response) {
+    if (error.response) {
+      if (error.response.status === 401) {
+        // Rediriger vers la page de connexion
+        window.location.href = "/login";
+      }
+    } else {
       return Promise.reject({
         ...error,
-        statusText: "Erreur inconnue lors de la requête",
+        statusText:
+          "Erreur code" + error.response.status + " - " + error.message,
       });
     }
-    return Promise.reject(error);
+    if (error.request) {
+      return Promise.reject({
+        ...error,
+        statusText: "Serveur injoignable. " + error.message,
+      });
+    }
+    return Promise.reject({
+      ...error,
+      statusText: "Erreur inconnue lors de la requête. " + error.message,
+    });
   },
 );
 

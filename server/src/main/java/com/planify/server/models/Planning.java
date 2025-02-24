@@ -423,7 +423,50 @@ public class Planning {
                 }
             }
         }
-
-
     }
+    
+    public static Planning setSettingsPlanning(Planning planning) {
+		planning.setMiddayBreak(true);
+		planning.setStartMiddayBreak(LocalTime.of(12, 00));
+		planning.setEndMiddayBreak(LocalTime.of(13, 30));
+		planning.setUEInterlacing(true);
+		
+		planning.setGlobalUnavailability(true);
+		planning.setWeightGlobalUnavailability(30);
+		planning.setLecturersUnavailability(true);
+		planning.setWeightLecturersUnavailability(19);
+		planning.setLessonBalancing(true);
+		planning.setWeightLessonBalancing(2);
+		planning.setLessonGrouping(true);
+		planning.setWeightLessonGrouping(5);
+		planning.setMiddayGrouping(true);
+		planning.setWeightMiddayGrouping(1);
+		
+		planning.setWeightMaxTimeWithoutLesson(11);
+		
+		//Add Weight for MaxTimeWithoutLesson !
+		//Add lecturerPreference !
+		for (UE ue : planning.getCalendar().getTaf().getUes()) {
+			ConstraintsOfUE cUe = new ConstraintsOfUE(ue, planning);
+			//Max time without lesson of this ue (number of day/week without lessons
+			//(i.e. for a duration of 1 week, only max one week in a row without lesson is prefered))
+			cUe.setMaxTimeWithoutLesson(true);
+			cUe.setMaxTimeWLUnitInWeeks(true);
+			cUe.setMaxTimeWLDuration(1);
+			
+			//Max Lessons in a week for this UE.
+			cUe.setLessonCountInWeek(true);
+			cUe.setMaxLessonInWeek(6);
+			cUe.setMinLessonInWeek(1);
+			
+			//Min Max number of weeks to do all the lessons of the Ue.
+			cUe.setSpreading(false);
+			cUe.setMaxSpreading(12);
+			cUe.setMinSpreading(2);
+			
+			planning.getConstraintsOfUEs().add(cUe);
+		}
+		System.out.println("Planning parameters set !");
+		return planning;
+	}
 }

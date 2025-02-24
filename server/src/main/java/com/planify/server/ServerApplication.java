@@ -118,8 +118,8 @@ public class ServerApplication {
 		System.out.println("Nb lecturers : " + lessonService.findById(lesson00.getId()).get().getLessonLecturers().size());
 		System.out.println("Fin Test !!!!!!!!!!");
 		*/
-		testSolver(context);
-		if (weekService != null) return; //Just to not have warnings when we want to stops tests here.
+		//testSolver(context);
+		//if (weekService != null) return; //Just to not have warnings when we want to stops tests here.
 		/*
 		// Test of calendarService.getSlotsOrdered(idCalendar), getNumberOfSlots,
 		// getDaysSorted

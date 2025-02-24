@@ -221,6 +221,7 @@ public class SolverMain {
 		solMain.setConstraints(model);
 		IntVar obj = solMain.setPreferences(model);
 		setStrategy(solMain, solver);
+		solver.showSolutions();
 		Solution solution;
 		System.out.println("Start Solving !");
 		if (obj != null) solution = solver.findOptimalSolution(obj, false);

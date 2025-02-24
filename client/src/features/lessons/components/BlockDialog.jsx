@@ -54,6 +54,9 @@ const DependenciesSelect = ({
             {block.title}
           </MenuItem>
         ))}
+      {allBlocks.length === 0 && (
+        <MenuItem disabled>Aucun bloc disponible</MenuItem>
+      )}
     </Select>
   </FormControl>
 );
