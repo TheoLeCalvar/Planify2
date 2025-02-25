@@ -44,17 +44,19 @@ export default function TAFConfigs() {
 
   return (
     <>
-      <Typography variant="h5" gutterBottom mt={2}>
-        Contraintes de génération
-      </Typography>
       <Box
         sx={{
           p: 1,
           display: "flex",
-          flexDirection: "column",
+          flexDirection: "row",
           alignItems: "center",
+          gap: 1,
         }}
       >
+        <Typography variant="h5" gutterBottom>
+          Configuration actuelle :
+        </Typography>
+
         <FormControl sx={{ minWidth: 300 }}>
           <InputLabel id="select-label-configs">
             Choisir une configuration
