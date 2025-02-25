@@ -10,6 +10,7 @@ import com.planify.server.controller.returnsClass.Config;
 import com.planify.server.controller.returnsClass.PlanningReturn;
 import com.planify.server.controller.returnsClass.TAFSynchronised;
 import com.planify.server.models.*;
+import com.planify.server.models.constraints.ConstraintSynchroniseWithTAF;
 import com.planify.server.service.PlanningService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -35,21 +36,27 @@ public class CalendarController {
     final String GREEN = "\u001B[32m";
 
     @GetMapping(value = "/solver/run/{configId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> runSolverMain(@PathVariable Long configId) {
-        /*Optional<Planning> planning = planningService.findById(configId);
+    public ResponseEntity<?> runSolverMain(@PathVariable Long configId, @RequestBody Config config) {
+        Optional<Planning> planning = planningService.findById(configId);
         if (planning.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ErrorResponse("No Planning with this id was found", 404));
         }
-        Planning realPlanning = planning.get();*/
+        Planning realPlanning = planning.get();
 
-        // A supprimer
-        TAF taf = tafService.findById(configId).orElseThrow(() -> new IllegalArgumentException("TAF not found"));
+        for (Config.CSyncrho cSyncrho : config.getConstraintsSynchronisation()) {
+            Planning otherPlanning = planningService.findById(cSyncrho.getOtherPlanning()).orElseThrow(()-> new IllegalArgumentException("The other planning does nott exist"));
+            realPlanning.addConstraintSynchroniseWithTAF(new ConstraintSynchroniseWithTAF(realPlanning, otherPlanning, cSyncrho.isEnabled(), cSyncrho.isGenerateOtherPlanning() ));
+        }
+
+        Calendar calendar = realPlanning.getCalendar();
+        TAF taf = calendar.getTaf();
+
         if (taf.getCalendars().isEmpty()) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(new ErrorResponse("No calendar", 409));
         }
-        Calendar calendar = taf.getCalendars().getFirst();
+
         if (calendar.getSlots().isEmpty()) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(new ErrorResponse("No slots", 409));
@@ -64,10 +71,6 @@ public class CalendarController {
                         .body(new ErrorResponse("No lessons in UE", 409));
             }
         }
-        
-
-        Planning realPlanning = Planning.setSettingsPlanning(planningService.addPlanning(calendar));
-        // Fin de à supprimer
         
         SolverExecutor.generatePlanning(realPlanning);
         
