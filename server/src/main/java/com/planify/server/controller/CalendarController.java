@@ -141,7 +141,7 @@ public class CalendarController {
         }
         CheckOK ok = new CheckOK(tafSynchroniseds);
 
-        return ResponseEntity.ok("ok");
+        return ResponseEntity.ok(ok);
     }
 
     @GetMapping(value = "/solver/history/{idTaf}", produces = MediaType.APPLICATION_JSON_VALUE )
