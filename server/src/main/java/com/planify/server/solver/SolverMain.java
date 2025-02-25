@@ -21,6 +21,7 @@ import org.chocosolver.solver.constraints.nary.automata.FA.utils.Counter;
 import org.chocosolver.solver.expression.discrete.arithmetic.ArExpression;
 import org.chocosolver.solver.search.loop.monitors.SolvingStatisticsFlow;
 import org.chocosolver.solver.search.strategy.Search;
+import org.chocosolver.solver.search.strategy.selectors.values.IntDomainLast;
 import org.chocosolver.solver.search.strategy.selectors.values.IntDomainMax;
 import org.chocosolver.solver.search.strategy.selectors.values.IntDomainMin;
 import org.chocosolver.solver.search.strategy.selectors.variables.ConflictHistorySearch;
@@ -221,7 +222,7 @@ public class SolverMain {
 		solMain.initialiseVars(model, nbSlots, nbLessons, isUesNeeded(planning), isDaysNeeded(planning), isWeeksNeeded(planning));
 		solMain.setConstraints(model);
 		IntVar obj = solMain.setPreferences(model);
-		setStrategy(solMain, solver);
+		setStrategy(solMain, model);
 		solver.showSolutions();
 		Solution solution;
 		System.out.println("Start Solving !");
@@ -250,7 +251,7 @@ public class SolverMain {
 		solMain.initialiseVars(model, nbSlots, nbLessons, isUesNeeded(planning), isDaysNeeded(planning), isWeeksNeeded(planning));
 		solMain.setConstraints(model);
 		IntVar obj = solMain.setPreferences(model);
-		setStrategy(solMain, solver);
+		setStrategy(solMain, model);
 		System.out.println("Start Solving !");
 		//solver.verboseSolving(1000);
 		solver.showSolutions();
@@ -300,7 +301,7 @@ public class SolverMain {
 		}
 		setSynchronisationConstraints(model, solMains, planningsGenerated);
 		IntVar globObj = model.sum("globObj", objs);
-		setStrategy(solMains, solver);
+		setStrategy(solMains, model);
 		//solver.showSolutions();
 		if (globObj != null) model.setObjective(false, globObj);
 		Solution solution = solveModelPlannings(model, solMains);
@@ -1097,15 +1098,21 @@ public class SolverMain {
 	 * @param solMain The SolverMain object corresponding to the planning to generate.
 	 * @param solver The solver of the model.
 	 */
-	private static void setStrategy(SolverMain solMain, Solver solver) {
+	private static void setStrategy(SolverMain solMain, Model model) {
+		Solver solver = model.getSolver();
+		Solution solution = solver.defaultSolution();
 		IntVar[] decisionVars = solMain.getDecisionVars(); // Total time with proof of optimality (Time to find optimal solution) on the planning planningSolverTestMinMaxLessonsUeWeek() (in ServerApplication).
-		//solver.setSearch(Search.minDomLBSearch(decisionVars)); // 149 s (3 s)
-		solver.setSearch(Search.minDomUBSearch(decisionVars)); // 155 s (2 s)
-		//solver.setSearch(Search.activityBasedSearch(decisionVars)); // > 15 min (36 s)
-		//solver.setSearch(Search.conflictHistorySearch(decisionVars)); // > 5min (> 5 min)
-		//solver.setSearch(Search.intVarSearch(new ConflictHistorySearch<>(decisionVars, 0),new IntDomainMax(), decisionVars)); // >5 min (> 5 min)
-		//solver.setSearch(Search.domOverWDegSearch(decisionVars)); // > 5 min (> 5 min)
-		//solver.setSearch(Search.intVarSearch(new DomOverWDeg<>(decisionVars, 0),new IntDomainMax(), decisionVars)); // > 12 min (> 12 min)
+		//solver.setSearch(Search.minDomLBSearch(decisionVars)); // 496 s (158)
+		//solver.setSearch(Search.minDomUBSearch(decisionVars)); // 768 s (347)
+		//solver.setSearch(Search.activityBasedSearch(decisionVars)); // 
+		//solver.setSearch(Search.conflictHistorySearch(decisionVars)); // 
+		//solver.setSearch(Search.intVarSearch(new ConflictHistorySearch<>(decisionVars, 0),new IntDomainMax(), decisionVars)); //
+		//solver.setSearch(Search.domOverWDegSearch(decisionVars)); //
+		//solver.setSearch(Search.intVarSearch(new DomOverWDeg<>(decisionVars, 0),new IntDomainMax(), decisionVars)); //
+		//solver.setSearch(Search.lastConflict(Search.intVarSearch(new FirstFail(model),new IntDomainLast(solution, new IntDomainMax(), null),decisionVars), 1 )); //1306 (631)
+		//solver.setSearch(Search.lastConflict(Search.intVarSearch(new FirstFail(model),new IntDomainLast(solution, new IntDomainMin(), null),decisionVars), 1 )); //912 (45)
+		//solver.setSearch(Search.lastConflict(Search.intVarSearch(new FirstFail(model),new IntDomainMin(),decisionVars), 1 )); //638 (36)
+		solver.setSearch(Search.lastConflict(Search.intVarSearch(new FirstFail(model),new IntDomainMax(),decisionVars), 1 )); //638 (36)
 	}
 	
 	/**
@@ -1113,14 +1120,16 @@ public class SolverMain {
 	 * @param solMains The SolverMain objects related to the plannings to generate.
 	 * @param solver The solver of the model.
 	 */
-	private static void setStrategy(SolverMain[] solMains, Solver solver) {
+	private static void setStrategy(SolverMain[] solMains, Model model) {
 		// 2 semaines, mardi mercredi, préférence globale pas premier, dernier et milieu.
 		// 2 ues, [2,2,1,1,1], [3,1,1,2]
-		// 69 obj.
+		// 45 obj.
+		Solver solver = model.getSolver();
+		Solution solution = solver.defaultSolution();
 		IntVar[] decisionVars = ArrayUtils.flatten(IntStream.range(0, solMains.length).
 									mapToObj(i -> solMains[i].getDecisionVars()).toArray(IntVar[][]::new));  
-		solver.setSearch(Search.minDomLBSearch(decisionVars));
-		//solver.setSearch(Search.minDomUBSearch(decisionVars));
+		//solver.setSearch(Search.minDomLBSearch(decisionVars));
+		solver.setSearch(Search.minDomUBSearch(decisionVars));
 	}
 	
 	private IntVar[] getDecisionVars() {
@@ -1221,66 +1230,3 @@ public class SolverMain {
 		return res.toString();
 	}	
 }
-/*
-Rust :
-
-runtime environment performance
-fast reliable productive
-compiled
-static typing
-imperative with some functional
-no garbage collection
-guarantee
-
-vs Python
-Much faster
-much lower memory use
-multi-threading
-pattern matching
-many fewer runtime (static typing)
-algebraic data types.
-
-vs Java
-No JVM or GC pauses
-Much lower memory
-Zero-cost abstraction
-Pattern matching
-ConcurrentModificationException
-Unified build system (no maven/...)
-dependency management
-
-vs C/C++
-No segfaults
-No buffer overflows
-No null pointer
-No data race
-Powerful type
-Unified build system
-Dependency management
-
-vs Go
-No GC pauses
-lower memory use
-No null pointer
-Nicer error handling
-Safe concurrency
-Stronger type system
-Zero-cost abstraction
-Dependency management
-
-
-Nice and efficient generics
-Algebraic data types + pattern
-Modern tooling
--> Test and documentation
-
-Pointers are checked at compile-time
-Thread-safety from types
-No hidden states
-
-No GC or runtime
-Control allocation and dispatch
-Can write + wrap low-level code
-
-
-*/
