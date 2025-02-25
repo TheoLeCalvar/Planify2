@@ -28,7 +28,11 @@ import dayjs from "dayjs";
 
 export async function loader({ params }) {
   if (params.idConfig) {
-    const response = await axiosInstance.get(`/taf/${params.idTAF}/configs`);
+    const response = await axiosInstance.get(`/config/${params.idConfig}`);
+    const responseData = response.data;
+    Object.keys(responseData).forEach((key) => {
+      responseData[key] = String(responseData[key]);
+    });
     return response.data;
   } else {
     return {};

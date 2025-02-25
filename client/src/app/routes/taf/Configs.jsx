@@ -67,7 +67,7 @@ export default function TAFConfigs() {
           >
             {options.map((option) => (
               <MenuItem key={option.id} value={option.id}>
-                {option.timestamp}
+                {option.name}
               </MenuItem>
             ))}
           </Select>
