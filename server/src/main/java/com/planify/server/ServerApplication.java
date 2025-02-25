@@ -630,6 +630,8 @@ public class ServerApplication {
 			cUe.setMaxSpreading(12);
 			cUe.setMinSpreading(2);
 			
+			cUe.setLessonGroupingNbLessons(new int[] {2,3});
+			
 			planning.getConstraintsOfUEs().add(cUe);
 		}
 		System.out.println("Planning parameters set !");

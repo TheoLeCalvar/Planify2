@@ -6,6 +6,7 @@ import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -252,7 +253,6 @@ public class SolverMain {
 		solMain.setConstraints(model);
 		IntVar obj = solMain.setPreferences(model);
 		setStrategy(solMain, model);
-		System.out.println("Start Solving !");
 		//solver.verboseSolving(1000);
 		solver.showSolutions();
 		//solver.showDecisions();
@@ -981,10 +981,8 @@ public class SolverMain {
 		List<IntVar> distancesFromPreferedValues = new ArrayList<IntVar>();
  		List<UE> ues = getUes();
 		int nbUe = ues.size();
-		int[] nbLessonsPrefered = new int[] {2,3}; //TODO Add the configuration for each ue.
- 		int[][] preferedVals = IntStream.range(0, nbUe).mapToObj(i -> nbLessonsPrefered).toArray(int[][]::new);
- 		int[][] costs = IntStream.range(0, nbUe).mapToObj(i -> getCostsTblRegroupLessons(preferedVals[i], nbMaxSlotsDay)).toArray(int[][]::new);
-		int iDay = 0;
+ 		int[][] costs = ues.stream().map(ue -> getCostsTblRegroupLessons(getConstraintsOfUe(ue).getLessonGroupingNbLessons(), nbMaxSlotsDay)).toArray(int[][]::new);
+ 		int iDay = 0;
 		int[] idUes = getArrayInt(getIdMUe(ues.stream().toArray(UE[]::new)));
 		for (List<Slot> slots : slotDays) {
 			List<IntVar> cnts = new ArrayList<IntVar>();
