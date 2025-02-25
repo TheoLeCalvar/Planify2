@@ -5,9 +5,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import com.planify.server.controller.returnsClass.CheckOK;
 import com.planify.server.controller.returnsClass.Config;
 import com.planify.server.controller.returnsClass.PlanningReturn;
+import com.planify.server.controller.returnsClass.TAFSynchronised;
 import com.planify.server.models.*;
+import com.planify.server.models.constraints.ConstraintSynchroniseWithTAF;
 import com.planify.server.service.PlanningService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -33,21 +36,27 @@ public class CalendarController {
     final String GREEN = "\u001B[32m";
 
     @GetMapping(value = "/solver/run/{configId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> runSolverMain(@PathVariable Long configId) {
-        /*Optional<Planning> planning = planningService.findById(configId);
+    public ResponseEntity<?> runSolverMain(@PathVariable Long configId, @RequestBody Config config) {
+        Optional<Planning> planning = planningService.findById(configId);
         if (planning.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ErrorResponse("No Planning with this id was found", 404));
         }
-        Planning realPlanning = planning.get();*/
+        Planning realPlanning = planning.get();
 
-        // A supprimer
-        TAF taf = tafService.findById(configId).orElseThrow(() -> new IllegalArgumentException("TAF not found"));
+        for (Config.CSyncrho cSyncrho : config.getConstraintsSynchronisation()) {
+            Planning otherPlanning = planningService.findById(cSyncrho.getOtherPlanning()).orElseThrow(()-> new IllegalArgumentException("The other planning does nott exist"));
+            realPlanning.addConstraintSynchroniseWithTAF(new ConstraintSynchroniseWithTAF(realPlanning, otherPlanning, cSyncrho.isEnabled(), cSyncrho.isGenerateOtherPlanning() ));
+        }
+
+        Calendar calendar = realPlanning.getCalendar();
+        TAF taf = calendar.getTaf();
+
         if (taf.getCalendars().isEmpty()) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(new ErrorResponse("No calendar", 409));
         }
-        Calendar calendar = taf.getCalendars().getFirst();
+
         if (calendar.getSlots().isEmpty()) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(new ErrorResponse("No slots", 409));
@@ -63,10 +72,6 @@ public class CalendarController {
             }
         }
         
-
-        Planning realPlanning = Planning.setSettingsPlanning(planningService.addPlanning(calendar));
-        // Fin de à supprimer
-        
         SolverExecutor.generatePlanning(realPlanning);
         
         return ResponseEntity.ok("The solver is launched ! (PlanningId : " + realPlanning.getId() + ")");
@@ -74,24 +79,26 @@ public class CalendarController {
 
     @GetMapping(value = "/solver/check/<configId>", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> checkSolverMain(@PathVariable Long configId) {
-        /*Optional<Planning> planning = planningService.findById(configId);
-        if (planning.isEmpty()) {
+        Optional<Planning> oPlanning = planningService.findById(configId);
+        if (oPlanning.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ErrorResponse("No Planning with this id was found", 404));
         }
-        Planning realPlanning = planning.get();*/
+        Planning planning = oPlanning.get();
 
-        // A supprimer
-        TAF taf = tafService.findById(configId).orElseThrow(() -> new IllegalArgumentException("TAF not found"));
-        if (taf.getCalendars().isEmpty()) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(new ErrorResponse("No calendar", 409));
-        }
-        Calendar calendar = taf.getCalendars().getFirst();
+        Calendar calendar = planning.getCalendar();
+        TAF taf = calendar.getTaf();
+
         if (calendar.getSlots().isEmpty()) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(new ErrorResponse("No slots", 409));
         }
+
+        if (taf.getCalendars().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(new ErrorResponse("No calendar", 409));
+        }
+
         if (taf.getUes().isEmpty()) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(new ErrorResponse("No UE", 409));
@@ -114,14 +121,30 @@ public class CalendarController {
                         .body(new ErrorResponse("Lecturer availability not filled", 409));
             }
         }
-        
 
-        //Planning realPlanning = Planning.setSettingsPlanning(planningService.addPlanning(calendar));
-        // Fin de à supprimer
-        
-        //SolverExecutor.generatePlanning(realPlanning);
-        
-        return ResponseEntity.ok("Checklist OK");
+        // Find the TAF with which there is a synchronisation
+        List<Lesson> allLessons = taf.getUes().stream()
+                .flatMap(ue -> ue.getLessons().stream())
+                .toList();
+        List<TAF> tafs = allLessons.stream()
+                .flatMap(lesson -> lesson.synchronisedWith().stream())
+                .toList();
+        List<TAFSynchronised> tafSynchroniseds = new ArrayList<>();
+        if (tafs != null) {
+            for (TAF sTaf : tafs) {
+                List<PlanningReturn> returns = new ArrayList<>();
+                List<Planning> plannings = sTaf.getCalendars().getFirst().getPlannings();
+                for (Planning p : plannings) {
+                    PlanningReturn pr = new PlanningReturn(p.getId(), p.getName(), p.getTimestamp(), p.getStatus());
+                    returns.add(pr);
+                }
+                TAFSynchronised tafSynchronised = new TAFSynchronised(sTaf.getId(), sTaf.getName(),returns);
+                tafSynchroniseds.add(tafSynchronised);
+            }
+        }
+        CheckOK ok = new CheckOK(tafSynchroniseds);
+
+        return ResponseEntity.ok(ok);
     }
 
     @GetMapping(value = "/solver/history/{idTaf}", produces = MediaType.APPLICATION_JSON_VALUE )
@@ -138,9 +161,7 @@ public class CalendarController {
                 List<Planning> plannings = planningService.findByCalendar(calendar);
                 if (plannings!=null) {
                     for (Planning planning : plannings) {
-                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-                        String formatted = planning.getTimestamp().format(formatter);
-                        answer.add(new PlanningReturn(planning.getId(), formatted, planning.getName()));
+                        answer.add(new PlanningReturn(planning.getId(), planning.getTimestamp(), planning.getName()));
                     }
                 }
             }

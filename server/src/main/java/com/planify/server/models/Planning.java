@@ -512,4 +512,8 @@ public class Planning {
 		System.out.println("Planning parameters set !");
 		return planning;
 	}
+
+    public void addConstraintSynchroniseWithTAF(ConstraintSynchroniseWithTAF c) {
+        this.constraintsSynchronisation.add(c);
+    }
 }

@@ -6,6 +6,7 @@ import com.planify.server.models.UE;
 import jakarta.persistence.*;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Entity
 public class ConstraintsOfUE {
@@ -35,6 +36,9 @@ public class ConstraintsOfUE {
     private boolean spreading;
     private int maxSpreading;
     private int minSpreading;
+
+    // number of lessons of this ue that we would like to have in a day
+    private int[] lessonGroupingNbLessons;
 
     @Embeddable
     public static class ConstraintsOfUEId implements Serializable {
@@ -76,7 +80,7 @@ public class ConstraintsOfUE {
         this.planning = planning;
     }
 
-    public ConstraintsOfUE(UE ue, Planning planning, boolean lessonCountInWeek, int maxLessonInWeek, int minLessonInWeek, boolean maxTimeWithoutLesson, boolean maxTimeWLUnitInWeeks, int maxTimeWLDuration, boolean spreading, int maxSpreading, int minSpreading) {
+    public ConstraintsOfUE(UE ue, Planning planning, boolean lessonCountInWeek, int maxLessonInWeek, int minLessonInWeek, boolean maxTimeWithoutLesson, boolean maxTimeWLUnitInWeeks, int maxTimeWLDuration, boolean spreading, int maxSpreading, int minSpreading, int[] lessonGroupingNbLessons) {
         this.id = new ConstraintsOfUEId(ue.getId(), planning.getId());
         this.ue = ue;
         this.planning = planning;
@@ -89,6 +93,7 @@ public class ConstraintsOfUE {
         this.spreading = spreading;
         this.maxSpreading = maxSpreading;
         this.minSpreading = minSpreading;
+        this.lessonGroupingNbLessons = lessonGroupingNbLessons;
     }
 
     public ConstraintsOfUEId getId() {
@@ -187,6 +192,14 @@ public class ConstraintsOfUE {
         this.minSpreading = minSpreading;
     }
 
+    public int[] getLessonGroupingNbLessons() {
+        return lessonGroupingNbLessons;
+    }
+
+    public void setLessonGroupingNbLessons(int[] lessonGroupingNbLessons) {
+        this.lessonGroupingNbLessons = lessonGroupingNbLessons;
+    }
+
     @Override
     public String toString() {
         return "ConstraintsOfUE{" +
@@ -206,5 +219,6 @@ public class ConstraintsOfUE {
         if (cue.isSpreading() != null) this.spreading = cue.isSpreading();
         if (cue.getMaxSpreading() != null) this.maxSpreading = cue.getMaxSpreading();
         if (cue.getMinSpreading() != null) this.minSpreading = cue.getMinSpreading();
+        if (cue.getLessonGroupingNbLessons() != null) this.lessonGroupingNbLessons = cue.getLessonGroupingNbLessons();
     }
 }
