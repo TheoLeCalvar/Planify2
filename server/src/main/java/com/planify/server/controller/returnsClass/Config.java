@@ -107,11 +107,12 @@ public class Config {
         private Boolean spreading;
         private Integer maxSpreading;
         private Integer minSpreading;
+        private int[] lessonGroupingNbLessons;
 
         public CUE() {
         }
 
-        public CUE(Long ue, boolean lessonCountInWeek, int maxLessonInWeek, int minLessonInWeek, boolean maxTimeWithoutLesson, boolean maxTimeWLUnitInWeeks, int maxTimeWLDuration, boolean spreading, int maxSpreading, int minSpreading) {
+        public CUE(Long ue, boolean lessonCountInWeek, int maxLessonInWeek, int minLessonInWeek, boolean maxTimeWithoutLesson, boolean maxTimeWLUnitInWeeks, int maxTimeWLDuration, boolean spreading, int maxSpreading, int minSpreading, int[] lessonGroupingNbLessons) {
             this.ue = ue;
             this.lessonCountInWeek = lessonCountInWeek;
             this.maxLessonInWeek = maxLessonInWeek;
@@ -122,6 +123,7 @@ public class Config {
             this.spreading = spreading;
             this.maxSpreading = maxSpreading;
             this.minSpreading = minSpreading;
+            this.lessonGroupingNbLessons = lessonGroupingNbLessons;
         }
 
         public CUE(ConstraintsOfUE c) {
@@ -135,6 +137,7 @@ public class Config {
             this.spreading = c.isSpreading();
             this.maxSpreading = c.getMaxSpreading();
             this.minSpreading = c.getMinSpreading();
+            this.lessonGroupingNbLessons = c.getLessonGroupingNbLessons();
         }
 
         public Long getUe() {
@@ -215,6 +218,14 @@ public class Config {
 
         public void setMinSpreading(int minSpreading) {
             this.minSpreading = minSpreading;
+        }
+
+        public int[] getLessonGroupingNbLessons() {
+            return lessonGroupingNbLessons;
+        }
+
+        public void setLessonGroupingNbLessons(int[] lessonGroupingNbLessons) {
+            this.lessonGroupingNbLessons = lessonGroupingNbLessons;
         }
     }
 

@@ -808,6 +808,7 @@ public class LessonController {
 
         //Addition of the UEs constraints
         List<ConstraintsOfUE> cUEs = new ArrayList<>();
+        int[] lessonGroupingNbLessons = {2,3};
         if (taf.getUes()!=null) {
             for (UE ue : taf.getUes()) {
                 ConstraintsOfUE c = new ConstraintsOfUE(
@@ -821,7 +822,8 @@ public class LessonController {
                         2,
                         false,
                         12,
-                        1
+                        1,
+                        lessonGroupingNbLessons
                 );
                 cUEs.add(c);
             }
