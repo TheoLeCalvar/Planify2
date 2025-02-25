@@ -1102,7 +1102,7 @@ public class SolverMain {
 		Solver solver = model.getSolver();
 		Solution solution = solver.defaultSolution();
 		IntVar[] decisionVars = solMain.getDecisionVars(); // Total time with proof of optimality (Time to find optimal solution) on the planning planningSolverTestMinMaxLessonsUeWeek() (in ServerApplication).
-		//solver.setSearch(Search.minDomLBSearch(decisionVars)); // 496 s (158)
+		solver.setSearch(Search.minDomLBSearch(decisionVars)); // 496 s (158)
 		//solver.setSearch(Search.minDomUBSearch(decisionVars)); // 768 s (347)
 		//solver.setSearch(Search.activityBasedSearch(decisionVars)); // 
 		//solver.setSearch(Search.conflictHistorySearch(decisionVars)); // 
@@ -1112,7 +1112,7 @@ public class SolverMain {
 		//solver.setSearch(Search.lastConflict(Search.intVarSearch(new FirstFail(model),new IntDomainLast(solution, new IntDomainMax(), null),decisionVars), 1 )); //1306 (631)
 		//solver.setSearch(Search.lastConflict(Search.intVarSearch(new FirstFail(model),new IntDomainLast(solution, new IntDomainMin(), null),decisionVars), 1 )); //912 (45)
 		//solver.setSearch(Search.lastConflict(Search.intVarSearch(new FirstFail(model),new IntDomainMin(),decisionVars), 1 )); //638 (36)
-		solver.setSearch(Search.lastConflict(Search.intVarSearch(new FirstFail(model),new IntDomainMax(),decisionVars), 1 )); //638 (36)
+		//solver.setSearch(Search.lastConflict(Search.intVarSearch(new FirstFail(model),new IntDomainMax(),decisionVars), 1 )); //1992 (166)
 	}
 	
 	/**
