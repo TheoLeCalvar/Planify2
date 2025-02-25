@@ -77,7 +77,7 @@ public class CalendarController {
         return ResponseEntity.ok("The solver is launched ! (PlanningId : " + realPlanning.getId() + ")");
     }
 
-    @GetMapping(value = "/solver/check/<configId>", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/solver/check/{configId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> checkSolverMain(@PathVariable Long configId) {
         Optional<Planning> oPlanning = planningService.findById(configId);
         if (oPlanning.isEmpty()) {
