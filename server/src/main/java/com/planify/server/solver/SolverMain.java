@@ -6,6 +6,7 @@ import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -19,8 +20,10 @@ import org.chocosolver.solver.constraints.nary.automata.FA.FiniteAutomaton;
 import org.chocosolver.solver.constraints.nary.automata.FA.ICostAutomaton;
 import org.chocosolver.solver.constraints.nary.automata.FA.utils.Counter;
 import org.chocosolver.solver.expression.discrete.arithmetic.ArExpression;
+import org.chocosolver.solver.search.limits.FailCounter;
 import org.chocosolver.solver.search.loop.monitors.SolvingStatisticsFlow;
 import org.chocosolver.solver.search.strategy.Search;
+import org.chocosolver.solver.search.strategy.selectors.values.IntDomainLast;
 import org.chocosolver.solver.search.strategy.selectors.values.IntDomainMax;
 import org.chocosolver.solver.search.strategy.selectors.values.IntDomainMin;
 import org.chocosolver.solver.search.strategy.selectors.variables.ConflictHistorySearch;
@@ -28,6 +31,7 @@ import org.chocosolver.solver.search.strategy.selectors.variables.DomOverWDeg;
 import org.chocosolver.solver.search.strategy.selectors.variables.FirstFail;
 import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
+import org.chocosolver.util.ESat;
 import org.chocosolver.util.tools.ArrayUtils;
 
 import com.planify.server.models.Antecedence;
@@ -65,7 +69,6 @@ public class SolverMain {
 	private BijectiveHashMap<Long, Integer> idMUe;
 	private BijectiveHashMap<Long, Integer> idMDay;
 	private BijectiveHashMap<Long, Integer> idMWeek;
-	private List<IntVar> countsDebug;
 	
 	private HashMap<Long, Integer> IdMSlotGlobal;
 
@@ -82,7 +85,6 @@ public class SolverMain {
 		idMUe = new BijectiveHashMap<Long, Integer>();
 		idMDay = new BijectiveHashMap<Long, Integer>();
 		idMWeek = new BijectiveHashMap<Long, Integer>();
-		countsDebug = new ArrayList<IntVar>();
 	}
 	
 	private Planning getPlanning() {return this.planning;}
@@ -99,6 +101,17 @@ public class SolverMain {
 	private int getNumberOfSlotsWUD() {return getSlotsOrderedWUD().size();}
 	private int getNumberOfLessons() {return services.getTafService().numberOfLessons(planning.getCalendar().getTaf().getId());}
 	private ConstraintsOfUE getConstraintsOfUe(UE ue) {return getPlanning().getConstraintsOfUEs().stream().filter(c -> c.getUe().getId() == ue.getId()).findAny().get();}
+	
+	private static boolean isUesNeeded(Planning planning) {return planning.isLessonGrouping()
+															|| planning.isMiddayGrouping()
+															|| planning.isUEInterlacing()
+															|| planning.isLessonCountInWeek()
+															|| planning.isMaxTimeWithoutLesson();}
+	
+	private static boolean isDaysNeeded(Planning planning) {return planning.isMaxTimeWithoutLesson() && planning.isMaxTimeWLUnitInDays();}
+	
+	private static boolean isWeeksNeeded(Planning planning) {return planning.isMaxTimeWithoutLesson() && planning.isMaxTimeWLUnitInWeeks()
+															|| planning.isSpreadingUe();}
 	
 	private Integer getIdMSlot(Slot slot) {return idMSlot.getValue(slot.getId());}
 	private Integer[] getIdMSlot(Slot[] slots) {return IntStream.range(0, slots.length).mapToObj(i -> getIdMSlot(slots[i])).toArray(Integer[]::new);}
@@ -152,6 +165,7 @@ public class SolverMain {
 	 */
 	public static void setServices(SolverServices services) {
 		SolverMain.services = services;
+		SolverExecutor.setServices(services);
 	}
 	
 	/**
@@ -159,11 +173,11 @@ public class SolverMain {
 	 * @param planning The planning to generate.
 	 * @return The results generated (also stored automatically in the database).
 	 */
-	public static List<Result> generatePlanning(Planning planning){
-		System.out.println(planning.getCalendar().getSlots().stream().map(s -> s.toString()).reduce("", String::concat));
+	public static boolean generatePlanning(Planning planning){
+		/*System.out.println(planning.getCalendar().getSlots().stream().map(s -> s.toString()).reduce("", String::concat));
 		System.out.println(planning.getCalendar().getTaf().getUes().stream().map(u -> u.toString()).reduce("", String::concat));
 		System.out.println(planning.getCalendar().getTaf().getUes().stream().flatMap(u -> u.getLessons().stream().map(l -> l.toString())).reduce("", String::concat));
-		
+		*/
 		if (!planning.isSynchronise() || planning.getConstraintsSynchronisation().isEmpty()) {
 			System.out.println("Generate Planning " + planning.getId());
 			return generatePlanningWithoutSync(planning);
@@ -183,7 +197,7 @@ public class SolverMain {
 					}
 					else {
 						planningsToConsider.add(otherPlanning);
-						planningsToGenerate.add(otherPlanning);
+						planningsToGenerate.add(services.getPlanningService().createPlanningForGeneration(otherPlanning));
 					}
 				}
 			}
@@ -202,31 +216,26 @@ public class SolverMain {
 	 * @param planning The planning to generate.
 	 * @return The results generated (also stored automatically in the database).
 	 */
-	public static List<Result> generatePlanningWithoutSync(Planning planning) {
-		planning.startProcessing();
+	public static boolean generatePlanningWithoutSync(Planning planning) {
 		Model model = new Model();
 		Solver solver = model.getSolver();
 		SolverMain solMain = new SolverMain(planning);
 		int nbSlots = solMain.getNumberOfSlotsWUD();
 		int nbLessons = solMain.getNumberOfLessons();
-		solMain.initialiseVars(model, nbSlots, nbLessons, true, true, true);
+		solMain.initialiseVars(model, nbSlots, nbLessons, isUesNeeded(planning), isDaysNeeded(planning), isWeeksNeeded(planning));
 		solMain.setConstraints(model);
 		IntVar obj = solMain.setPreferences(model);
-		setStrategy(solMain, solver);
+		setStrategy(solMain, model);
 		solver.showSolutions();
-		Solution solution;
-		if (obj != null) solution = solver.findOptimalSolution(obj, false);
-		else solution = solver.findSolution();
+		if (obj != null) model.setObjective(false, obj);
+		Solution solution = solveModelPlanning(model, solMain);
 		//System.out.println(model);
 		solver.printShortStatistics();
-		if (!solution.exists())
-			return new ArrayList<Result>();
+		if (solution == null)
+			return false;
 		System.out.println(solMain.showSolutionsDebug(solution));
 		System.out.println(solMain.makeSolutionString(solution));
-		List<Result> results = solMain.makeSolution(solution);
-		services.getPlanningService().addScheduledLessons(planning, results);
-		planning.endProcessing();
-		return results;
+		return true;
 	}
 	
 	/**
@@ -235,31 +244,27 @@ public class SolverMain {
 	 * @return The results generated in a json format (not stored automatically in the database).
 	 */
 	public static String generatePlanningString(Planning planning) {
-		planning.startProcessing();
 		Model model = new Model();
 		Solver solver = model.getSolver();
 		SolverMain solMain = new SolverMain(planning);
 		int nbSlots = solMain.getNumberOfSlotsWUD();
 		int nbLessons = solMain.getNumberOfLessons();
-		solMain.initialiseVars(model, nbSlots, nbLessons, true, true, true);
+		solMain.initialiseVars(model, nbSlots, nbLessons, isUesNeeded(planning), isDaysNeeded(planning), isWeeksNeeded(planning));
 		solMain.setConstraints(model);
 		IntVar obj = solMain.setPreferences(model);
-		setStrategy(solMain, solver);
-		Solution solution;
-		System.out.println("Start Solving !");
+		setStrategy(solMain, model);
 		//solver.verboseSolving(1000);
 		solver.showSolutions();
 		//solver.showDecisions();
-		if (obj != null) solution = solver.findOptimalSolution(obj, false);
-		else solution = solver.findSolution();
+		if (obj != null) model.setObjective(false, obj);
+		Solution solution = solveModelPlanning(model, solMain);
 		//solution = solver.findSolution();
 		System.out.println(Arrays.deepToString(model.getVars()));
 		solver.printShortStatistics();
-		if (!solution.exists())
+		if (solution == null)
 			return "";
 		System.out.println(solMain.showSolutionsDebug(solution));
 		System.out.println(solMain.makeSolutionString(solution));
-		planning.endProcessing();
 		return solMain.makeSolutionString(solution);
 	}
 	
@@ -268,7 +273,7 @@ public class SolverMain {
 	 * @param planningsToGenerate The plannings to generate.
 	 * @return The results generated (also stored automatically in the database for each planning).
 	 */
-	public static List<Result> generatePlannings(Planning[] planningsToGenerate) {
+	public static boolean generatePlannings(Planning[] planningsToGenerate) {
 		return generatePlannings(planningsToGenerate, new Planning[] {});
 	}
 	
@@ -278,8 +283,7 @@ public class SolverMain {
 	 * @param planningsGenerated The plannings already generated to consider in the synchronizations.
 	 * @return The results generated (also stored automatically in the database for each planning to generate).
 	 */
-	public static List<Result> generatePlannings(Planning[] planningsToGenerate, Planning[] planningsGenerated) {
-		for (Planning planning : planningsToGenerate) planning.startProcessing();
+	public static boolean generatePlannings(Planning[] planningsToGenerate, Planning[] planningsGenerated) {
 		Model model = new Model();
 		Solver solver = model.getSolver();
 		IntVar[] objs = new IntVar[planningsToGenerate.length];
@@ -297,21 +301,42 @@ public class SolverMain {
 		}
 		setSynchronisationConstraints(model, solMains, planningsGenerated);
 		IntVar globObj = model.sum("globObj", objs);
-		setStrategy(solMains, solver);
-		solver.showSolutions();
-		Solution solution = solver.findOptimalSolution(globObj, false);
+		setStrategy(solMains, model);
+		//solver.showSolutions();
+		if (globObj != null) model.setObjective(false, globObj);
+		Solution solution = solveModelPlannings(model, solMains);
 		//System.out.println(model);
 		solver.printShortStatistics();
 		if (solution == null)
-			return null;
-		List<Result> allResults = new ArrayList<Result>();
+			return false;
 		for (int i = 0; i < planningsToGenerate.length; i ++) {
-			List<Result> results = solMains[i].makeSolution(solution);
 			System.out.println(solMains[i].showSolutionsDebug(solution));
-			allResults.addAll(results);
-			planningsToGenerate[i].endProcessing();
 		}
-		return allResults;
+		return true;
+	}
+	
+	private static Solution solveModelPlanning(Model model, SolverMain solMain) {
+		System.out.println("Start Solving !");
+		Solution s = new Solution(model);
+		while (model.getSolver().solve()) {
+		     s.record();
+		     List<Result> results = solMain.makeSolution(s);
+		     services.getPlanningService().addScheduledLessons(solMain.getPlanning(), results);
+		}
+		return model.getSolver().isFeasible() == ESat.TRUE ? s : null;
+	}
+	
+	private static Solution solveModelPlannings(Model model, SolverMain[] solMains) {
+		System.out.println("Start Solving !");
+		Solution s = new Solution(model);
+		while (model.getSolver().solve()) {
+		     s.record();
+		     for (SolverMain solMain : solMains) {
+			     List<Result> results = solMain.makeSolution(s);
+			     services.getPlanningService().addScheduledLessons(solMain.getPlanning(), results);
+		     }
+		}
+		return model.getSolver().isFeasible() == ESat.TRUE ? s : null;
 	}
 	
 	/**
@@ -322,7 +347,7 @@ public class SolverMain {
 	 * @param idToIdMGlobal The correspondence between the id of a slot and the globalId used for synchronizations. (Can be generated using getIdToIdMGlobalPlannings).
 	 */
 	private void initialiseVars(Model model, int nbSlots, int nbLessons, HashMap<Long, Integer> idToIdMGlobal) {
-		initialiseVars(model, nbSlots, nbLessons, true, true, true);
+		initialiseVars(model, nbSlots, nbLessons, isUesNeeded(getPlanning()), isDaysNeeded(getPlanning()), isWeeksNeeded(getPlanning()));
 		initialiseSync(model, idToIdMGlobal);
 	}
 	
@@ -464,6 +489,8 @@ public class SolverMain {
 		while (testiLengths(iSlots, lengthSlots)) {
 			List<Integer> iMins = new ArrayList<Integer>();
 			for (int i = 0; i < plannings.length; i ++) {
+				System.out.println(i);
+				System.out.println(iSlots[i] < lengthSlots[i]);
 				if (iSlots[i] < lengthSlots[i]) {
 					if (iMins.size() == 0) {
 						iMins.add(i);
@@ -482,12 +509,12 @@ public class SolverMain {
 								comparison = slots.get(i).get(iSlots[i]).getEnd().compareTo(slots.get(iMins.get(0)).get(iSlots[iMins.get(0)]).getEnd());
 						}
 						if (comparison < 0) {
-							System.out.println("Lower " + iSlots[i]);
+							//System.out.println("Lower " + iSlots[i]);
 							iMins.clear();
 							iMins.add(i);
 						}
 						if (comparison == 0) {
-							System.out.println("Equal " + iSlots[i]);
+							//System.out.println("Equal " + iSlots[i]);
 							iMins.add(i);
 						}
 					}
@@ -522,8 +549,8 @@ public class SolverMain {
 	private void setConstraints(Model model) {
 		//model.allDifferent(lessonVarSlot.values().toArray(IntVar[]::new)).post();
 		//model.allDifferentExcept0(slotVarLesson.values().toArray(IntVar[]::new)).post();
-		setConstraintLinkLessonsSlots(model, true);
-		setConstraintLinkSlotGlobalDayWeek(model, this.IdMSlotGlobal != null, true, true);
+		setConstraintLinkLessonsSlots(model, isUesNeeded(getPlanning()));
+		setConstraintLinkSlotGlobalDayWeek(model, this.IdMSlotGlobal != null, isDaysNeeded(planning), isWeeksNeeded(planning));
 		setConstraintSequences(model);
 		setConstraintAntecedences(model);
 		setConstraintGlobalUnavailability(model);
@@ -638,8 +665,8 @@ public class SolverMain {
 
 	private void setConstraintLecturerUnavailability(Model model) {
 		for (Lesson lesson : getLessons())
-			for (Slot slot : services.getLessonService().findLessonLecturersUnavailabilitiesByLessonAndCalendar(lesson, planning.getCalendar()))
-				model.arithm(getLessonVarSlot(lesson), "!=", getIdMSlot(slot)).post();					
+			for (Slot slot : services.getLessonService().findLessonLecturersUnavailabilitiesByLessonAndCalendarWUD(lesson, planning.getCalendar()))
+				model.arithm(getLessonVarSlot(lesson), "!=", getIdMSlot(slot)).post();
 	}
 	
 	private void setConstraintLunchBreak(Model model) {
@@ -702,7 +729,6 @@ public class SolverMain {
 				//System.out.println(valsCnt[valsCnt.length - 1]);
 				IntVar cnt = model.intVar("Cnt min max " + ue.getName() + ", Week :" + week.getNumber(), valsCnt);
 				model.count(getIdMUe(ue), varSlots, cnt).post();
-				countsDebug.add(cnt);
 			}
 		}
 	}
@@ -829,7 +855,7 @@ public class SolverMain {
 		if (planning.isLecturersUnavailability()) preferences.add(setPreferencesLecturers(model).mul(planning.getWeightLecturersUnavailability()).intVar());
 		if (planning.isMiddayGrouping()) preferences.add(setPreferenceCenteredLessons(model).mul(planning.getWeightMiddayGrouping()).intVar());
 		if (planning.isLessonGrouping()) preferences.add(setPreferenceRegroupLessonsByNbSlots(model).mul(planning.getWeightLessonGrouping()).intVar());
-		if (planning.isMaxTimeWithoutLesson()) preferences.add(setPreferenceMaxBreakWithoutLessonUe(model).mul(planning.getWeightMaxTimeWithoutLesson()).intVar()); //TODO Maybe change the mul factor to have something proportionnal with the valMax (i.e. having a fixed cost when the break is the double than the prefered max because now the cost is of one for each unit of time)
+		if (planning.isMaxTimeWithoutLesson()) preferences.add(setPreferenceMaxBreakWithoutLessonUe(model).mul(planning.getWeightMaxTimeWithoutLesson()).intVar()); //Maybe change the mul factor to have something proportionnal with the valMax (i.e. having a fixed cost when the break is the double than the prefered max because now the cost is of one for each unit of time)
 		if (planning.isLessonBalancing()) preferences.add(setPreferenceBalancedLesson(model).mul(planning.getWeightLessonBalancing()).intVar());
 		return (preferences.isEmpty()) ? null : model.sum("Preferences", preferences.stream().filter(v -> v != null).toArray(IntVar[]::new));
 	}
@@ -955,9 +981,8 @@ public class SolverMain {
 		List<IntVar> distancesFromPreferedValues = new ArrayList<IntVar>();
  		List<UE> ues = getUes();
 		int nbUe = ues.size();
- 		int[][] preferedVals = IntStream.range(0, nbUe).mapToObj(i -> new int[] {2,3}).toArray(int[][]::new);
- 		int[][] costs = IntStream.range(0, nbUe).mapToObj(i -> getCostsTblRegroupLessons(preferedVals[i], nbMaxSlotsDay)).toArray(int[][]::new);
-		int iDay = 0;
+ 		int[][] costs = ues.stream().map(ue -> getCostsTblRegroupLessons(getConstraintsOfUe(ue).getLessonGroupingNbLessons(), nbMaxSlotsDay)).toArray(int[][]::new);
+ 		int iDay = 0;
 		int[] idUes = getArrayInt(getIdMUe(ues.stream().toArray(UE[]::new)));
 		for (List<Slot> slots : slotDays) {
 			List<IntVar> cnts = new ArrayList<IntVar>();
@@ -1071,30 +1096,98 @@ public class SolverMain {
 	 * @param solMain The SolverMain object corresponding to the planning to generate.
 	 * @param solver The solver of the model.
 	 */
-	private static void setStrategy(SolverMain solMain, Solver solver) {
-		IntVar[] decisionVars = solMain.getDecisionVars(); // Total time with proof of optimality (Time to find optimal solution) on the planning planningSolverTestMinMaxLessonsUeWeek() (in ServerApplication).
-		//solver.setSearch(Search.minDomLBSearch(decisionVars)); // 149 s (3 s)
-		solver.setSearch(Search.minDomUBSearch(decisionVars)); // 155 s (2 s)
-		//solver.setSearch(Search.activityBasedSearch(decisionVars)); // > 15 min (36 s)
-		//solver.setSearch(Search.conflictHistorySearch(decisionVars)); // > 5min (> 5 min)
-		//solver.setSearch(Search.intVarSearch(new ConflictHistorySearch<>(decisionVars, 0),new IntDomainMax(), decisionVars)); // >5 min (> 5 min)
-		//solver.setSearch(Search.domOverWDegSearch(decisionVars)); // > 5 min (> 5 min)
-		//solver.setSearch(Search.intVarSearch(new DomOverWDeg<>(decisionVars, 0),new IntDomainMax(), decisionVars)); // > 12 min (> 12 min)
+	private static void setStrategy(SolverMain solMain, Model model) {
+		Solver solver = model.getSolver();
+		Solution solution = solver.defaultSolution();
+		IntVar[] decisionVars = solMain.getDecisionVars(); // Total time with proof of optimality (Time to find optimal solution) on the planning planningTestEfficiency1() (in ServerApplication).
+		//solver.setSearch(Search.minDomLBSearch(decisionVars)); // 496 s (158)
+		//solver.setSearch(Search.minDomUBSearch(decisionVars)); // 768 s (347)
+		//solver.setSearch(Search.lastConflict(Search.intVarSearch(new FirstFail(model),new IntDomainLast(solution, new IntDomainMax(), null),decisionVars), 1 )); //1306 s (631)
+		//solver.setSearch(Search.lastConflict(Search.intVarSearch(new FirstFail(model),new IntDomainLast(solution, new IntDomainMin(), null),decisionVars), 1 )); //912 s (45)
+		//solver.setSearch(Search.lastConflict(Search.intVarSearch(new FirstFail(model),new IntDomainMin(),decisionVars), 1 )); //638 s (36)
+		//solver.setSearch(Search.lastConflict(Search.intVarSearch(new FirstFail(model),new IntDomainMax(),decisionVars), 1 )); //1992 s (166)
+		
+		solver.setGeometricalRestart(decisionVars.length * 30L, 1.1d, new FailCounter(model, 0), 1000);
+		solver.setNoGoodRecordingFromRestarts();
+		//solver.setNoGoodRecordingFromSolutions(decisionVars);
+		solver.showRestarts();
+		solver.setSearch(Search.activityBasedSearch(decisionVars)); // 1128 s (9)
+		//solver.setSearch(Search.conflictHistorySearch(decisionVars)); // 1227 s (244)
+		//solver.setSearch(Search.intVarSearch(new ConflictHistorySearch<>(decisionVars, 0),new IntDomainMax(), decisionVars)); // 2443 s (1399)
+		//solver.setSearch(Search.intVarSearch(new ConflictHistorySearch<>(decisionVars, 0),new IntDomainLast(solution, new IntDomainMin(), null), decisionVars)); // 1303 s (233)
+		//solver.setSearch(Search.domOverWDegSearch(decisionVars)); // 1228 s (251)
+		//solver.setSearch(Search.intVarSearch(new DomOverWDeg<>(decisionVars, 0),new IntDomainMax(), decisionVars)); // 2422 s (1375)
+		//solver.setSearch(Search.intVarSearch(new DomOverWDeg<>(decisionVars, 0),new IntDomainLast(solution, new IntDomainMin(), null), decisionVars)); // 1033 s (229)
+		
+		//solver.setGeometricalRestart(decisionVars.length * 10L, 1.2d, new FailCounter(model, 0), 500);
+		//solver.setNoGoodRecordingFromRestarts();
+		//solver.setNoGoodRecordingFromSolutions(decisionVars);
+		//solver.showRestarts();
+		//solver.setSearch(Search.activityBasedSearch(decisionVars)); // 2626 s (13)
+		//solver.setSearch(Search.conflictHistorySearch(decisionVars)); //
+		//solver.setSearch(Search.intVarSearch(new ConflictHistorySearch<>(decisionVars, 0),new IntDomainMax(), decisionVars)); //
+		//solver.setSearch(Search.intVarSearch(new ConflictHistorySearch<>(decisionVars, 0),new IntDomainLast(solution, new IntDomainMin(), null), decisionVars)); //
+		//solver.setSearch(Search.domOverWDegSearch(decisionVars)); //
+		//solver.setSearch(Search.intVarSearch(new DomOverWDeg<>(decisionVars, 0),new IntDomainMax(), decisionVars)); //
+		//solver.setSearch(Search.intVarSearch(new DomOverWDeg<>(decisionVars, 0),new IntDomainLast(solution, new IntDomainMin(), null), decisionVars)); //
+		
+		//solver.setGeometricalRestart(decisionVars.length * 1L, 1.05d, new FailCounter(model, 0), 500);// 2941 s (8)
+		//solver.setGeometricalRestart(decisionVars.length * 1L, 1.2d, new FailCounter(model, 0), 500);// 2196 s (20)
+		//solver.setGeometricalRestart(decisionVars.length * 10L, 1.05d, new FailCounter(model, 0), 1000);// 3284 s (18)
+		//solver.setNoGoodRecordingFromRestarts();
+		//solver.setNoGoodRecordingFromSolutions(decisionVars);
+		//solver.showRestarts();
+		//solver.setSearch(Search.activityBasedSearch(decisionVars)); // 3284 (18)
+		//solver.setSearch(Search.conflictHistorySearch(decisionVars)); //
+		//solver.setSearch(Search.intVarSearch(new ConflictHistorySearch<>(decisionVars, 0),new IntDomainMax(), decisionVars)); //
+		//solver.setSearch(Search.domOverWDegSearch(decisionVars)); //
+		//solver.setSearch(Search.intVarSearch(new DomOverWDeg<>(decisionVars, 0),new IntDomainMax(), decisionVars)); //
+		
 	}
+	
+	/*public Object[][] strategies() {
+    return new Object[][]{
+            {(Function<IntVar[], AbstractStrategy<IntVar>>) vars -> new ImpactBased(vars, 2, 3, 10, 0, true)},
+            {(Function<IntVar[], AbstractStrategy<IntVar>>) Search::activityBasedSearch},
+            {(Function<IntVar[], AbstractStrategy<IntVar>>) Search::domOverWDegSearch},
+            {(Function<IntVar[], AbstractStrategy<IntVar>>) Search::conflictHistorySearch},
+            {(Function<IntVar[], AbstractStrategy<IntVar>>) Search::domOverWDegRefSearch},
+            {(Function<IntVar[], AbstractStrategy<IntVar>>) Search::failureRateBasedSearch},
+            {(Function<IntVar[], AbstractStrategy<IntVar>>) Search::failureLengthBasedSearch},
+            {(Function<IntVar[], AbstractStrategy<IntVar>>) Search::pickOnDom},
+            {(Function<IntVar[], AbstractStrategy<IntVar>>) Search::pickOnFil},
+            {(Function<IntVar[], AbstractStrategy<IntVar>>) Search::roundRobinSearch}};
+	}
+	
+	@Test(groups = "10s", timeOut = 60000, dataProvider = "strategies")
+	public void testCostas(Function<IntVar[], AbstractStrategy<IntVar>> strat) {
+	Model model = ProblemMaker.makeCostasArrays(6);
+	IntVar[] vars = model.retrieveIntVars(true);
+	Solver solver = model.getSolver();
+	solver.setSearch(strat.apply(vars));
+	solver.setGeometricalRestart(vars.length * 3L, 1.1d, new FailCounter(model, 0), 1000);
+	solver.setNoGoodRecordingFromRestarts();
+	model.getSolver().showRestarts();
+	solver.findAllSolutions();
+	solver.printShortStatistics();
+	Assert.assertEquals(solver.getSolutionCount(), 58);
+	}*/
 	
 	/**
 	 * Set the strategy of the solver (For multiple planning to generate due to sync constraint)
 	 * @param solMains The SolverMain objects related to the plannings to generate.
 	 * @param solver The solver of the model.
 	 */
-	private static void setStrategy(SolverMain[] solMains, Solver solver) {
+	private static void setStrategy(SolverMain[] solMains, Model model) {
 		// 2 semaines, mardi mercredi, préférence globale pas premier, dernier et milieu.
 		// 2 ues, [2,2,1,1,1], [3,1,1,2]
-		// 69 obj.
+		// 45 obj.
+		Solver solver = model.getSolver();
+		Solution solution = solver.defaultSolution();
 		IntVar[] decisionVars = ArrayUtils.flatten(IntStream.range(0, solMains.length).
 									mapToObj(i -> solMains[i].getDecisionVars()).toArray(IntVar[][]::new));  
-		solver.setSearch(Search.minDomLBSearch(decisionVars));
-		//solver.setSearch(Search.minDomUBSearch(decisionVars));
+		//solver.setSearch(Search.minDomLBSearch(decisionVars));
+		solver.setSearch(Search.minDomUBSearch(decisionVars));
 	}
 	
 	private IntVar[] getDecisionVars() {
@@ -1177,7 +1270,7 @@ public class SolverMain {
 		getSlotsOrderedWUD().forEach(s -> res.append("{id : " + s.getId() + 
 												(IdMSlotGlobal != null ? ", idGlob : " + getIdMSlotGlobal(s) : "") +
 												(solution.getIntVal(getSlotVarLesson(s)) != 0 ? ", lessonId : " + this.getIdLesson(solution.getIntVal(getSlotVarLesson(s))) :  "") +
-												(true && solution.getIntVal(getSlotVarUe(s)) != 0 ? ", UeId : " + this.getIdUe(solution.getIntVal(getSlotVarUe(s))) :  "") +
+												(isUesNeeded(getPlanning()) ? ", UeId : " + this.getIdUe(solution.getIntVal(getSlotVarUe(s))) :  "") +
 												"},"));
 		res.deleteCharAt(res.length() - 1);
 		res.append("]\r\n");
@@ -1185,77 +1278,13 @@ public class SolverMain {
 		getLessons().forEach(l -> res.append("{id : " + l.getId() +
 												", slotId : " + this.getIdSlot(solution.getIntVal(getLessonVarSlot(l))) +
 												(IdMSlotGlobal != null ? ", idGlobVar : " + solution.getIntVal(getLessonVarSlotGlobal(l)) : "") +
-												(!lessonVarDay.isEmpty() ? ", idDayVar : " + solution.getIntVal(getLessonVarDay(l)) : "") +
-												(!lessonVarWeek.isEmpty() ? ", idWeekVar : " + solution.getIntVal(getLessonVarWeek(l)) : "") +
+												(isDaysNeeded(getPlanning()) ? ", idDayVar : " + solution.getIntVal(getLessonVarDay(l)) : "") +
+												(isWeeksNeeded(getPlanning()) ? ", idWeekVar : " + solution.getIntVal(getLessonVarWeek(l)) : "") +
 												"},"));
 		res.deleteCharAt(res.length() - 1);
 		res.append("]");
 		res.append("]\r\n");
-		countsDebug.forEach(c -> res.append(c.getName() + " " +  solution.getIntVal(c) + ";"));
 		
 		return res.toString();
 	}	
 }
-/*
-Rust :
-
-runtime environment performance
-fast reliable productive
-compiled
-static typing
-imperative with some functional
-no garbage collection
-guarantee
-
-vs Python
-Much faster
-much lower memory use
-multi-threading
-pattern matching
-many fewer runtime (static typing)
-algebraic data types.
-
-vs Java
-No JVM or GC pauses
-Much lower memory
-Zero-cost abstraction
-Pattern matching
-ConcurrentModificationException
-Unified build system (no maven/...)
-dependency management
-
-vs C/C++
-No segfaults
-No buffer overflows
-No null pointer
-No data race
-Powerful type
-Unified build system
-Dependency management
-
-vs Go
-No GC pauses
-lower memory use
-No null pointer
-Nicer error handling
-Safe concurrency
-Stronger type system
-Zero-cost abstraction
-Dependency management
-
-
-Nice and efficient generics
-Algebraic data types + pattern
-Modern tooling
--> Test and documentation
-
-Pointers are checked at compile-time
-Thread-safety from types
-No hidden states
-
-No GC or runtime
-Control allocation and dispatch
-Can write + wrap low-level code
-
-
-*/

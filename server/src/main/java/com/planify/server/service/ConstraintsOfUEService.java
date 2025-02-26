@@ -16,6 +16,7 @@ public class ConstraintsOfUEService {
 
     @Autowired
     private ConstraintsOfUERepository constraintsOfUERepository;
+    
 
     List<ConstraintsOfUE> findAll() {
         return constraintsOfUERepository.findAll();
@@ -43,5 +44,11 @@ public class ConstraintsOfUEService {
 
     List<ConstraintsOfUE> findByPlanning(Planning planning) {
         return constraintsOfUERepository.findByPlanning(planning);
+    }
+    
+    public List<ConstraintsOfUE> createForNewPlanning(List<ConstraintsOfUE> cUes, Planning newPlanning){
+    	List<ConstraintsOfUE> newCUes = cUes.stream().map(cUe -> add(cUe.getUe(), newPlanning, cUe.isLessonCountInWeek(), cUe.getMaxLessonInWeek(), cUe.getMinLessonInWeek(), cUe.isMaxTimeWithoutLesson(), cUe.isMaxTimeWLUnitInWeeks(), cUe.getMaxTimeWLDuration(), cUe.isSpreading(), cUe.getMaxSpreading(), cUe.getMinSpreading(), cUe.getLessonGroupingNbLessons())).toList();
+    	newPlanning.setConstraintsOfUEs(newCUes);
+    	return newCUes;
     }
 }

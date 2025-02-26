@@ -584,7 +584,8 @@ public class ServerApplication {
 
 	private static void testSolver(ApplicationContext context) {
 		//testSynchronisationSeparation(context);
-		testSolver1(context, setSettingsPlanning(planningSolverTestEfficiency1()));
+		testSolver1(context, setSettingsPlanning(planningSolverOneDay()));
+		//testSolver1(context, setSettingsPlanning(planningSolverTestEfficiency1()));
 		//testSolver2(context);
 		//testSolver2bis(context);
 		//testSolver3(context);
@@ -630,6 +631,8 @@ public class ServerApplication {
 			cUe.setMaxSpreading(12);
 			cUe.setMinSpreading(2);
 			
+			cUe.setLessonGroupingNbLessons(new int[] {2,3});
+			
 			planning.getConstraintsOfUEs().add(cUe);
 		}
 		System.out.println("Planning parameters set !");
@@ -669,8 +672,7 @@ public class ServerApplication {
 	private static void testSolver1(ApplicationContext context, Planning planning) {		
 		SolverServices solverServices = context.getBean(SolverServices.class);
 		SolverMain.setServices(solverServices);
-		System.out.println("Yo");
-		SolverMain.generatePlanningString(planning);
+		SolverExecutor.generatePlanning(planning);
 	}
 	
 	private static void testSolver2(ApplicationContext context) {

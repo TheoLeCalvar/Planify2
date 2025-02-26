@@ -96,38 +96,6 @@ public class Planning {
         this.status = Status.CONFIG;
     }
 
-    public Planning(Planning planning) {
-    	this.calendar = planning.calendar;
-        this.name = planning.name;
-        this.scheduledLessons = new ArrayList<ScheduledLesson>();
-        this.timestamp = LocalDateTime.now();
-        this.globalUnavailability = planning.globalUnavailability;
-        this.weightGlobalUnavailability = planning.weightGlobalUnavailability;
-        this.lecturersUnavailability = planning.lecturersUnavailability;
-        this.weightLecturersUnavailability = planning.weightLecturersUnavailability;
-        this.synchronise = planning.synchronise;
-        this.constraintsSynchronisation = planning.constraintsSynchronisation;
-        this.constraintsOfUEs = planning.constraintsOfUEs;
-        this.weightMaxTimeWithoutLesson = planning.weightMaxTimeWithoutLesson;
-        this.UEInterlacing = planning.UEInterlacing;
-        this.middayBreak = planning.middayBreak;
-        this.startMiddayBreak = planning.startMiddayBreak;
-        this.endMiddayBreak = planning.endMiddayBreak;
-        this.middayGrouping = planning.middayGrouping;
-        this.weightMiddayGrouping = planning.weightMiddayGrouping;
-        this.lessonBalancing = planning.lessonBalancing;
-        this.weightLessonBalancing = planning.weightLessonBalancing;
-        this.weightLessonGrouping = planning.weightLessonGrouping;
-        this.lessonGrouping = planning.lessonGrouping;
-        this.status = Status.WAITING_TO_BE_PROCESSED;
-    }
-    
-    public static Planning[] planningsToGenerate(Planning[] planningsToGenerate) {
-    	Planning[] plannings = new Planning[planningsToGenerate.length];
-    	for (int i = 0; i < plannings.length; i ++) plannings[i] = new Planning(planningsToGenerate[i]);
-    	return plannings;
-    }
-
     public Planning(Calendar calendar, String name, boolean globalUnavailability, int weightGlobalUnavailability, boolean lecturersUnavailability, int weightLecturersUnavailability, boolean synchronise, List<ConstraintSynchroniseWithTAF> constraintsSynchronisation, List<ConstraintsOfUE> constraintsOfUEs, int weightMaxTimeWithoutLesson, boolean UEInterlacing, boolean middayBreak, LocalTime startMiddayBreak, LocalTime endMiddayBreak, boolean middayGrouping, int weightMiddayGrouping, boolean lessonBalancing, int weightLessonBalancing, int weightLessonGrouping, boolean lessonGrouping) {
         this.calendar = calendar;
         this.name = name;
@@ -361,6 +329,14 @@ public class Planning {
     
     public boolean isMaxTimeWithoutLesson() {
     	return this.getConstraintsOfUEs().stream().filter(c -> c.isMaxTimeWithoutLesson()).findAny().isPresent();
+    }
+    
+    public boolean isMaxTimeWLUnitInDays() {
+    	return this.getConstraintsOfUEs().stream().filter(c -> !c.isMaxTimeWLUnitInWeeks()).findAny().isPresent();
+    }
+    
+    public boolean isMaxTimeWLUnitInWeeks() {
+    	return this.getConstraintsOfUEs().stream().filter(c -> c.isMaxTimeWLUnitInWeeks()).findAny().isPresent();
     }
     
     public boolean isSpreadingUe() {

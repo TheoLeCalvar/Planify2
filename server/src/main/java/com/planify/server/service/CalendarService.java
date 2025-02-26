@@ -106,7 +106,7 @@ public class CalendarService {
     
     public List<Slot> getSlotsOrderedWithoutUnavailableDays(Long calendarId) {
     	if (calendarRepository.existsById(calendarId)) {
-    		return this.getDaysSortedWithoutUnavailable(calendarId).stream().flatMap(d -> d.getSlots().stream()).toList();
+    		return this.getDaysSortedWithoutUnavailable(calendarId).stream().flatMap(d -> d.getSlots().stream().filter(s -> s.getCalendar().getId() == calendarId)).toList();
     	}
     	return new ArrayList<Slot>();
     }

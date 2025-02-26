@@ -4,6 +4,7 @@ package com.planify.server.service;
 import com.planify.server.models.Planning;
 import com.planify.server.models.TAF;
 import com.planify.server.models.constraints.ConstraintSynchroniseWithTAF;
+import com.planify.server.models.constraints.ConstraintsOfUE;
 import com.planify.server.repo.ConstraintSynchroniseWithTAFRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ public class ConstraintSynchroniseWithTAFService {
 
     @Autowired
     private ConstraintSynchroniseWithTAFRepository constraintSynchroniseWithTAFRepository;
+    
 
     List<ConstraintSynchroniseWithTAF> findAll() {
         return constraintSynchroniseWithTAFRepository.findAll();
@@ -38,5 +40,10 @@ public class ConstraintSynchroniseWithTAFService {
             return false;
         }
     }
-
+    
+    public List<ConstraintSynchroniseWithTAF> createForNewPlanning(List<ConstraintSynchroniseWithTAF> cSyncs, Planning newPlanning){
+    	List<ConstraintSynchroniseWithTAF> newCSyncs = cSyncs.stream().map(cSync -> add(newPlanning, cSync.getOtherPlanning(), cSync.isEnabled(), cSync.isGenerateOtherPlanning())).toList();
+    	newPlanning.setConstrainedSynchronisations(newCSyncs);
+    	return newCSyncs;
+    }
 }
