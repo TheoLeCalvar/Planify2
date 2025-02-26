@@ -72,6 +72,9 @@ export default function TAFConfigs() {
                 {option.name}
               </MenuItem>
             ))}
+            {options.length === 0 && (
+              <MenuItem disabled>Aucune configuration</MenuItem>
+            )}
           </Select>
         </FormControl>
 
