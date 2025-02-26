@@ -149,7 +149,7 @@ public class CalendarController {
             }
 
             CheckOK ok = new CheckOK(tafSynchroniseds);
-            return ResponseEntity.ok(ok);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ok);
         }
         else {
             SolverExecutor.generatePlanning(planning);
