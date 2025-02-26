@@ -88,6 +88,12 @@ public class CalendarController {
 
         Calendar calendar = planning.getCalendar();
         TAF taf = calendar.getTaf();
+        System.out.println("Calendrier de la TAF: " + taf.getCalendars().toString());
+        List<Calendar> CS = taf.getCalendars();
+        for (Calendar c : CS) {
+            System.out.println("Calendrier de la TAF: " + c.toString());
+            System.out.println("Slots du calendrier: " + c.getSlots());
+        }
 
         if (calendar.getSlots().isEmpty()) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
@@ -115,13 +121,13 @@ public class CalendarController {
         for (Lesson lesson : lessons) {
             lessonLecturers.addAll(lesson.getLessonLecturers());
         }
-        for (LessonLecturer lecturer : lessonLecturers) {
+        /*for (LessonLecturer lecturer : lessonLecturers) {
             if (lecturer.getUser().getLastUpdatedAvailability() == null) {
                 return ResponseEntity.status(HttpStatus.CONFLICT)
                         .body(new ErrorResponse("Lecturer availability not filled", 409));
             }
         }
-
+*/
         // Find the TAF with which there is a synchronisation
         List<Lesson> allLessons = taf.getUes().stream()
                 .flatMap(ue -> ue.getLessons().stream())

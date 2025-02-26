@@ -493,7 +493,10 @@ public class LessonController {
                 int currentWeekCount = firstSlotStart.get(weekFields.weekOfYear());
                 int weekCount = 1;
 
-                Calendar calendar = null;
+                Calendar calendar = taf.getCalendars().getFirst();
+
+                // Old version :
+                /*Calendar calendar = null;
 
 
                 ResponseEntity<?> responseEntity = getSlotByTafId(tafId);
@@ -510,7 +513,7 @@ public class LessonController {
                         }
                         calendar = relatedCalendar;
                     }
-                }
+                }*/
 
                 if (calendar == null) {
                     calendar = new Calendar(taf);
