@@ -226,7 +226,6 @@ public class SolverMain {
 		IntVar obj = solMain.setPreferences(model);
 		setStrategy(solMain, model);
 		solver.showSolutions();
-		System.out.println("Start Solving !");
 		if (obj != null) model.setObjective(false, obj);
 		Solution solution = solveModelPlanning(model, solMain);
 		//System.out.println(model);
