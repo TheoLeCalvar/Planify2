@@ -45,7 +45,7 @@ public class SolverExecutor {
 		Runnable task = new Runnable() {
     		@Override
     		public void run() {
-    			for (int iAttempt = 0; iAttempt < MAX_ATTEMPTS; iAttempt ++)
+    			for (int iAttempt = 1; iAttempt <= MAX_ATTEMPTS; iAttempt ++)
 	    			try {
 	    				planning.startProcessing();
 	    				services.getPlanningService().save(planning);
@@ -57,6 +57,7 @@ public class SolverExecutor {
 	    			}
 	    			catch (Throwable e) {
 	    				System.out.println(RED + nbGene +  " Unhandled Error or Exception for " + planning.getCalendar().getTaf().getName() + " (planningId :" + planning.getId() + ", attempt : " + iAttempt + ")" + RESET);
+	    				e.printStackTrace();
 	    			}
     			System.out.println(RED + nbGene + " Generation Aborted." + RESET);
 				planning.endProcessing();
@@ -79,7 +80,7 @@ public class SolverExecutor {
 		Runnable task = new Runnable() {
     		@Override
     		public void run() {
-    			for (int iAttempt = 0; iAttempt < MAX_ATTEMPTS; iAttempt ++)
+    			for (int iAttempt = 1; iAttempt <= MAX_ATTEMPTS; iAttempt ++)
 	    			try {
 	    				for (Planning planning : planningsToGenerate) {planning.startProcessing(); services.getPlanningService().save(planning);}
 	    				System.out.println(GREEN + nbGene + " Launch background execution for [" +
@@ -93,6 +94,7 @@ public class SolverExecutor {
 	    			}
 	    			catch (Throwable e) {
 	    				System.out.println(RED + nbGene + " Launch background execution for " + Arrays.stream(planningsToGenerate).map(p -> p.getCalendar().getTaf().getName() + "(" + p.getId() + ")").reduce("", String::concat) + " (attempt : " + iAttempt + ")" + RESET);
+	    				e.printStackTrace();
 	    			}
     			
     			System.out.println(RED + nbGene + " Generation Aborted." + RESET);

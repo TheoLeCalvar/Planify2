@@ -231,7 +231,7 @@ public class SolverMain {
 		Solution solution = solveModelPlanning(model, solMain);
 		//System.out.println(model);
 		solver.printShortStatistics();
-		if (!solution.exists())
+		if (solution == null)
 			return false;
 		System.out.println(solMain.showSolutionsDebug(solution));
 		System.out.println(solMain.makeSolutionString(solution));
