@@ -77,7 +77,7 @@ public class CalendarController {
         return ResponseEntity.ok("The solver is launched ! (PlanningId : " + realPlanning.getId() + ")");
     }
 
-    @GetMapping(value = "/solver/check/<configId>", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/solver/check/{configId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> checkSolverMain(@PathVariable Long configId) {
         Optional<Planning> oPlanning = planningService.findById(configId);
         if (oPlanning.isEmpty()) {
@@ -88,6 +88,12 @@ public class CalendarController {
 
         Calendar calendar = planning.getCalendar();
         TAF taf = calendar.getTaf();
+        System.out.println("Calendrier de la TAF: " + taf.getCalendars().toString());
+        List<Calendar> CS = taf.getCalendars();
+        for (Calendar c : CS) {
+            System.out.println("Calendrier de la TAF: " + c.toString());
+            System.out.println("Slots du calendrier: " + c.getSlots());
+        }
 
         if (calendar.getSlots().isEmpty()) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
@@ -115,13 +121,13 @@ public class CalendarController {
         for (Lesson lesson : lessons) {
             lessonLecturers.addAll(lesson.getLessonLecturers());
         }
-        for (LessonLecturer lecturer : lessonLecturers) {
+        /*for (LessonLecturer lecturer : lessonLecturers) {
             if (lecturer.getUser().getLastUpdatedAvailability() == null) {
                 return ResponseEntity.status(HttpStatus.CONFLICT)
                         .body(new ErrorResponse("Lecturer availability not filled", 409));
             }
         }
-
+*/
         // Find the TAF with which there is a synchronisation
         List<Lesson> allLessons = taf.getUes().stream()
                 .flatMap(ue -> ue.getLessons().stream())
@@ -130,7 +136,7 @@ public class CalendarController {
                 .flatMap(lesson -> lesson.synchronisedWith().stream())
                 .toList();
         List<TAFSynchronised> tafSynchroniseds = new ArrayList<>();
-        if (tafs != null) {
+        if (tafs != null && !tafs.isEmpty()) {
             for (TAF sTaf : tafs) {
                 List<PlanningReturn> returns = new ArrayList<>();
                 List<Planning> plannings = sTaf.getCalendars().getFirst().getPlannings();
@@ -141,10 +147,15 @@ public class CalendarController {
                 TAFSynchronised tafSynchronised = new TAFSynchronised(sTaf.getId(), sTaf.getName(),returns);
                 tafSynchroniseds.add(tafSynchronised);
             }
-        }
-        CheckOK ok = new CheckOK(tafSynchroniseds);
 
-        return ResponseEntity.ok(ok);
+            CheckOK ok = new CheckOK(tafSynchroniseds);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ok);
+        }
+        else {
+            SolverExecutor.generatePlanning(planning);
+            return ResponseEntity.ok("The solver is launched ! (PlanningId : " + planning.getId() + ")");
+        }
+
     }
 
     @GetMapping(value = "/solver/history/{idTaf}", produces = MediaType.APPLICATION_JSON_VALUE )
@@ -161,7 +172,7 @@ public class CalendarController {
                 List<Planning> plannings = planningService.findByCalendar(calendar);
                 if (plannings!=null) {
                     for (Planning planning : plannings) {
-                        answer.add(new PlanningReturn(planning.getId(), planning.getTimestamp(), planning.getName()));
+                        answer.add(new PlanningReturn(planning.getId(), planning.getName(), planning.getTimestamp(), planning.getStatus()));
                     }
                 }
             }
