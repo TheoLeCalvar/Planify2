@@ -35,7 +35,7 @@ public class CalendarController {
     final String RED = "\u001B[31m";
     final String GREEN = "\u001B[32m";
 
-    @GetMapping(value = "/solver/run/{configId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/solver/run/{configId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> runSolverMain(@PathVariable Long configId, @RequestBody Config config) {
         Optional<Planning> planning = planningService.findById(configId);
         if (planning.isEmpty()) {
@@ -149,11 +149,11 @@ public class CalendarController {
             }
 
             CheckOK ok = new CheckOK(tafSynchroniseds);
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ok);
+            return ResponseEntity.ok(ok);
         }
         else {
             SolverExecutor.generatePlanning(planning);
-            return ResponseEntity.ok("The solver is launched ! (PlanningId : " + planning.getId() + ")");
+            return ResponseEntity.status(HttpStatus.CREATED).body("The solver is launched ! (PlanningId : " + planning.getId() + ")");
         }
 
     }
