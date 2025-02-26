@@ -172,7 +172,7 @@ public class CalendarController {
                 List<Planning> plannings = planningService.findByCalendar(calendar);
                 if (plannings!=null) {
                     for (Planning planning : plannings) {
-                        answer.add(new PlanningReturn(planning.getId(), planning.getTimestamp(), planning.getName()));
+                        answer.add(new PlanningReturn(planning.getId(), planning.getName(), planning.getTimestamp(), planning.getStatus()));
                     }
                 }
             }

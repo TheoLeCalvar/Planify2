@@ -158,7 +158,7 @@ public class LessonController {
                 if (plannings!=null) {
                     for (Planning planning : plannings) {
                         if (planning.getStatus() == Planning.Status.GENERATED) {
-                            resultPlanning.add(new PlanningReturn(planning.getId(), planning.getTimestamp(), planning.getName()));
+                            resultPlanning.add(new PlanningReturn(planning.getId(), planning.getName(), planning.getTimestamp(), planning.getStatus()));
                         }
                     }
                 }
