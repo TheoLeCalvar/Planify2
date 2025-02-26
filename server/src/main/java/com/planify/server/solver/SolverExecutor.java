@@ -19,6 +19,7 @@ public class SolverExecutor {
     static final String RED = "\u001B[31m";
     static final String GREEN = "\u001B[32m";
 	
+    
 	public static void generatePlanning(Planning planning) {
 		generatePlanning(new Planning(planning), 0, nbGene, SolverMain::generatePlanning);
 		nbGene ++;

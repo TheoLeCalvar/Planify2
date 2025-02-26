@@ -20,6 +20,7 @@ import org.chocosolver.solver.constraints.nary.automata.FA.FiniteAutomaton;
 import org.chocosolver.solver.constraints.nary.automata.FA.ICostAutomaton;
 import org.chocosolver.solver.constraints.nary.automata.FA.utils.Counter;
 import org.chocosolver.solver.expression.discrete.arithmetic.ArExpression;
+import org.chocosolver.solver.search.limits.FailCounter;
 import org.chocosolver.solver.search.loop.monitors.SolvingStatisticsFlow;
 import org.chocosolver.solver.search.strategy.Search;
 import org.chocosolver.solver.search.strategy.selectors.values.IntDomainLast;
@@ -225,10 +226,9 @@ public class SolverMain {
 		IntVar obj = solMain.setPreferences(model);
 		setStrategy(solMain, model);
 		solver.showSolutions();
-		Solution solution;
 		System.out.println("Start Solving !");
-		if (obj != null) solution = solver.findOptimalSolution(obj, false);
-		else solution = solver.findSolution();
+		if (obj != null) model.setObjective(false, obj);
+		Solution solution = solveModelPlanning(model, solMain);
 		//System.out.println(model);
 		solver.printShortStatistics();
 		if (!solution.exists())
@@ -1099,19 +1099,79 @@ public class SolverMain {
 	private static void setStrategy(SolverMain solMain, Model model) {
 		Solver solver = model.getSolver();
 		Solution solution = solver.defaultSolution();
-		IntVar[] decisionVars = solMain.getDecisionVars(); // Total time with proof of optimality (Time to find optimal solution) on the planning planningSolverTestMinMaxLessonsUeWeek() (in ServerApplication).
-		solver.setSearch(Search.minDomLBSearch(decisionVars)); // 496 s (158)
+		IntVar[] decisionVars = solMain.getDecisionVars(); // Total time with proof of optimality (Time to find optimal solution) on the planning planningTestEfficiency1() (in ServerApplication).
+		//solver.setSearch(Search.minDomLBSearch(decisionVars)); // 496 s (158)
 		//solver.setSearch(Search.minDomUBSearch(decisionVars)); // 768 s (347)
-		//solver.setSearch(Search.activityBasedSearch(decisionVars)); // 
-		//solver.setSearch(Search.conflictHistorySearch(decisionVars)); // 
+		//solver.setSearch(Search.lastConflict(Search.intVarSearch(new FirstFail(model),new IntDomainLast(solution, new IntDomainMax(), null),decisionVars), 1 )); //1306 s (631)
+		//solver.setSearch(Search.lastConflict(Search.intVarSearch(new FirstFail(model),new IntDomainLast(solution, new IntDomainMin(), null),decisionVars), 1 )); //912 s (45)
+		//solver.setSearch(Search.lastConflict(Search.intVarSearch(new FirstFail(model),new IntDomainMin(),decisionVars), 1 )); //638 s (36)
+		//solver.setSearch(Search.lastConflict(Search.intVarSearch(new FirstFail(model),new IntDomainMax(),decisionVars), 1 )); //1992 s (166)
+		
+		solver.setGeometricalRestart(decisionVars.length * 30L, 1.1d, new FailCounter(model, 0), 1000);
+		solver.setNoGoodRecordingFromRestarts();
+		//solver.setNoGoodRecordingFromSolutions(decisionVars);
+		solver.showRestarts();
+		solver.setSearch(Search.activityBasedSearch(decisionVars)); // 1128 s (9)
+		//solver.setSearch(Search.conflictHistorySearch(decisionVars)); // 1227 s (244)
+		//solver.setSearch(Search.intVarSearch(new ConflictHistorySearch<>(decisionVars, 0),new IntDomainMax(), decisionVars)); // 2443 s (1399)
+		//solver.setSearch(Search.intVarSearch(new ConflictHistorySearch<>(decisionVars, 0),new IntDomainLast(solution, new IntDomainMin(), null), decisionVars)); // 1303 s (233)
+		//solver.setSearch(Search.domOverWDegSearch(decisionVars)); // 1228 s (251)
+		//solver.setSearch(Search.intVarSearch(new DomOverWDeg<>(decisionVars, 0),new IntDomainMax(), decisionVars)); // 2422 s (1375)
+		//solver.setSearch(Search.intVarSearch(new DomOverWDeg<>(decisionVars, 0),new IntDomainLast(solution, new IntDomainMin(), null), decisionVars)); // 1033 s (229)
+		
+		//solver.setGeometricalRestart(decisionVars.length * 10L, 1.2d, new FailCounter(model, 0), 500);
+		//solver.setNoGoodRecordingFromRestarts();
+		//solver.setNoGoodRecordingFromSolutions(decisionVars);
+		//solver.showRestarts();
+		//solver.setSearch(Search.activityBasedSearch(decisionVars)); // 2626 s (13)
+		//solver.setSearch(Search.conflictHistorySearch(decisionVars)); //
+		//solver.setSearch(Search.intVarSearch(new ConflictHistorySearch<>(decisionVars, 0),new IntDomainMax(), decisionVars)); //
+		//solver.setSearch(Search.intVarSearch(new ConflictHistorySearch<>(decisionVars, 0),new IntDomainLast(solution, new IntDomainMin(), null), decisionVars)); //
+		//solver.setSearch(Search.domOverWDegSearch(decisionVars)); //
+		//solver.setSearch(Search.intVarSearch(new DomOverWDeg<>(decisionVars, 0),new IntDomainMax(), decisionVars)); //
+		//solver.setSearch(Search.intVarSearch(new DomOverWDeg<>(decisionVars, 0),new IntDomainLast(solution, new IntDomainMin(), null), decisionVars)); //
+		
+		//solver.setGeometricalRestart(decisionVars.length * 1L, 1.05d, new FailCounter(model, 0), 500);// 2941 s (8)
+		//solver.setGeometricalRestart(decisionVars.length * 1L, 1.2d, new FailCounter(model, 0), 500);// 2196 s (20)
+		//solver.setGeometricalRestart(decisionVars.length * 10L, 1.05d, new FailCounter(model, 0), 1000);// 3284 s (18)
+		//solver.setNoGoodRecordingFromRestarts();
+		//solver.setNoGoodRecordingFromSolutions(decisionVars);
+		//solver.showRestarts();
+		//solver.setSearch(Search.activityBasedSearch(decisionVars)); // 3284 (18)
+		//solver.setSearch(Search.conflictHistorySearch(decisionVars)); //
 		//solver.setSearch(Search.intVarSearch(new ConflictHistorySearch<>(decisionVars, 0),new IntDomainMax(), decisionVars)); //
 		//solver.setSearch(Search.domOverWDegSearch(decisionVars)); //
 		//solver.setSearch(Search.intVarSearch(new DomOverWDeg<>(decisionVars, 0),new IntDomainMax(), decisionVars)); //
-		//solver.setSearch(Search.lastConflict(Search.intVarSearch(new FirstFail(model),new IntDomainLast(solution, new IntDomainMax(), null),decisionVars), 1 )); //1306 (631)
-		//solver.setSearch(Search.lastConflict(Search.intVarSearch(new FirstFail(model),new IntDomainLast(solution, new IntDomainMin(), null),decisionVars), 1 )); //912 (45)
-		//solver.setSearch(Search.lastConflict(Search.intVarSearch(new FirstFail(model),new IntDomainMin(),decisionVars), 1 )); //638 (36)
-		//solver.setSearch(Search.lastConflict(Search.intVarSearch(new FirstFail(model),new IntDomainMax(),decisionVars), 1 )); //1992 (166)
+		
 	}
+	
+	/*public Object[][] strategies() {
+    return new Object[][]{
+            {(Function<IntVar[], AbstractStrategy<IntVar>>) vars -> new ImpactBased(vars, 2, 3, 10, 0, true)},
+            {(Function<IntVar[], AbstractStrategy<IntVar>>) Search::activityBasedSearch},
+            {(Function<IntVar[], AbstractStrategy<IntVar>>) Search::domOverWDegSearch},
+            {(Function<IntVar[], AbstractStrategy<IntVar>>) Search::conflictHistorySearch},
+            {(Function<IntVar[], AbstractStrategy<IntVar>>) Search::domOverWDegRefSearch},
+            {(Function<IntVar[], AbstractStrategy<IntVar>>) Search::failureRateBasedSearch},
+            {(Function<IntVar[], AbstractStrategy<IntVar>>) Search::failureLengthBasedSearch},
+            {(Function<IntVar[], AbstractStrategy<IntVar>>) Search::pickOnDom},
+            {(Function<IntVar[], AbstractStrategy<IntVar>>) Search::pickOnFil},
+            {(Function<IntVar[], AbstractStrategy<IntVar>>) Search::roundRobinSearch}};
+	}
+	
+	@Test(groups = "10s", timeOut = 60000, dataProvider = "strategies")
+	public void testCostas(Function<IntVar[], AbstractStrategy<IntVar>> strat) {
+	Model model = ProblemMaker.makeCostasArrays(6);
+	IntVar[] vars = model.retrieveIntVars(true);
+	Solver solver = model.getSolver();
+	solver.setSearch(strat.apply(vars));
+	solver.setGeometricalRestart(vars.length * 3L, 1.1d, new FailCounter(model, 0), 1000);
+	solver.setNoGoodRecordingFromRestarts();
+	model.getSolver().showRestarts();
+	solver.findAllSolutions();
+	solver.printShortStatistics();
+	Assert.assertEquals(solver.getSolutionCount(), 58);
+	}*/
 	
 	/**
 	 * Set the strategy of the solver (For multiple planning to generate due to sync constraint)
