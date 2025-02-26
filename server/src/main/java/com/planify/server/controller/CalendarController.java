@@ -136,7 +136,7 @@ public class CalendarController {
                 .flatMap(lesson -> lesson.synchronisedWith().stream())
                 .toList();
         List<TAFSynchronised> tafSynchroniseds = new ArrayList<>();
-        if (tafs != null) {
+        if (tafs != null && !tafs.isEmpty()) {
             for (TAF sTaf : tafs) {
                 List<PlanningReturn> returns = new ArrayList<>();
                 List<Planning> plannings = sTaf.getCalendars().getFirst().getPlannings();
@@ -147,10 +147,15 @@ public class CalendarController {
                 TAFSynchronised tafSynchronised = new TAFSynchronised(sTaf.getId(), sTaf.getName(),returns);
                 tafSynchroniseds.add(tafSynchronised);
             }
-        }
-        CheckOK ok = new CheckOK(tafSynchroniseds);
 
-        return ResponseEntity.ok(ok);
+            CheckOK ok = new CheckOK(tafSynchroniseds);
+            return ResponseEntity.ok(ok);
+        }
+        else {
+            SolverExecutor.generatePlanning(planning);
+            return ResponseEntity.ok("The solver is launched ! (PlanningId : " + planning.getId() + ")");
+        }
+
     }
 
     @GetMapping(value = "/solver/history/{idTaf}", produces = MediaType.APPLICATION_JSON_VALUE )
