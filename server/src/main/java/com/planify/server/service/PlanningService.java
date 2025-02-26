@@ -93,5 +93,18 @@ public class PlanningService {
         planning.setScheduledLessons(scheduledLessons);
         planningRepository.save(planning);
     }
+    
+    public Planning createPlanningForGeneration(Planning planning) {
+    	Planning planningGeneration = new Planning(planning);
+    	this.save(planningGeneration);
+    	return planningGeneration;
+    }
+    
 
+    
+    public static Planning[] createPlanningsForGeneration(Planning[] planningsToGenerate) {
+    	Planning[] plannings = new Planning[planningsToGenerate.length];
+    	for (int i = 0; i < plannings.length; i ++) plannings[i] = new Planning(planningsToGenerate[i]);
+    	return plannings;
+    }
 }

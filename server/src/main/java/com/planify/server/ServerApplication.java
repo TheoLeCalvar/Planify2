@@ -584,11 +584,12 @@ public class ServerApplication {
 
 	private static void testSolver(ApplicationContext context) {
 		//testSynchronisationSeparation(context);
+		testSolver1(context, setSettingsPlanning(planningSolverOneDay()));
 		//testSolver1(context, setSettingsPlanning(planningSolverTestEfficiency1()));
 		//testSolver2(context);
 		//testSolver2bis(context);
 		//testSolver3(context);
-		testSolverDCLNS1(context);
+		//testSolverDCLNS1(context);
 	}
 	
 	private static Planning setSettingsPlanning(Planning planning) {
@@ -671,7 +672,7 @@ public class ServerApplication {
 	private static void testSolver1(ApplicationContext context, Planning planning) {		
 		SolverServices solverServices = context.getBean(SolverServices.class);
 		SolverMain.setServices(solverServices);
-		SolverMain.generatePlanningString(planning);
+		SolverExecutor.generatePlanning(planning);
 	}
 	
 	private static void testSolver2(ApplicationContext context) {

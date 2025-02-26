@@ -165,6 +165,7 @@ public class SolverMain {
 	 */
 	public static void setServices(SolverServices services) {
 		SolverMain.services = services;
+		SolverExecutor.setServices(services);
 	}
 	
 	/**
@@ -196,7 +197,7 @@ public class SolverMain {
 					}
 					else {
 						planningsToConsider.add(otherPlanning);
-						planningsToGenerate.add(otherPlanning);
+						planningsToGenerate.add(services.getPlanningService().createPlanningForGeneration(otherPlanning));
 					}
 				}
 			}
