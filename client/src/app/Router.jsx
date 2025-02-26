@@ -30,6 +30,7 @@ import { loader as LessonsAvailabilityLoader } from "./routes/taf/LessonsAvailab
 import { loader as TAFResultsLoader } from "./routes/taf/Planning";
 import { loader as TAFConfigsLoader } from "./routes/taf/Configs";
 import { loader as TAFConfigLoader } from "./routes/taf/Config";
+import { loader as TAFGeneratePlanningLoader } from "./routes/GeneratePlanning";
 import { action as editUEAction } from "./routes/ue/Settings";
 import { action as editLessonsAction } from "./routes/ue/Lessons";
 import { action as editTAFCalendarAction } from "./routes/taf/LessonsAvailability";
@@ -37,6 +38,7 @@ import { action as editTAFSettingsAction } from "./routes/taf/Settings";
 import { action as createNewUserAction } from "@/components/CreateUser";
 import { action as editTAFConfigAction } from "./routes/taf/Config";
 import TAFConfig from "./routes/taf/Config";
+import GeneratePlanning from "./routes/GeneratePlanning";
 
 // Define UE nested routes
 const ueRoutes = [
@@ -111,6 +113,11 @@ const tafRoutes = [
         ],
       },
     ],
+  },
+  {
+    path: "generate",
+    element: <GeneratePlanning />,
+    loader: TAFGeneratePlanningLoader,
   },
   {
     path: "results",
