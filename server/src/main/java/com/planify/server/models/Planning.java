@@ -27,6 +27,8 @@ public class Planning {
     private Calendar calendar;
 
     private Status status;
+    
+    private String messageGeneration;
 
     // Constraints
 
@@ -371,8 +373,15 @@ public class Planning {
         this.status = status;
     }
 
+    public String getMessageGeneration() {
+		return messageGeneration;
+	}
 
-    public void waitForProcessing() {
+	public void setMessageGeneration(String messageGeneration) {
+		this.messageGeneration = messageGeneration;
+	}
+
+	public void waitForProcessing() {
         this.status = Status.WAITING_TO_BE_PROCESSED;
     }
 

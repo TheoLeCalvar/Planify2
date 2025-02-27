@@ -122,11 +122,11 @@ public class PlanningService {
 										        planning.getWeightLessonGrouping(),
 										        planning.isLessonGrouping()
 										    	);
-    	constraintsOfUEService.createForNewPlanning(planning.getConstraintsOfUEs(), planningGeneration);
-    	constraintSynchroniseWithTAFService.createForNewPlanning(planning.getConstrainedSynchronisations(), planningGeneration);
     	planningGeneration.waitForProcessing();
-        System.out.println("PlanningService" + planningGeneration.toString());
-    	this.save(planningGeneration);
+        this.save(planningGeneration);
+    	planningGeneration.setConstraintsOfUEs(constraintsOfUEService.createForNewPlanning(planning.getConstraintsOfUEs(), planningGeneration));
+    	planningGeneration.setConstraintsSynchronisation(constraintSynchroniseWithTAFService.createForNewPlanning(planning.getConstraintsSynchronisation(), planningGeneration));
+    	System.out.println(planningGeneration.getConstraintsSynchronisation().size());
     	return planningGeneration;
     }
     

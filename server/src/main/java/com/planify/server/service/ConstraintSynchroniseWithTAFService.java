@@ -39,10 +39,12 @@ public class ConstraintSynchroniseWithTAFService {
         }
     }
     
-    public void createForNewPlanning(List<ConstraintSynchroniseWithTAF> cSyncs, Planning newPlanning){
+    public List<ConstraintSynchroniseWithTAF> createForNewPlanning(List<ConstraintSynchroniseWithTAF> cSyncs, Planning newPlanning){
     	List<ConstraintSynchroniseWithTAF> newCSyncs = cSyncs.stream().map(cSync -> add(newPlanning, cSync.getOtherPlanning(), cSync.isEnabled())).toList();
-        for (ConstraintSynchroniseWithTAF cs : newCSyncs) {
+        System.out.println("AAAAAAAAAAAAAAA " + newCSyncs.size());
+    	for (ConstraintSynchroniseWithTAF cs : newCSyncs) {
             constraintSynchroniseWithTAFRepository.save(cs);
         }
+        return newCSyncs;
     }
 }
