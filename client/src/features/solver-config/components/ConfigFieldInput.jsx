@@ -7,6 +7,7 @@ import { Typography } from "@mui/material";
 
 // Local imports
 import ValidatedInput from "@/components/ValidatedInput";
+import styles from "./ConfigField.styles";
 
 const ConfigFieldInput = ({ field, formData, type }) => {
   const commonProps = {
@@ -18,7 +19,9 @@ const ConfigFieldInput = ({ field, formData, type }) => {
 
   return (
     <>
-      <Typography variant="body1">{field.label} :</Typography>
+      <Typography variant="body1" sx={styles.fieldLabel}>
+        {field.label} :
+      </Typography>
       <ValidatedInput {...commonProps} type={type || field.type} />
     </>
   );

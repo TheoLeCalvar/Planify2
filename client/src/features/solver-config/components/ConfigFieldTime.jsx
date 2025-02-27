@@ -10,6 +10,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 // Local imports
 import ValidatedInput from "@/components/ValidatedInput";
 import parseTime from "../utils/parseTime";
+import styles from "./ConfigField.styles";
 
 const ConfigFieldTime = ({ field, formData }) => {
   // Convert a string default value to a Dayjs instance if needed.
@@ -27,7 +28,9 @@ const ConfigFieldTime = ({ field, formData }) => {
 
   return (
     <>
-      <Typography variant="body1">{field.label} :</Typography>
+      <Typography variant="body1" sx={styles.fieldLabel}>
+        {field.label} :
+      </Typography>
       <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="fr">
         <ValidatedInput {...commonProps}>
           <TimeField

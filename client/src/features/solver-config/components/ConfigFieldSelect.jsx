@@ -7,6 +7,7 @@ import { MenuItem, Select, Typography } from "@mui/material";
 
 // Local imports
 import ValidatedInput from "@/components/ValidatedInput";
+import styles from "./ConfigField.styles";
 
 const ConfigFieldSelect = ({ field, formData }) => {
   const commonProps = {
@@ -18,7 +19,9 @@ const ConfigFieldSelect = ({ field, formData }) => {
 
   return (
     <>
-      <Typography variant="body1">{field.label} :</Typography>
+      <Typography variant="body1" sx={styles.fieldLabel}>
+        {field.label} :
+      </Typography>
       <ValidatedInput {...commonProps}>
         <Select>
           {field.options.map((opt) => (

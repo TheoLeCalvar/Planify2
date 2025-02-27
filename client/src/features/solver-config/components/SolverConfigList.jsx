@@ -41,3 +41,5 @@ ConfigSectionList.propTypes = {
   ).isRequired,
   formData: PropTypes.object,
 };
+
+export default ConfigSectionList;

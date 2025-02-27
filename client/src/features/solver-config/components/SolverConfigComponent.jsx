@@ -13,7 +13,7 @@ import { Stack, Typography } from "@mui/material";
 // Local imports
 import ValidatedForm from "@/components/ValidatedForm";
 import DeleteConfigButton from "./DeleteConfigButton";
-import ConfigSectionList from "./ConfigSectionList";
+import SolverConfigList from "./SolverConfigList";
 import { globalConfigSections, ueConfigSections } from "../utils/solverConfig";
 
 const findValidator = (fieldName, sections) => {
@@ -68,7 +68,7 @@ const SolverConfigComponent = () => {
         }
       >
         <Stack spacing={3} direction="column">
-          <ConfigSectionList
+          <SolverConfigList
             title={header.title}
             tooltip={header.tooltip}
             sections={sections}

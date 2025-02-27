@@ -19,7 +19,7 @@ const ConfigFieldGroup = ({ config, formData }) => {
         title={config.title}
         description={config.description}
       />
-      <Stack direction="row" spacing={3} alignItems="center">
+      <Stack sx={styles.fieldStack}>
         {config.fields.map((field) => {
           switch (field.type) {
             case "select":
