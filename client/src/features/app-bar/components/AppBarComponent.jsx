@@ -8,6 +8,7 @@ import {
   Toolbar,
   Typography,
   IconButton,
+  Box,
 } from "@mui/material";
 import { Menu as MenuIcon } from "@mui/icons-material";
 
@@ -51,7 +52,9 @@ const AppBarComponent = () => {
           <ProfileMenu />
         </Toolbar>
       </MuiAppBar>
-      <Outlet />
+      <Box sx={styles.mainContent}>
+        <Outlet />
+      </Box>
     </>
   );
 };
