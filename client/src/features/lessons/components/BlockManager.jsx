@@ -108,6 +108,25 @@ const EmptyBlockError = ({ blocks }) => {
   );
 };
 
+const SurchargeBlockError = ({ blocks }) => {
+  const errorBlock = blocks.find((block) => block.lessons.length > 3);
+  if (!errorBlock) return null;
+  return (
+    <Box sx={styles.errorBox}>
+      <Typography variant="body2" color="error">
+        Erreur : tous les blocs doivent contenir au maximum 3 cours.
+      </Typography>
+      <Typography variant="body2" color="error">
+        Bloc surchargé : {errorBlock.title}
+      </Typography>
+    </Box>
+  );
+};
+
+SurchargeBlockError.propTypes = {
+  blocks: PropTypes.array.isRequired,
+};
+
 EmptyBlockError.propTypes = {
   blocks: PropTypes.array.isRequired,
 };
@@ -353,6 +372,7 @@ const BlockManager = ({
           blocks={blocks}
         />
         <EmptyBlockError blocks={blocks} />
+        <SurchargeBlockError blocks={blocks} />
         <BlocksDragDropList
           blocks={blocks}
           onDragEnd={handleDragEnd}
