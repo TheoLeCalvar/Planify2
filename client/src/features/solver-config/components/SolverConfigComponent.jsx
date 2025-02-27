@@ -8,41 +8,49 @@ import {
 } from "react-router-dom";
 
 // Material-UI imports
-import { IconButton, Stack, Tooltip, Typography } from "@mui/material";
-import InfoIcon from "@mui/icons-material/Info";
+import { Stack, Typography } from "@mui/material";
 
 // Local imports
 import ValidatedForm from "@/components/ValidatedForm";
-import ConfigFieldGroup from "./ConfigFieldGroup";
 import DeleteConfigButton from "./DeleteConfigButton";
+import ConfigSectionList from "./ConfigSectionList";
 import { globalConfigSections, ueConfigSections } from "../utils/solverConfig";
+
+const findValidator = (fieldName, sections) => {
+  for (const section of sections) {
+    for (const field of section.fields) {
+      if (field.name === fieldName && typeof field.validate === "function") {
+        return field.validate;
+      }
+    }
+  }
+  return null;
+};
 
 const SolverConfigComponent = () => {
   const data = useLoaderData();
-  const params = useParams();
+  const { idConfig } = useParams();
   const navigate = useNavigate();
-  const context = useOutletContext();
+  const { ue } = useOutletContext();
+  const isEditing = Boolean(idConfig);
 
-  const isEditing = !!params.idConfig;
+  const onCancel = () => navigate("..");
 
-  const onCancel = () => {
-    navigate("..");
-  };
-
-  // Helper to retrieve the validation function for a given field from the mapping.
-  const findValidator = (fieldName, sections) => {
-    for (const section of sections) {
-      for (const field of section.fields) {
-        if (field.name === fieldName && typeof field.validate === "function") {
-          return field.validate;
-        }
+  // Determine the sections and header based on the outlet context.
+  const sections = ue ? ueConfigSections : globalConfigSections;
+  const header = ue
+    ? {
+        title: "Contraintes relatives à l’UE",
+        tooltip:
+          "Seules les contraintes spécifiques à cette UE sont affichées. Les contraintes globales à la TAF sont configurées dans les paramètres de la TAF.",
       }
-    }
-    return null;
-  };
+    : {
+        title: "Contraintes relatives à la TAF",
+        tooltip:
+          "Seules les contraintes globales à la TAF sont affichées. Les contraintes relatives aux UE sont configurées dans les paramètres de chaque UE.",
+      };
 
   const validateField = (name, value, otherValues) => {
-    const sections = context?.ue ? ueConfigSections : globalConfigSections;
     const validator = findValidator(name, sections);
     return validator ? validator(value, otherValues) : "";
   };
@@ -56,51 +64,16 @@ const SolverConfigComponent = () => {
         validateField={validateField}
         onCancel={onCancel}
         actionButtons={
-          isEditing ? <DeleteConfigButton idConfig={params.idConfig} /> : null
+          isEditing ? <DeleteConfigButton idConfig={idConfig} /> : null
         }
       >
         <Stack spacing={3} direction="column">
-          {!context?.ue ? (
-            <>
-              <Stack direction="row" alignItems="center" spacing={1}>
-                <Tooltip title="Seules les contraintes globales à la TAF sont affichées. Les contraintes relatives aux UE sont configurées dans les paramètres de chaque UE.">
-                  <IconButton size="small">
-                    <InfoIcon fontSize="inherit" />
-                  </IconButton>
-                </Tooltip>
-                <Typography variant="h6">
-                  Contraintes relatives à la TAF
-                </Typography>
-              </Stack>
-              {globalConfigSections.map((section) => (
-                <ConfigFieldGroup
-                  key={section.title}
-                  config={section}
-                  formData={data}
-                />
-              ))}
-            </>
-          ) : (
-            <>
-              <Stack direction="row" alignItems="center" spacing={1}>
-                <Tooltip title="Seules les contraintes spécifiques à cette UE sont affichées. Les contraintes globales à la TAF sont configurées dans les paramètres de la TAF.">
-                  <IconButton size="small">
-                    <InfoIcon fontSize="inherit" />
-                  </IconButton>
-                </Tooltip>
-                <Typography variant="h6">
-                  Contraintes relatives à l&apos;UE
-                </Typography>
-              </Stack>
-              {ueConfigSections.map((section) => (
-                <ConfigFieldGroup
-                  key={section.title}
-                  config={section}
-                  formData={data}
-                />
-              ))}
-            </>
-          )}
+          <ConfigSectionList
+            title={header.title}
+            tooltip={header.tooltip}
+            sections={sections}
+            formData={data}
+          />
         </Stack>
       </ValidatedForm>
     </>
