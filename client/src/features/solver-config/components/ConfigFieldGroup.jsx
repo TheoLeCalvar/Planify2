@@ -6,15 +6,16 @@ import PropTypes from "prop-types";
 import { Stack } from "@mui/material";
 
 // Local imports
-import ConfigFieldHeader from "./ConfigFieldHeader";
+import ConfigFieldGroupHeader from "./ConfigFieldGroupHeader";
 import ConfigFieldInput from "./ConfigFieldInput";
 import ConfigFieldSelect from "./ConfigFieldSelect";
 import ConfigFieldTime from "./ConfigFieldTime";
+import styles from "./ConfigField.styles";
 
 const ConfigFieldGroup = ({ config, formData }) => {
   return (
     <>
-      <ConfigFieldHeader
+      <ConfigFieldGroupHeader
         title={config.title}
         description={config.description}
       />

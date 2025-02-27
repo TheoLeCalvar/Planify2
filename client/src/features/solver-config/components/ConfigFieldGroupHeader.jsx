@@ -1,13 +1,16 @@
-// React imports
+// ConfigFieldGroupHeader.jsx
 import React from "react";
 import PropTypes from "prop-types";
 
 // Material-UI imports
 import { Stack, Typography } from "@mui/material";
 
-const ConfigFieldHeader = ({ title, description }) => {
+// Import the shared styles
+import styles from "./ConfigField.styles";
+
+const ConfigFieldGroupHeader = ({ title, description }) => {
   return (
-    <Stack direction="row" spacing={3} alignItems="center" mt={2}>
+    <Stack sx={styles.headerStack}>
       <Typography variant="h6">{title}</Typography>
       {description && (
         <Typography variant="body2" color="text.secondary">
@@ -18,9 +21,9 @@ const ConfigFieldHeader = ({ title, description }) => {
   );
 };
 
-ConfigFieldHeader.propTypes = {
+ConfigFieldGroupHeader.propTypes = {
   title: PropTypes.string.isRequired,
   description: PropTypes.string,
 };
 
-export default ConfigFieldHeader;
+export default ConfigFieldGroupHeader;
