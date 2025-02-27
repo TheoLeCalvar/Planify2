@@ -10,7 +10,7 @@ import axiosInstance from "@/config/axiosConfig";
 import dayjs from "dayjs";
 
 // Custom components
-import SolverConfigComponent from "@/features/solver-config/components/SolverConfigComponent";
+import SolverConfigComponent from "@/features/solver-config/components/SolverConfig";
 
 export async function loader({ params }) {
   if (params.idConfig) {

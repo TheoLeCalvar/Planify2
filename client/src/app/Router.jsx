@@ -18,7 +18,7 @@ import General from "./routes/ue/General";
 import Settings from "./routes/ue/Settings";
 import Lessons from "./routes/ue/Lessons";
 import TAFAllSettings from "./routes/taf/SettingsRouter";
-import TAFConfigs from "./routes/taf/Configs";
+import SolverConfigSelector from "./routes/taf/SolverConfigSelector";
 import ContentPadding from "./routes/layout/ContentPadding";
 import SolverConfig from "./routes/taf/SolverConfig";
 
@@ -29,7 +29,7 @@ import { loader as UELoader } from "./routes/Ue";
 import { loader as LessonsLoader } from "./routes/ue/Lessons";
 import { loader as LessonsAvailabilityLoader } from "./routes/taf/LessonsAvailability";
 import { loader as TAFResultsLoader } from "./routes/taf/Planning";
-import { loader as TAFConfigsLoader } from "./routes/taf/Configs";
+import { loader as SolverConfigSelectorLoader } from "./routes/taf/SolverConfigSelector";
 import { loader as SolverConfigLoader } from "./routes/taf/SolverConfig";
 import { loader as TAFGeneratePlanningLoader } from "./routes/GeneratePlanning";
 import { action as editUEAction } from "./routes/ue/Settings";
@@ -59,8 +59,8 @@ const ueRoutes = [
   },
   {
     path: "config",
-    element: <TAFConfigs />,
-    loader: TAFConfigsLoader,
+    element: <SolverConfigSelector />,
+    loader: SolverConfigSelectorLoader,
     children: [
       {
         path: "new",
@@ -97,8 +97,8 @@ const tafRoutes = [
       },
       {
         path: "config",
-        element: <TAFConfigs />,
-        loader: TAFConfigsLoader,
+        element: <SolverConfigSelector />,
+        loader: SolverConfigSelectorLoader,
         children: [
           {
             path: "new",
