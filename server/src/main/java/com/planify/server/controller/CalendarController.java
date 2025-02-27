@@ -46,7 +46,7 @@ public class CalendarController {
 
         for (Config.CSyncrho cSyncrho : config.getConstraintsSynchronisation()) {
             Planning otherPlanning = planningService.findById(cSyncrho.getOtherPlanning()).orElseThrow(()-> new IllegalArgumentException("The other planning does nott exist"));
-            realPlanning.addConstraintSynchroniseWithTAF(new ConstraintSynchroniseWithTAF(realPlanning, otherPlanning, cSyncrho.isEnabled(), cSyncrho.isGenerateOtherPlanning() ));
+            realPlanning.addConstraintSynchroniseWithTAF(new ConstraintSynchroniseWithTAF(realPlanning, otherPlanning, cSyncrho.isEnabled() ));
         }
 
         Calendar calendar = realPlanning.getCalendar();

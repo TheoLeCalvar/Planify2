@@ -60,7 +60,6 @@ public class Config {
     public static class CSyncrho {
         private Long otherPlanning;
         private Boolean enabled;
-        private Boolean generateOtherPlanning;
 
         public CSyncrho() {
         }
@@ -68,7 +67,6 @@ public class Config {
         public CSyncrho(ConstraintSynchroniseWithTAF c) {
             this.otherPlanning = c.getOtherPlanning().getId();
             this.enabled = c.isEnabled();
-            this.generateOtherPlanning = c.isGenerateOtherPlanning();
         }
 
         public Long getOtherPlanning() {
@@ -85,14 +83,6 @@ public class Config {
 
         public void setEnabled(boolean enabled) {
             this.enabled = enabled;
-        }
-
-        public Boolean isGenerateOtherPlanning() {
-            return generateOtherPlanning;
-        }
-
-        public void setGenerateOtherPlanning(boolean generateOtherPlanning) {
-            this.generateOtherPlanning = generateOtherPlanning;
         }
     }
 

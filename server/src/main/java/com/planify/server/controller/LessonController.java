@@ -801,8 +801,7 @@ public class LessonController {
                 ConstraintSynchroniseWithTAF c = new ConstraintSynchroniseWithTAF(
                         planning,
                         planningService.findById(cs.getOtherPlanning()).orElseThrow(() -> new IllegalArgumentException("The Other Planning doesn't exist")),
-                        cs.isEnabled(),
-                        cs.isGenerateOtherPlanning()
+                        cs.isEnabled()
                 );
                 cSynchronisations.add(c);
             }

@@ -22,8 +22,6 @@ public class ConstraintSynchroniseWithTAF {
 
     private boolean enabled;
 
-    private boolean generateOtherPlanning;
-
     @Embeddable
     public static class ConstraintsSynchroniseWithTAFId implements Serializable {
 
@@ -64,12 +62,11 @@ public class ConstraintSynchroniseWithTAF {
         this.otherPlanning = otherPlanning;
     }
     
-    public ConstraintSynchroniseWithTAF(Planning planning, Planning otherPlanning, boolean enabled, boolean generateOtherPlanning) {
+    public ConstraintSynchroniseWithTAF(Planning planning, Planning otherPlanning, boolean enabled) {
         this.id = new ConstraintsSynchroniseWithTAFId(planning.getId(), otherPlanning.getId());
     	this.planning = planning;
         this.otherPlanning = otherPlanning;
         this.enabled = enabled;
-        this.generateOtherPlanning = generateOtherPlanning;
     }
 
     public Planning getOtherPlanning() {
@@ -96,14 +93,6 @@ public class ConstraintSynchroniseWithTAF {
         this.enabled = enabled;
     }
 
-    public boolean isGenerateOtherPlanning() {
-        return generateOtherPlanning;
-    }
-
-    public void setGenerateOtherPlanning(boolean generateBothPlanning) {
-        this.generateOtherPlanning = generateBothPlanning;
-    }
-
     public Planning getPlanning() {
         return planning;
     }
@@ -117,12 +106,10 @@ public class ConstraintSynchroniseWithTAF {
         return "ConstraintSynchroniseWithTAF{" +
                 "id=" + id +
                 ", enabled=" + enabled +
-                ", generateOtherPlanning=" + generateOtherPlanning +
                 '}';
     }
 
     public void updateConfig(Config.CSyncrho cs) {
         if (cs.isEnabled() != null) this.enabled = cs.isEnabled();
-        if (cs.isGenerateOtherPlanning() != null) this.generateOtherPlanning = cs.isGenerateOtherPlanning();;
     }
 }
