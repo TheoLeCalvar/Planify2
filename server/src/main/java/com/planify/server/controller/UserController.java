@@ -13,12 +13,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -28,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import com.planify.server.authentification.JwtUtil;
 import com.planify.server.controller.returnsClass.AuthentificationRequest;
 import com.planify.server.controller.returnsClass.AuthentificationResponse;
+import com.planify.server.controller.returnsClass.ChangePasswordRequest;
 import com.planify.server.controller.returnsClass.UserShort;
 import com.planify.server.models.LessonLecturer;
 import com.planify.server.models.TAF;
@@ -156,6 +160,35 @@ public class UserController {
         } catch (BadCredentialsException e) {
             return ResponseEntity.status(401).body("Invalid username or password");
         }
+    }
+
+    @PutMapping("/user/password")
+    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest request) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !(authentication.getPrincipal() instanceof UserDetails)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication required");
+        }
+
+        String email = ((UserDetails) authentication.getPrincipal()).getUsername();
+        Optional<User> userOptional = userService.findByMail(email);
+
+        if (userOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        }
+
+        User user = userOptional.get();
+
+        // Verify old password
+        if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Old password is incorrect");
+        }
+
+        // Hash and save new password
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userService.save(user);
+
+        return ResponseEntity.ok("Password updated successfully");
     }
 
 }
