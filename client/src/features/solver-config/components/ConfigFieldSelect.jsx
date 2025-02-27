@@ -14,7 +14,6 @@ const ConfigFieldSelect = ({ field, formData }) => {
     name: field.name,
     defaultValue: formData[field.name] || field.defaultValue,
     required: field.required,
-    label: field.label,
   };
 
   return (
