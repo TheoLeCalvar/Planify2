@@ -51,6 +51,7 @@ public class PlanningService {
 
 
     public  void save(Planning p) {
+        System.out.println("PlanningService" + p.toString());
         planningRepository.save(p);
     }
 
@@ -124,6 +125,7 @@ public class PlanningService {
     	constraintsOfUEService.createForNewPlanning(planning.getConstraintsOfUEs(), planningGeneration);
     	constraintSynchroniseWithTAFService.createForNewPlanning(planning.getConstrainedSynchronisations(), planningGeneration);
     	planningGeneration.waitForProcessing();
+        System.out.println("PlanningService" + planningGeneration.toString());
     	this.save(planningGeneration);
     	return planningGeneration;
     }

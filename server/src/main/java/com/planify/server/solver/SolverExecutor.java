@@ -24,6 +24,7 @@ public class SolverExecutor {
 	}
     
     private static Planning createPlanningForGeneration(Planning planning) {
+		System.out.println("SolverExecutor2" + planning.toString());
     	return services.getPlanningService().createPlanningForGeneration(planning);
     }
     
@@ -32,6 +33,7 @@ public class SolverExecutor {
     }
     
 	public static void generatePlanning(Planning planning) {
+		System.out.println("SolverExecutor" + planning.toString());
 		generatePlanning(createPlanningForGeneration(planning), nbGene, SolverMain::generatePlanning);
 		nbGene ++;
 	}

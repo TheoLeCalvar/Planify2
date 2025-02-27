@@ -48,7 +48,9 @@ public class ConstraintsOfUEService {
     
     public List<ConstraintsOfUE> createForNewPlanning(List<ConstraintsOfUE> cUes, Planning newPlanning){
     	List<ConstraintsOfUE> newCUes = cUes.stream().map(cUe -> add(cUe.getUe(), newPlanning, cUe.isLessonCountInWeek(), cUe.getMaxLessonInWeek(), cUe.getMinLessonInWeek(), cUe.isMaxTimeWithoutLesson(), cUe.isMaxTimeWLUnitInWeeks(), cUe.getMaxTimeWLDuration(), cUe.isSpreading(), cUe.getMaxSpreading(), cUe.getMinSpreading(), cUe.getLessonGroupingNbLessons())).toList();
-    	newPlanning.setConstraintsOfUEs(newCUes);
+    	for (ConstraintsOfUE coue : newCUes) {
+            constraintsOfUERepository.save(coue);
+        }
     	return newCUes;
     }
 }

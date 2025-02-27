@@ -347,7 +347,7 @@ public class LessonController {
                     .filter(lesson -> !Objects.equals(lesson.getId(), actualId1))
                     .toList();
 
-            List<LessonSynchronised> lessonSynchroniseds1 = synchronised1.stream().map(lesson -> new LessonSynchronised(lesson.getId(), lesson.getUe().getTaf().getName(), lesson.getUe().getName())).toList();
+            List<LessonSynchronised> lessonSynchroniseds1 = synchronised1.stream().map(lesson -> new LessonSynchronised(lesson.getId(), lesson.getUe().getTaf().getName(), lesson.getUe().getName(), lesson.getName())).toList();
 
             LessonShort currentLessonShort = new LessonShort(
                     currentLesson.getId(),
@@ -372,7 +372,7 @@ public class LessonController {
                         .filter(lesson -> !Objects.equals(lesson.getId(), actualId))
                         .toList();
 
-                List<LessonSynchronised> lessonSynchroniseds = synchronised.stream().map(lesson -> new LessonSynchronised(lesson.getId(), lesson.getUe().getTaf().getName(), lesson.getUe().getName())).toList();
+                List<LessonSynchronised> lessonSynchroniseds = synchronised.stream().map(lesson -> new LessonSynchronised(lesson.getId(), lesson.getUe().getTaf().getName(), lesson.getUe().getName(), lesson.getName())).toList();
 
                 currentLessonShort = new LessonShort(
                         currentLesson.getId(),

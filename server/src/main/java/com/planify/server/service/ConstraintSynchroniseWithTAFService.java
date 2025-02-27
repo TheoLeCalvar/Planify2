@@ -41,6 +41,8 @@ public class ConstraintSynchroniseWithTAFService {
     
     public void createForNewPlanning(List<ConstraintSynchroniseWithTAF> cSyncs, Planning newPlanning){
     	List<ConstraintSynchroniseWithTAF> newCSyncs = cSyncs.stream().map(cSync -> add(newPlanning, cSync.getOtherPlanning(), cSync.isEnabled())).toList();
-    	newPlanning.setConstrainedSynchronisations(newCSyncs);
+        for (ConstraintSynchroniseWithTAF cs : newCSyncs) {
+            constraintSynchroniseWithTAFRepository.save(cs);
+        }
     }
 }

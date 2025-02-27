@@ -152,6 +152,7 @@ public class CalendarController {
             return ResponseEntity.ok(ok);
         }
         else {
+            System.out.println("CalendarController" + planning.toString());
             SolverExecutor.generatePlanning(planning);
             return ResponseEntity.status(HttpStatus.CREATED).body("The solver is launched ! (PlanningId : " + planning.getId() + ")");
         }
