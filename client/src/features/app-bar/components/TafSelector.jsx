@@ -43,6 +43,9 @@ const TAFSelector = ({ selectedOption, onChange, tafs }) => {
               {name}
             </MenuItem>
           ))}
+          {tafs.length === 0 && (
+            <MenuItem disabled>Aucune TAF disponible</MenuItem>
+          )}
         </Select>
       </FormControl>
       <Link to="/taf/new">

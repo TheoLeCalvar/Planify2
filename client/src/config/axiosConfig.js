@@ -34,23 +34,22 @@ axiosInstance.interceptors.response.use(
       if (error.response.status === 401) {
         // Rediriger vers la page de connexion
         window.location.href = "/login";
+      } else {
+        return Promise.reject({
+          ...error,
+          statusText:
+            "Erreur code" + error.response?.status + " - " + error?.message,
+        });
       }
-    } else {
+    } else if (error.request) {
       return Promise.reject({
         ...error,
-        statusText:
-          "Erreur code" + error.response.status + " - " + error.message,
-      });
-    }
-    if (error.request) {
-      return Promise.reject({
-        ...error,
-        statusText: "Serveur injoignable. " + error.message,
+        statusText: "Serveur injoignable. " + error?.message,
       });
     }
     return Promise.reject({
       ...error,
-      statusText: "Erreur inconnue lors de la requête. " + error.message,
+      statusText: "Erreur inconnue lors de la requête. " + error?.message,
     });
   },
 );
