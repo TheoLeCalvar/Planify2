@@ -12,7 +12,7 @@ import ConfigFieldGroup from "./ConfigFieldGroup";
 // Helper component for displaying header and mapping sections
 const ConfigSectionList = ({ title, tooltip, sections, formData }) => (
   <>
-    <Stack direction="row" alignItems="center" spacing={1}>
+    <Stack direction="row" alignItems="center" spacing={10}>
       <Tooltip title={tooltip}>
         <IconButton size="small">
           <InfoIcon fontSize="inherit" />
@@ -20,13 +20,15 @@ const ConfigSectionList = ({ title, tooltip, sections, formData }) => (
       </Tooltip>
       <Typography variant="h6">{title}</Typography>
     </Stack>
-    {sections.map((section) => (
-      <ConfigFieldGroup
-        key={section.title}
-        config={section}
-        formData={formData}
-      />
-    ))}
+    <Stack spacing={5}>
+      {sections.map((section) => (
+        <ConfigFieldGroup
+          key={section.title}
+          config={section}
+          formData={formData}
+        />
+      ))}
+    </Stack>
   </>
 );
 

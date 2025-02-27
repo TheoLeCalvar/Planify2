@@ -1,7 +1,4 @@
 const styles = {
-  configFieldGroup: {
-    mb: 5,
-  },
   fieldStack: {
     display: "flex",
     flexDirection: "row",

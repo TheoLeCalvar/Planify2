@@ -14,7 +14,7 @@ import styles from "./ConfigField.styles";
 
 const ConfigFieldGroup = ({ config, formData }) => {
   return (
-    <Box sx={styles.congigFieldGroup}>
+    <Box>
       <ConfigFieldGroupHeader
         title={config.title}
         description={config.description}
