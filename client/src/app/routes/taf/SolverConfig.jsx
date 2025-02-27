@@ -11,6 +11,10 @@ import dayjs from "dayjs";
 
 // Custom components
 import SolverConfigComponent from "@/features/solver-config/components/SolverConfig";
+import {
+  globalConfigSections,
+  ueConfigSections,
+} from "@/features/solver-config/utils/solverConfig";
 
 export async function loader({ params }) {
   if (params.idConfig) {
@@ -25,47 +29,39 @@ export async function loader({ params }) {
   }
 }
 
+const rawDataFieldToType = (value, type) => {
+  switch (type) {
+    case "boolean":
+      return value === "true";
+    case "number":
+      return parseInt(value, 10);
+    case "time":
+      return dayjs(value).format("HH:mm");
+    default:
+      return value;
+  }
+};
+
+const rawDataToTypedData = (rawData, configSections) =>
+  configSections.reduce((acc, section) => {
+    section.fields.forEach((field) => {
+      acc[field.name] = rawDataFieldToType(rawData[field.name], field.type);
+    });
+    return acc;
+  }, {});
+
 export async function action({ request, params }) {
   const rawData = await request.json();
 
-  const data = !params.idUE
-    ? {
-        name: rawData.name,
-        globalUnavailability: rawData.globalUnavailability === "true",
-        weightGlobalUnavailability: parseInt(
-          rawData.weightGlobalUnavailability,
-        ),
-        lecturersUnavailability: rawData.lecturersUnavailability === "true",
-        weightLecturersUnavailability: parseInt(
-          rawData.weightLecturersUnavailability,
-        ),
-        synchronise: rawData.synchronise === "true",
-        UEInterlacing: rawData.UEInterlacing === "true",
-        middayBreak: rawData.middayBreak === "true",
-        startMiddayBreak: dayjs(rawData.startMiddayBreak).format("HH:mm"),
-        endMiddayBreak: dayjs(rawData.endMiddayBreak).format("HH:mm"),
-        middayGrouping: rawData.middayGrouping === "true",
-        weightMiddayGrouping: parseInt(rawData.weightMiddayGrouping),
-        lessonBalancing: rawData.lessonBalancing === "true",
-        weightLessonBalancing: parseInt(rawData.weightLessonBalancing),
-        lessonGrouping: rawData.lessonGrouping === "true",
-        weightLessonGrouping: parseInt(rawData.weightLessonGrouping),
-        weightMaxTimeWithoutLesson: parseInt(
-          rawData.weightMaxTimeWithoutLesson,
-        ),
-      }
-    : {
-        ue: parseInt(params.idUE),
-        maxTimeWithoutLesson: rawData.maxTimeWithoutLesson === "true",
-        maxTimeWLDuration: parseInt(rawData.maxTimeWLDuration),
-        maxTimeWLUnitInWeeks: rawData.maxTimeWLUnitInWeeks === "true",
-        lessonCountInWeek: rawData.lessonCountInWeek === "true",
-        minLessonCountInWeek: parseInt(rawData.minLessonCountInWeek),
-        maxLessonCountInWeek: parseInt(rawData.maxLessonCountInWeek),
-        spreading: rawData.spreading === "true",
-        minSpreading: parseInt(rawData.minSpreading),
-        maxSpreading: parseInt(rawData.maxSpreading),
-      };
+  let data;
+  if (!params.idUE) {
+    data = rawDataToTypedData(rawData, globalConfigSections);
+  } else {
+    data = {
+      ue: parseInt(params.idUE),
+      ...rawDataToTypedData(rawData, ueConfigSections),
+    };
+  }
 
   if (params.idConfig) {
     return await axiosInstance
