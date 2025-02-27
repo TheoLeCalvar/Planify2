@@ -3,7 +3,7 @@ import React from "react";
 import PropTypes from "prop-types";
 
 // Material-UI imports
-import { Stack } from "@mui/material";
+import { Box, Stack } from "@mui/material";
 
 // Local imports
 import ConfigFieldGroupHeader from "./ConfigFieldGroupHeader";
@@ -14,7 +14,7 @@ import styles from "./ConfigField.styles";
 
 const ConfigFieldGroup = ({ config, formData }) => {
   return (
-    <>
+    <Box sx={styles.congigFieldGroup}>
       <ConfigFieldGroupHeader
         title={config.title}
         description={config.description}
@@ -53,7 +53,7 @@ const ConfigFieldGroup = ({ config, formData }) => {
           }
         })}
       </Stack>
-    </>
+    </Box>
   );
 };
 

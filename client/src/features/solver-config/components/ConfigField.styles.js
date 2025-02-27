@@ -1,4 +1,7 @@
 const styles = {
+  configFieldGroup: {
+    mb: 5,
+  },
   fieldStack: {
     display: "flex",
     flexDirection: "row",
@@ -9,7 +12,7 @@ const styles = {
     flexDirection: "row",
     gap: 3,
     alignItems: "center",
-    mt: 2,
+    mb: 1,
   },
   fieldLabel: {
     mb: 1,
