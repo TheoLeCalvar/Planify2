@@ -39,6 +39,7 @@ import { action as editTAFSettingsAction } from "./routes/taf/Settings";
 import { action as createNewUserAction } from "@/components/CreateUser";
 import { action as editTAFConfigAction } from "./routes/taf/SolverConfig";
 import GeneratePlanning from "./routes/GeneratePlanning";
+import RegisterPage from "./routes/Register";
 
 // Define UE nested routes
 const ueRoutes = [
@@ -187,6 +188,10 @@ export const router = createBrowserRouter([
       {
         path: "login",
         element: <LoginPage />,
+      },
+      {
+        path: "register",
+        element: <RegisterPage />,
       },
       {
         path: "createUser",
