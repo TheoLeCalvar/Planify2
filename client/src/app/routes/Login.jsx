@@ -41,8 +41,8 @@ const LoginPage = () => {
     setPassword(event.target.value);
   };
 
-  const handleCheckboxChange = (event) => {
-    setRememberMe(event.target.checked);
+  const handleCheckboxChange = () => {
+    setRememberMe(!rememberMe);
   };
 
   const handleSubmit = (event) => {
@@ -123,7 +123,7 @@ const LoginPage = () => {
           <FormControlLabel
             control={
               <Checkbox
-                value={rememberMe}
+                checked={rememberMe}
                 onChange={handleCheckboxChange}
                 color="primary"
               />

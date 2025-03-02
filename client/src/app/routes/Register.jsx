@@ -62,6 +62,18 @@ const RegisterPage = () => {
         <Typography component="h1" variant="h5" sx={{ mb: 2 }}>
           Créer un compte
         </Typography>
+        <Box sx={{ mb: 2 }}>
+          <Typography variant="body2">
+            Déjà inscrit ?{" "}
+            <Button
+              variant="text"
+              color="primary"
+              onClick={() => navigate("/login")}
+            >
+              Connectez-vous
+            </Button>
+          </Typography>
+        </Box>
         <form onSubmit={handleSubmit} style={{ width: "100%" }}>
           {/* Grid pour afficher Prénom et Nom côte à côte */}
           <Grid container spacing={2}>
