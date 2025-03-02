@@ -119,7 +119,7 @@ public class UserController {
     public ResponseEntity<?> registerUser(@RequestBody User user) {
         // Check if username already exists
         if (userService.findByMail(user.getMail()).isPresent()) {
-            return ResponseEntity.badRequest().body("Username already taken");
+            return ResponseEntity.status(409).body("Username already taken");
         }
 
         // Hash the password before saving
