@@ -232,7 +232,7 @@ public class SolverMain {
 		solver.showSolutions();
 		if (obj != null) model.setObjective(false, obj);
 		Solution solution = solveModelPlanning(model, solMain);
-		System.out.println(model);
+		//System.out.println(model);
 		solver.printShortStatistics();
 		planning.endProcessing();
 		planning.setMessageGeneration(planning.getScheduledLessons().isEmpty() ? "Aucune solution trouvée." : "Génération réussie !");
