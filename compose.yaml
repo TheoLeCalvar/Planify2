@@ -1,3 +1,5 @@
+include:
+  - server/compose.yaml
 services:
   client:
     build:
@@ -15,10 +17,3 @@ services:
       - /app/node_modules    # Prevent overwriting container’s node_modules with host files
     depends_on:
       - server
-
-  server:
-    build:
-      context: ./server
-      dockerfile: Dockerfile
-    ports:
-      - "8080:8080" # Expose port 8080 of the container to port 8080 on the host

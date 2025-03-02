@@ -1,0 +1,34 @@
+services:
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080" # Expose port 8080 of the container to port 8080 on the host
+    depends_on:
+      - bd
+    deploy:
+      restart_policy:
+        condition: on-failure
+        max_attempts: 10
+    networks:
+      - backend
+  bd:
+    container_name: bd
+    image: mysql:lts
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: planify
+      MYSQL_USER: planify
+      MYSQL_PASSWORD: planify
+    volumes:
+      - "bd-data:/var/lib/mysql"
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge
+
+volumes:
+  bd-data:
