@@ -698,12 +698,36 @@ public class LessonController {
     @Operation(summary = "Create a TAF")
     @PostMapping(value = "/taf")
     ResponseEntity<String> addTAF(@RequestBody TAFCreation newTaf) {
-        TAF taf = tafService.addTAF(newTaf.getName(), newTaf.getDescription(), newTaf.getStartDate().toString(), newTaf.getEndDate().toString());
-        for (Long managerId : newTaf.getManagers()) {
-            User user = userService.findById(managerId).orElseThrow(() -> new IllegalArgumentException("The User doesn't exist"));
-            tafManagerService.addTAFManager(user,taf);
+        // Retrieving user
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !(authentication.getPrincipal() instanceof UserDetails)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication required");
         }
+
+        String mail = ((UserDetails) authentication.getPrincipal()).getUsername();
+        Optional<User> userOpt = userService.findByMail(mail);
+
+        // If user not found, return error
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+
+        }
+
+        User user = userOpt.get();
+
+        // Creation of the TAF
+        TAF taf = tafService.addTAF(newTaf.getName(), newTaf.getDescription(), newTaf.getStartDate().toString(), newTaf.getEndDate().toString());
+
+        // Add the manager(s)
+        tafManagerService.addTAFManager(user, taf);
+        for (Long managerId : newTaf.getManagers()) {
+            User otherUser = userService.findById(managerId).orElseThrow(() -> new IllegalArgumentException("The User doesn't exist"));
+            tafManagerService.addTAFManager(otherUser,taf);
+        }
+
+        // Create the calendar
         Calendar c = calendarService.addCalendar(taf);
+        
         return ResponseEntity.ok("Taf had been added");
     }
 
