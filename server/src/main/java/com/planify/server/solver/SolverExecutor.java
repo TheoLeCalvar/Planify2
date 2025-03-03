@@ -58,6 +58,7 @@ public class SolverExecutor {
 	    			}
     			System.out.println(RED + nbGene + " Generation Aborted." + RESET);
 				planning.endProcessing();
+				planning.setMessageGeneration("Erreur lors de la génération.");
 				services.getPlanningService().save(planning);
     		}
     	};
