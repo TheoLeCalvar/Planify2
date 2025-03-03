@@ -32,6 +32,7 @@ public class Planning {
     
     private String messageGeneration;
 
+    private LocalTime maxSolveDuration;
     // Constraints
 
     // respect of the preference of the global unavailability
@@ -100,7 +101,7 @@ public class Planning {
         this.status = Status.CONFIG;
     }
 
-    public Planning(Calendar calendar, String name, boolean globalUnavailability, int weightGlobalUnavailability, boolean lecturersUnavailability, int weightLecturersUnavailability, boolean synchronise, List<ConstraintSynchroniseWithTAF> constraintsSynchronisation, List<ConstraintsOfUE> constraintsOfUEs, int weightMaxTimeWithoutLesson, boolean UEInterlacing, boolean middayBreak, LocalTime startMiddayBreak, LocalTime endMiddayBreak, boolean middayGrouping, int weightMiddayGrouping, boolean lessonBalancing, int weightLessonBalancing, int weightLessonGrouping, boolean lessonGrouping) {
+    public Planning(Calendar calendar, String name, boolean globalUnavailability, int weightGlobalUnavailability, boolean lecturersUnavailability, int weightLecturersUnavailability, boolean synchronise, List<ConstraintSynchroniseWithTAF> constraintsSynchronisation, List<ConstraintsOfUE> constraintsOfUEs, int weightMaxTimeWithoutLesson, boolean UEInterlacing, boolean middayBreak, LocalTime startMiddayBreak, LocalTime endMiddayBreak, boolean middayGrouping, int weightMiddayGrouping, boolean lessonBalancing, int weightLessonBalancing, int weightLessonGrouping, boolean lessonGrouping, LocalTime maxSolveDuration) {
         this.calendar = calendar;
         this.name = name;
         this.scheduledLessons = new ArrayList<ScheduledLesson>();
@@ -123,11 +124,13 @@ public class Planning {
         this.weightLessonBalancing = weightLessonBalancing;
         this.weightLessonGrouping = weightLessonGrouping;
         this.lessonGrouping = lessonGrouping;
+        this.maxSolveDuration = maxSolveDuration;
         this.status = Status.CONFIG;
         this.isSolutionOptimal = false;
+        this.messageGeneration = "";
     }
 
-    public Planning(Calendar calendar, String name, boolean globalUnavailability, int weightGlobalUnavailability, boolean lecturersUnavailability, int weightLecturersUnavailability, boolean synchronise, boolean UEInterlacing, boolean middayBreak, LocalTime startMiddayBreak, LocalTime endMiddayBreak, boolean middayGrouping, int weightMiddayGrouping, boolean lessonBalancing, int weightLessonBalancing, int weightLessonGrouping, boolean lessonGrouping) {
+    public Planning(Calendar calendar, String name, boolean globalUnavailability, int weightGlobalUnavailability, boolean lecturersUnavailability, int weightLecturersUnavailability, boolean synchronise, boolean UEInterlacing, boolean middayBreak, LocalTime startMiddayBreak, LocalTime endMiddayBreak, boolean middayGrouping, int weightMiddayGrouping, boolean lessonBalancing, int weightLessonBalancing, int weightLessonGrouping, boolean lessonGrouping, LocalTime maxSolveDuration) {
         this.calendar = calendar;
         this.name = name;
         this.scheduledLessons = new ArrayList<ScheduledLesson>();
@@ -149,8 +152,10 @@ public class Planning {
         this.weightLessonBalancing = weightLessonBalancing;
         this.weightLessonGrouping = weightLessonGrouping;
         this.lessonGrouping = lessonGrouping;
+        this.maxSolveDuration = maxSolveDuration;
         this.status = Status.CONFIG;
         this.isSolutionOptimal = false;
+        this.messageGeneration = "";
     }
 
     public Long getId() {
@@ -405,7 +410,15 @@ public class Planning {
         this.status = Status.GENERATED;
     }
 
-    @Override
+    public LocalTime getMaxSolveDuration() {
+		return maxSolveDuration;
+	}
+
+	public void setMaxSolveDuration(LocalTime maxSolveDuration) {
+		this.maxSolveDuration = maxSolveDuration;
+	}
+
+	@Override
     public String toString() {
         return "Planning " + id +
                 " { timestamp=" + timestamp +
@@ -431,7 +444,8 @@ public class Planning {
         if (config.getWeightLessonBalancing() != null) this.setWeightLessonBalancing(config.getWeightLessonBalancing());
         if (config.isLessonGrouping() != null) this.setLessonGrouping(config.isLessonGrouping());
         if (config.getWeightLessonGrouping() != null) this.setWeightLessonGrouping(config.getWeightLessonGrouping());
-
+        if (config.getMaxSolveDuration() != null) this.setMaxSolveDuration(config.getMaxSolveDuration());
+        
         if (config.getConstraintsSynchronisation() != null && !config.getConstraintsSynchronisation().isEmpty()) {
             for (Config.CSyncrho cs : config.getConstraintsSynchronisation()) {
                 if (cs.getOtherPlanning() != null) {

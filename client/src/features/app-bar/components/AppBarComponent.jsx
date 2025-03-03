@@ -24,7 +24,7 @@ import { useTAFSelection } from "../hooks/useTAFSelection";
 import styles from "./AppBarComponent.styles";
 
 const AppBarComponent = () => {
-  // Retrieve TAF data from the loader (this could be mock or live)
+  // Retrieve TAF data from the loader
   const tafs = useLoaderData();
 
   // Global store function to toggle the side drawer

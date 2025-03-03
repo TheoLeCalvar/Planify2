@@ -29,7 +29,7 @@ export async function loader() {
       },
     ];
   }
-  const response = await axiosInstance.get("/alltaf");
+  const response = await axiosInstance.get("/taf");
   return response.data;
 }
 
