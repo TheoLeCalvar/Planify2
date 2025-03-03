@@ -7,6 +7,7 @@ import java.util.Optional;
 
 import com.planify.server.controller.returnsClass.CheckOK;
 import com.planify.server.controller.returnsClass.Config;
+import com.planify.server.controller.returnsClass.GeneratedPlanning;
 import com.planify.server.controller.returnsClass.PlanningReturn;
 import com.planify.server.controller.returnsClass.TAFSynchronised;
 import com.planify.server.models.*;
@@ -144,7 +145,7 @@ public class CalendarController {
                 List<PlanningReturn> returns = new ArrayList<>();
                 List<Planning> plannings = sTaf.getCalendars().getFirst().getPlannings();
                 for (Planning p : plannings) {
-                    PlanningReturn pr = new PlanningReturn(p.getId(), p.getName(), p.getTimestamp(), p.getStatus());
+                    PlanningReturn pr = new PlanningReturn(p.getId(), p.getName(), p.getTimestamp(), p.getStatus(), p.isSolutionOptimal());
                     returns.add(pr);
                 }
                 TAFSynchronised tafSynchronised = new TAFSynchronised(sTaf.getId(), sTaf.getName(),returns);
@@ -176,7 +177,7 @@ public class CalendarController {
                 List<Planning> plannings = planningService.findByCalendar(calendar);
                 if (plannings!=null) {
                     for (Planning planning : plannings) {
-                        answer.add(new PlanningReturn(planning.getId(), planning.getName(), planning.getTimestamp(), planning.getStatus()));
+                        answer.add(new PlanningReturn(planning.getId(), planning.getName(), planning.getTimestamp(), planning.getStatus(), planning.isSolutionOptimal()));
                     }
                 }
             }
@@ -192,8 +193,9 @@ public class CalendarController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ErrorResponse("No planning with this id was found", 404));
         }
-        List<ScheduledLesson> scheduledLessons = optionalPlanning.get().getScheduledLessons();
-        return ResponseEntity.ok(scheduledLessons);
+        Planning planning = optionalPlanning.get();
+        GeneratedPlanning genePlan = new GeneratedPlanning(planning.getScheduledLessons(), planning.getStatus(), planning.isSolutionOptimal(), planning.getMessageGeneration());
+        return ResponseEntity.ok(genePlan);
     }
 
     @GetMapping(value = "/config/{configId}", produces = MediaType.APPLICATION_JSON_VALUE)

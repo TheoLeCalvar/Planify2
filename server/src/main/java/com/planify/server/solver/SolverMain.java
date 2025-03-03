@@ -235,7 +235,8 @@ public class SolverMain {
 		//System.out.println(model);
 		solver.printShortStatistics();
 		planning.endProcessing();
-		planning.setMessageGeneration(planning.getScheduledLessons().isEmpty() ? "Aucune solution trouvée." : "Génération réussie !");
+		planning.setSolutionOptimal(solver.isObjectiveOptimal());
+		planning.setMessageGeneration(planning.getScheduledLessons().isEmpty() ? "Aucune solution trouvée." : "Génération réussie en " + solver.getTimeCount() +" s !");
 		services.getPlanningService().save(planning);
 		if (solution == null)
 			return false;
@@ -269,6 +270,8 @@ public class SolverMain {
 		//solution = solver.findSolution();
 		System.out.println(Arrays.deepToString(model.getVars()));
 		solver.printShortStatistics();
+		planning.endProcessing();
+		planning.setSolutionOptimal(solver.isObjectiveOptimal());
 		planning.setMessageGeneration(planning.getScheduledLessons().isEmpty() ? "Aucune solution trouvée." : "Génération réussie !");
 		services.getPlanningService().save(planning);
 		if (solution == null)
@@ -324,6 +327,7 @@ public class SolverMain {
 		solver.printShortStatistics();
 		for (Planning planning : planningsToGenerate) {
 			planning.endProcessing();
+			planning.setSolutionOptimal(solver.isObjectiveOptimal());
 			planning.setMessageGeneration(planning.getScheduledLessons().isEmpty() ? "Aucune solution trouvée." : "Génération réussie !");
 			services.getPlanningService().save(planning);
 		}

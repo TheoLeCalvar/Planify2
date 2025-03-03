@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -119,7 +120,7 @@ public class UserController {
     public ResponseEntity<?> registerUser(@RequestBody User user) {
         // Check if username already exists
         if (userService.findByMail(user.getMail()).isPresent()) {
-            return ResponseEntity.badRequest().body("Username already taken");
+            return ResponseEntity.status(409).body("Username already taken");
         }
 
         // Hash the password before saving
@@ -137,14 +138,16 @@ public class UserController {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(authRequest.getMail(), authRequest.getPassword()));
 
-            // Retrieve UserDetails from UserRepository
+            // Retrieve UserDetails from UserService
             Optional<User> userOptional = userService.findByMail(authRequest.getMail());
             if (userOptional.isEmpty()) {
-                return ResponseEntity.status(404).body("User not found");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found");
             }
 
+            User user = userOptional.get();
+
             UserDetails userDetails = new org.springframework.security.core.userdetails.User(
-                    userOptional.get().getMail(), userOptional.get().getPassword(), new ArrayList<>());
+                    user.getMail(), userOptional.get().getPassword(), new ArrayList<>());
 
             // Generate JWT token
             String jwt = jwtUtil.generateToken(userDetails.getUsername());
@@ -155,10 +158,10 @@ public class UserController {
                     .collect(Collectors.toList());
 
             // Return token in response
-            return ResponseEntity.ok(new AuthentificationResponse(jwt, roles));
+            return ResponseEntity.ok(new AuthentificationResponse(jwt, roles, user.getId(), user.getName(), user.getLastName(), user.getMail()));
 
         } catch (BadCredentialsException e) {
-            return ResponseEntity.status(401).body("Invalid username or password");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
         }
     }
 
@@ -174,7 +177,7 @@ public class UserController {
         Optional<User> userOptional = userService.findByMail(email);
 
         if (userOptional.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found");
         }
 
         User user = userOptional.get();
