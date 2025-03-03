@@ -50,7 +50,10 @@ public class CalendarController {
 
         for (Config.CSyncrho cSyncrho : config.getConstraintsSynchronisation()) {
             Planning otherPlanning = planningService.findById(cSyncrho.getOtherPlanning()).orElseThrow(()-> new IllegalArgumentException("The other planning does nott exist"));
-            realPlanning.addConstraintSynchroniseWithTAF(new ConstraintSynchroniseWithTAF(realPlanning, otherPlanning, cSyncrho.isEnabled() ));
+            if (otherPlanning.isGenerated())
+            	realPlanning.addConstraintSynchroniseWithTAF(new ConstraintSynchroniseWithTAF(realPlanning, otherPlanning, cSyncrho.isEnabled() ));
+            else
+            	realPlanning.addConstraintSynchroniseWithTAF(new ConstraintSynchroniseWithTAF(realPlanning, planningService.createPlanningForGeneration(otherPlanning), cSyncrho.isEnabled() ));
         }
 
         Calendar calendar = realPlanning.getCalendar();
@@ -155,7 +158,7 @@ public class CalendarController {
                 List<PlanningReturn> returns = new ArrayList<>();
                 List<Planning> plannings = sTaf.getCalendars().getFirst().getPlannings();
                 for (Planning p : plannings) {
-                    PlanningReturn pr = new PlanningReturn(p.getId(), p.getName(), p.getTimestamp(), p.getStatus());
+                    PlanningReturn pr = new PlanningReturn(p.getId(), p.getName(), p.getTimestamp(), p.getStatus(), p.isSolutionOptimal());
                     returns.add(pr);
                 }
                 TAFSynchronised tafSynchronised = new TAFSynchronised(sTaf.getId(), sTaf.getName(),returns);
@@ -195,7 +198,7 @@ public class CalendarController {
                 List<Planning> plannings = planningService.findByCalendar(calendar);
                 if (plannings!=null) {
                     for (Planning planning : plannings) {
-                        answer.add(new PlanningReturn(planning.getId(), planning.getName(), planning.getTimestamp(), planning.getStatus()));
+                        answer.add(new PlanningReturn(planning.getId(), planning.getName(), planning.getTimestamp(), planning.getStatus(), planning.isSolutionOptimal()));
                     }
                 }
             }
@@ -209,7 +212,7 @@ public class CalendarController {
             @ApiResponse(responseCode = "200",
                     description = "the timetable",
                     content = @Content(mediaType = "application/json",
-                            array = @ArraySchema(schema = @Schema(implementation = PlanningReturn.class)))),
+                            array = @ArraySchema(schema = @Schema(implementation = GeneratedPlanning.class)))),
             @ApiResponse(responseCode = "400", description = "No planning with this ID")
     })
     @GetMapping(value = "/solver/result/{planningId}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -219,8 +222,9 @@ public class CalendarController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ErrorResponse("No planning with this id was found", 404));
         }
-        List<ScheduledLesson> scheduledLessons = optionalPlanning.get().getScheduledLessons();
-        return ResponseEntity.ok(scheduledLessons);
+        Planning planning = optionalPlanning.get();
+        GeneratedPlanning genePlan = new GeneratedPlanning(planning.getScheduledLessons(), planning.getStatus(), planning.isSolutionOptimal(), planning.getMessageGeneration());
+        return ResponseEntity.ok(genePlan);
     }
 
     @Operation(summary = "Get the detail of a configuration")

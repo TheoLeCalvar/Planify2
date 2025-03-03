@@ -217,6 +217,9 @@ public class SolverMain {
 	 * @return The results generated (also stored automatically in the database).
 	 */
 	public static boolean generatePlanningWithoutSync(Planning planning) {
+		planning.startProcessing();
+		planning.setMessageGeneration("Début de la génération et recherche d'une première solution.");
+		services.getPlanningService().save(planning);
 		Model model = new Model();
 		Solver solver = model.getSolver();
 		SolverMain solMain = new SolverMain(planning);
@@ -229,8 +232,12 @@ public class SolverMain {
 		solver.showSolutions();
 		if (obj != null) model.setObjective(false, obj);
 		Solution solution = solveModelPlanning(model, solMain);
-		//System.out.println(model);
+		System.out.println(model);
 		solver.printShortStatistics();
+		planning.endProcessing();
+		planning.setSolutionOptimal(solver.isObjectiveOptimal());
+		planning.setMessageGeneration(planning.getScheduledLessons().isEmpty() ? "Aucune solution trouvée." : "Génération réussie en " + solver.getTimeCount() +" s !");
+		services.getPlanningService().save(planning);
 		if (solution == null)
 			return false;
 		System.out.println(solMain.showSolutionsDebug(solution));
@@ -244,6 +251,8 @@ public class SolverMain {
 	 * @return The results generated in a json format (not stored automatically in the database).
 	 */
 	public static String generatePlanningString(Planning planning) {
+		planning.setMessageGeneration("Début de la génération et recherche d'une première solution.");
+		services.getPlanningService().save(planning);
 		Model model = new Model();
 		Solver solver = model.getSolver();
 		SolverMain solMain = new SolverMain(planning);
@@ -261,6 +270,10 @@ public class SolverMain {
 		//solution = solver.findSolution();
 		System.out.println(Arrays.deepToString(model.getVars()));
 		solver.printShortStatistics();
+		planning.endProcessing();
+		planning.setSolutionOptimal(solver.isObjectiveOptimal());
+		planning.setMessageGeneration(planning.getScheduledLessons().isEmpty() ? "Aucune solution trouvée." : "Génération réussie !");
+		services.getPlanningService().save(planning);
 		if (solution == null)
 			return "";
 		System.out.println(solMain.showSolutionsDebug(solution));
@@ -284,6 +297,11 @@ public class SolverMain {
 	 * @return The results generated (also stored automatically in the database for each planning to generate).
 	 */
 	public static boolean generatePlannings(Planning[] planningsToGenerate, Planning[] planningsGenerated) {
+		for (Planning planning : planningsToGenerate) {
+			planning.startProcessing();
+			planning.setMessageGeneration("Début de la génération et recherche d'une première solution.");
+			services.getPlanningService().save(planning);
+		}
 		Model model = new Model();
 		Solver solver = model.getSolver();
 		IntVar[] objs = new IntVar[planningsToGenerate.length];
@@ -307,6 +325,12 @@ public class SolverMain {
 		Solution solution = solveModelPlannings(model, solMains);
 		//System.out.println(model);
 		solver.printShortStatistics();
+		for (Planning planning : planningsToGenerate) {
+			planning.endProcessing();
+			planning.setSolutionOptimal(solver.isObjectiveOptimal());
+			planning.setMessageGeneration(planning.getScheduledLessons().isEmpty() ? "Aucune solution trouvée." : "Génération réussie !");
+			services.getPlanningService().save(planning);
+		}
 		if (solution == null)
 			return false;
 		for (int i = 0; i < planningsToGenerate.length; i ++) {
@@ -321,6 +345,7 @@ public class SolverMain {
 		while (model.getSolver().solve()) {
 		     s.record();
 		     List<Result> results = solMain.makeSolution(s);
+		     solMain.getPlanning().setMessageGeneration("Amélioration de la solution trouvée.");
 		     services.getPlanningService().addScheduledLessons(solMain.getPlanning(), results);
 		}
 		return model.getSolver().isFeasible() == ESat.TRUE ? s : null;
@@ -333,6 +358,7 @@ public class SolverMain {
 		     s.record();
 		     for (SolverMain solMain : solMains) {
 			     List<Result> results = solMain.makeSolution(s);
+			     solMain.getPlanning().setMessageGeneration("Amélioration de la solution trouvée.");
 			     services.getPlanningService().addScheduledLessons(solMain.getPlanning(), results);
 		     }
 		}
@@ -682,11 +708,13 @@ public class SolverMain {
 					if (!(startLunch.isAfter(slot.getEnd().toLocalTime()) || endLunch.isBefore(slot.getStart().toLocalTime())))
 						possibleSlotsForLunchTime.add(slot);
 				}
+			System.out.println("AAAAAAAAAAAAAA" + possibleSlotsForLunchTime.size());
 			if (possibleSlotsForLunchTime.size() != 0) {
 				boolean lunchBreakAlreadyFixed = false;
 				for (Slot slot : possibleSlotsForLunchTime) // If one of the slots is unavailable, then it is considered as the lunch break.
 					if (services.getGlobalUnavailabilityService().findBySlot(slot).filter(g -> g.getStrict()).isPresent())
 						lunchBreakAlreadyFixed = true;
+				System.out.println(lunchBreakAlreadyFixed);
 				if (!lunchBreakAlreadyFixed) {
 					IntVar count = model.intVar("Count Lunch Day-" + getIdMDay(day),1, possibleSlotsForLunchTime.size());
 					model.count(0, possibleSlotsForLunchTime.stream().map(s -> getSlotVarLesson(s)).toArray(IntVar[]::new), count).post();
@@ -895,19 +923,23 @@ public class SolverMain {
 		List<Day> days = getDaysOrderedWU();
 		int nbMaxSlotsDay = days.stream().mapToInt(l -> l.getSlots().size()).max().orElse(0);
 		int nbUes = getUes().size();
+		System.out.println(nbUes);
 		FiniteAutomaton automaton = this.automatonPreferenceNoInterweaving(IntStream.range(1, nbUes + 1).toArray(), new int[] {0});
+		System.out.println(automaton.run(new int[] {0,0,0,1}));
+		System.out.println(automaton.run(new int[] {1,0,0,0}));
 		int[][][] costsForward = new int[nbMaxSlotsDay][nbUes + 1][2];
 		int[][][] costsBackward = new int[nbMaxSlotsDay][nbUes + 1][2];
 		for (int i = 0; i < nbMaxSlotsDay; i ++)
 			for (int j = 0; j < nbUes + 1; j ++)
 				for (int k = 0; k < 2; k ++) {
 					costsForward[i][j][k] = (k == 1 && j == 0) ? 1 : 0;
-					costsBackward[i][j][k] = (k == 0 && j != 0) ? 1 : 0;
+					costsBackward[i][j][k] = (k == 0 && j != 0) ? i : 0;
 				}
 		ICostAutomaton cAutoForward = CostAutomaton.makeSingleResource(automaton, costsForward, 0, nbMaxSlotsDay - 1);
 		ICostAutomaton cAutoBackward = CostAutomaton.makeSingleResource(automaton, costsBackward, 0, nbMaxSlotsDay - 1);
 		for (Day day : days) {
 			IntVar[] vars = getSlotsByDayOrdered(day).stream().map(s -> getSlotVarUe(s)).toArray(IntVar[]::new);
+			System.out.println(vars.length);
 			if (vars.length > 0) {
 				IntVar costForward = model.intVar("CostForwardCentered day " + getIdMDay(day), 0, vars.length - 1);
 				IntVar costBackward = model.intVar("CostBackwardCentered day " + getIdMDay(day), 0, vars.length - 1);
@@ -981,6 +1013,11 @@ public class SolverMain {
 		List<IntVar> distancesFromPreferedValues = new ArrayList<IntVar>();
  		List<UE> ues = getUes();
 		int nbUe = ues.size();
+
+		System.out.println(ues.size());
+		System.out.println(ues.stream().map(u -> u.getId()));
+		System.out.println(getPlanning().getConstraintsOfUEs().size());
+		System.out.println(getPlanning().getConstraintsOfUEs().stream().map(cUe -> cUe.getUe().getId()));
  		int[][] costs = ues.stream().map(ue -> getCostsTblRegroupLessons(getConstraintsOfUe(ue).getLessonGroupingNbLessons(), nbMaxSlotsDay)).toArray(int[][]::new);
  		int iDay = 0;
 		int[] idUes = getArrayInt(getIdMUe(ues.stream().toArray(UE[]::new)));

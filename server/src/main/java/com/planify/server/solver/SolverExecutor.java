@@ -33,7 +33,6 @@ public class SolverExecutor {
     }
     
 	public static void generatePlanning(Planning planning) {
-		System.out.println("SolverExecutor" + planning.toString());
 		generatePlanning(createPlanningForGeneration(planning), nbGene, SolverMain::generatePlanning);
 		nbGene ++;
 	}
@@ -49,12 +48,8 @@ public class SolverExecutor {
     		public void run() {
     			for (int iAttempt = 1; iAttempt <= MAX_ATTEMPTS; iAttempt ++)
 	    			try {
-	    				planning.startProcessing();
-	    				services.getPlanningService().save(planning);
 	    				System.out.println(GREEN + nbGene + " Launch background execution for " + planning.getCalendar().getTaf().getName() + " (planningId :" + planning.getId() + ", attempt : " + iAttempt + ")" + RESET);
 	    				generate.apply(planning);
-	    				planning.endProcessing();
-	    				services.getPlanningService().save(planning);
 	    				return;
 	    			}
 	    			catch (Throwable e) {
@@ -84,14 +79,12 @@ public class SolverExecutor {
     		public void run() {
     			for (int iAttempt = 1; iAttempt <= MAX_ATTEMPTS; iAttempt ++)
 	    			try {
-	    				for (Planning planning : planningsToGenerate) {planning.startProcessing(); services.getPlanningService().save(planning);}
 	    				System.out.println(GREEN + nbGene + " Launch background execution for [" +
 	    										Arrays.stream(planningsToGenerate).map(p -> p.getCalendar().getTaf().getName() + "(" + p.getId() + ")").reduce("", String::concat) +
 	    										"], [" +
 	    										Arrays.stream(planningsGenerated).map(p -> p.getCalendar().getTaf().getName() + "(" + p.getId() + ")").reduce("", String::concat) +
 	    										"] (attempt : " + iAttempt + ")" + RESET);
 	    				SolverMain.generatePlannings(planningsToGenerate, planningsGenerated);
-	    				for (Planning planning : planningsToGenerate) {planning.endProcessing(); services.getPlanningService().save(planning);}
 	    				return;
 	    			}
 	    			catch (Throwable e) {
@@ -100,7 +93,11 @@ public class SolverExecutor {
 	    			}
     			
     			System.out.println(RED + nbGene + " Generation Aborted." + RESET);
-				for (Planning planning : planningsToGenerate) planning.endProcessing();
+				for (Planning planning : planningsToGenerate) {
+					planning.endProcessing();
+					planning.setMessageGeneration("Erreur lors de la génération.");
+					services.getPlanningService().save(planning);
+				}
 				return;
     		}
     	};

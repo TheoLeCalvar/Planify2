@@ -15,6 +15,8 @@ public class PlanningReturn {
     private LocalDateTime timestamp;
 
     private Planning.Status status;
+    
+    private boolean isSolutionOptimal;
 
     public PlanningReturn() {
     }
@@ -25,11 +27,12 @@ public class PlanningReturn {
         this.name = name;
     }
 
-    public PlanningReturn(Long id, String name, LocalDateTime timestamp, Planning.Status generated) {
+    public PlanningReturn(Long id, String name, LocalDateTime timestamp, Planning.Status generated, boolean isSolutionOptimal) {
         this.id = id;
         this.name = name;
         this.timestamp = timestamp;
         this.status = generated;
+        this.isSolutionOptimal = isSolutionOptimal;
     }
 
     public Long getId() {
@@ -52,6 +55,10 @@ public class PlanningReturn {
         this.timestamp = timestamp;
     }
 
+	public LocalDateTime getTimestamp() {
+		return timestamp;
+	}
+
     public Planning.Status getStatus() {
         return status;
     }
@@ -59,4 +66,12 @@ public class PlanningReturn {
     public void setStatus(Planning.Status status) {
         this.status = status;
     }
+
+	public boolean isSolutionOptimal() {
+		return isSolutionOptimal;
+	}
+
+	public void setSolutionOptimal(boolean isSolutionOptimal) {
+		this.isSolutionOptimal = isSolutionOptimal;
+	}
 }

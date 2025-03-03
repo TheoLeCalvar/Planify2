@@ -10,6 +10,7 @@ import java.util.stream.Stream;
 import com.planify.server.controller.returnsClass.*;
 import com.planify.server.models.*;
 import com.planify.server.models.Calendar;
+import com.planify.server.models.Planning.Status;
 import com.planify.server.models.constraints.ConstraintSynchroniseWithTAF;
 import com.planify.server.models.constraints.ConstraintsOfUE;
 import com.planify.server.service.*;
@@ -185,8 +186,8 @@ public class LessonController {
                 List<Planning> plannings = planningService.findByCalendar(calendar);
                 if (plannings!=null) {
                     for (Planning planning : plannings) {
-                        if (planning.getStatus() == Planning.Status.GENERATED) {
-                            resultPlanning.add(new PlanningReturn(planning.getId(), planning.getName(), planning.getTimestamp(), planning.getStatus()));
+                        if (planning.getStatus() != Planning.Status.CONFIG) {
+                            resultPlanning.add(new PlanningReturn(planning.getId(), planning.getName(), planning.getTimestamp(), planning.getStatus(), planning.isSolutionOptimal()));
                         }
                     }
                 }
@@ -550,11 +551,7 @@ public class LessonController {
                 int currentWeekCount = firstSlotStart.get(weekFields.weekOfYear());
                 int weekCount = 1;
 
-                Calendar calendar = taf.getCalendars().getFirst();
-
-                // Old version :
-                /*Calendar calendar = null;
-
+                Calendar calendar = null;
 
                 ResponseEntity<?> responseEntity = getSlotByTafId(tafId);
                 if (responseEntity.getStatusCode().value()==200) {
@@ -570,10 +567,10 @@ public class LessonController {
                         }
                         calendar = relatedCalendar;
                     }
-                }*/
+                }
 
                 if (calendar == null) {
-                    calendar = new Calendar(taf);
+                    calendar = taf.getCalendars().getFirst();
                 }
 
                 calendarService.save(calendar);
@@ -823,8 +820,7 @@ public class LessonController {
                 List<Planning> plannings = calendar.getPlannings();
                 if (plannings!=null && !plannings.isEmpty()) {
                     for (Planning planning : plannings) {
-                        List<ScheduledLesson> lessons = planning.getScheduledLessons();
-                        if (lessons == null || lessons.isEmpty()) {
+                        if (planning.getStatus() == Status.CONFIG) {
                             System.out.println("iD " + planning.getId());
                             configs.add(new ConfigShort(planning));
                         }
@@ -915,7 +911,6 @@ public class LessonController {
             }
         }
         planning.setConstraintsOfUEs(cUEs);
-
         planningService.save(planning);
         return ResponseEntity.ok("New config added !");
 
