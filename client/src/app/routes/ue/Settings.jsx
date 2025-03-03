@@ -50,9 +50,9 @@ export async function action({ request, params }) {
           ...updates,
           tafId: parseInt(params.idTAF),
         })
-        .then(() => {
+        .then((response) => {
           toast.success("UE créée");
-          return redirect("..");
+          return redirect("../ue/" + response.data);
         })
         .catch(() => {
           toast.error("Erreur lors de la création de l'UE");

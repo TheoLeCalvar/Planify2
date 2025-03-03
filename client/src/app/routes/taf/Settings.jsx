@@ -60,9 +60,9 @@ export async function action({ request, params }) {
     } else {
       return await axiosInstance
         .post(`/taf`, data)
-        .then(() => {
+        .then((response) => {
           toast.success("TAF créé");
-          return redirect("..");
+          return redirect("/taf/" + response.data);
         })
         .catch(() => {
           toast.error("Erreur lors de la création du TAF");
