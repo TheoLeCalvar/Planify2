@@ -32,7 +32,7 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf.disable()) // Disable CSRF for APIs
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/auth/**").permitAll() // Public endpoints
+                .requestMatchers("/api/auth/**").permitAll() // Public endpoints
                 .anyRequest().authenticated()
             )
             .anonymous(anonymous -> anonymous.principal("anonymousUser").authorities("ROLE_ANONYMOUS"))
