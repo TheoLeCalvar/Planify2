@@ -31,10 +31,12 @@ axiosInstance.interceptors.response.use(
     // Vous pouvez gérer les erreurs ici, comme des redirections si l'utilisateur n'est pas authentifié
     console.log("Erreur capturée par Axios", error);
     if (error.response) {
-      if (error.response.status === 401) {
+      if (error.response.status === 401 || error.response.status === 403) {
         // Rediriger vers la page de connexion
         console.log("Redirection vers la page de connexion");
-        window.location.href = "/login";
+        if (window.location.pathname !== "/login") {
+          window.location.href = "/login";
+        }
       } else {
         return Promise.reject({
           ...error,

@@ -22,7 +22,9 @@ const ConfigFieldTime = ({ field, formData }) => {
   const commonProps = {
     name: field.name,
     required: field.required,
-    defaultValue: formData[field.name] || defaultTimeValue,
+    defaultValue: formData[field.name]
+      ? parseTime(formData[field.name])
+      : defaultTimeValue,
   };
 
   return (
