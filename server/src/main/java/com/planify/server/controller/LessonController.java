@@ -158,8 +158,8 @@ public class LessonController {
                 List<Planning> plannings = planningService.findByCalendar(calendar);
                 if (plannings!=null) {
                     for (Planning planning : plannings) {
-                        if (planning.getStatus() == Planning.Status.GENERATED) {
-                            resultPlanning.add(new PlanningReturn(planning.getId(), planning.getName(), planning.getTimestamp(), planning.getStatus()));
+                        if (planning.getStatus() != Planning.Status.CONFIG) {
+                            resultPlanning.add(new PlanningReturn(planning.getId(), planning.getName(), planning.getTimestamp(), planning.getStatus(), planning.isSolutionOptimal()));
                         }
                     }
                 }

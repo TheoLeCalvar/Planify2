@@ -28,6 +28,8 @@ public class Planning {
 
     private Status status;
     
+    private boolean isSolutionOptimal;
+    
     private String messageGeneration;
 
     // Constraints
@@ -122,6 +124,7 @@ public class Planning {
         this.weightLessonGrouping = weightLessonGrouping;
         this.lessonGrouping = lessonGrouping;
         this.status = Status.CONFIG;
+        this.isSolutionOptimal = false;
     }
 
     public Planning(Calendar calendar, String name, boolean globalUnavailability, int weightGlobalUnavailability, boolean lecturersUnavailability, int weightLecturersUnavailability, boolean synchronise, boolean UEInterlacing, boolean middayBreak, LocalTime startMiddayBreak, LocalTime endMiddayBreak, boolean middayGrouping, int weightMiddayGrouping, boolean lessonBalancing, int weightLessonBalancing, int weightLessonGrouping, boolean lessonGrouping) {
@@ -147,6 +150,7 @@ public class Planning {
         this.weightLessonGrouping = weightLessonGrouping;
         this.lessonGrouping = lessonGrouping;
         this.status = Status.CONFIG;
+        this.isSolutionOptimal = false;
     }
 
     public Long getId() {
@@ -373,7 +377,15 @@ public class Planning {
         this.status = status;
     }
 
-    public String getMessageGeneration() {
+    public boolean isSolutionOptimal() {
+		return isSolutionOptimal;
+	}
+
+	public void setSolutionOptimal(boolean isSolutionOptimal) {
+		this.isSolutionOptimal = isSolutionOptimal;
+	}
+
+	public String getMessageGeneration() {
 		return messageGeneration;
 	}
 
