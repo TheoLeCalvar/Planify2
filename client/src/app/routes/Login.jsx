@@ -50,7 +50,7 @@ const LoginPage = () => {
     axiosInstance
       .post("/auth/login", { mail: email, password })
       .then((response) => {
-        login({ roles: response.data.roles }, response.data.token, rememberMe);
+        login(response.data.userInfo, response.data.token, rememberMe);
         navigate("/");
         toast.success("Connexion réussie !");
       })
