@@ -787,7 +787,8 @@ public class LessonController {
                 config.isLessonBalancing(),
                 config.getWeightLessonBalancing(),
                 config.getWeightLessonGrouping(),
-                config.isLessonGrouping()
+                config.isLessonGrouping(),
+                config.getMaxSolveDuration()
         );
 
         //Addition of the synchronisation's constraints

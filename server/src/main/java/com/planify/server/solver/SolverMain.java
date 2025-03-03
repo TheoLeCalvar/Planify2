@@ -341,11 +341,14 @@ public class SolverMain {
 	
 	private static Solution solveModelPlanning(Model model, SolverMain solMain) {
 		System.out.println("Start Solving !");
+		Solver solver = model.getSolver();
 		Solution s = new Solution(model);
-		while (model.getSolver().solve()) {
+		solver.limitTime("2h");
+		//s.limitSearch(() -> { /*todo return true if you want to stop search*/ }); //Can be useful to stop the search from the front-end.
+		while (solver.solve()) {
 		     s.record();
 		     List<Result> results = solMain.makeSolution(s);
-		     solMain.getPlanning().setMessageGeneration("Amélioration de la solution trouvée.");
+		     solMain.getPlanning().setMessageGeneration("Amélioration de la solution trouvée. (" + solver.getTimeCount() + " s depuis le début de la génération.)");
 		     services.getPlanningService().addScheduledLessons(solMain.getPlanning(), results);
 		}
 		return model.getSolver().isFeasible() == ESat.TRUE ? s : null;
@@ -353,12 +356,15 @@ public class SolverMain {
 	
 	private static Solution solveModelPlannings(Model model, SolverMain[] solMains) {
 		System.out.println("Start Solving !");
+		Solver solver = model.getSolver();
 		Solution s = new Solution(model);
-		while (model.getSolver().solve()) {
+		solver.limitTime("2h");
+		//s.limitSearch(() -> { /*todo return true if you want to stop search*/ }); //Can be useful to stop the search from the front-end.
+		while (solver.solve()) {
 		     s.record();
 		     for (SolverMain solMain : solMains) {
 			     List<Result> results = solMain.makeSolution(s);
-			     solMain.getPlanning().setMessageGeneration("Amélioration de la solution trouvée.");
+			     solMain.getPlanning().setMessageGeneration("Amélioration de la solution trouvée. (" + solver.getTimeCount() + " s depuis le début de la génération.)");
 			     services.getPlanningService().addScheduledLessons(solMain.getPlanning(), results);
 		     }
 		}
