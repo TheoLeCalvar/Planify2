@@ -158,8 +158,8 @@ const globalConfigSections = [
         type: "time",
         defaultValue: "11:30",
         required: true,
-        minBreakTime,
-        maxBreakTime,
+        minTime: minBreakTime,
+        maxTime: maxBreakTime,
         validate: (value, values) => {
           const startTime = parseTime(value, "HH:mm");
           if (!startTime.isValid()) return "Heure de début de pause invalide";
@@ -179,8 +179,8 @@ const globalConfigSections = [
         type: "time",
         defaultValue: "13:45",
         required: true,
-        minBreakTime,
-        maxBreakTime,
+        minTime: minBreakTime,
+        maxTime: maxBreakTime,
         validate: (value, values) => {
           const endTime = parseTime(value, "HH:mm");
           if (!endTime.isValid()) return "Heure de fin de pause invalide";
@@ -310,6 +310,25 @@ const globalConfigSections = [
           Number.isNaN(parseInt(value)) || parseInt(value) < 0
             ? "Le poids doit être un nombre positif"
             : "",
+      },
+    ],
+  },
+  {
+    title: "Durée de génération",
+    description:
+      "Durée maximale de génération du planning. Le solveur s'arrêtera après ce délai.",
+    fields: [
+      {
+        name: "maxSolveDuration",
+        label: "Durée",
+        type: "time",
+        defaultValue: "01:00",
+        required: true,
+        validate: (value) => {
+          const startTime = parseTime(value, "HH:mm");
+          if (!startTime.isValid()) return "Heure de début de pause invalide";
+          return "";
+        },
       },
     ],
   },
