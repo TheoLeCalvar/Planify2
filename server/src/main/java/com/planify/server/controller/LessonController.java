@@ -696,8 +696,16 @@ public class LessonController {
     }
 
     @Operation(summary = "Create a TAF")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "List of available slots",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Long.class))),
+            @ApiResponse(responseCode = "401", description = "Authentication required",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = String.class)))
+    })
     @PostMapping(value = "/taf")
-    ResponseEntity<String> addTAF(@RequestBody TAFCreation newTaf) {
+    ResponseEntity<?> addTAF(@RequestBody TAFCreation newTaf) {
         // Retrieving user
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !(authentication.getPrincipal() instanceof UserDetails)) {
@@ -727,8 +735,8 @@ public class LessonController {
 
         // Create the calendar
         Calendar c = calendarService.addCalendar(taf);
-        
-        return ResponseEntity.ok("Taf had been added");
+
+        return ResponseEntity.ok(taf.getId());
     }
 
     @Operation(summary = "Delete a TAF")
@@ -746,14 +754,14 @@ public class LessonController {
 
     @Operation(summary = "Create an UE")
     @PostMapping(value = "/ue")
-    ResponseEntity<String> addUE(@RequestBody UECreation newUE) {
+    ResponseEntity<Long> addUE(@RequestBody UECreation newUE) {
         TAF taf = tafService.findById(newUE.getTafId()).orElseThrow(() -> new IllegalArgumentException("The TAF doesn't exist"));
         UE ue = ueService.addUE(newUE.getName(), newUE.getDescription(), taf);
         for (Long managerId : newUE.getManagers()) {
             User user = userService.findById(managerId).orElseThrow(() -> new IllegalArgumentException("The User doesn't exist"));
             ueManagerService.addUEManager(user, ue);
         }
-        return ResponseEntity.ok("UE had been added");
+        return ResponseEntity.ok(ue.getId());
     }
 
     @Operation(summary = "Delete an UE")
