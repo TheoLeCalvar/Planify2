@@ -34,7 +34,9 @@ axiosInstance.interceptors.response.use(
       if (error.response.status === 401) {
         // Rediriger vers la page de connexion
         console.log("Redirection vers la page de connexion");
-        window.location.href = "/login";
+        if (window.location.pathname !== "/login") {
+          window.location.href = "/login";
+        }
       } else {
         return Promise.reject({
           ...error,
