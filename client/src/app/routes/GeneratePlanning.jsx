@@ -365,14 +365,14 @@ const SynchroniseConfigSelector = ({
           </FormControl>
           <FormControl sx={{ minWidth: 300 }}>
             <InputLabel id="select-label-generated">
-              Plannnings générés
+              Plannings générés
             </InputLabel>
 
             <Select
               labelId="select-label-generated"
               value={selectedConfig}
               onChange={handleChange}
-              label="Plannnings générés"
+              label="Plannings générés"
             >
               {options
                 .filter((option) => option.status === "GENERATED")
@@ -382,7 +382,7 @@ const SynchroniseConfigSelector = ({
                     value={option.id}
                     selected={option.id === selectedConfig}
                   >
-                    {option.name}
+                    {option.timestamp} - {option.name}
                   </MenuItem>
                 ))}
               {options.filter((option) => option.status === "GENERATED")
