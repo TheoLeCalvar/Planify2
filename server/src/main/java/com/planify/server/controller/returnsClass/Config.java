@@ -57,7 +57,7 @@ public class Config {
 
     private Integer weightLessonGrouping;
     
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
     private LocalTime maxSolveDuration;
 
     public static class CSyncrho {
