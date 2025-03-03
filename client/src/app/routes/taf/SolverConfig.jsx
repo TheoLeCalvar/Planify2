@@ -68,7 +68,7 @@ export async function action({ request, params }) {
       .patch(`/config/${params.idConfig}`, data)
       .then(() => {
         toast.success("Configuration mise à jour");
-        return redirect("..");
+        return redirect("../..");
       })
       .catch(() => {
         toast.error("Erreur lors de la mise à jour de la configuration");
