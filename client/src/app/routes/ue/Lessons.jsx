@@ -166,7 +166,8 @@ export default function UELessons() {
         disabled={
           !!dependencyError ||
           busy ||
-          lessonsData.some((block) => block.lessons.length === 0)
+          lessonsData.some((block) => block.lessons.length === 0) ||
+          lessonsData.some((block) => block.lessons.length > 3)
         }
         sx={styles.fab}
       >

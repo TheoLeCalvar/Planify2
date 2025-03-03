@@ -4,13 +4,14 @@ import axios from "axios";
 const axiosInstance = axios.create({
   baseURL: `${import.meta.env.VITE_API_URL}/api`,
   timeout: 10000, // Timeout pour les requêtes
+  //withCredentials: true, // Inclure les cookies dans les requêtes
 });
 
-// Intercepteur pour ajouter un token d'authentification si nécessaire
 axiosInstance.interceptors.request.use(
   (config) => {
     // Exemple de récupération du token depuis le localStorage ou un state
-    const token = localStorage.getItem("authToken"); // ou utilisez Redux ou un Context API
+    const token =
+      localStorage.getItem("authToken") || sessionStorage.getItem("authToken"); // ou utilisez Redux ou un Context API
     if (token) {
       config.headers["Authorization"] = `Bearer ${token}`;
     }
@@ -22,7 +23,6 @@ axiosInstance.interceptors.request.use(
   },
 );
 
-// Intercepteur de réponse pour gérer les erreurs globales
 axiosInstance.interceptors.response.use(
   (response) => {
     return response;
@@ -33,6 +33,7 @@ axiosInstance.interceptors.response.use(
     if (error.response) {
       if (error.response.status === 401) {
         // Rediriger vers la page de connexion
+        console.log("Redirection vers la page de connexion");
         window.location.href = "/login";
       } else {
         return Promise.reject({

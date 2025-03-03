@@ -18,8 +18,9 @@ import General from "./routes/ue/General";
 import Settings from "./routes/ue/Settings";
 import Lessons from "./routes/ue/Lessons";
 import TAFAllSettings from "./routes/taf/SettingsRouter";
-import TAFConfigs from "./routes/taf/Configs";
+import SolverConfigSelector from "./routes/taf/SolverConfigSelector";
 import ContentPadding from "./routes/layout/ContentPadding";
+import SolverConfig from "./routes/taf/SolverConfig";
 
 // Loader functions
 import { loader as TAFLoader } from "./routes/Taf";
@@ -28,17 +29,17 @@ import { loader as UELoader } from "./routes/Ue";
 import { loader as LessonsLoader } from "./routes/ue/Lessons";
 import { loader as LessonsAvailabilityLoader } from "./routes/taf/LessonsAvailability";
 import { loader as TAFResultsLoader } from "./routes/taf/Planning";
-import { loader as TAFConfigsLoader } from "./routes/taf/Configs";
-import { loader as TAFConfigLoader } from "./routes/taf/Config";
+import { loader as SolverConfigSelectorLoader } from "./routes/taf/SolverConfigSelector";
+import { loader as SolverConfigLoader } from "./routes/taf/SolverConfig";
 import { loader as TAFGeneratePlanningLoader } from "./routes/GeneratePlanning";
 import { action as editUEAction } from "./routes/ue/Settings";
 import { action as editLessonsAction } from "./routes/ue/Lessons";
 import { action as editTAFCalendarAction } from "./routes/taf/LessonsAvailability";
 import { action as editTAFSettingsAction } from "./routes/taf/Settings";
 import { action as createNewUserAction } from "@/components/CreateUser";
-import { action as editTAFConfigAction } from "./routes/taf/Config";
-import TAFConfig from "./routes/taf/Config";
+import { action as editTAFConfigAction } from "./routes/taf/SolverConfig";
 import GeneratePlanning from "./routes/GeneratePlanning";
+import RegisterPage from "./routes/Register";
 
 // Define UE nested routes
 const ueRoutes = [
@@ -59,18 +60,19 @@ const ueRoutes = [
   },
   {
     path: "config",
-    element: <TAFConfigs />,
-    loader: TAFConfigsLoader,
+    element: <SolverConfigSelector />,
+    loader: SolverConfigSelectorLoader,
     children: [
       {
         path: "new",
-        element: <TAFConfig />,
+        element: <SolverConfig />,
+        loader: SolverConfigLoader,
         action: editTAFConfigAction,
       },
       {
         path: ":idConfig",
-        element: <TAFConfig />,
-        loader: TAFConfigLoader,
+        element: <SolverConfig />,
+        loader: SolverConfigLoader,
         action: editTAFConfigAction,
       },
     ],
@@ -96,18 +98,19 @@ const tafRoutes = [
       },
       {
         path: "config",
-        element: <TAFConfigs />,
-        loader: TAFConfigsLoader,
+        element: <SolverConfigSelector />,
+        loader: SolverConfigSelectorLoader,
         children: [
           {
             path: "new",
-            element: <TAFConfig />,
+            element: <SolverConfig />,
+            loader: SolverConfigLoader,
             action: editTAFConfigAction,
           },
           {
             path: ":idConfig",
-            element: <TAFConfig />,
-            loader: TAFConfigLoader,
+            element: <SolverConfig />,
+            loader: SolverConfigLoader,
             action: editTAFConfigAction,
           },
         ],
@@ -185,6 +188,10 @@ export const router = createBrowserRouter([
       {
         path: "login",
         element: <LoginPage />,
+      },
+      {
+        path: "register",
+        element: <RegisterPage />,
       },
       {
         path: "createUser",

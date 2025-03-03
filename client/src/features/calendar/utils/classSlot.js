@@ -4,9 +4,9 @@ import slotConfig from "@/config/slots.json";
 import { JSONToCalendarEvent } from "./calendarEvent";
 import { constants } from "@/config/constants";
 
-export default function generateClassSlots(startDate, endDate) {
+export default function generateClassSlots(startDate, endDate, startId = 1) {
   const events = [];
-  let currentId = 1;
+  let currentId = startId;
   let currentDate = dayjs(startDate);
 
   while (currentDate.isBefore(endDate) || currentDate.isSame(endDate, "day")) {
