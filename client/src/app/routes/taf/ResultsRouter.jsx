@@ -56,13 +56,18 @@ export default function TAFResults() {
           >
             {options.map((option) => (
               <MenuItem key={option.id} value={option.id}>
-                {option.timestamp}
+                {option.timestamp} - {option.name}
               </MenuItem>
             ))}
           </Select>
         </FormControl>
       </Box>
-      <Outlet context={context} />
+      <Outlet
+        context={{
+          ...context,
+          planning: options.find((o) => o.id == selectedResult),
+        }}
+      />
     </>
   );
 }

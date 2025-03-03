@@ -14,7 +14,7 @@ import {
   Switch,
   Typography,
 } from "@mui/material";
-import { useLoaderData, useNavigate } from "react-router-dom";
+import { useLoaderData, useNavigate, useRevalidator } from "react-router-dom";
 import axiosInstance from "@/config/axiosConfig";
 import ConfirmationDialog from "@/components/ConfirmationDialog";
 import { toast } from "react-toastify";
@@ -28,6 +28,7 @@ export async function loader({ params }) {
 export default function GeneratePlanning() {
   const navigate = useNavigate();
   const options = useLoaderData();
+  const revalidator = useRevalidator();
 
   const [selectedConfig, setSelectedConfig] = React.useState(null);
   const [openError, setOpenError] = React.useState(false);
@@ -114,6 +115,7 @@ export default function GeneratePlanning() {
       .then(() => {
         toast.success("Le planning est en cours de génération...");
         navigate(`..`);
+        revalidator.revalidate();
       })
       .catch(() => {
         toast.error(
