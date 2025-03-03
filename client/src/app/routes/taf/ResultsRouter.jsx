@@ -27,14 +27,16 @@ export default function TAFResults() {
     }
   };
 
+  const sortedOptions = options.sort((a, b) => b.id - a.id);
+
   // Redirection automatique au chargement
   useEffect(() => {
-    if (options.length > 0 && selectedResult === "") {
-      const defaultId = options[0].id;
+    if (sortedOptions.length > 0 && selectedResult === "") {
+      const defaultId = sortedOptions[0].id;
       setSelectedResult(defaultId);
       navigate(`./${defaultId}`);
     }
-  }, [options, selectedResult, navigate]);
+  }, [sortedOptions, selectedResult, navigate]);
 
   return (
     <>
@@ -54,7 +56,7 @@ export default function TAFResults() {
             onChange={handleChange}
             label="Choisir un EDT généré"
           >
-            {options.map((option) => (
+            {sortedOptions.map((option) => (
               <MenuItem key={option.id} value={option.id}>
                 {option.timestamp} - {option.name}
               </MenuItem>
