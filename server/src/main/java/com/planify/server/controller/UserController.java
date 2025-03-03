@@ -6,6 +6,13 @@ import java.util.Optional;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
+import com.planify.server.controller.returnsClass.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -30,10 +37,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import com.planify.server.authentification.JwtUtil;
-import com.planify.server.controller.returnsClass.AuthentificationRequest;
-import com.planify.server.controller.returnsClass.AuthentificationResponse;
-import com.planify.server.controller.returnsClass.ChangePasswordRequest;
-import com.planify.server.controller.returnsClass.UserShort;
 import com.planify.server.models.LessonLecturer;
 import com.planify.server.models.TAF;
 import com.planify.server.models.User;
@@ -73,6 +76,15 @@ public class UserController {
     private PasswordEncoder passwordEncoder;
 
     // Get the list of the users
+    @Operation(summary = "Get the list of the users and precising if they already work for this TAF")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "List of the userd",
+                    content = @Content(mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = UserShort.class)))),
+            @ApiResponse(responseCode = "400", description = "No TAF with this id",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @RequestMapping(value = "users", method = RequestMethod.GET)
     public ResponseEntity<?> getUsers(@RequestParam(value="tafId", required = false) Long tafId) {
         List<User> users = userService.findAll();
@@ -100,8 +112,9 @@ public class UserController {
         return ResponseEntity.ok(answers);
     }
 
+    @Operation(summary = "Create a new user")
     @PostMapping(value = "users", consumes = "application/json", produces = "application/json")
-    public ResponseEntity<?> createUser(@RequestBody UserShort userRequest) {
+    public ResponseEntity<String> createUser(@RequestBody UserShort userRequest) {
         List<User> users = userService.findAll();
         boolean exists = users.stream().anyMatch(user -> user.getName().equals(userRequest.getFirstName())
                 && user.getLastName().equals(userRequest.getLastName()));
@@ -116,8 +129,9 @@ public class UserController {
         return ResponseEntity.ok("User created !");
     }
 
+    @Operation(summary = "Register the new user")
     @PostMapping("/auth/register")
-    public ResponseEntity<?> registerUser(@RequestBody User user) {
+    public ResponseEntity<String> registerUser(@RequestBody User user) {
         // Check if username already exists
         if (userService.findByMail(user.getMail()).isPresent()) {
             return ResponseEntity.status(409).body("Username already taken");
@@ -130,7 +144,18 @@ public class UserController {
         return ResponseEntity.ok("User registered successfully");
     }
 
-    
+    @Operation(summary = "To log in")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Authentication",
+                    content = @Content(mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = AuthentificationResponse.class)))),
+            @ApiResponse(responseCode = "404", description = "User not found",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "401", description = "Invalid username or password",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = String.class)))
+    })
     @PostMapping("/auth/login")
     public ResponseEntity<?> login(@RequestBody AuthentificationRequest authRequest) {
         try {
@@ -165,8 +190,9 @@ public class UserController {
         }
     }
 
+    @Operation(summary = "Change an user's password")
     @PutMapping("/user/password")
-    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest request) {
+    public ResponseEntity<String> changePassword(@RequestBody ChangePasswordRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null || !(authentication.getPrincipal() instanceof UserDetails)) {

@@ -14,6 +14,12 @@ import com.planify.server.models.Planning.Status;
 import com.planify.server.models.constraints.ConstraintSynchroniseWithTAF;
 import com.planify.server.models.constraints.ConstraintsOfUE;
 import com.planify.server.service.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -87,6 +93,18 @@ public class LessonController {
 
 
     // Get the list of TAF
+    @Operation(summary = "Get the list of the TAFs of the user authentified")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "List of the TAF",
+                    content = @Content(mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = TAFShort.class)))),
+            @ApiResponse(responseCode = "401", description = "User not authentified",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "User not found",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @GetMapping(value = "/taf", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getTAFs() {
         // Retrieving user
@@ -107,7 +125,7 @@ public class LessonController {
 
         User user = userOpt.get();
 
-        // Retrieving related TAF to user
+        // Retrieving related TAF of user
         List<TAF> relatedTafs = new ArrayList<TAF>();
         List<TAFManager> tafManagers = user.getTafManagers();
         List<UEManager> ueManagers = user.getUeManagers();
@@ -123,8 +141,9 @@ public class LessonController {
     }
 
     // Get the list of TAF
+    @Operation(summary = "Get the list of all the TAFs")
     @GetMapping(value = "/alltaf", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getAllTAFs() {
+    public ResponseEntity<List<TAFShort>> getAllTAFs() {
         List<TAF> tafs = tafService.findAll();
         List<TAFShort> answer = new ArrayList<TAFShort>();
         for (TAF taf : tafs) {
@@ -134,6 +153,15 @@ public class LessonController {
     }
 
     // Data on a given TAF (id)
+    @Operation(summary = "Get the detail about the TAF")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Details of the TAF",
+                    content = @Content(mediaType = "application/json",
+                            schema  = @Schema(implementation  =  TAFReturn.class))),
+            @ApiResponse(responseCode = "400", description = "No TAF with this id was found",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @GetMapping(value = "/taf/{idTAF}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getTAFById(@PathVariable Long idTAF) {
         Optional<TAF> taf = tafService.findById(idTAF);
@@ -182,13 +210,22 @@ public class LessonController {
     }
 
     // Add the lessons to the UE
+    @Operation(summary = "Add the lessons to the UE")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Lessons added",
+                    content = @Content(mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = BlockShort.class)))),
+            @ApiResponse(responseCode = "400", description = "No UE with this id was found or the body is empty",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @PutMapping(value = "/ue/{ueId}/lesson", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> putLessonInUE(@PathVariable Long ueId, @RequestBody List<BlockShort> blocks) {
         // Check if the UE exists
 
         if (!ueService.existsById(ueId)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ErrorResponse("UE not found", 404));
+                    .body(new ErrorResponse("UE not found", 400));
         }
 
         // Get the blocks' UE
@@ -213,7 +250,7 @@ public class LessonController {
         // Add the lessons and their impacts
         if (blocks.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ErrorResponse("The body is empty", 404));
+                    .body(new ErrorResponse("The body is empty", 400));
         } else {
             if (ueService.existsById(ueId)) {
 
@@ -237,9 +274,8 @@ public class LessonController {
                                     Optional<User> user = userService.findById(lecturerId);
                                     if (user.isEmpty()) {
                                         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                                .body(new ErrorResponse("The user " + Long.toString(lecturerId)
-                                                        + " is not found. (Lecturer of lesson: " + lesson.getTitle() + ")",
-                                                        404));
+                                                .body("The user " + Long.toString(lecturerId)
+                                                        + " is not found. (Lecturer of lesson: " + lesson.getTitle() + ")");
                                     }
                                     lessonLecturerService.addLessonLecturer(user.get(), realLesson);
                                 }
@@ -298,12 +334,21 @@ public class LessonController {
     }
 
     // Data on a given UE (id)
+    @Operation(summary = "Get the detail about the UE")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Details of the UE",
+                    content = @Content(mediaType = "application/json",
+                            schema  = @Schema(implementation  =  UEShort.class))),
+            @ApiResponse(responseCode = "400", description = "No UE with this id was found",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @GetMapping(value = "/ue/{ueId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getUEById(@PathVariable Long ueId) {
         Optional<UE> ue = ueService.findById(ueId);
         if (ue.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ErrorResponse("No UE with this id was found", 404));
+                    .body(new ErrorResponse("No UE with this id was found", 400));
         }
         UE realUe = ue.get();
         UEShort ueReturn = new UEShort(realUe);
@@ -312,6 +357,15 @@ public class LessonController {
     }
 
     // Lessons for a given UE (ID)
+    @Operation(summary = "Get the lessons to the UE")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "The lessons of the UE",
+                    content = @Content(mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = BlockShort.class)))),
+            @ApiResponse(responseCode = "400", description = "No UE with this id was found",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @GetMapping(value = "/ue/{ueId}/lesson", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getUELessonsById(@PathVariable Long ueId) {
         Optional<UE> ue = ueService.findById(ueId);
@@ -423,12 +477,13 @@ public class LessonController {
     }
 
     // Modify an UE
+    @Operation(summary = "Modify an UE")
     @PutMapping(value = "/ue/{ueId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> modifyUE(@PathVariable Long ueId, @RequestBody UECreation newUE) {
+    public ResponseEntity<String> modifyUE(@PathVariable Long ueId, @RequestBody UECreation newUE) {
         Optional<UE> oue = ueService.findById(ueId);
         if (oue.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ErrorResponse("No UE with this id was found", 404));
+                    .body("No UE with this id was found");
         }
 
         UE ue = oue.get();
@@ -445,12 +500,13 @@ public class LessonController {
     }
 
     // Modify an TAF
+    @Operation(summary = "Modify a TAF")
     @PutMapping(value = "/taf/{tafId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> modifyTAF(@PathVariable Long tafId, @RequestBody TAFShort newTaf) {
+    public ResponseEntity<String> modifyTAF(@PathVariable Long tafId, @RequestBody TAFShort newTaf) {
         Optional<TAF> otaf = tafService.findById(tafId);
         if (otaf.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ErrorResponse("No TAF with this id was found", 404));
+                    .body("No TAF with this id was found");
         }
 
         TAF taf = otaf.get();
@@ -472,11 +528,12 @@ public class LessonController {
         return ResponseEntity.ok("Taf mofified");
     }
 
+    @Operation(summary = "Add the slots to a TAF and their availabilities")
     @PutMapping(value = "/taf/{tafId}/availability", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> putSlotInTaf(@PathVariable Long tafId, @RequestBody List<SlotShort> slots) {
+    public ResponseEntity<String> putSlotInTaf(@PathVariable Long tafId, @RequestBody List<SlotShort> slots) {
         if (slots.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ErrorResponse("The body is empty", 400));
+                    .body("The body is empty");
         } else {
             if (tafService.existsById(tafId)) {
                 // Get the slots' TAF
@@ -572,12 +629,24 @@ public class LessonController {
 
             } else {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(new ErrorResponse("No TAF with this id was found", 404));
+                        .body("No TAF with this id was found");
             }
 
         }
     }
 
+    @Operation(summary = "Get available slots for a specific TAF")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "List of available slots",
+                    content = @Content(mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = SlotShort.class)))),
+            @ApiResponse(responseCode = "400", description = "Invalid TAF ID",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "204", description = "No slots or calendars available",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @GetMapping(value = "/taf/{tafId}/availability", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getSlotByTafId(@PathVariable Long tafId) {
         Optional<TAF> taf = tafService.findById(tafId);
@@ -626,17 +695,43 @@ public class LessonController {
 
     }
 
+    @Operation(summary = "Create a TAF")
     @PostMapping(value = "/taf")
     ResponseEntity<String> addTAF(@RequestBody TAFCreation newTaf) {
-        TAF taf = tafService.addTAF(newTaf.getName(), newTaf.getDescription(), newTaf.getStartDate().toString(), newTaf.getEndDate().toString());
-        for (Long managerId : newTaf.getManagers()) {
-            User user = userService.findById(managerId).orElseThrow(() -> new IllegalArgumentException("The User doesn't exist"));
-            tafManagerService.addTAFManager(user,taf);
+        // Retrieving user
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !(authentication.getPrincipal() instanceof UserDetails)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication required");
         }
+
+        String mail = ((UserDetails) authentication.getPrincipal()).getUsername();
+        Optional<User> userOpt = userService.findByMail(mail);
+
+        // If user not found, return error
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+
+        }
+
+        User user = userOpt.get();
+
+        // Creation of the TAF
+        TAF taf = tafService.addTAF(newTaf.getName(), newTaf.getDescription(), newTaf.getStartDate().toString(), newTaf.getEndDate().toString());
+
+        // Add the manager(s)
+        tafManagerService.addTAFManager(user, taf);
+        for (Long managerId : newTaf.getManagers()) {
+            User otherUser = userService.findById(managerId).orElseThrow(() -> new IllegalArgumentException("The User doesn't exist"));
+            tafManagerService.addTAFManager(otherUser,taf);
+        }
+
+        // Create the calendar
         Calendar c = calendarService.addCalendar(taf);
+        
         return ResponseEntity.ok("Taf had been added");
     }
 
+    @Operation(summary = "Delete a TAF")
     @DeleteMapping(value = "/taf/{tafId}")
     ResponseEntity<?> deleteTAF(@PathVariable Long tafId) {
         Boolean b = tafService.deleteTAF(tafId);
@@ -649,6 +744,7 @@ public class LessonController {
         }
     }
 
+    @Operation(summary = "Create an UE")
     @PostMapping(value = "/ue")
     ResponseEntity<String> addUE(@RequestBody UECreation newUE) {
         TAF taf = tafService.findById(newUE.getTafId()).orElseThrow(() -> new IllegalArgumentException("The TAF doesn't exist"));
@@ -660,6 +756,7 @@ public class LessonController {
         return ResponseEntity.ok("UE had been added");
     }
 
+    @Operation(summary = "Delete an UE")
     @DeleteMapping(value = "/ue/{ueId}")
     ResponseEntity<?> deleteUE(@PathVariable Long ueId) {
         Boolean b = ueService.deleteUE(ueId);
@@ -672,18 +769,19 @@ public class LessonController {
         }
     }
 
+    @Operation(summary = "Add a lecturer availabilities")
     @PutMapping(value = "/taf/{tafId}/lecturer_availability", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> putLecturerUnavailability(@PathVariable Long tafId, @RequestBody List<UserUnavailabilityShort> userAvailabilities) {
+    public ResponseEntity<String> putLecturerUnavailability(@PathVariable Long tafId, @RequestBody List<UserUnavailabilityShort> userAvailabilities) {
         if (userAvailabilities.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ErrorResponse("The body is empty", 400));
+                    .body("The body is empty");
         } 
         
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         System.out.println("AUTHENTICATION : " + authentication);
         if (authentication == null || !(authentication.getPrincipal() instanceof UserDetails)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new ErrorResponse("Authentication required", 401));
+                    .body("Authentication required");
         }
 
         String mail = ((UserDetails) authentication.getPrincipal()).getUsername();
@@ -693,7 +791,7 @@ public class LessonController {
         // If user not found, return error
         if (!userOpt.isPresent()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ErrorResponse("User not found", 404));
+                    .body("User not found");
         }
 
         User user = userOpt.get();
@@ -723,6 +821,15 @@ public class LessonController {
 
     }
 
+    @Operation(summary = "Get the configurations already made for an UE")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "List of the configurations",
+                    content = @Content(mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = ConfigShort.class)))),
+            @ApiResponse(responseCode = "400", description = "Invalid TAF ID",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = String.class)))
+    })
     @GetMapping(value = "/taf/{tafId}/configs", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getPlannings(@PathVariable Long tafId) {
         if (!tafService.existsById(tafId)) {
@@ -748,15 +855,16 @@ public class LessonController {
         return ResponseEntity.ok(configs);
     }
 
+    @Operation(summary = "Add a new configuration for the TAF")
     @PostMapping(value = "/taf/{tafId}/configs", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> addPlanning(@PathVariable Long tafId, @RequestBody Config config) {
+    public ResponseEntity<String> addPlanning(@PathVariable Long tafId, @RequestBody Config config) {
         if (!tafService.existsById(tafId)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("TAF not found");
         }
         if (config==null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ErrorResponse("The body is empty", 400));
+                    .body("The body is empty");
         }
 
         TAF taf = tafService.findById(tafId).get();
