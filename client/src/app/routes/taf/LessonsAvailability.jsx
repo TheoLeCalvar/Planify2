@@ -15,28 +15,18 @@ import ResetButton from "@/features/calendar/components/ResetButton";
 import ImportExclusionButton from "@/features/calendar/components/ImportExclusionButton";
 import { useOutletContext, useLoaderData, redirect } from "react-router-dom";
 import SaveButton from "@/features/calendar/components/SaveButton";
-import { USE_MOCK_DATA } from "@/config/constants";
 import axiosInstance from "@/config/axiosConfig";
 import { JSONToCalendarEvent } from "@/features/calendar/utils/calendarEvent";
 import { toast } from "react-toastify";
 import adaptCalendar from "@/features/calendar/utils/adaptCalendar";
 
 export async function loader({ params }) {
-  if (USE_MOCK_DATA) {
-    return null;
-  }
-
   const response = await axiosInstance.get(`/taf/${params.idTAF}/availability`);
   return response.data;
 }
 
 export async function action({ request, params }) {
   let data = await request.json();
-
-  if (USE_MOCK_DATA) {
-    await new Promise((res) => setTimeout(res, 1000));
-    return { ok: true };
-  }
 
   return await axiosInstance
     .put(`/taf/${params.idTAF}/availability`, data)

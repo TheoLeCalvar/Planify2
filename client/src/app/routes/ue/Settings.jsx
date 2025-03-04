@@ -9,7 +9,6 @@ import {
 } from "react-router-dom";
 import ValidatedInput from "@/components/ValidatedInput";
 import ValidatedForm from "@/components/ValidatedForm";
-import { USE_MOCK_DATA } from "@/config/constants";
 import axiosInstance from "@/config/axiosConfig";
 import UserSelector from "@/components/UserSelector";
 import { Typography } from "@mui/material";
@@ -18,47 +17,32 @@ import PropTypes from "prop-types";
 import { toast } from "react-toastify";
 
 export async function action({ request, params }) {
-  //TODO: Update section with backend call
   const updates = await request.json();
-
-  if (USE_MOCK_DATA) {
-    const delay = () => {
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve("Résolu après 2 secondes");
-        }, 2000); // 2000 millisecondes = 2 secondes
+  if (params.idUE) {
+    return await axiosInstance
+      .put(`/ue/${params.idUE}`, updates)
+      .then(() => {
+        toast.success("UE mise à jour");
+        return redirect("..");
+      })
+      .catch(() => {
+        toast.error("Erreur lors de la mise à jour de l'UE");
+        return null;
       });
-    };
-
-    await delay();
-    console.log(updates);
   } else {
-    if (params.idUE) {
-      return await axiosInstance
-        .put(`/ue/${params.idUE}`, updates)
-        .then(() => {
-          toast.success("UE mise à jour");
-          return redirect("..");
-        })
-        .catch(() => {
-          toast.error("Erreur lors de la mise à jour de l'UE");
-          return null;
-        });
-    } else {
-      return await axiosInstance
-        .post(`/ue`, {
-          ...updates,
-          tafId: parseInt(params.idTAF),
-        })
-        .then((response) => {
-          toast.success("UE créée");
-          return redirect("../ue/" + response.data);
-        })
-        .catch(() => {
-          toast.error("Erreur lors de la création de l'UE");
-          return null;
-        });
-    }
+    return await axiosInstance
+      .post(`/ue`, {
+        ...updates,
+        tafId: parseInt(params.idTAF),
+      })
+      .then((response) => {
+        toast.success("UE créée");
+        return redirect("../ue/" + response.data);
+      })
+      .catch(() => {
+        toast.error("Erreur lors de la création de l'UE");
+        return null;
+      });
   }
 }
 

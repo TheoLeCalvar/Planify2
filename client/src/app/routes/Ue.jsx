@@ -7,35 +7,9 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Tabs, Tab, Typography } from "@mui/material";
 
 // Local imports
-import { USE_MOCK_DATA } from "@/config/constants";
 import axiosInstance from "@/config/axiosConfig";
 
 export async function loader({ params }) {
-  if (USE_MOCK_DATA) {
-    const mockTaf = [
-      {
-        id: params.idUE,
-        name: "Programmation polyglotte",
-        description: "TAF is a student association.",
-        managers: ["Théo Le Calvar"],
-      },
-      {
-        id: "2",
-        name: "Programmation fonctionnelle",
-        description: "This is another student association.",
-        managers: ["John Doe"],
-      },
-      {
-        id: "3",
-        name: "Conférences",
-        description: "Yet another student association.",
-        managers: ["Alice Brown"],
-      },
-    ];
-
-    return mockTaf[params.idUE - 1];
-  }
-
   const response = await axiosInstance.get(`/ue/${params.idUE}`);
   return response.data;
 }
