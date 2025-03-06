@@ -212,7 +212,7 @@ public class CalendarController {
             @ApiResponse(responseCode = "200",
                     description = "the timetable",
                     content = @Content(mediaType = "application/json",
-                            array = @ArraySchema(schema = @Schema(implementation = GeneratedPlanning.class)))),
+                            schema = @Schema(implementation = GeneratedPlanning.class))),
             @ApiResponse(responseCode = "400", description = "No planning with this ID")
     })
     @GetMapping(value = "/solver/result/{planningId}", produces = MediaType.APPLICATION_JSON_VALUE)

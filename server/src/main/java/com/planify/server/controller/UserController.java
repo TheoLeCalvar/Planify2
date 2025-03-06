@@ -122,8 +122,6 @@ public class UserController {
         if (exists) {
             return ResponseEntity.status(209).body("User already exists");
         }
-        System.out.println(userRequest.getFirstName());
-        System.out.println(userRequest.getLastName());
         User u = userService.addUser(userRequest.getFirstName(), userRequest.getLastName(), userRequest.getEmail(),
                 "not implemented");
         return ResponseEntity.ok("User created !");
