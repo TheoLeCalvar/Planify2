@@ -3,6 +3,8 @@ package com.planify.server.models;
 import com.planify.server.controller.returnsClass.Config;
 import com.planify.server.models.constraints.ConstraintSynchroniseWithTAF;
 import com.planify.server.models.constraints.ConstraintsOfUE;
+import com.planify.server.service.PlanningService;
+
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -11,9 +13,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 @Entity
 public class Planning {
-
+	
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -47,15 +51,15 @@ public class Planning {
     // Synchronisation
     private boolean synchronise;
 
-    @OneToMany(mappedBy = "planning", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "planning", fetch = FetchType.LAZY)
     private List<ConstraintSynchroniseWithTAF> constraintsSynchronisation = new ArrayList<ConstraintSynchroniseWithTAF>();
     
-    @OneToMany(mappedBy = "otherPlanning", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "otherPlanning", fetch = FetchType.LAZY)
     private List<ConstraintSynchroniseWithTAF> constrainedSynchronisations = new ArrayList<ConstraintSynchroniseWithTAF>();
 
     
     // Constraints' UE
-    @OneToMany(mappedBy = "planning", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "planning", fetch = FetchType.LAZY)
     private List<ConstraintsOfUE> constraintsOfUEs = new ArrayList<ConstraintsOfUE>();
     
     private int weightMaxTimeWithoutLesson;
@@ -101,7 +105,7 @@ public class Planning {
         this.status = Status.CONFIG;
     }
 
-    public Planning(Calendar calendar, String name, boolean globalUnavailability, int weightGlobalUnavailability, boolean lecturersUnavailability, int weightLecturersUnavailability, boolean synchronise, List<ConstraintSynchroniseWithTAF> constraintsSynchronisation, List<ConstraintsOfUE> constraintsOfUEs, int weightMaxTimeWithoutLesson, boolean UEInterlacing, boolean middayBreak, LocalTime startMiddayBreak, LocalTime endMiddayBreak, boolean middayGrouping, int weightMiddayGrouping, boolean lessonBalancing, int weightLessonBalancing, int weightLessonGrouping, boolean lessonGrouping, LocalTime maxSolveDuration) {
+    public Planning(Calendar calendar, String name, boolean globalUnavailability, int weightGlobalUnavailability, boolean lecturersUnavailability, int weightLecturersUnavailability, boolean synchronise, int weightMaxTimeWithoutLesson, boolean UEInterlacing, boolean middayBreak, LocalTime startMiddayBreak, LocalTime endMiddayBreak, boolean middayGrouping, int weightMiddayGrouping, boolean lessonBalancing, int weightLessonBalancing, int weightLessonGrouping, boolean lessonGrouping, LocalTime maxSolveDuration) {
         this.calendar = calendar;
         this.name = name;
         this.scheduledLessons = new ArrayList<ScheduledLesson>();
@@ -111,8 +115,6 @@ public class Planning {
         this.lecturersUnavailability = lecturersUnavailability;
         this.weightLecturersUnavailability = weightLecturersUnavailability;
         this.synchronise = synchronise;
-        this.constraintsSynchronisation = constraintsSynchronisation;
-        this.constraintsOfUEs = constraintsOfUEs;
         this.weightMaxTimeWithoutLesson = weightMaxTimeWithoutLesson;
         this.UEInterlacing = UEInterlacing;
         this.middayBreak = middayBreak;
@@ -427,49 +429,7 @@ public class Planning {
                 '}';
     }
 
-    public void updateConfig(Config config) {
-        if (config.getName() != null) this.setName(config.getName());
-        if (config.isGlobalUnavailability() != null) this.setGlobalUnavailability(config.isGlobalUnavailability());
-        if (config.getWeightGlobalUnavailability() != null) this.setWeightGlobalUnavailability(config.getWeightGlobalUnavailability());
-        if (config.isLecturersUnavailability() != null) this.setLecturersUnavailability(config.isLecturersUnavailability());
-        if (config.getWeightLecturersUnavailability() != null) this.setWeightLecturersUnavailability(config.getWeightLecturersUnavailability());
-        if (config.isSynchronise() != null) this.setSynchronise(config.isSynchronise());
-        if (config.getUEInterlacing() != null) this.setUEInterlacing(config.getUEInterlacing());
-        if (config.isMiddayBreak() != null) this.setMiddayBreak(config.isMiddayBreak());
-        if (config.getStartMiddayBreak() != null) this.setStartMiddayBreak(config.getStartMiddayBreak());
-        if (config.getEndMiddayBreak() != null) this.setEndMiddayBreak(config.getEndMiddayBreak());
-        if (config.isMiddayGrouping() != null) this.setMiddayGrouping(config.isMiddayGrouping());
-        if (config.getWeightMiddayGrouping() != null) this.setWeightMiddayGrouping(config.getWeightMiddayGrouping());
-        if (config.isLessonBalancing() != null) this.setLessonBalancing(config.isLessonBalancing());
-        if (config.getWeightLessonBalancing() != null) this.setWeightLessonBalancing(config.getWeightLessonBalancing());
-        if (config.isLessonGrouping() != null) this.setLessonGrouping(config.isLessonGrouping());
-        if (config.getWeightLessonGrouping() != null) this.setWeightLessonGrouping(config.getWeightLessonGrouping());
-        if (config.getMaxSolveDuration() != null) this.setMaxSolveDuration(config.getMaxSolveDuration());
-        
-        if (config.getConstraintsSynchronisation() != null && !config.getConstraintsSynchronisation().isEmpty()) {
-            for (Config.CSyncrho cs : config.getConstraintsSynchronisation()) {
-                if (cs.getOtherPlanning() != null) {
-                    for (ConstraintSynchroniseWithTAF c :this.getConstraintsSynchronisation()) {
-                        if (cs.getOtherPlanning() == c.getPlanning().getId()) {
-                            c.updateConfig(cs);
-                        }
-                    }
-                }
-            }
-        }
-
-        if (config.getConstraintsOfUEs() != null && !config.getConstraintsOfUEs().isEmpty() ) {
-            for (Config.CUE cue : config.getConstraintsOfUEs()) {
-                if (cue.getUe() != null) {
-                    for (ConstraintsOfUE c : this.constraintsOfUEs) {
-                        if (cue.getUe() == c.getUe().getId()) {
-                            c.updateConfig(cue);
-                        }
-                    }
-                }
-            }
-        }
-    }
+    
     
     public static Planning setSettingsPlanning(Planning planning) {
 		planning.setMiddayBreak(true);

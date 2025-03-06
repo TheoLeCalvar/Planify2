@@ -17,7 +17,7 @@ public class TAFManager {
     @EmbeddedId
     private TAFManagerId id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     @MapsId("idUser")
     private User user;
 

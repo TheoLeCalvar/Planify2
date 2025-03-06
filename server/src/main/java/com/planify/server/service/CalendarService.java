@@ -41,12 +41,6 @@ public class CalendarService {
     public Calendar addCalendar(TAF taf) {
         Calendar calendar = new Calendar(taf);
 
-        // Update calendar list for taf
-        List<Calendar> calendars = taf.getCalendars();
-        calendars.addLast(calendar);
-        taf.setCalendars(calendars);
-        tafService.save(taf);
-
         calendarRepository.save(calendar);
         return calendar;
     }
@@ -69,12 +63,6 @@ public class CalendarService {
     public boolean deleteCalendar(Long id) {
         if (calendarRepository.existsById(id)) {
             Calendar calendar = calendarRepository.findById(id).get();
-
-            // Update calendar list for taf
-            List<Calendar> calendars = calendar.getTaf().getCalendars();
-            calendars.remove(calendar);
-            calendar.getTaf().setCalendars(calendars);
-            calendarRepository.save(calendar);
 
             // Delete the slots associated to this calendar
             List<Slot> slots = new ArrayList<Slot>(calendar.getSlots());

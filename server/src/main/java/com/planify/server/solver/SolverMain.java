@@ -100,7 +100,11 @@ public class SolverMain {
 	private List<Slot> getSlotsByWeekWUD(Week week) {return services.getSlotService().findSlotsByWeekAndCalendarWithoutUnavailableDays(week, getCalendar());}
 	private int getNumberOfSlotsWUD() {return getSlotsOrderedWUD().size();}
 	private int getNumberOfLessons() {return services.getTafService().numberOfLessons(planning.getCalendar().getTaf().getId());}
-	private ConstraintsOfUE getConstraintsOfUe(UE ue) {return getPlanning().getConstraintsOfUEs().stream().filter(c -> c.getUe().getId() == ue.getId()).findAny().get();}
+	private ConstraintsOfUE getConstraintsOfUe(UE ue) {
+		System.out.println("size : " + getPlanning().getConstraintsOfUEs().size());
+		System.out.println(getPlanning().getConstraintsOfUEs().getFirst().toString());
+		System.out.println(getPlanning().getConstraintsOfUEs().getFirst().getUe().getId());
+		return getPlanning().getConstraintsOfUEs().stream().filter(c -> c.getUe().getId() == ue.getId()).findAny().get();}
 	
 	private static boolean isUesNeeded(Planning planning) {return planning.isLessonGrouping()
 															|| planning.isMiddayGrouping()

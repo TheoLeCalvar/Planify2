@@ -81,6 +81,12 @@ public class LessonController {
 
     @Autowired
     private PlanningService planningService;
+    
+    @Autowired
+    private ConstraintsOfUEService constraintsOfUEService;
+    
+    @Autowired
+    private ConstraintSynchroniseWithTAFService constraintSynchroniseWithTAFService;
 
     @Autowired
     private TAFManagerService tafManagerService;
@@ -866,7 +872,8 @@ public class LessonController {
     @Operation(summary = "Add a new configuration for the TAF")
     @PostMapping(value = "/taf/{tafId}/configs", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> addPlanning(@PathVariable Long tafId, @RequestBody Config config) {
-        if (!tafService.existsById(tafId)) {
+    	System.out.println("CREATE CONFIG !!!!!!!!!!!!!!!");
+    	if (!tafService.existsById(tafId)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("TAF not found");
         }
@@ -886,37 +893,37 @@ public class LessonController {
             throw new RuntimeException(e);
         }
 
-        Planning planning = new Planning(
-                calendar,
-                config.getName(),
-                config.isGlobalUnavailability(),
-                config.getWeightGlobalUnavailability(),
-                config.isLecturersUnavailability(),
-                config.getWeightLecturersUnavailability(),
-                config.isSynchronise(),
-                config.getUEInterlacing(),
-                config.isMiddayBreak(),
-                config.getStartMiddayBreak(),
-                config.getEndMiddayBreak(),
-                config.isMiddayGrouping(),
-                config.getWeightMiddayGrouping(),
-                config.isLessonBalancing(),
-                config.getWeightLessonBalancing(),
-                config.getWeightLessonGrouping(),
-                config.isLessonGrouping(),
-                config.getMaxSolveDuration()
-        );
+        Planning planning = planningService.addPlanning(
+				                calendar,
+				                config.getName(),
+				                config.isGlobalUnavailability(),
+				                config.getWeightGlobalUnavailability(),
+				                config.isLecturersUnavailability(),
+				                config.getWeightLecturersUnavailability(),
+				                config.isSynchronise(),
+				                config.getWeightMaxTimeWithoutLesson(),
+				                config.getUEInterlacing(),
+				                config.isMiddayBreak(),
+				                config.getStartMiddayBreak(),
+				                config.getEndMiddayBreak(),
+				                config.isMiddayGrouping(),
+				                config.getWeightMiddayGrouping(),
+				                config.isLessonBalancing(),
+				                config.getWeightLessonBalancing(),
+				                config.getWeightLessonGrouping(),
+				                config.isLessonGrouping(),
+				                config.getMaxSolveDuration()
+				        );
 
         //Addition of the synchronisation's constraints
         List<ConstraintSynchroniseWithTAF> cSynchronisations = new ArrayList<>();
         if (config.getConstraintsSynchronisation()!=null && !config.getConstraintsSynchronisation().isEmpty()) {
             for (Config.CSyncrho cs : config.getConstraintsSynchronisation()) {
-                ConstraintSynchroniseWithTAF c = new ConstraintSynchroniseWithTAF(
+            	cSynchronisations.add(constraintSynchroniseWithTAFService.add(
                         planning,
                         planningService.findById(cs.getOtherPlanning()).orElseThrow(() -> new IllegalArgumentException("The Other Planning doesn't exist")),
                         cs.isEnabled()
-                );
-                cSynchronisations.add(c);
+                ));
             }
         }
         planning.setConstrainedSynchronisations(cSynchronisations);
@@ -924,9 +931,11 @@ public class LessonController {
         //Addition of the UEs constraints
         List<ConstraintsOfUE> cUEs = new ArrayList<>();
         int[] lessonGroupingNbLessons = {2,3};
+        System.out.println("UE !!! " + taf.getUes() == null);
         if (taf.getUes()!=null) {
+            System.out.println("UE !!! " + taf.getUes().size());
             for (UE ue : taf.getUes()) {
-                ConstraintsOfUE c = new ConstraintsOfUE(
+            	cUEs.add(constraintsOfUEService.add(
                         ue,
                         planning,
                         true,
@@ -939,15 +948,15 @@ public class LessonController {
                         12,
                         1,
                         lessonGroupingNbLessons
-                );
-                cUEs.add(c);
+                ));
+            	System.out.println("aaaaaaaa " + ue.getName());
             }
         }
         planning.setConstraintsOfUEs(cUEs);
         planningService.save(planning);
+        System.out.println("Comp !!!!" + planning.getConstraintsOfUEs().size());
+        System.out.println("Comp !!!!" + planningService.findById(planning.getId()).get().getConstraintsOfUEs().size());
         return ResponseEntity.ok("New config added !");
-
-
     }
 
 }

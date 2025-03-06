@@ -26,25 +26,25 @@ public class Lesson {
     @JoinColumn(name = "idUE")
     private UE ue;
 
-    @OneToMany(mappedBy = "lesson", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "lesson", fetch = FetchType.LAZY)
     private List<LessonLecturer> lessonLecturers = new ArrayList<>();
 
-    @OneToMany(mappedBy = "previousLesson", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "previousLesson", fetch = FetchType.LAZY)
     private List<Antecedence> antecedencesAsPrevious = new ArrayList<>();
 
-    @OneToMany(mappedBy = "nextLesson", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "nextLesson", fetch = FetchType.LAZY)
     private List<Antecedence> antecedencesAsNext = new ArrayList<>();
 
-    @OneToMany(mappedBy = "previousLesson", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "previousLesson", fetch = FetchType.LAZY)
     private List<Sequencing> sequencingsAsPrevious = new ArrayList<>();
 
-    @OneToMany(mappedBy = "nextLesson", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "nextLesson", fetch = FetchType.LAZY)
     private List<Sequencing> sequencingsAsNext = new ArrayList<>();
 
-    @OneToMany(mappedBy = "lesson1", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "lesson1", fetch = FetchType.LAZY)
     private List<Synchronization> synchronizations1 = new ArrayList<>();
 
-    @OneToMany(mappedBy = "lesson2", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "lesson2", fetch = FetchType.LAZY)
     private List<Synchronization> synchronizations2 = new ArrayList<>();
 
     public Lesson() {

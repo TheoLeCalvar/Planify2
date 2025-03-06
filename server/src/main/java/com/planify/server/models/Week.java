@@ -23,7 +23,7 @@ public class Week {
     @Column(name = "\"year\"")
     private Integer year;
 
-    @OneToMany(mappedBy = "week", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "week", fetch = FetchType.LAZY)
     private List<Day> days;
 
     public Week() {
