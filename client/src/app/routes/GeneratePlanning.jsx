@@ -14,7 +14,7 @@ import {
   Switch,
   Typography,
 } from "@mui/material";
-import { useLoaderData, useNavigate } from "react-router-dom";
+import { useLoaderData, useNavigate, useRevalidator } from "react-router-dom";
 import axiosInstance from "@/config/axiosConfig";
 import ConfirmationDialog from "@/components/ConfirmationDialog";
 import { toast } from "react-toastify";
@@ -28,6 +28,7 @@ export async function loader({ params }) {
 export default function GeneratePlanning() {
   const navigate = useNavigate();
   const options = useLoaderData();
+  const revalidator = useRevalidator();
 
   const [selectedConfig, setSelectedConfig] = React.useState(null);
   const [openError, setOpenError] = React.useState(false);
@@ -114,6 +115,7 @@ export default function GeneratePlanning() {
       .then(() => {
         toast.success("Le planning est en cours de génération...");
         navigate(`..`);
+        revalidator.revalidate();
       })
       .catch(() => {
         toast.error(
@@ -363,14 +365,14 @@ const SynchroniseConfigSelector = ({
           </FormControl>
           <FormControl sx={{ minWidth: 300 }}>
             <InputLabel id="select-label-generated">
-              Plannnings générés
+              Plannings générés
             </InputLabel>
 
             <Select
               labelId="select-label-generated"
               value={selectedConfig}
               onChange={handleChange}
-              label="Plannnings générés"
+              label="Plannings générés"
             >
               {options
                 .filter((option) => option.status === "GENERATED")
@@ -380,7 +382,7 @@ const SynchroniseConfigSelector = ({
                     value={option.id}
                     selected={option.id === selectedConfig}
                   >
-                    {option.name}
+                    {option.timestamp} - {option.name}
                   </MenuItem>
                 ))}
               {options.filter((option) => option.status === "GENERATED")

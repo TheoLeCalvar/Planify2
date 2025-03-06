@@ -31,9 +31,11 @@ axiosInstance.interceptors.response.use(
     // Vous pouvez gérer les erreurs ici, comme des redirections si l'utilisateur n'est pas authentifié
     console.log("Erreur capturée par Axios", error);
     if (error.response) {
+      console.log("Erreur de réponse", error.response.status);
       if (error.response.status === 401 || error.response.status === 403) {
+        localStorage.removeItem("authToken");
+        sessionStorage.removeItem("authToken");
         // Rediriger vers la page de connexion
-        console.log("Redirection vers la page de connexion");
         if (window.location.pathname !== "/login") {
           window.location.href = "/login";
         }

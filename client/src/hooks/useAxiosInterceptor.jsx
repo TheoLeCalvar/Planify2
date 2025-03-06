@@ -17,6 +17,8 @@ const useAxiosInterceptor = () => {
         if (error.response) {
           if (error.response.status === 401 || error.response.status === 403) {
             // Rediriger vers la page de connexion
+            localStorage.removeItem("authToken");
+            sessionStorage.removeItem("authToken");
             navigate("/login");
           } else {
             return Promise.reject({
