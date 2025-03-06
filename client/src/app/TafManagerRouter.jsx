@@ -3,7 +3,6 @@ import React from "react";
 import { createBrowserRouter } from "react-router-dom";
 
 // Routes components
-import Root from "./routes/Root";
 import LoginPage from "./routes/Login";
 import AppBar from "./routes/layout/AppBar";
 import SideBar from "./routes/layout/SideBar";
@@ -40,6 +39,7 @@ import { action as createNewUserAction } from "@/components/CreateUser";
 import { action as editTAFConfigAction } from "./routes/taf/SolverConfig";
 import GeneratePlanning from "./routes/GeneratePlanning";
 import RegisterPage from "./routes/Register";
+import NavigateRoot from "./routes/NavigateRoot";
 
 // Define UE nested routes
 const ueRoutes = [
@@ -176,7 +176,7 @@ const tafRoute = [
 export const router = createBrowserRouter([
   {
     path: "/",
-    element: <Root />,
+    element: <NavigateRoot />,
     errorElement: <ErrorPage />,
     children: [
       {
@@ -200,3 +200,5 @@ export const router = createBrowserRouter([
     ],
   },
 ]);
+
+export default router;

@@ -1,17 +1,16 @@
 // React imports
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { RouterProvider } from "react-router-dom";
 
 // Local imports
 import "@/assets/index.css";
 import reportWebVitals from "./reportWebVitals";
-import { router } from "./Router";
+import Root from "./routes/Root";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <Root />
   </React.StrictMode>,
 );
 

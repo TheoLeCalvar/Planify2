@@ -13,6 +13,11 @@ export async function loader() {
   return response.data;
 }
 
+export async function loaderLecturer() {
+  const response = await axiosInstance.get("/lecturer/taf");
+  return response.data;
+}
+
 const AppBar = () => {
   return <AppBarComponent />;
 };
