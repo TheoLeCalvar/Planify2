@@ -19,6 +19,7 @@ import { USE_MOCK_DATA } from "@/config/constants";
 import axiosInstance from "@/config/axiosConfig";
 import { JSONToCalendarEvent } from "@/features/calendar/utils/calendarEvent";
 import { toast } from "react-toastify";
+import adaptCalendar from "@/features/calendar/utils/adaptCalendar";
 
 export async function loader({ params }) {
   if (USE_MOCK_DATA) {
@@ -64,7 +65,11 @@ export default function LessonsAvailability() {
   const initialEvents =
     typeof data === "string"
       ? generateClassSlots(context.taf.startDate, context.taf.endDate)
-      : data.map(JSONToCalendarEvent);
+      : adaptCalendar(
+          data.map(JSONToCalendarEvent),
+          context.taf.startDate,
+          context.taf.endDate,
+        );
 
   return (
     <div>
