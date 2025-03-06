@@ -1,8 +1,10 @@
 package com.planify.server.service;
 
 
+import com.planify.server.controller.returnsClass.Config;
 import com.planify.server.models.Planning;
 import com.planify.server.models.constraints.ConstraintSynchroniseWithTAF;
+import com.planify.server.models.constraints.ConstraintSynchroniseWithTAF.ConstraintsSynchroniseWithTAFId;
 import com.planify.server.repo.ConstraintSynchroniseWithTAFRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,20 +18,23 @@ public class ConstraintSynchroniseWithTAFService {
     @Autowired
     private ConstraintSynchroniseWithTAFRepository constraintSynchroniseWithTAFRepository;
     
+    public void save(ConstraintSynchroniseWithTAF constraintSynchroniseWithTAF) {
+    	constraintSynchroniseWithTAFRepository.save(constraintSynchroniseWithTAF);
+    }
 
     List<ConstraintSynchroniseWithTAF> findAll() {
         return constraintSynchroniseWithTAFRepository.findAll();
     }
 
-    Optional<ConstraintSynchroniseWithTAF> findById(Long id) {
+    Optional<ConstraintSynchroniseWithTAF> findById(ConstraintsSynchroniseWithTAFId id) {
         return constraintSynchroniseWithTAFRepository.findById(id);
     }
 
-    ConstraintSynchroniseWithTAF add(Planning planning, Planning otherPlanning, boolean enabled) {
+    public ConstraintSynchroniseWithTAF add(Planning planning, Planning otherPlanning, boolean enabled) {
         return  constraintSynchroniseWithTAFRepository.save(new ConstraintSynchroniseWithTAF(planning, otherPlanning, enabled));
     }
 
-    boolean deleteById(Long id) {
+    boolean deleteById(ConstraintsSynchroniseWithTAFId id) {
         if (constraintSynchroniseWithTAFRepository.existsById(id)) {
             constraintSynchroniseWithTAFRepository.deleteById(id);
             return true;
@@ -37,6 +42,11 @@ public class ConstraintSynchroniseWithTAFService {
         else {
             return false;
         }
+    }
+
+    public void updateConfig(ConstraintSynchroniseWithTAF c ,Config.CSyncrho cs) {
+        if (cs.isEnabled() != null) c.setEnabled(cs.isEnabled());
+        save(c);
     }
     
     public List<ConstraintSynchroniseWithTAF> createForNewPlanning(List<ConstraintSynchroniseWithTAF> cSyncs, Planning newPlanning){

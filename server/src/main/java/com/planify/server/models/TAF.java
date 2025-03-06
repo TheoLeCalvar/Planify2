@@ -27,13 +27,13 @@ public class TAF {
 
     private String endDate;
 
-    @OneToMany(mappedBy = "taf", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "taf", fetch = FetchType.LAZY)
     private List<UE> UEs = new ArrayList<>();
 
-    @OneToMany(mappedBy = "taf", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "taf", fetch = FetchType.LAZY)
     private List<Calendar> calendars = new ArrayList<>();
 
-    @OneToMany(mappedBy = "taf", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "taf", fetch = FetchType.LAZY)
     private List<TAFManager> TAFmanagers = new ArrayList<>();
     
     public TAF() {

@@ -70,12 +70,6 @@ public class LessonService {
 
         lessonRepository.save(lesson);
 
-        // Update lessons list for ue
-        List<Lesson> lessons = ue.getLessons();
-        lessons.addLast(lesson);
-        ue.setLessons(lessons);
-        // ueService.save(ue);
-
         return lesson;
     }
 
@@ -144,11 +138,6 @@ public class LessonService {
                 }
             }
 
-            // Update lessons list for ue
-            List<Lesson> lessons = lesson.getUe().getLessons();
-            lessons.remove(lesson);
-            lesson.getUe().setLessons(lessons);
-
             // Changing the order of the lessons
             List<Antecedence> listWhereLessonIsPrevious = lesson.getAntecedencesAsPrevious();
             List<Antecedence> listWhereLessonsIsNext = lesson.getAntecedencesAsNext();
@@ -185,27 +174,11 @@ public class LessonService {
             // Delete the synchronization of this lesson
             List<Synchronization> s1 = lesson.getSynchronizations1();
             List<Synchronization> s2 = lesson.getSynchronizations2();
-            /*if (s1 != null & !s1.isEmpty()) {
-                while (!s1.isEmpty()) {
-                    Synchronization s = s1.removeFirst();
-                    synchronizationService.deleteSynchronization(s.getId());
-                }
-            }
-            if (s2 != null && !s2.isEmpty()) {
-                while (!s2.isEmpty()) {
-                    Synchronization s = s2.removeFirst();
-                    synchronizationService.deleteSynchronization(s.getId());
-                }
-            }*/
-            System.out.println("SYNCHRONISATION");
-            s1.forEach(s -> synchronizationService.deleteSynchronisationFromLesson(s.getId()));
-            s2.forEach(s -> synchronizationService.deleteSynchronisationFromLesson(s.getId()));
+            s1.forEach(s -> synchronizationService.deleteSynchronization(s.getId()));
+            s2.forEach(s -> synchronizationService.deleteSynchronization(s.getId()));
 
-            System.out.println("LessonLecturer");
-
-            System.out.println("Lesson : " + lesson);
             // Delete the lessonLecturer of the lesson
-            lesson.getLessonLecturers().forEach(ll -> lessonLecturerService.deleteLessonLecturerFromLesson(ll.getId()));
+            lesson.getLessonLecturers().forEach(ll -> lessonLecturerService.deleteLessonLecturer(ll.getId()));
 
             // Delete the lesson in the lesson's table
             lessonRepository.deleteById(id);

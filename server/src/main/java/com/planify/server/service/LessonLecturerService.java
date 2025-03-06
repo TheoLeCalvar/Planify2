@@ -32,17 +32,6 @@ public class LessonLecturerService {
         // Save new object in repository
         lessonLecturerRepository.save(lessonLecturer);
         
-        // Update lesson lecturers for user
-        List<LessonLecturer> lessonLecturers = user.getLessonLecturers();
-        lessonLecturers.addLast(lessonLecturer);
-        user.setLessonLecturers(lessonLecturers);
-        //userService.save(user);
-
-        // Update lesson lecturers for lesson
-        List<LessonLecturer> lessonLecturers2 = lesson.getLessonLecturers();
-        lessonLecturers2.addLast(lessonLecturer);
-        lesson.setLessonLecturers(lessonLecturers2);
-        //lessonService.save(lesson);
         
         return lessonLecturer;
     }
@@ -61,23 +50,7 @@ public class LessonLecturerService {
     }
 
     public boolean deleteLessonLecturer(LessonLecturerId id) {
-
         if (lessonLecturerRepository.existsById(id)) {
-            LessonLecturer lessonLecturer = lessonLecturerRepository.findById(id).get();
-
-            // Update lesson lecturers for user
-            List<LessonLecturer> lessonLecturers = lessonLecturer.getUser().getLessonLecturers();
-            lessonLecturers.remove(lessonLecturer);
-            lessonLecturer.getUser().setLessonLecturers(lessonLecturers);
-            userService.save(lessonLecturer.getUser());
-
-            // Update lesson lecturers for lesson
-            List<LessonLecturer> lessonLecturers2 = lessonLecturer.getLesson().getLessonLecturers();
-            lessonLecturers2.remove(lessonLecturer);
-            lessonLecturer.getLesson().setLessonLecturers(lessonLecturers2);
-            lessonService.save(lessonLecturer.getLesson());
-
-            // Then delete it
             lessonLecturerRepository.deleteById(id);
 
             return true;
@@ -86,32 +59,4 @@ public class LessonLecturerService {
             return false;
         }
     }
-    
-    public boolean deleteLessonLecturerFromLesson(LessonLecturerId id) {
-    	
-    	if (lessonLecturerRepository.existsById(id)) {
-            LessonLecturer lessonLecturer = lessonLecturerRepository.findById(id).get();
-
-            // Update lesson lecturers for user
-            List<LessonLecturer> lessonLecturers = lessonLecturer.getUser().getLessonLecturers();
-            lessonLecturers.remove(lessonLecturer);
-            lessonLecturer.getUser().setLessonLecturers(lessonLecturers);
-            userService.save(lessonLecturer.getUser());
-            
-            // Update lesson lecturers for lesson
-            /*System.out.println("Lesson : " + lessonLecturer.getLesson());
-            List<LessonLecturer> lessonLecturers2 = lessonLecturer.getLesson().getLessonLecturers();
-            lessonLecturers2.remove(lessonLecturer);
-            lessonLecturer.getLesson().setLessonLecturers(lessonLecturers2);
-            lessonService.save(lessonLecturer.getLesson());*/
-            
-            // Then delete it
-            lessonLecturerRepository.deleteById(id);
-
-            return true;
-        } else {
-            return false;
-        }
-    }
-
 }

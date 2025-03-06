@@ -3,6 +3,8 @@ package com.planify.server.models;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.planify.server.models.constraints.ConstraintsOfUE;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -27,12 +29,15 @@ public class UE {
     @JoinColumn(name = "taf_id")
     private TAF taf;
 
-    @OneToMany(mappedBy = "ue", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "ue", fetch = FetchType.LAZY)
     private List<Lesson> lessons = new ArrayList<>();
 
-    @OneToMany(mappedBy = "ue", fetch = FetchType.EAGER)
-    private List<UEManager> UEmanagers = new ArrayList<>();
+    @OneToMany(mappedBy = "ue", fetch = FetchType.LAZY)
+    private List<UEManager> UEManagers = new ArrayList<>();
 
+    @OneToMany(mappedBy = "ue", fetch = FetchType.LAZY)
+    private List<ConstraintsOfUE> constraintsOfUE = new ArrayList<ConstraintsOfUE>();
+    
     public UE() {
     }
 
@@ -82,12 +87,20 @@ public class UE {
         this.lessons = lessons;
     }
 
-    public List<UEManager> getUeManagers() {
-        return this.UEmanagers;
-    }
+	public List<UEManager> getUEManagers() {
+		return UEManagers;
+	}
 
-    public void setUeManagers(List<UEManager> ueManagers) {
-        this.UEmanagers = ueManagers;
-    }
+	public void setUEManagers(List<UEManager> uEmanagers) {
+		UEManagers = uEmanagers;
+	}
+
+	public List<ConstraintsOfUE> getConstraintsOfUE() {
+		return constraintsOfUE;
+	}
+
+	public void setConstraintsOfUE(List<ConstraintsOfUE> constraintsOfUE) {
+		this.constraintsOfUE = constraintsOfUE;
+	}
 
 }

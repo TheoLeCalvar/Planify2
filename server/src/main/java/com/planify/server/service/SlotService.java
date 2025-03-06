@@ -47,18 +47,6 @@ public class SlotService {
 
         Slot slot = new Slot(number, day, calendar);
 
-        // Update slot list for days
-        List<Slot> slots = day.getSlots();
-        slots.addLast(slot);
-        day.setSlots(slots);
-        dayService.save(day);
-
-        // Update slot list for calendar
-        List<Slot> slots2 = calendar.getSlots();
-        slots2.addLast(slot);
-        calendar.setSlots(slots2);
-        calendarService.save(calendar);
-
         slotRepository.save(slot);
         return slot;
     }
@@ -70,19 +58,7 @@ public class SlotService {
         Calendar calendarDB = calendarService.findById(calendar.getId())
                 .orElseThrow(() -> new RuntimeException("Calendar not found"));
 
-        Slot slot = new Slot(number, day, calendar, start, end);
-
-        // Update slot list for days
-        List<Slot> slots = day.getSlots();
-        slots.addLast(slot);
-        day.setSlots(slots);
-        dayService.save(day);
-
-        // Update slot list for calendar
-        List<Slot> slots2 = calendar.getSlots();
-        slots2.addLast(slot);
-        calendar.setSlots(slots2);
-        calendarService.save(calendar);
+        Slot slot = new Slot(number, day, calendar, start, end);;
 
         slotRepository.save(slot);
         return slot;
@@ -144,18 +120,6 @@ public class SlotService {
         if (slotRepository.existsById(id)) {
 
             Slot slot = slotRepository.findById(id).get();
-
-            // Update slot list for day
-            List<Slot> slots = slot.getDay().getSlots();
-            slots.remove(slot);
-            slot.getDay().setSlots(slots);
-            dayService.save(slot.getDay());
-
-            // Update slot list for calendar
-            List<Slot> slots2 = slot.getCalendar().getSlots();
-            slots2.remove(slot);
-            slot.getCalendar().setSlots(slots2);
-            calendarService.save(slot.getCalendar());
 
             // Delete userUnavailabilities of this slot
             List<UserUnavailability> list = userUnavailabilityService.findBySlot(slot);
