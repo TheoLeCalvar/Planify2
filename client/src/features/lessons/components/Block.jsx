@@ -66,6 +66,7 @@ const BlockActions = ({
   onDelete,
   onDuplicate,
   isHovered,
+  isAddDisabled,
 }) => (
   <Box sx={styles.actionBox(isHovered)}>
     <Button
@@ -73,6 +74,7 @@ const BlockActions = ({
       variant="text"
       onClick={() => onAddLesson(blockId)}
       sx={styles.addButton}
+      disabled={isAddDisabled}
     >
       Ajouter un cours
     </Button>
@@ -108,6 +110,7 @@ BlockActions.propTypes = {
   onDelete: PropTypes.func.isRequired,
   onDuplicate: PropTypes.func.isRequired,
   isHovered: PropTypes.bool.isRequired,
+  isAddDisabled: PropTypes.bool.isRequired,
 };
 
 // Subcomponent for rendering the lessons list using Droppable/Draggable
@@ -196,6 +199,7 @@ const Block = ({
             onDelete={onDelete}
             onDuplicate={onDuplicate}
             isHovered={isHovered}
+            isAddDisabled={block.lessons.length >= 3}
           />
         </Stack>
         <Typography variant="body2" color="textSecondary" gutterBottom>

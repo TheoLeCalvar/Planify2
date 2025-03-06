@@ -56,6 +56,9 @@ public class Config {
     private  Boolean lessonGrouping;
 
     private Integer weightLessonGrouping;
+    
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
+    private LocalTime maxSolveDuration;
 
     public static class CSyncrho {
         private Long otherPlanning;
@@ -222,7 +225,7 @@ public class Config {
     public Config() {
     }
 
-    public Config(Long id, String name, Long calendar, boolean globalUnavailability, int weightGlobalUnavailability, boolean lecturersUnavailability, int weightLecturersUnavailability, boolean synchronise, List<CSyncrho> constraintsSynchronisation, List<CUE> constraintsOfUEs, boolean UEInterlacing, boolean middayBreak, LocalTime startMiddayBreak, LocalTime endMiddayBreak, boolean middayGrouping, int weightMiddayGrouping, boolean lessonBalancing, int weightLessonBalancing, boolean lessonGrouping, int weightLessonGrouping, int weightMaxTimeWithoutLesson) {
+    public Config(Long id, String name, Long calendar, boolean globalUnavailability, int weightGlobalUnavailability, boolean lecturersUnavailability, int weightLecturersUnavailability, boolean synchronise, List<CSyncrho> constraintsSynchronisation, List<CUE> constraintsOfUEs, boolean UEInterlacing, boolean middayBreak, LocalTime startMiddayBreak, LocalTime endMiddayBreak, boolean middayGrouping, int weightMiddayGrouping, boolean lessonBalancing, int weightLessonBalancing, boolean lessonGrouping, int weightLessonGrouping, int weightMaxTimeWithoutLesson, LocalTime maxSolveDuration) {
         this.id = id;
         this.name = name;
         this.calendar = calendar;
@@ -244,6 +247,7 @@ public class Config {
         this.lessonGrouping = lessonGrouping;
         this.weightLessonGrouping = weightLessonGrouping;
         this.weightMaxTimeWithoutLesson = weightMaxTimeWithoutLesson;
+        this.maxSolveDuration = maxSolveDuration;
     }
 
     public static List<CUE> extractsCues(Planning planning) {
@@ -288,7 +292,8 @@ public class Config {
                 planning.getWeightLessonBalancing(),
                 planning.isLessonGrouping(),
                 planning.getWeightLessonGrouping(),
-                planning.getWeightMaxTimeWithoutLesson()
+                planning.getWeightMaxTimeWithoutLesson(),
+                planning.getMaxSolveDuration()
         );
     }
 
@@ -460,4 +465,12 @@ public class Config {
     public void setWeightMaxTimeWithoutLesson(int weightMaxTimeWithoutLesson) {
         this.weightMaxTimeWithoutLesson = weightMaxTimeWithoutLesson;
     }
+
+	public LocalTime getMaxSolveDuration() {
+		return maxSolveDuration;
+	}
+
+	public void setMaxSolveDuration(LocalTime maxSolveDuration) {
+		this.maxSolveDuration = maxSolveDuration;
+	}
 }

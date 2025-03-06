@@ -5,13 +5,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import com.planify.server.controller.returnsClass.CheckOK;
-import com.planify.server.controller.returnsClass.Config;
-import com.planify.server.controller.returnsClass.PlanningReturn;
-import com.planify.server.controller.returnsClass.TAFSynchronised;
+import com.planify.server.controller.returnsClass.*;
 import com.planify.server.models.*;
 import com.planify.server.models.constraints.ConstraintSynchroniseWithTAF;
 import com.planify.server.service.PlanningService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -35,15 +38,16 @@ public class CalendarController {
     final String RED = "\u001B[31m";
     final String GREEN = "\u001B[32m";
 
+    @Operation(summary = "Start the generation of the schedule for the configuration")
     @PostMapping(value = "/solver/run/{configId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> runSolverMain(@PathVariable Long configId, @RequestBody Config config) {
+    public ResponseEntity<String> runSolverMain(@PathVariable Long configId, @RequestBody Config config) {
         Optional<Planning> planning = planningService.findById(configId);
         if (planning.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ErrorResponse("No Planning with this id was found", 404));
+                    .body("No Planning with this id was found");
         }
         Planning realPlanning = planning.get();
-        
+
         for (Config.CSyncrho cSyncrho : config.getConstraintsSynchronisation()) {
             Planning otherPlanning = planningService.findById(cSyncrho.getOtherPlanning()).orElseThrow(()-> new IllegalArgumentException("The other planning does nott exist"));
             if (otherPlanning.isGenerated())
@@ -51,27 +55,27 @@ public class CalendarController {
             else
             	realPlanning.addConstraintSynchroniseWithTAF(new ConstraintSynchroniseWithTAF(realPlanning, planningService.createPlanningForGeneration(otherPlanning), cSyncrho.isEnabled() ));
         }
-        
+
         Calendar calendar = realPlanning.getCalendar();
         TAF taf = calendar.getTaf();
 
         if (taf.getCalendars().isEmpty()) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(new ErrorResponse("No calendar", 409));
+                    .body("No calendar");
         }
 
         if (calendar.getSlots().isEmpty()) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(new ErrorResponse("No slots", 409));
+                    .body("No slots");
         }
         if (taf.getUes().isEmpty()) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(new ErrorResponse("No UE", 409));
+                    .body("No UE");
         }
         for (UE ue : taf.getUes()) {
             if (ue.getLessons().isEmpty()) {
                 return ResponseEntity.status(HttpStatus.CONFLICT)
-                        .body(new ErrorResponse("No lessons in UE", 409));
+                        .body("No lessons in UE");
             }
         }
         
@@ -80,6 +84,16 @@ public class CalendarController {
         return ResponseEntity.ok("The solver is launched ! (PlanningId : " + realPlanning.getId() + ")");
     }
 
+    @Operation(summary = "Check the solver status for a given configuration")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200",
+                    description = "Needs more infos to launch the solver",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = CheckOK.class))),
+            @ApiResponse(responseCode = "201", description = "Solver launched successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid config ID"),
+            @ApiResponse(responseCode = "409", description = "Conflict due to missing slots, calendars, UEs, or lessons")
+    })
     @GetMapping(value = "/solver/check/{configId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> checkSolverMain(@PathVariable Long configId) {
         Optional<Planning> oPlanning = planningService.findById(configId);
@@ -144,7 +158,7 @@ public class CalendarController {
                 List<PlanningReturn> returns = new ArrayList<>();
                 List<Planning> plannings = sTaf.getCalendars().getFirst().getPlannings();
                 for (Planning p : plannings) {
-                    PlanningReturn pr = new PlanningReturn(p.getId(), p.getName(), p.getTimestamp(), p.getStatus());
+                    PlanningReturn pr = new PlanningReturn(p.getId(), p.getName(), p.getTimestamp(), p.getStatus(), p.isSolutionOptimal());
                     returns.add(pr);
                 }
                 TAFSynchronised tafSynchronised = new TAFSynchronised(sTaf.getId(), sTaf.getName(),returns);
@@ -162,6 +176,14 @@ public class CalendarController {
 
     }
 
+    @Operation(summary = "Get the different generation done")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200",
+                    description = "List of timetables generated",
+                    content = @Content(mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = PlanningReturn.class)))),
+            @ApiResponse(responseCode = "400", description = "No TAF with this ID")
+    })
     @GetMapping(value = "/solver/history/{idTaf}", produces = MediaType.APPLICATION_JSON_VALUE )
     public ResponseEntity<?> getCalendarHistory(@PathVariable Long idTaf) {
         Optional<TAF> taf = tafService.findById(idTaf);
@@ -176,7 +198,7 @@ public class CalendarController {
                 List<Planning> plannings = planningService.findByCalendar(calendar);
                 if (plannings!=null) {
                     for (Planning planning : plannings) {
-                        answer.add(new PlanningReturn(planning.getId(), planning.getName(), planning.getTimestamp(), planning.getStatus()));
+                        answer.add(new PlanningReturn(planning.getId(), planning.getName(), planning.getTimestamp(), planning.getStatus(), planning.isSolutionOptimal()));
                     }
                 }
             }
@@ -185,6 +207,14 @@ public class CalendarController {
 
     }
 
+    @Operation(summary = "Get a generation of a timetable")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200",
+                    description = "the timetable",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = GeneratedPlanning.class))),
+            @ApiResponse(responseCode = "400", description = "No planning with this ID")
+    })
     @GetMapping(value = "/solver/result/{planningId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getPlanning(@PathVariable Long planningId) {
         Optional<Planning> optionalPlanning = planningService.findById(planningId);
@@ -192,10 +222,19 @@ public class CalendarController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ErrorResponse("No planning with this id was found", 404));
         }
-        List<ScheduledLesson> scheduledLessons = optionalPlanning.get().getScheduledLessons();
-        return ResponseEntity.ok(scheduledLessons);
+        Planning planning = optionalPlanning.get();
+        GeneratedPlanning genePlan = new GeneratedPlanning(planning.getScheduledLessons(), planning.getStatus(), planning.isSolutionOptimal(), planning.getMessageGeneration());
+        return ResponseEntity.ok(genePlan);
     }
 
+    @Operation(summary = "Get the detail of a configuration")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200",
+                    description = "detail of the configuration",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Config.class))),
+            @ApiResponse(responseCode = "400", description = "No configuration with this ID")
+    })
     @GetMapping(value = "/config/{configId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getConfig(@PathVariable Long configId) {
         Optional<Planning> optionalPlanning = planningService.findById(configId);
@@ -211,6 +250,14 @@ public class CalendarController {
 
     }
 
+    @Operation(summary = "Modify a configuration")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200",
+                    description = "new configuration",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Config.class))),
+            @ApiResponse(responseCode = "400", description = "No configuration with this ID")
+    })
     @PatchMapping("/config/{configId}")
     public ResponseEntity<?> updateConfig(@PathVariable Long configId, @RequestBody Config config) {
         Optional<Planning> optionalPlanning = planningService.findById(configId);
@@ -227,14 +274,15 @@ public class CalendarController {
 
     }
 
+    @Operation(summary = "Delete a configuration")
     @DeleteMapping(value = "/config/{configId}")
-    public ResponseEntity<?> deleteConfig(@PathVariable Long configId) {
+    public ResponseEntity<String> deleteConfig(@PathVariable Long configId) {
         if (planningService.existById(configId)) {
             planningService.delete(configId);
             return ResponseEntity.ok("Planning deleted !");
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorResponse("No planning with this id was found", 404));
+                .body("No planning with this id was found");
     }
 
 }

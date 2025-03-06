@@ -162,7 +162,7 @@ const LessonDialog = ({ open, onClose, onSubmit, initialData }) => {
                   {[
                     synchronisedLesson[0].taf,
                     synchronisedLesson[0].ue,
-                    synchronisedLesson[0].name,
+                    synchronisedLesson[0].name || synchronisedLesson[0].title,
                   ].map((b, index) => (
                     <span key={index}>{b}</span>
                   ))}

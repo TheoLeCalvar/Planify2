@@ -1,5 +1,5 @@
 // React imports
-import React from "react";
+import React, { useContext } from "react";
 import { useReducer } from "react";
 
 // Material-UI imports
@@ -17,11 +17,16 @@ import {
   profileMenuReducer,
   initialState,
 } from "../stores/ProfileMenu.reducer";
+import { AuthContext } from "@/hooks/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 // Profile Menu Component
 const ProfileMenu = () => {
   const [state, dispatch] = useReducer(profileMenuReducer, initialState);
   const { profileAnchorEl } = state;
+
+  const { logout } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   const handleProfileClick = (event) => {
     dispatch({ type: "OPEN_PROFILE", payload: event.currentTarget });
@@ -29,6 +34,13 @@ const ProfileMenu = () => {
   const handleProfileClose = () => {
     dispatch({ type: "CLOSE_PROFILE" });
   };
+
+  const handleDisconnect = () => {
+    logout();
+    handleProfileClose();
+    navigate("/login");
+  };
+
   return (
     <>
       <IconButton onClick={handleProfileClick} color="inherit">
@@ -43,13 +55,13 @@ const ProfileMenu = () => {
           <AccountCircleIcon sx={styles.menuIcon} /> Profile
         </MenuItem>
         <MenuItem onClick={handleProfileClose}>
-          <SettingsIcon sx={styles.menuIcon} /> Settings
+          <SettingsIcon sx={styles.menuIcon} /> Paramètres (non implémenté)
         </MenuItem>
         <MenuItem onClick={handleProfileClose}>
-          <Brightness4Icon sx={styles.menuIcon} /> Dark Mode
+          <Brightness4Icon sx={styles.menuIcon} /> Mode sombre (non implémenté)
         </MenuItem>
-        <MenuItem onClick={handleProfileClose}>
-          <LogoutIcon sx={styles.menuIcon} /> Logout
+        <MenuItem onClick={handleDisconnect}>
+          <LogoutIcon sx={styles.menuIcon} /> Déconnexion
         </MenuItem>
       </Menu>
     </>

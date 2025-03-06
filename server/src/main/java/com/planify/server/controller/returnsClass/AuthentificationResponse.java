@@ -8,21 +8,18 @@ public class AuthentificationResponse {
 
     private String token;
 
-    private Map<String, Boolean> profiles = new HashMap<>();
+    private UserInfo userInfo;
 
-    public AuthentificationResponse(String token, List<String> roles) {
+    public AuthentificationResponse(String token, List<String> roles, Long id, String firstName, String lastName, String mail) {
         this.token = token;
-        this.profiles.put("admin", roles.contains("ROLE_ADMIN"));
-        this.profiles.put("lecturer", roles.contains("ROLE_LESSONLECTURER"));
-        this.profiles.put("ue_manager", roles.contains("ROLE_UEMANAGER"));
-        this.profiles.put("taf_manager", roles.contains("ROLE_TAFMANAGER"));
+        this.userInfo = new UserInfo(roles, id, firstName, lastName, mail);
     }
 
     public String getToken() {
         return token;
     }
 
-    public Map<String, Boolean> getProfiles() {
-        return profiles;
+    public UserInfo getUserInfo() {
+        return userInfo;
     }
 }

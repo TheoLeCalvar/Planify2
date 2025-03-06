@@ -231,11 +231,12 @@ public class SolverMain {
 		setStrategy(solMain, model);
 		solver.showSolutions();
 		if (obj != null) model.setObjective(false, obj);
-		Solution solution = solveModelPlanning(model, solMain);
+		Solution solution = solveModelPlanning(model, solMain, planning.getMaxSolveDuration());
 		//System.out.println(model);
 		solver.printShortStatistics();
 		planning.endProcessing();
-		planning.setMessageGeneration(planning.getScheduledLessons().isEmpty() ? "Aucune solution trouvée." : "Génération réussie !");
+		planning.setSolutionOptimal(solver.isObjectiveOptimal());
+		planning.setMessageGeneration(planning.getScheduledLessons().isEmpty() ? "Aucune solution trouvée." : "Génération réussie en " + solver.getTimeCount() +" s !");
 		services.getPlanningService().save(planning);
 		if (solution == null)
 			return false;
@@ -265,10 +266,12 @@ public class SolverMain {
 		solver.showSolutions();
 		//solver.showDecisions();
 		if (obj != null) model.setObjective(false, obj);
-		Solution solution = solveModelPlanning(model, solMain);
+		Solution solution = solveModelPlanning(model, solMain, planning.getMaxSolveDuration());
 		//solution = solver.findSolution();
 		System.out.println(Arrays.deepToString(model.getVars()));
 		solver.printShortStatistics();
+		planning.endProcessing();
+		planning.setSolutionOptimal(solver.isObjectiveOptimal());
 		planning.setMessageGeneration(planning.getScheduledLessons().isEmpty() ? "Aucune solution trouvée." : "Génération réussie !");
 		services.getPlanningService().save(planning);
 		if (solution == null)
@@ -319,11 +322,12 @@ public class SolverMain {
 		setStrategy(solMains, model);
 		//solver.showSolutions();
 		if (globObj != null) model.setObjective(false, globObj);
-		Solution solution = solveModelPlannings(model, solMains);
+		Solution solution = solveModelPlannings(model, solMains, planningsToGenerate[0].getMaxSolveDuration());
 		//System.out.println(model);
 		solver.printShortStatistics();
 		for (Planning planning : planningsToGenerate) {
 			planning.endProcessing();
+			planning.setSolutionOptimal(solver.isObjectiveOptimal());
 			planning.setMessageGeneration(planning.getScheduledLessons().isEmpty() ? "Aucune solution trouvée." : "Génération réussie !");
 			services.getPlanningService().save(planning);
 		}
@@ -335,26 +339,36 @@ public class SolverMain {
 		return true;
 	}
 	
-	private static Solution solveModelPlanning(Model model, SolverMain solMain) {
+	private static String formatLimitTime(LocalTime limitTime) {
+		return limitTime.getHour() + "h " + limitTime.getMinute() + "m " + limitTime.getSecond() + "s";
+	}
+	
+	private static Solution solveModelPlanning(Model model, SolverMain solMain, LocalTime limitTime) {
 		System.out.println("Start Solving !");
+		Solver solver = model.getSolver();
 		Solution s = new Solution(model);
-		while (model.getSolver().solve()) {
+		if (limitTime != null) solver.limitTime(formatLimitTime(limitTime));
+		//s.limitSearch(() -> { /*todo return true if you want to stop search*/ }); //Can be useful to stop the search from the front-end.
+		while (solver.solve()) {
 		     s.record();
 		     List<Result> results = solMain.makeSolution(s);
-		     solMain.getPlanning().setMessageGeneration("Amélioration de la solution trouvée.");
+		     solMain.getPlanning().setMessageGeneration("Amélioration de la solution trouvée. (" + solver.getTimeCount() + " s depuis le début de la génération.)");
 		     services.getPlanningService().addScheduledLessons(solMain.getPlanning(), results);
 		}
 		return model.getSolver().isFeasible() == ESat.TRUE ? s : null;
 	}
 	
-	private static Solution solveModelPlannings(Model model, SolverMain[] solMains) {
+	private static Solution solveModelPlannings(Model model, SolverMain[] solMains, LocalTime limitTime) {
 		System.out.println("Start Solving !");
+		Solver solver = model.getSolver();
 		Solution s = new Solution(model);
-		while (model.getSolver().solve()) {
+		if (limitTime != null) solver.limitTime(formatLimitTime(limitTime));
+		//s.limitSearch(() -> { /*todo return true if you want to stop search*/ }); //Can be useful to stop the search from the front-end.
+		while (solver.solve()) {
 		     s.record();
 		     for (SolverMain solMain : solMains) {
 			     List<Result> results = solMain.makeSolution(s);
-			     solMain.getPlanning().setMessageGeneration("Amélioration de la solution trouvée.");
+			     solMain.getPlanning().setMessageGeneration("Amélioration de la solution trouvée. (" + solver.getTimeCount() + " s depuis le début de la génération.)");
 			     services.getPlanningService().addScheduledLessons(solMain.getPlanning(), results);
 		     }
 		}

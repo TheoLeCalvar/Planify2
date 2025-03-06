@@ -43,8 +43,8 @@ public class PlanningService {
         return planning;
     }
 
-    public Planning addPlanning(Calendar calendar, String name, boolean globalUnavailability, int weightGlobalUnavailability, boolean lecturersUnavailability, int weightLecturersUnavailability, boolean synchronise, int weightMaxTimeWithoutLesson, boolean UEInterlacing, boolean middayBreak, LocalTime startMiddayBreak, LocalTime endMiddayBreak, boolean middayGrouping, int weightMiddayGrouping, boolean lessonBalancing, int weightLessonBalancing, int weightLessonGrouping, boolean lessonGrouping) {
-        Planning planning = new Planning(calendar, name, globalUnavailability, weightGlobalUnavailability, lecturersUnavailability, weightLecturersUnavailability, synchronise, new ArrayList<ConstraintSynchroniseWithTAF>(), new ArrayList<ConstraintsOfUE>(), weightMaxTimeWithoutLesson, UEInterlacing, middayBreak, startMiddayBreak, endMiddayBreak,middayGrouping, weightMiddayGrouping,lessonBalancing, weightLessonBalancing, weightLessonGrouping, lessonGrouping);
+    public Planning addPlanning(Calendar calendar, String name, boolean globalUnavailability, int weightGlobalUnavailability, boolean lecturersUnavailability, int weightLecturersUnavailability, boolean synchronise, int weightMaxTimeWithoutLesson, boolean UEInterlacing, boolean middayBreak, LocalTime startMiddayBreak, LocalTime endMiddayBreak, boolean middayGrouping, int weightMiddayGrouping, boolean lessonBalancing, int weightLessonBalancing, int weightLessonGrouping, boolean lessonGrouping, LocalTime maxSolveDuration) {
+        Planning planning = new Planning(calendar, name, globalUnavailability, weightGlobalUnavailability, lecturersUnavailability, weightLecturersUnavailability, synchronise, new ArrayList<ConstraintSynchroniseWithTAF>(), new ArrayList<ConstraintsOfUE>(), weightMaxTimeWithoutLesson, UEInterlacing, middayBreak, startMiddayBreak, endMiddayBreak,middayGrouping, weightMiddayGrouping,lessonBalancing, weightLessonBalancing, weightLessonGrouping, lessonGrouping, maxSolveDuration);
         planningRepository.save(planning);
         return planning;
     }
@@ -120,8 +120,8 @@ public class PlanningService {
 										        planning.isLessonBalancing(),
 										        planning.getWeightLessonBalancing(),
 										        planning.getWeightLessonGrouping(),
-										        planning.isLessonGrouping()
-										    	);
+										        planning.isLessonGrouping(),
+										    	planning.getMaxSolveDuration());
     	planningGeneration.waitForProcessing();
         this.save(planningGeneration);
     	planningGeneration.setConstraintsOfUEs(constraintsOfUEService.createForNewPlanning(planning.getConstraintsOfUEs(), planningGeneration));
