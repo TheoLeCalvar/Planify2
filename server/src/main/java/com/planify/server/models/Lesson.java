@@ -163,8 +163,7 @@ public class Lesson {
             List<TAF> tafs2 = new ArrayList<>(this.getSynchronizations2().stream().flatMap(s -> s.getLessons().stream().map(l -> l.getUe().getTaf())).toList());
             tafs1.addAll(0,tafs2);
             TAF thisTAF = this.ue.getTaf();
-            tafs1.stream().distinct().filter(taf -> !taf.equals(thisTAF)).toList();
-            return tafs1;
+            return tafs1.stream().distinct().filter(taf -> !taf.equals(thisTAF)).toList();
         }
         else {
             return new ArrayList<>();

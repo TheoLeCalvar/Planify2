@@ -26,6 +26,13 @@ public class Planning {
     @JoinColumn(name = "idCalendar")
     private Calendar calendar;
 
+    private Status status;
+    
+    private boolean isSolutionOptimal;
+    
+    private String messageGeneration;
+
+    private LocalTime maxSolveDuration;
     // Constraints
 
     // respect of the preference of the global unavailability
@@ -73,15 +80,15 @@ public class Planning {
     private boolean lessonGrouping;
     private int weightLessonGrouping;
 
-    // Weight of time without an UE
-    private int weightTimeWithoutUE;
 
     // Result
     @ElementCollection
     private List<ScheduledLesson> scheduledLessons = new ArrayList<ScheduledLesson>();
 
 
-
+    public enum Status {
+        GENERATED, PROCESSING, CONFIG, WAITING_TO_BE_PROCESSED
+    }
 
 
     public Planning() {
@@ -91,9 +98,10 @@ public class Planning {
         this.calendar = calendar;
         this.scheduledLessons = new ArrayList<ScheduledLesson>();
         this.timestamp = LocalDateTime.now();
+        this.status = Status.CONFIG;
     }
 
-    public Planning(Calendar calendar, String name, boolean globalUnavailability, int weightGlobalUnavailability, boolean lecturersUnavailability, int weightLecturersUnavailability, boolean synchronise, List<ConstraintSynchroniseWithTAF> constraintsSynchronisation, List<ConstraintsOfUE> constraintsOfUEs, int weightMaxTimeWithoutLesson, boolean UEInterlacing, boolean middayBreak, LocalTime startMiddayBreak, LocalTime endMiddayBreak, boolean middayGrouping, int weightMiddayGrouping, boolean lessonBalancing, int weightLessonBalancing, int weightLessonGrouping, boolean lessonGrouping, int weightTimeWithoutUE) {
+    public Planning(Calendar calendar, String name, boolean globalUnavailability, int weightGlobalUnavailability, boolean lecturersUnavailability, int weightLecturersUnavailability, boolean synchronise, List<ConstraintSynchroniseWithTAF> constraintsSynchronisation, List<ConstraintsOfUE> constraintsOfUEs, int weightMaxTimeWithoutLesson, boolean UEInterlacing, boolean middayBreak, LocalTime startMiddayBreak, LocalTime endMiddayBreak, boolean middayGrouping, int weightMiddayGrouping, boolean lessonBalancing, int weightLessonBalancing, int weightLessonGrouping, boolean lessonGrouping, LocalTime maxSolveDuration) {
         this.calendar = calendar;
         this.name = name;
         this.scheduledLessons = new ArrayList<ScheduledLesson>();
@@ -116,10 +124,13 @@ public class Planning {
         this.weightLessonBalancing = weightLessonBalancing;
         this.weightLessonGrouping = weightLessonGrouping;
         this.lessonGrouping = lessonGrouping;
-        this.weightTimeWithoutUE = weightTimeWithoutUE;
+        this.maxSolveDuration = maxSolveDuration;
+        this.status = Status.CONFIG;
+        this.isSolutionOptimal = false;
+        this.messageGeneration = "";
     }
 
-    public Planning(Calendar calendar, String name, boolean globalUnavailability, int weightGlobalUnavailability, boolean lecturersUnavailability, int weightLecturersUnavailability, boolean synchronise, boolean UEInterlacing, boolean middayBreak, LocalTime startMiddayBreak, LocalTime endMiddayBreak, boolean middayGrouping, int weightMiddayGrouping, boolean lessonBalancing, int weightLessonBalancing, int weightLessonGrouping, boolean lessonGrouping, int weightTimeWithoutUE) {
+    public Planning(Calendar calendar, String name, boolean globalUnavailability, int weightGlobalUnavailability, boolean lecturersUnavailability, int weightLecturersUnavailability, boolean synchronise, boolean UEInterlacing, boolean middayBreak, LocalTime startMiddayBreak, LocalTime endMiddayBreak, boolean middayGrouping, int weightMiddayGrouping, boolean lessonBalancing, int weightLessonBalancing, int weightLessonGrouping, boolean lessonGrouping, LocalTime maxSolveDuration) {
         this.calendar = calendar;
         this.name = name;
         this.scheduledLessons = new ArrayList<ScheduledLesson>();
@@ -141,12 +152,11 @@ public class Planning {
         this.weightLessonBalancing = weightLessonBalancing;
         this.weightLessonGrouping = weightLessonGrouping;
         this.lessonGrouping = lessonGrouping;
-        this.weightTimeWithoutUE = weightTimeWithoutUE;
+        this.maxSolveDuration = maxSolveDuration;
+        this.status = Status.CONFIG;
+        this.isSolutionOptimal = false;
+        this.messageGeneration = "";
     }
-
-
-
-
 
     public Long getId() {
         return id;
@@ -332,20 +342,20 @@ public class Planning {
     	return this.getConstraintsOfUEs().stream().filter(c -> c.isMaxTimeWithoutLesson()).findAny().isPresent();
     }
     
+    public boolean isMaxTimeWLUnitInDays() {
+    	return this.getConstraintsOfUEs().stream().filter(c -> !c.isMaxTimeWLUnitInWeeks()).findAny().isPresent();
+    }
+    
+    public boolean isMaxTimeWLUnitInWeeks() {
+    	return this.getConstraintsOfUEs().stream().filter(c -> c.isMaxTimeWLUnitInWeeks()).findAny().isPresent();
+    }
+    
     public boolean isSpreadingUe() {
     	return this.getConstraintsOfUEs().stream().filter(c -> c.isSpreading()).findAny().isPresent();
     }
     
     public boolean isLessonCountInWeek() {
     	return this.getConstraintsOfUEs().stream().filter(c -> c.isLessonCountInWeek()).findAny().isPresent();
-    }
-
-    public int getWeightTimeWithoutUE() {
-        return weightTimeWithoutUE;
-    }
-
-    public void setWeightTimeWithoutUE(int weightTimeWithoutUE) {
-        this.weightTimeWithoutUE = weightTimeWithoutUE;
     }
 
     public String getName() {
@@ -364,7 +374,51 @@ public class Planning {
         this.constrainedSynchronisations = constrainedSynchronisations;
     }
 
-    @Override
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
+    public boolean isSolutionOptimal() {
+		return isSolutionOptimal;
+	}
+
+	public void setSolutionOptimal(boolean isSolutionOptimal) {
+		this.isSolutionOptimal = isSolutionOptimal;
+	}
+
+	public String getMessageGeneration() {
+		return messageGeneration;
+	}
+
+	public void setMessageGeneration(String messageGeneration) {
+		this.messageGeneration = messageGeneration;
+	}
+
+	public void waitForProcessing() {
+        this.status = Status.WAITING_TO_BE_PROCESSED;
+    }
+
+    public void startProcessing() {
+        this.status = Status.PROCESSING;
+    }
+
+    public void endProcessing() {
+        this.status = Status.GENERATED;
+    }
+
+    public LocalTime getMaxSolveDuration() {
+		return maxSolveDuration;
+	}
+
+	public void setMaxSolveDuration(LocalTime maxSolveDuration) {
+		this.maxSolveDuration = maxSolveDuration;
+	}
+
+	@Override
     public String toString() {
         return "Planning " + id +
                 " { timestamp=" + timestamp +
@@ -390,8 +444,8 @@ public class Planning {
         if (config.getWeightLessonBalancing() != null) this.setWeightLessonBalancing(config.getWeightLessonBalancing());
         if (config.isLessonGrouping() != null) this.setLessonGrouping(config.isLessonGrouping());
         if (config.getWeightLessonGrouping() != null) this.setWeightLessonGrouping(config.getWeightLessonGrouping());
-        if (config.getWeightTimeWithoutUE() != null) this.setWeightTimeWithoutUE(config.getWeightTimeWithoutUE());
-
+        if (config.getMaxSolveDuration() != null) this.setMaxSolveDuration(config.getMaxSolveDuration());
+        
         if (config.getConstraintsSynchronisation() != null && !config.getConstraintsSynchronisation().isEmpty()) {
             for (Config.CSyncrho cs : config.getConstraintsSynchronisation()) {
                 if (cs.getOtherPlanning() != null) {
@@ -461,4 +515,8 @@ public class Planning {
 		System.out.println("Planning parameters set !");
 		return planning;
 	}
+
+    public void addConstraintSynchroniseWithTAF(ConstraintSynchroniseWithTAF c) {
+        this.constraintsSynchronisation.add(c);
+    }
 }

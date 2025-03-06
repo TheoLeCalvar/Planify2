@@ -1,5 +1,8 @@
 package com.planify.server.controller.returnsClass;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.planify.server.models.Planning;
+
 import java.time.LocalDateTime;
 
 public class PlanningReturn {
@@ -8,23 +11,28 @@ public class PlanningReturn {
 
     private String name;
 
-    private String timestamp;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime timestamp;
 
-    private boolean generated;
+    private Planning.Status status;
+    
+    private boolean isSolutionOptimal;
 
     public PlanningReturn() {
     }
 
-    public PlanningReturn(Long id, String timestamp, String name) {
+    public PlanningReturn(Long id, LocalDateTime timestamp, String name) {
         this.id = id;
         this.timestamp = timestamp;
         this.name = name;
     }
 
-    public PlanningReturn(Long id, String name, boolean generated) {
+    public PlanningReturn(Long id, String name, LocalDateTime timestamp, Planning.Status generated, boolean isSolutionOptimal) {
         this.id = id;
         this.name = name;
-        this.generated = generated;
+        this.timestamp = timestamp;
+        this.status = generated;
+        this.isSolutionOptimal = isSolutionOptimal;
     }
 
     public Long getId() {
@@ -35,14 +43,6 @@ public class PlanningReturn {
         this.id = id;
     }
 
-    public String getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(String timestamp) {
-        this.timestamp = timestamp;
-    }
-
     public String getName() {
         return name;
     }
@@ -51,11 +51,27 @@ public class PlanningReturn {
         this.name = name;
     }
 
-    public boolean isGenerated() {
-        return generated;
+    public void setTimestamp(LocalDateTime timestamp) {
+        this.timestamp = timestamp;
     }
 
-    public void setGenerated(boolean generated) {
-        this.generated = generated;
+	public LocalDateTime getTimestamp() {
+		return timestamp;
+	}
+
+    public Planning.Status getStatus() {
+        return status;
     }
+
+    public void setStatus(Planning.Status status) {
+        this.status = status;
+    }
+
+	public boolean isSolutionOptimal() {
+		return isSolutionOptimal;
+	}
+
+	public void setSolutionOptimal(boolean isSolutionOptimal) {
+		this.isSolutionOptimal = isSolutionOptimal;
+	}
 }

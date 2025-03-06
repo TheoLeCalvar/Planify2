@@ -48,6 +48,14 @@ public class LessonService {
     @Lazy
     @Autowired
     private LessonLecturerService lessonLecturerService;
+    
+    @Lazy
+    @Autowired
+    private GlobalUnavailabilityService globalUnavailabilityService;
+    
+    @Lazy
+    @Autowired
+    private DayService dayService;
 
     @Lazy
     @Autowired
@@ -89,7 +97,7 @@ public class LessonService {
         return lessonLecturers;
     }
 
-    public List<Slot> findLessonLecturersUnavailabilitiesByLessonAndCalendar(Lesson lesson, Calendar calendar) {
+    public List<Slot> findLessonLecturersUnavailabilitiesByLessonAndCalendarWUD(Lesson lesson, Calendar calendar) {
         List<LessonLecturer> lessonLecturers = findLessonLecturersByLesson(lesson);
         List<UserUnavailability> userUnavailabilities = new ArrayList<UserUnavailability>();
 
@@ -101,7 +109,8 @@ public class LessonService {
         List<Slot> slots = userUnavailabilities.stream()
                 .filter(unavailability -> unavailability.getStrict())
                 .map(unavailability -> unavailability.getSlot())
-                .filter(slot -> slot.getCalendar() == calendar)
+                .filter(slot -> slot.getCalendar().getId() == calendar.getId())
+                .filter(slot -> dayService.isDayAvailableForCalendar(slot.getDay(), calendar))
                 .collect(Collectors.toList());
 
         return slots;
@@ -114,6 +123,7 @@ public class LessonService {
                 .filter(unavailability -> (!unavailability.getStrict())
                         && (unavailability.getSlot().getCalendar() == calendar))
                 .map(UserUnavailability::getSlot)
+                .filter(slot -> dayService.isDayAvailableForCalendar(slot.getDay(), calendar))
                 .collect(Collectors.toList());
 
         return slots;

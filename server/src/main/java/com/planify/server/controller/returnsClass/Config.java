@@ -1,5 +1,6 @@
 package com.planify.server.controller.returnsClass;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.planify.server.models.Planning;
 import com.planify.server.models.constraints.ConstraintSynchroniseWithTAF;
@@ -31,13 +32,17 @@ public class Config {
 
     private List<CUE> constraintsOfUEs;
 
+    private int weightMaxTimeWithoutLesson;
+
     @JsonProperty("UEInterlacing")
     private Boolean UEInterlacing;
 
     private Boolean middayBreak;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
     private LocalTime startMiddayBreak;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
     private  LocalTime endMiddayBreak;
 
     private Boolean middayGrouping;
@@ -51,13 +56,13 @@ public class Config {
     private  Boolean lessonGrouping;
 
     private Integer weightLessonGrouping;
-
-    private Integer weightTimeWithoutUE;
+    
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
+    private LocalTime maxSolveDuration;
 
     public static class CSyncrho {
         private Long otherPlanning;
         private Boolean enabled;
-        private Boolean generateOtherPlanning;
 
         public CSyncrho() {
         }
@@ -65,7 +70,6 @@ public class Config {
         public CSyncrho(ConstraintSynchroniseWithTAF c) {
             this.otherPlanning = c.getOtherPlanning().getId();
             this.enabled = c.isEnabled();
-            this.generateOtherPlanning = c.isGenerateOtherPlanning();
         }
 
         public Long getOtherPlanning() {
@@ -83,14 +87,6 @@ public class Config {
         public void setEnabled(boolean enabled) {
             this.enabled = enabled;
         }
-
-        public Boolean isGenerateOtherPlanning() {
-            return generateOtherPlanning;
-        }
-
-        public void setGenerateOtherPlanning(boolean generateOtherPlanning) {
-            this.generateOtherPlanning = generateOtherPlanning;
-        }
     }
 
     public static class CUE {
@@ -104,11 +100,12 @@ public class Config {
         private Boolean spreading;
         private Integer maxSpreading;
         private Integer minSpreading;
+        private int[] lessonGroupingNbLessons;
 
         public CUE() {
         }
 
-        public CUE(Long ue, boolean lessonCountInWeek, int maxLessonInWeek, int minLessonInWeek, boolean maxTimeWithoutLesson, boolean maxTimeWLUnitInWeeks, int maxTimeWLDuration, boolean spreading, int maxSpreading, int minSpreading) {
+        public CUE(Long ue, boolean lessonCountInWeek, int maxLessonInWeek, int minLessonInWeek, boolean maxTimeWithoutLesson, boolean maxTimeWLUnitInWeeks, int maxTimeWLDuration, boolean spreading, int maxSpreading, int minSpreading, int[] lessonGroupingNbLessons) {
             this.ue = ue;
             this.lessonCountInWeek = lessonCountInWeek;
             this.maxLessonInWeek = maxLessonInWeek;
@@ -119,6 +116,7 @@ public class Config {
             this.spreading = spreading;
             this.maxSpreading = maxSpreading;
             this.minSpreading = minSpreading;
+            this.lessonGroupingNbLessons = lessonGroupingNbLessons;
         }
 
         public CUE(ConstraintsOfUE c) {
@@ -132,6 +130,7 @@ public class Config {
             this.spreading = c.isSpreading();
             this.maxSpreading = c.getMaxSpreading();
             this.minSpreading = c.getMinSpreading();
+            this.lessonGroupingNbLessons = c.getLessonGroupingNbLessons();
         }
 
         public Long getUe() {
@@ -213,12 +212,20 @@ public class Config {
         public void setMinSpreading(int minSpreading) {
             this.minSpreading = minSpreading;
         }
+
+        public int[] getLessonGroupingNbLessons() {
+            return lessonGroupingNbLessons;
+        }
+
+        public void setLessonGroupingNbLessons(int[] lessonGroupingNbLessons) {
+            this.lessonGroupingNbLessons = lessonGroupingNbLessons;
+        }
     }
 
     public Config() {
     }
 
-    public Config(Long id, String name, Long calendar, boolean globalUnavailability, int weightGlobalUnavailability, boolean lecturersUnavailability, int weightLecturersUnavailability, boolean synchronise, List<CSyncrho> constraintsSynchronisation, List<CUE> constraintsOfUEs, boolean UEInterlacing, boolean middayBreak, LocalTime startMiddayBreak, LocalTime endMiddayBreak, boolean middayGrouping, int weightMiddayGrouping, boolean lessonBalancing, int weightLessonBalancing, boolean lessonGrouping, int weightLessonGrouping, int weightTimeWithoutUE) {
+    public Config(Long id, String name, Long calendar, boolean globalUnavailability, int weightGlobalUnavailability, boolean lecturersUnavailability, int weightLecturersUnavailability, boolean synchronise, List<CSyncrho> constraintsSynchronisation, List<CUE> constraintsOfUEs, boolean UEInterlacing, boolean middayBreak, LocalTime startMiddayBreak, LocalTime endMiddayBreak, boolean middayGrouping, int weightMiddayGrouping, boolean lessonBalancing, int weightLessonBalancing, boolean lessonGrouping, int weightLessonGrouping, int weightMaxTimeWithoutLesson, LocalTime maxSolveDuration) {
         this.id = id;
         this.name = name;
         this.calendar = calendar;
@@ -239,7 +246,8 @@ public class Config {
         this.weightLessonBalancing = weightLessonBalancing;
         this.lessonGrouping = lessonGrouping;
         this.weightLessonGrouping = weightLessonGrouping;
-        this.weightTimeWithoutUE = weightTimeWithoutUE;
+        this.weightMaxTimeWithoutLesson = weightMaxTimeWithoutLesson;
+        this.maxSolveDuration = maxSolveDuration;
     }
 
     public static List<CUE> extractsCues(Planning planning) {
@@ -284,7 +292,8 @@ public class Config {
                 planning.getWeightLessonBalancing(),
                 planning.isLessonGrouping(),
                 planning.getWeightLessonGrouping(),
-                planning.getWeightTimeWithoutUE()
+                planning.getWeightMaxTimeWithoutLesson(),
+                planning.getMaxSolveDuration()
         );
     }
 
@@ -449,13 +458,19 @@ public class Config {
         this.weightLessonGrouping = weightLessonGrouping;
     }
 
-    public Integer getWeightTimeWithoutUE() {
-        return weightTimeWithoutUE;
+    public int getWeightMaxTimeWithoutLesson() {
+        return weightMaxTimeWithoutLesson;
     }
 
-    public void setWeightTimeWithoutUE(int weightTimeWithoutUE) {
-        this.weightTimeWithoutUE = weightTimeWithoutUE;
+    public void setWeightMaxTimeWithoutLesson(int weightMaxTimeWithoutLesson) {
+        this.weightMaxTimeWithoutLesson = weightMaxTimeWithoutLesson;
     }
 
+	public LocalTime getMaxSolveDuration() {
+		return maxSolveDuration;
+	}
 
+	public void setMaxSolveDuration(LocalTime maxSolveDuration) {
+		this.maxSolveDuration = maxSolveDuration;
+	}
 }

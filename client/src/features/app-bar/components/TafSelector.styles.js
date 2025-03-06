@@ -2,6 +2,7 @@ const styles = {
   TAFSelectorBox: {
     display: "flex",
     justifyContent: "center",
+    alignItems: "center",
     flexGrow: 1,
     height: "100%",
   },

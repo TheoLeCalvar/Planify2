@@ -5,11 +5,17 @@ import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 import { ThemeProvider } from "@mui/material/styles";
 import muiTheme from "@/assets/muiTheme";
+import useAxiosInterceptor from "@/hooks/useAxiosInterceptor";
+import { AuthProvider } from "@/hooks/AuthContext";
 
 export default function Root() {
+  useAxiosInterceptor();
+
   return (
     <ThemeProvider theme={muiTheme}>
-      <Outlet />
+      <AuthProvider>
+        <Outlet />
+      </AuthProvider>
       <ToastContainer
         position="bottom-right"
         autoClose={5000}

@@ -2,7 +2,6 @@ package com.planify.server.service;
 
 
 import com.planify.server.models.Planning;
-import com.planify.server.models.TAF;
 import com.planify.server.models.constraints.ConstraintSynchroniseWithTAF;
 import com.planify.server.repo.ConstraintSynchroniseWithTAFRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +15,7 @@ public class ConstraintSynchroniseWithTAFService {
 
     @Autowired
     private ConstraintSynchroniseWithTAFRepository constraintSynchroniseWithTAFRepository;
+    
 
     List<ConstraintSynchroniseWithTAF> findAll() {
         return constraintSynchroniseWithTAFRepository.findAll();
@@ -25,8 +25,8 @@ public class ConstraintSynchroniseWithTAFService {
         return constraintSynchroniseWithTAFRepository.findById(id);
     }
 
-    ConstraintSynchroniseWithTAF add(Planning planning, Planning otherPlanning, boolean enabled, boolean regenerateBothPlanning) {
-        return  constraintSynchroniseWithTAFRepository.save(new ConstraintSynchroniseWithTAF(planning, otherPlanning, enabled, regenerateBothPlanning));
+    ConstraintSynchroniseWithTAF add(Planning planning, Planning otherPlanning, boolean enabled) {
+        return  constraintSynchroniseWithTAFRepository.save(new ConstraintSynchroniseWithTAF(planning, otherPlanning, enabled));
     }
 
     boolean deleteById(Long id) {
@@ -38,5 +38,13 @@ public class ConstraintSynchroniseWithTAFService {
             return false;
         }
     }
-
+    
+    public List<ConstraintSynchroniseWithTAF> createForNewPlanning(List<ConstraintSynchroniseWithTAF> cSyncs, Planning newPlanning){
+    	List<ConstraintSynchroniseWithTAF> newCSyncs = cSyncs.stream().map(cSync -> add(newPlanning, cSync.getOtherPlanning(), cSync.isEnabled())).toList();
+        System.out.println("AAAAAAAAAAAAAAA " + newCSyncs.size());
+    	for (ConstraintSynchroniseWithTAF cs : newCSyncs) {
+            constraintSynchroniseWithTAFRepository.save(cs);
+        }
+        return newCSyncs;
+    }
 }

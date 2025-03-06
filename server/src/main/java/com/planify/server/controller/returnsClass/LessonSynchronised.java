@@ -5,11 +5,12 @@ public class LessonSynchronised {
     private Long id;
     private String taf;
     private String ue;
+    private String name;
 
     public LessonSynchronised() {
     }
 
-    public LessonSynchronised(Long id, String taf, String ue) {
+    public LessonSynchronised(Long id, String taf, String ue, String name) {
         this.id = id;
         this.taf = taf;
         this.ue = ue;
@@ -37,5 +38,13 @@ public class LessonSynchronised {
 
     public void setUe(String ue) {
         this.ue = ue;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

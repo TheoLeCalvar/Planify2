@@ -12,6 +12,9 @@ const styles = {
       boxSizing: "border-box",
     },
   },
+  mainContent: {
+    marginTop: `${appBarHeight}px`,
+  }
 };
 
 export default styles;

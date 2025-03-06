@@ -1,5 +1,6 @@
 package com.planify.server.models;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +24,8 @@ public class User {
     private String name;
     private String lastName;
     private boolean isAdmin;
+
+    private LocalDateTime lastUpdatedAvailability;
 
     @Column(unique = true, nullable = false)
     private String mail;
@@ -55,6 +58,7 @@ public class User {
         this.mail = mail;
         this.password = password;
         this.isAdmin = false;
+        this.lastUpdatedAvailability = null;
     }
 
     public String toString() {
@@ -87,6 +91,14 @@ public class User {
 
     public void setIsAdmin(boolean isAdmin) {
         this.isAdmin = isAdmin;
+    }
+
+    public LocalDateTime getLastUpdatedAvailability() {
+        return lastUpdatedAvailability;
+    }
+
+    public void setLastUpdatedAvailability(LocalDateTime lastUpdatedAvailability) {
+        this.lastUpdatedAvailability = lastUpdatedAvailability;
     }
 
     public String getMail() {
