@@ -1,5 +1,5 @@
 // React imports
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { useReducer } from "react";
 
 // Material-UI imports
@@ -19,7 +19,7 @@ import {
   initialState,
 } from "../stores/ProfileMenu.reducer";
 import { AuthContext } from "@/hooks/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useRevalidator } from "react-router-dom";
 import { ArrowRightIcon } from "@mui/x-date-pickers";
 import { ProfileContext } from "@/hooks/ProfileContext";
 
@@ -29,9 +29,14 @@ const ProfileMenu = () => {
   const { profileAnchorEl } = state;
 
   const { logout, getUser } = useContext(AuthContext);
-  const { setProfile } = useContext(ProfileContext);
+  const { profile, setProfile } = useContext(ProfileContext);
   const navigate = useNavigate();
+  const revalidator = useRevalidator();
   const user = getUser();
+
+  useEffect(() => {
+    revalidator.revalidate();
+  }, [profile]);
 
   const handleProfileClick = (event) => {
     dispatch({ type: "OPEN_PROFILE", payload: event.currentTarget });
