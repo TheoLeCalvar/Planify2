@@ -12,7 +12,7 @@ import RegisterPage from "./routes/Register";
 import NavigateRoot from "./routes/NavigateRoot";
 
 // Loader functions
-import { loader as TAFLoader } from "./routes/Taf";
+import { loaderLecturer as TAFLoader } from "./routes/Taf";
 import { loaderLecturer as AppBarLoader } from "./routes/layout/AppBar";
 
 // Define the TAF route (with a nested SideBar)

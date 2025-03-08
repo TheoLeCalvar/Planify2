@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { Box, List, ListItem, ListItemButton, Typography } from "@mui/material";
+import { Box, List, ListItemButton, Typography } from "@mui/material";
 import { Link, useParams } from "react-router-dom";
 import locale from "@/config/locale.json";
 
