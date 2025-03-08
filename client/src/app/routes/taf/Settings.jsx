@@ -123,6 +123,9 @@ export default function TAFSettings() {
         if (compareValue.isBefore(dayjs(otherValues.startDate))) {
           return "La date de fin doit être après la date de début.";
         }
+        if (compareValue.diff(dayjs(otherValues.startDate), "week") < 1) {
+          return "La durée d'étalement de la TAF doit être au moins d'une semaine.";
+        }
         break;
       }
       case "startDate": {
