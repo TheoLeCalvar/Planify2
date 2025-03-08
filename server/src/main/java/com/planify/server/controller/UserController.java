@@ -166,7 +166,7 @@ public class UserController {
             // Retrieve UserDetails from UserService
             Optional<User> userOptional = userService.findByMail(authRequest.getMail());
             if (userOptional.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
             }
 
             User user = userOptional.get();
