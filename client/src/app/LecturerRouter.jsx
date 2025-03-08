@@ -14,6 +14,9 @@ import NavigateRoot from "./routes/NavigateRoot";
 // Loader functions
 import { loaderLecturer as TAFLoader } from "./routes/Taf";
 import { loaderLecturer as AppBarLoader } from "./routes/layout/AppBar";
+import { loader as AvailibilityLoader } from "./routes/lecturer/LecturerAvailability";
+import { action as AvailibilityAction } from "./routes/lecturer/LecturerAvailability";
+import LecturerAvailability from "./routes/lecturer/LecturerAvailability";
 
 // Define the TAF route (with a nested SideBar)
 const tafRoute = [
@@ -21,10 +24,18 @@ const tafRoute = [
     path: "taf/:idTAF",
     element: <TAF />,
     loader: TAFLoader,
+    action: AvailibilityAction,
     children: [
       {
         path: "",
         element: <SideBar />,
+        children: [
+          {
+            path: "",
+            element: <LecturerAvailability />,
+            loader: AvailibilityLoader,
+          },
+        ],
       },
     ],
   },
