@@ -931,9 +931,7 @@ public class LessonController {
         //Addition of the UEs constraints
         List<ConstraintsOfUE> cUEs = new ArrayList<>();
         int[] lessonGroupingNbLessons = {2,3};
-        System.out.println("UE !!! " + taf.getUes() == null);
         if (taf.getUes()!=null) {
-            System.out.println("UE !!! " + taf.getUes().size());
             for (UE ue : taf.getUes()) {
             	cUEs.add(constraintsOfUEService.add(
                         ue,
@@ -949,13 +947,10 @@ public class LessonController {
                         1,
                         lessonGroupingNbLessons
                 ));
-            	System.out.println("aaaaaaaa " + ue.getName());
             }
         }
         planning.setConstraintsOfUEs(cUEs);
         planningService.save(planning);
-        System.out.println("Comp !!!!" + planning.getConstraintsOfUEs().size());
-        System.out.println("Comp !!!!" + planningService.findById(planning.getId()).get().getConstraintsOfUEs().size());
         return ResponseEntity.ok("New config added !");
     }
 
