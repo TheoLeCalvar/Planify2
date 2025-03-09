@@ -15,7 +15,10 @@ import com.planify.server.service.SlotService;
 import com.planify.server.service.SynchronizationService;
 import com.planify.server.service.TAFService;
 import com.planify.server.service.UserService;
-
+/**
+ * Class component to access to the different services of the backend from SolverExecutor and SolverMain.
+ * @author Nathan RABIER
+ */
 @Component
 public class SolverServices {
 	@Lazy

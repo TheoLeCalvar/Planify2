@@ -57,4 +57,9 @@ public class ConstraintSynchroniseWithTAFService {
         }
         return newCSyncs;
     }
+    
+    public void changeOtherPlanning(ConstraintSynchroniseWithTAF cSync, Planning newOtherPlanning) {
+    	cSync.setOtherPlanning(newOtherPlanning);
+    	save(cSync);
+    }
 }

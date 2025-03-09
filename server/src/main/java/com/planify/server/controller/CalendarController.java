@@ -49,14 +49,6 @@ public class CalendarController {
         }
         Planning realPlanning = planning.get();
 
-        for (Config.CSyncrho cSyncrho : config.getConstraintsSynchronisation()) {
-            Planning otherPlanning = planningService.findById(cSyncrho.getOtherPlanning()).orElseThrow(()-> new IllegalArgumentException("The other planning does nott exist"));
-            if (otherPlanning.isGenerated())
-            	realPlanning.addConstraintSynchroniseWithTAF(new ConstraintSynchroniseWithTAF(realPlanning, otherPlanning, cSyncrho.isEnabled() ));
-            else
-            	realPlanning.addConstraintSynchroniseWithTAF(new ConstraintSynchroniseWithTAF(realPlanning, planningService.createPlanningForGeneration(otherPlanning), cSyncrho.isEnabled() ));
-        }
-
         Calendar calendar = realPlanning.getCalendar();
         TAF taf = calendar.getTaf();
 
@@ -78,6 +70,11 @@ public class CalendarController {
                 return ResponseEntity.status(HttpStatus.CONFLICT)
                         .body("No lessons in UE");
             }
+        }
+
+        for (Config.CSyncrho cSyncrho : config.getConstraintsSynchronisation()) {
+            Planning otherPlanning = planningService.findById(cSyncrho.getOtherPlanning()).orElseThrow(()-> new IllegalArgumentException("The other planning does nott exist"));
+            realPlanning.addConstraintSynchroniseWithTAF(new ConstraintSynchroniseWithTAF(realPlanning, otherPlanning, cSyncrho.isEnabled() ));
         }
         
         SolverExecutor.generatePlanning(realPlanning);

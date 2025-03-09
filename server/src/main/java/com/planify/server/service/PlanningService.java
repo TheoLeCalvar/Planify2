@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -181,11 +182,17 @@ public class PlanningService {
     	return planningGeneration;
     }
     
-
-    
     public Planning[] createPlanningsForGeneration(Planning[] planningsToGenerate) {
     	Planning[] plannings = new Planning[planningsToGenerate.length];
     	for (int i = 0; i < plannings.length; i ++) plannings[i] = createPlanningForGeneration(planningsToGenerate[i]);
+    	for (Planning planning : plannings) updateCSyncsPlanningsForGeneration(planning, plannings);
     	return plannings;
+    }
+    
+    private void updateCSyncsPlanningsForGeneration(Planning planningToUpdate, Planning[] planningsForGeneration) {
+    	for (ConstraintSynchroniseWithTAF cSyncs : planningToUpdate.getConstraintsSynchronisation()) {
+    		Optional<Planning> newOtherPlanning = Arrays.stream(planningsForGeneration).filter(p -> p.getCalendar().getTaf().getId() == cSyncs.getOtherPlanning().getCalendar().getTaf().getId()).findFirst();
+    		if (newOtherPlanning.isPresent()) constraintSynchroniseWithTAFService.changeOtherPlanning(cSyncs, newOtherPlanning.get());
+    	}
     }
 }

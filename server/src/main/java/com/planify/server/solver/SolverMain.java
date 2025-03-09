@@ -173,49 +173,6 @@ public class SolverMain {
 	}
 	
 	/**
-	 * Generate the planning.
-	 * @param planning The planning to generate.
-	 * @return The results generated (also stored automatically in the database).
-	 */
-	public static boolean generatePlanning(Planning planning){
-		/*System.out.println(planning.getCalendar().getSlots().stream().map(s -> s.toString()).reduce("", String::concat));
-		System.out.println(planning.getCalendar().getTaf().getUes().stream().map(u -> u.toString()).reduce("", String::concat));
-		System.out.println(planning.getCalendar().getTaf().getUes().stream().flatMap(u -> u.getLessons().stream().map(l -> l.toString())).reduce("", String::concat));
-		*/
-		if (!planning.isSynchronise() || planning.getConstraintsSynchronisation().isEmpty()) {
-			System.out.println("Generate Planning " + planning.getId());
-			return generatePlanningWithoutSync(planning);
-		}
-		List<Planning> planningsToConsider = new ArrayList<Planning>();
-		planningsToConsider.add(planning);
-		List<Planning> planningsToGenerate = new ArrayList<Planning>();
-		planningsToGenerate.add(planning);
-		List<Planning> planningsGenerated = new ArrayList<Planning>();
-		while (!planningsToConsider.isEmpty()) {
-			Planning plan = planningsToConsider.removeFirst();
-			for (ConstraintSynchroniseWithTAF cSync : plan.getConstraintsSynchronisation()) {
-				if (!(cSyncInPlannings(cSync, planningsToGenerate) || cSyncInPlannings(cSync, planningsGenerated))) {
-					Planning otherPlanning = cSync.getOtherPlanning();
-					if (otherPlanning.isGenerated()) {
-						planningsGenerated.add(otherPlanning);
-					}
-					else {
-						planningsToConsider.add(otherPlanning);
-						planningsToGenerate.add(services.getPlanningService().createPlanningForGeneration(otherPlanning));
-					}
-				}
-			}
-		}
-		System.out.println("Generate Plannings :[" + planningsToGenerate.stream().map(p -> p.getId() + ", ").reduce("", String::concat) + "]");
-		System.out.println("Using the Plannings generated :[" + planningsGenerated.stream().map(p -> p.getId() + ", ").reduce("", String::concat) + "]");
-		return generatePlannings(planningsToGenerate.stream().toArray(Planning[]::new), planningsGenerated.stream().toArray(Planning[]::new));
-	}
-	
-	private static boolean cSyncInPlannings(ConstraintSynchroniseWithTAF cSync, List<Planning> plannings) {
-		return plannings.stream().anyMatch(p -> p.getCalendar().getTaf().getId() == cSync.getOtherPlanning().getCalendar().getTaf().getId());
-	}
-	
-	/**
 	 * Generate the planning without considering synchronizations using the parameters in the object planning.
 	 * @param planning The planning to generate.
 	 * @return The results generated (also stored automatically in the database).
@@ -839,9 +796,9 @@ public class SolverMain {
 							System.out.println("[setSynchronisationConstraints] Slot or ScheduledLesson not found for lesson : " + sync.getLesson2());
 					}
 				}
-				//If the two lessons are in plannings we wants to generate
+				//If the two lessons are in plannings we wants to generate (We test only with solverMain1 to break symmetry and do not have two constraint for each sync).
 				else if (solverMain1.getPlanning().getId() == solMains[i].getPlanning().getId()) {
-					model.arithm(solMains[i].getLessonVarSlotGlobal(sync.getLesson1()), "=", getSolMainTaf(solMains, sync.getLesson2().getUe().getTaf()).getLessonVarSlotGlobal(sync.getLesson2())).post();
+					model.arithm(solMains[i].getLessonVarSlotGlobal(sync.getLesson1()), "=", solverMain2.getLessonVarSlotGlobal(sync.getLesson2())).post();
 				}
 			}
 		}
