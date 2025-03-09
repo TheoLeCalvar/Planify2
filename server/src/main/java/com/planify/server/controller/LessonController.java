@@ -1029,7 +1029,7 @@ public class LessonController {
         List<UELecturerShort> answer = new ArrayList<UELecturerShort>();
 
         for (UE ue : ues) {
-            List<UEManager> ueManagers = ue.getUeManagers();
+            List<UEManager> ueManagers = ue.getUEManagers();
             List<UserBrief> managers = new ArrayList<>();
             for (UEManager ueManager : ueManagers) {
                 managers.add(new UserBrief(ueManager.getUser().getId(), ueManager.getUser().getFullName()));
