@@ -14,7 +14,7 @@ import Planning from "@/components/Plannning";
 
 export async function loader({ params }) {
   const response = await axiosInstance.get(
-    `/solver/result/${params.idPlanning}`,
+    `/solver/result/${params.idPlanning}/basic`,
   );
   return response.data;
 }
