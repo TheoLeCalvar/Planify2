@@ -959,4 +959,99 @@ public class LessonController {
         return ResponseEntity.ok("New config added !");
     }
 
+    // TAFs related to lecturer
+    @GetMapping(value = "/lecturer/taf", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getLecturerTafs() {
+        // Retrieving user
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !(authentication.getPrincipal() instanceof UserDetails)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ErrorResponse("Authentication required", 401));
+        }
+
+        String mail = ((UserDetails) authentication.getPrincipal()).getUsername();
+        Optional<User> userOpt = userService.findByMail(mail);
+
+        // If user not found, return error
+        if (!userOpt.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ErrorResponse("User not found", 404));
+        }
+
+        User user = userOpt.get();
+
+        // Retrieving related TAF to lecturer
+        List<TAF> relatedTafs = new ArrayList<TAF>();
+        relatedTafs = user.getLessonLecturers().stream()
+                .map(lecturer -> lecturer.getLesson().getUe().getTaf())
+                .distinct()
+                .collect(Collectors.toList());
+        List<TAFShort> answer = new ArrayList<TAFShort>();
+        for (TAF taf : relatedTafs) {
+            answer.add(new TAFShort(taf.getId(), taf.getName(), taf.getDescription()));
+        }
+        return ResponseEntity.ok(answer);
+
+    }
+
+    // Information about lecturer's UEs and lessons
+    @GetMapping(value = "/lecturer/lessons/{tafId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getLecturerLessonsByTaf(@PathVariable Long tafId) {
+        if (!tafService.existsById(tafId)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("TAF not found");
+        }
+        // Retrieving user
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !(authentication.getPrincipal() instanceof UserDetails)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ErrorResponse("Authentication required", 401));
+        }
+
+        String mail = ((UserDetails) authentication.getPrincipal()).getUsername();
+        Optional<User> userOpt = userService.findByMail(mail);
+
+        // If user not found, return error
+        if (!userOpt.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ErrorResponse("User not found", 404));
+        }
+
+        User user = userOpt.get();
+
+        // Retrieving user's UEs matching taf id
+        List<UE> ues = user.getLessonLecturers().stream()
+                .map(lecturer -> lecturer.getLesson().getUe())
+                .distinct()
+                .filter(lesson -> lesson.getTaf().getId() == tafId)
+                .collect(Collectors.toList());
+
+        List<UELecturerShort> answer = new ArrayList<UELecturerShort>();
+
+        for (UE ue : ues) {
+            List<UEManager> ueManagers = ue.getUeManagers();
+            List<UserBrief> managers = new ArrayList<>();
+            for (UEManager ueManager : ueManagers) {
+                managers.add(new UserBrief(ueManager.getUser().getId(), ueManager.getUser().getFullName()));
+            }
+            List<Lesson> lessons = ue.getLessons();
+            List<LessonShort> lessonShorts = new ArrayList<>();
+            for (Lesson lesson : lessons) {
+                List<Long> lecturers = lesson.getLessonLecturers().stream()
+                        .map(lecturer -> lecturer.getId().getIdUser())
+                        .collect(Collectors.toList());
+                List<LessonSynchronised> synchronise = lesson.getSynchronizations().stream()
+                        .map(s -> new LessonSynchronised(s.getLesson1().getId(), ue.getTaf().getName(), ue.getName(), s.getLesson1().getName()))
+                        .collect(Collectors.toList());
+                LessonShort lessonShort = new LessonShort(lesson.getId(), lesson.getName(), lesson.getDescription(), lecturers, synchronise);
+                lessonShorts.add(lessonShort);
+            }
+            UELecturerShort ueLecturerShort = new UELecturerShort(ue.getId(), ue.getName(), ue.getDescription(), managers, lessonShorts);
+            answer.add(ueLecturerShort);
+        }
+
+        return ResponseEntity.ok(answer);
+
+    }
+
 }

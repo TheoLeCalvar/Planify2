@@ -14,6 +14,7 @@ public class LessonSynchronised {
         this.id = id;
         this.taf = taf;
         this.ue = ue;
+        this.name = name;
     }
 
     public Long getId() {

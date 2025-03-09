@@ -17,6 +17,8 @@ public class UserShort {
 
     private String email;
 
+    private String password;
+
     private boolean alreadySelected;
 
     public UserShort() {
@@ -70,6 +72,14 @@ public class UserShort {
 
     public void setEmail(String mail) {
         this.email = mail;
+    }
+
+    public String getPassword() {
+        return this.password;
+    }
+
+    public void setPassword(String pass) {
+        this.password = pass;
     }
 
     public boolean getAlreadySelected() {
