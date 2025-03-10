@@ -1030,15 +1030,20 @@ public class LessonController {
                 managers.add(new UserBrief(ueManager.getUser().getId(), ueManager.getUser().getFullName()));
             }
             List<Lesson> lessons = ue.getLessons();
-            List<LessonShort> lessonShorts = new ArrayList<>();
+            lessons = lessons.stream()
+                    .filter(lesson -> lesson.getLessonLecturers().stream()
+                            .anyMatch(lecturer -> lecturer.getId().getIdUser() == user.getId()))
+                    .collect(Collectors.toList());
+            List<LessonShortLecturer> lessonShorts = new ArrayList<>();
             for (Lesson lesson : lessons) {
-                List<Long> lecturers = lesson.getLessonLecturers().stream()
-                        .map(lecturer -> lecturer.getId().getIdUser())
+                List<UserBrief> lecturers = lesson.getLessonLecturers().stream()
+                        .filter(lecturer -> lecturer.getUser().getId() != user.getId())
+                        .map(lecturer -> new UserBrief(lecturer.getUser().getId(), lecturer.getUser().getFullName()))
                         .collect(Collectors.toList());
                 List<LessonSynchronised> synchronise = lesson.getSynchronizations().stream()
                         .map(s -> new LessonSynchronised(s.getLesson1().getId(), ue.getTaf().getName(), ue.getName(), s.getLesson1().getName()))
                         .collect(Collectors.toList());
-                LessonShort lessonShort = new LessonShort(lesson.getId(), lesson.getName(), lesson.getDescription(), lecturers, synchronise);
+                LessonShortLecturer lessonShort = new LessonShortLecturer(lesson.getId(), lesson.getName(), lesson.getDescription(), lecturers, synchronise);
                 lessonShorts.add(lessonShort);
             }
             UELecturerShort ueLecturerShort = new UELecturerShort(ue.getId(), ue.getName(), ue.getDescription(), managers, lessonShorts);

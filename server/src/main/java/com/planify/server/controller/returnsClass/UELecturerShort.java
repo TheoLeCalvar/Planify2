@@ -12,9 +12,9 @@ public class UELecturerShort {
 
   private List<UserBrief> managers;
 
-  private List<LessonShort> lessons;
+  private List<LessonShortLecturer> lessons;
 
-  public UELecturerShort(Long id, String title, String description, List<UserBrief> managers, List<LessonShort> lessons) {
+  public UELecturerShort(Long id, String title, String description, List<UserBrief> managers, List<LessonShortLecturer> lessons) {
       this.id = id;
       this.title = title;
       this.description = description;
@@ -54,11 +54,11 @@ public class UELecturerShort {
       this.managers = managers;
   }
 
-  public List<LessonShort> getLessons() {
+  public List<LessonShortLecturer> getLessons() {
       return lessons;
   }
 
-  public void setLessons(List<LessonShort> lessons) {
+  public void setLessons(List<LessonShortLecturer> lessons) {
       this.lessons = lessons;
   }
 
