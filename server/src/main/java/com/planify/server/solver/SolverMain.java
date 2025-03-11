@@ -91,6 +91,18 @@ public class SolverMain {
 		this.obj = this.setPreferences();
 	}
 	
+	private SolverMain(Planning planning, Model model, HashMap<Long, Integer> idToIdMGlobal) {
+		this(planning);
+		
+		this.model = model;
+		int nbSlots = this.getNumberOfSlotsWUD();
+		int nbLessons = this.getNumberOfLessons();
+		this.initialiseVars(nbSlots, nbLessons, isUesNeeded(planning), isDaysNeeded(planning), isWeeksNeeded(planning));
+		this.initialiseSync(idToIdMGlobal);
+		this.setConstraints();
+		this.obj = this.setPreferences();
+	}
+	
 	private IntVar getObj() {return this.obj;};
 	private Model getModel() {return this.model;};
 	private Planning getPlanning() {return this.planning;}
@@ -264,8 +276,7 @@ public class SolverMain {
 		SolverMain[] solMains = new SolverMain[planningsToGenerate.length];
 		HashMap<Long, Integer> idToIdMGlobal = getIdToIdMGlobalPlannings(planningsToGenerate);
 		for (int i = 0; i < planningsToGenerate.length; i ++) {
-			solMains[i] = new SolverMain(planningsToGenerate[i], model);
-			solMains[i].initialiseSync(idToIdMGlobal);
+			solMains[i] = new SolverMain(planningsToGenerate[i], model, idToIdMGlobal);
 			IntVar obj = solMains[i].getObj();
 			objs[i] = obj != null ? obj : model.intVar(0);
 		}
