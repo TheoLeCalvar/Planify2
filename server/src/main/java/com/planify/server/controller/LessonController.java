@@ -139,6 +139,7 @@ public class LessonController {
         relatedTafs.addAll(tafManagers.stream().map(manager -> manager.getTaf()).collect(Collectors.toList()));
         relatedTafs.addAll(ueManagers.stream().map(manager -> manager.getUe().getTaf()).collect(Collectors.toList()));
         relatedTafs.addAll(lessonLecturers.stream().map(lecturer -> lecturer.getLesson().getUe().getTaf()).collect(Collectors.toList()));
+        relatedTafs = relatedTafs.stream().distinct().collect(Collectors.toList());
         List<TAFShort> answer = new ArrayList<TAFShort>();
         for (TAF taf : relatedTafs) {
             answer.add(new TAFShort(taf.getId(), taf.getName(), taf.getDescription()));
