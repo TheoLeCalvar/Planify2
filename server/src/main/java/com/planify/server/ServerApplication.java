@@ -9,8 +9,12 @@ import java.util.List;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.planify.server.controller.LessonController;
 import com.planify.server.models.*;
 import com.planify.server.models.Antecedence.AntecedenceId;
 import com.planify.server.models.LessonLecturer.LessonLecturerId;
@@ -83,7 +87,7 @@ public class ServerApplication {
 		constraintSynchroniseWithTAFService = context.getBean(ConstraintSynchroniseWithTAFService.class);
 		passwordEncoder = context.getBean(PasswordEncoder.class);
 
-		// testLecturerLessonsAndRoles();
+		// testGetLecturerUnavailability();
 		
 		/*
 		TAF taf = tafService.addTAF("LOGIN", "Polyglotte", "début", "fin");
@@ -1164,6 +1168,29 @@ public class ServerApplication {
 
 		System.out.println(userService.findAll());
 
+}
+
+	private static void testGetLecturerUnavailability() {
+    // Create a user with encoded password
+    User user = userService.addUser("Test", "User", "testuser123", passwordEncoder.encode("password123"));
+    System.out.println("Test user created: test.user@example.com / password123");
+
+    // Create a TAF
+    TAF taf = tafService.addTAF("Test TAF", "Description of Test TAF", "2025-01-01", "2025-02-31");
+
+    // Create a calendar for the TAF
+    Calendar calendar = calendarService.addCalendar(taf);
+
+    // Create a week and a day
+    Week week = weekService.addWeek(1, 2025);
+    Day day = dayService.addDay(1, week);
+
+    // Create a slot and add it to the calendar
+    Slot slot = slotService.add(1, day, calendar, LocalDateTime.of(2025, 1, 1, 9, 0), LocalDateTime.of(2025, 1, 1, 10, 0));
+    slotService.save(slot);
+
+    // Add user unavailability
+    userUnavailabilityService.addUserUnavailability(slot, user, true);
 }
 	
 }
