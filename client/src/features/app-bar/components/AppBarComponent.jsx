@@ -1,6 +1,6 @@
 // React Imports
 import React, { useContext } from "react";
-import { Outlet, useLoaderData } from "react-router-dom";
+import { Outlet, useLoaderData, useParams } from "react-router-dom";
 
 // Material-UI imports
 import {
@@ -20,19 +20,17 @@ import { app } from "@/config/locale.json";
 import TAFSelector from "./TafSelector";
 import NotificationMenu from "./NotificationsMenu";
 import ProfileMenu from "./ProfileMenu";
-import { useTAFSelection } from "../hooks/useTAFSelection";
 import styles from "./AppBarComponent.styles";
 import { ProfileContext } from "@/hooks/ProfileContext";
 
 const AppBarComponent = () => {
   // Retrieve TAF data from the loader
   const tafs = useLoaderData();
+  const params = useParams();
+  const isTaf = !!params.idTAF;
 
   // Global store function to toggle the side drawer
   const toggleDrawer = useStore((state) => state.toggleSideBar);
-
-  // Use the custom hook for managing TAF selection
-  const { selectedTAF, onTAFChange } = useTAFSelection();
 
   const { profile } = useContext(ProfileContext);
 
@@ -55,7 +53,7 @@ const AppBarComponent = () => {
     <>
       <MuiAppBar sx={styles.appbar}>
         <Toolbar sx={styles.toolbar}>
-          {selectedTAF && (
+          {isTaf && (
             <IconButton onClick={toggleDrawer} color="inherit">
               <MenuIcon />
             </IconButton>
@@ -65,11 +63,7 @@ const AppBarComponent = () => {
             {" "}
             ● {profileTitle}
           </Typography>
-          <TAFSelector
-            selectedOption={selectedTAF}
-            onChange={onTAFChange}
-            tafs={tafs}
-          />
+          <TAFSelector tafs={tafs} />
           <NotificationMenu />
           <ProfileMenu />
         </Toolbar>

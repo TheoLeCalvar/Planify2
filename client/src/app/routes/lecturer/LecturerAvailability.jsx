@@ -56,7 +56,7 @@ export default function LecturerAvailability() {
 
   return (
     <div>
-      {initialEvents.length > 0 ? (
+      {initialEvents?.length > 0 ? (
         <>
           <Stack direction="row" spacing={2} alignItems="center">
             <Typography variant="h4" gutterBottom>

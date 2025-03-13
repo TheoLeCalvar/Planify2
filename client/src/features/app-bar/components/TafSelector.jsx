@@ -16,13 +16,16 @@ import {
 import layout from "@/config/locale.json";
 import styles from "./TafSelector.styles";
 import { AddCircle } from "@mui/icons-material";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { ProfileContext } from "@/hooks/ProfileContext";
 
-const TAFSelector = ({ selectedOption, onChange, tafs }) => {
+const TAFSelector = ({ tafs }) => {
   // Wrap the onChange to extract the value and then forward it.
+  const navigate = useNavigate();
+  const params = useParams();
+
   const handleChange = (event) => {
-    onChange(event.target.value);
+    navigate(`/taf/${event.target.value}`);
   };
 
   const { profile } = useContext(ProfileContext);
@@ -36,7 +39,7 @@ const TAFSelector = ({ selectedOption, onChange, tafs }) => {
         <Select
           labelId="taf-selector-label"
           id="dropdown-selector"
-          value={selectedOption}
+          value={params?.idTAF || ""}
           onChange={handleChange}
           label={layout.layout.appBar.TAFSelector}
           sx={styles.select}
@@ -63,8 +66,6 @@ const TAFSelector = ({ selectedOption, onChange, tafs }) => {
 };
 
 TAFSelector.propTypes = {
-  selectedOption: PropTypes.string.isRequired,
-  onChange: PropTypes.func.isRequired,
   tafs: PropTypes.array.isRequired,
 };
 
