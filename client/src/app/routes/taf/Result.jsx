@@ -9,7 +9,7 @@ import "@schedule-x/theme-default/dist/index.css";
 
 // Local imports
 import axiosInstance from "@/config/axiosConfig";
-import { Typography } from "@mui/material";
+import { Button, Typography } from "@mui/material";
 import Planning from "@/components/Plannning";
 
 export async function loader({ params }) {
@@ -27,6 +27,24 @@ export default function TAFPlanning() {
     GENERATED: "Généré",
     PROCESSING: "En cours de génération...",
     WAITING_TO_BE_PROCESSED: "En file d'attente...",
+  };
+
+  const handleExport = async () => {
+    const response = await axiosInstance.get(
+      `/solver/result/${context.planning.id}/csv`,
+      {
+        responseType: "blob",
+      },
+    );
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute(
+      "download",
+      `planning_${context.planning.name}_${context.planning.timestamp}.csv`,
+    );
+    document.body.appendChild(link);
+    link.click();
   };
 
   return (
@@ -58,7 +76,12 @@ export default function TAFPlanning() {
       )}
 
       {data.scheduledLessons?.length > 0 ? (
-        <Planning initialEvents={data.scheduledLessons} />
+        <>
+          <Button onClick={handleExport} variant="contained" sx={{ mb: 2 }}>
+            Exporter CSV
+          </Button>
+          <Planning initialEvents={data.scheduledLessons} />
+        </>
       ) : (
         <Typography variant="h6" fontStyle="italic" mt={5}>
           Pas d&apos;emploi du temps généré
