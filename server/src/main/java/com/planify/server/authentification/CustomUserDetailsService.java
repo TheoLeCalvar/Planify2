@@ -56,7 +56,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         if (lessonLecturerRepository.existsByUser(user)) {
             authorities.add(new SimpleGrantedAuthority("ROLE_LESSONLECTURER"));
         }
-
         return new org.springframework.security.core.userdetails.User(
                 user.getMail(),
                 user.getPassword(),

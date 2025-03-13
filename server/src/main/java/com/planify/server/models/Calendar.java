@@ -23,10 +23,10 @@ public class Calendar {
     @JoinColumn(name = "idTAF")
     private TAF taf;
 
-    @OneToMany(mappedBy = "calendar", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "calendar", fetch = FetchType.LAZY)
     private List<Slot> slots;
     
-    @OneToMany(mappedBy = "calendar", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "calendar", fetch = FetchType.LAZY)
     private List<Planning> plannings;
 
     public Calendar() {

@@ -1,5 +1,5 @@
 // React imports
-import React from "react";
+import React, { useContext } from "react";
 import PropTypes from "prop-types";
 
 // Material-UI imports
@@ -17,12 +17,15 @@ import layout from "@/config/locale.json";
 import styles from "./TafSelector.styles";
 import { AddCircle } from "@mui/icons-material";
 import { Link } from "react-router-dom";
+import { ProfileContext } from "@/hooks/ProfileContext";
 
 const TAFSelector = ({ selectedOption, onChange, tafs }) => {
   // Wrap the onChange to extract the value and then forward it.
   const handleChange = (event) => {
     onChange(event.target.value);
   };
+
+  const { profile } = useContext(ProfileContext);
 
   return (
     <Box sx={styles.TAFSelectorBox}>
@@ -48,11 +51,13 @@ const TAFSelector = ({ selectedOption, onChange, tafs }) => {
           )}
         </Select>
       </FormControl>
-      <Link to="/taf/new">
-        <IconButton>
-          <AddCircle color="secondary" />
-        </IconButton>
-      </Link>
+      {profile != "lecturer" && (
+        <Link to="/taf/new">
+          <IconButton>
+            <AddCircle color="secondary" />
+          </IconButton>
+        </Link>
+      )}
     </Box>
   );
 };

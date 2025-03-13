@@ -10,18 +10,24 @@ import { Dialog, DialogContent, DialogTitle } from "@mui/material";
 import ValidatedInput from "./ValidatedInput";
 import ValidatedForm from "./ValidatedForm";
 import axiosInstance from "@/config/axiosConfig";
-import { USE_MOCK_DATA } from "@/config/constants";
+import { toast } from "react-toastify";
 
 export async function action({ request }) {
   const data = await request.json();
 
-  if (USE_MOCK_DATA) {
-    await new Promise((res) => setTimeout(res, 1000));
-    return { ok: true };
-  }
-
-  const result = await axiosInstance.post(`/users`, data);
-  return { ok: result.status === 200 };
+  await axiosInstance
+    .post(`/users`, data)
+    .then(() => {
+      toast.success("Utilisateur créé");
+    })
+    .catch((response) => {
+      if (response.status === 409) {
+        toast.error("Cet utilisateur existe déjà");
+      } else {
+        toast.error("Erreur lors de la création de l'utilisateur");
+      }
+    });
+  return null;
 }
 
 // Subcomponent for the CreateUser dialog
@@ -49,6 +55,11 @@ export function CreateUser({ onCancel }) {
           )
         ) {
           return "L'email n'est pas valide.";
+        }
+        break;
+      case "password":
+        if (value.length < 6) {
+          return "Le mot de passe doit contenir au moins 6 caractères.";
         }
         break;
       default:
@@ -87,6 +98,14 @@ export function CreateUser({ onCancel }) {
           name="email"
           label="Email"
           defaultValue="@imt-atlantique.fr"
+          margin="normal"
+          fullWidth
+          required
+        />
+        <ValidatedInput
+          name="password"
+          label="Mot de passe"
+          type="password"
           margin="normal"
           fullWidth
           required

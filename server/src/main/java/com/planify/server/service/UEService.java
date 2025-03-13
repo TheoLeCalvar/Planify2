@@ -14,6 +14,7 @@ import com.planify.server.models.Synchronization;
 import com.planify.server.models.TAF;
 import com.planify.server.models.UE;
 import com.planify.server.models.UEManager;
+import com.planify.server.models.constraints.ConstraintsOfUE;
 import com.planify.server.repo.UERepository;
 
 @Service
@@ -32,22 +33,16 @@ public class UEService {
     @Lazy
     @Autowired
     private UEManagerService ueManagerService;
+    
+    @Autowired
+    private ConstraintsOfUEService constraintsOfUEService;
 
     @Transactional
     public UE addUE(String name, String description, TAF taf) {
-        System.out.println("------------------------" + ueRepository.findAll());
         // ads ue in the UE's table
         UE ue = new UE(name, description, taf);
 
-        // add ue in the TAF's ues
-        List<UE> ues = taf.getUes();
-        ues.addLast(ue);
-        taf.setUes(ues);
-        // tafService.save(taf);
-
         ueRepository.save(ue);
-        System.out.println(ueRepository.findAll());
-        System.out.println(taf.getUes());
         return ue;
     }
 
@@ -60,13 +55,6 @@ public class UEService {
         if (ueRepository.existsById(id)) {
             UE ue = ueRepository.findById(id).get();
 
-            // Delete ue in the TAF's ues
-            TAF taf = tafService.findById(ue.getTaf().getId()).get();
-            List<UE> listUEfromTAF = taf.getUes();
-            listUEfromTAF.remove(ue);
-            taf.setUes(listUEfromTAF);
-            tafService.save(taf);
-
             // Delete the lesson associated with this UE
             List<Lesson> listLessons = new ArrayList<Lesson>(ue.getLessons());
             for (Lesson l : listLessons) {
@@ -74,11 +62,15 @@ public class UEService {
             }
 
             // Delete the UE Managers associated with this UE
-            List<UEManager> listUeManagers = ue.getUeManagers();
+            List<UEManager> listUeManagers = ue.getUEManagers();
             if (listUeManagers != null && !listUeManagers.isEmpty()) {
-                listUeManagers.forEach(uem -> ueManagerService.deleteUEManagerWhenDeletingUE(uem.getId()));
+                listUeManagers.forEach(uem -> ueManagerService.deleteUEManager(uem.getId()));
             }
-
+            
+            List<ConstraintsOfUE> listCUE = ue.getConstraintsOfUE();
+            if (listCUE != null && !listCUE.isEmpty()) {
+            	listCUE.forEach(cUe -> constraintsOfUEService.deleteById(cUe.getId()));
+            }
 
             // Delete ue in the UE's table
             ueRepository.delete(ue);

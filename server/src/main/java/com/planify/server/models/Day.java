@@ -27,7 +27,7 @@ public class Day {
     @JoinColumn(name = "idWeek")
     private Week week;
 
-    @OneToMany(mappedBy = "day", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "day", fetch = FetchType.LAZY)
     private List<Slot> slots;
 
     public Day() {

@@ -67,7 +67,8 @@ public class TAFService {
             for (TAFManager m : listManagers) {
                 tafManagerService.deleteTAFManager(m.getId());
             }
-
+            
+            
             // Delete the taf in the TAF's table
             tafRepository.delete(taf);
 

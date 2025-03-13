@@ -25,7 +25,6 @@ import "dayjs/locale/fr";
 import ValidatedInput from "@/components/ValidatedInput";
 import ValidatedForm from "@/components/ValidatedForm";
 import axiosInstance from "@/config/axiosConfig";
-import { USE_MOCK_DATA } from "@/config/constants";
 import UserSelector from "@/components/UserSelector";
 import ConfirmationButton from "@/components/ConfirmationButton";
 import { toast } from "react-toastify";
@@ -35,40 +34,28 @@ dayjs.extend(customParseFormat);
 export async function action({ request, params }) {
   const data = await request.json();
 
-  if (USE_MOCK_DATA) {
-    const delay = () => {
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve("Résolu après 2 secondes");
-        }, 2000); // 2000 millisecondes = 2 secondes
+  if (params.idTAF) {
+    return await axiosInstance
+      .put(`/taf/${params.idTAF}`, data)
+      .then(() => {
+        toast.success("TAF mise à jour");
+        return redirect("..");
+      })
+      .catch(() => {
+        toast.error("Erreur lors de la mise à jour du TAF");
+        return null;
       });
-    };
-
-    await delay();
   } else {
-    if (params.idTAF) {
-      return await axiosInstance
-        .put(`/taf/${params.idTAF}`, data)
-        .then(() => {
-          toast.success("TAF mise à jour");
-          return redirect("..");
-        })
-        .catch(() => {
-          toast.error("Erreur lors de la mise à jour du TAF");
-          return null;
-        });
-    } else {
-      return await axiosInstance
-        .post(`/taf`, data)
-        .then(() => {
-          toast.success("TAF créé");
-          return redirect("..");
-        })
-        .catch(() => {
-          toast.error("Erreur lors de la création du TAF");
-          return null;
-        });
-    }
+    return await axiosInstance
+      .post(`/taf`, data)
+      .then((response) => {
+        toast.success("TAF créé");
+        return redirect("/taf/" + response.data);
+      })
+      .catch(() => {
+        toast.error("Erreur lors de la création du TAF");
+        return null;
+      });
   }
 }
 
@@ -135,6 +122,9 @@ export default function TAFSettings() {
         }
         if (compareValue.isBefore(dayjs(otherValues.startDate))) {
           return "La date de fin doit être après la date de début.";
+        }
+        if (compareValue.diff(dayjs(otherValues.startDate), "week") < 1) {
+          return "La durée d'étalement de la TAF doit être au moins d'une semaine.";
         }
         break;
       }

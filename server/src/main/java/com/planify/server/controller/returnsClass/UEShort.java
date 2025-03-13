@@ -29,7 +29,7 @@ public class UEShort {
         this.id = ue.getId();
         this.name = ue.getName();
         this.description = ue.getDescription();
-        this.managers = ue.getUeManagers().stream().map(manager -> new UserBrief(manager.getUser().getId(), manager.getUserName())).collect(Collectors.toList());
+        this.managers = ue.getUEManagers().stream().map(manager -> new UserBrief(manager.getUser().getId(), manager.getUserName())).collect(Collectors.toList());
     }
 
     public Long getId() {

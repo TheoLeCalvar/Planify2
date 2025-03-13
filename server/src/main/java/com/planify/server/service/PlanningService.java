@@ -1,5 +1,6 @@
 package com.planify.server.service;
 
+import com.planify.server.controller.returnsClass.Config;
 import com.planify.server.models.*;
 import com.planify.server.models.Planning.Status;
 import com.planify.server.models.constraints.ConstraintSynchroniseWithTAF;
@@ -44,7 +45,7 @@ public class PlanningService {
     }
 
     public Planning addPlanning(Calendar calendar, String name, boolean globalUnavailability, int weightGlobalUnavailability, boolean lecturersUnavailability, int weightLecturersUnavailability, boolean synchronise, int weightMaxTimeWithoutLesson, boolean UEInterlacing, boolean middayBreak, LocalTime startMiddayBreak, LocalTime endMiddayBreak, boolean middayGrouping, int weightMiddayGrouping, boolean lessonBalancing, int weightLessonBalancing, int weightLessonGrouping, boolean lessonGrouping, LocalTime maxSolveDuration) {
-        Planning planning = new Planning(calendar, name, globalUnavailability, weightGlobalUnavailability, lecturersUnavailability, weightLecturersUnavailability, synchronise, new ArrayList<ConstraintSynchroniseWithTAF>(), new ArrayList<ConstraintsOfUE>(), weightMaxTimeWithoutLesson, UEInterlacing, middayBreak, startMiddayBreak, endMiddayBreak,middayGrouping, weightMiddayGrouping,lessonBalancing, weightLessonBalancing, weightLessonGrouping, lessonGrouping, maxSolveDuration);
+        Planning planning = new Planning(calendar, name, globalUnavailability, weightGlobalUnavailability, lecturersUnavailability, weightLecturersUnavailability, synchronise, weightMaxTimeWithoutLesson, UEInterlacing, middayBreak, startMiddayBreak, endMiddayBreak,middayGrouping, weightMiddayGrouping,lessonBalancing, weightLessonBalancing, weightLessonGrouping, lessonGrouping, maxSolveDuration);
         planningRepository.save(planning);
         return planning;
     }
@@ -69,6 +70,11 @@ public class PlanningService {
 
     public  boolean delete(Long id) {
         if (planningRepository.existsById(id)) {
+        	Planning planning = planningRepository.findById(id).get();
+        	planning.getConstrainedSynchronisations().forEach(cedS -> constraintSynchroniseWithTAFService.deleteById(cedS.getId()));
+        	planning.getConstraintsSynchronisation().forEach(cS -> constraintSynchroniseWithTAFService.deleteById(cS.getId()));
+        	planning.getConstraintsOfUEs().forEach(cUe -> constraintsOfUEService.deleteById(cUe.getId()));
+        	
             planningRepository.deleteById(id);
             return true;
         } else {
@@ -100,6 +106,51 @@ public class PlanningService {
         System.out.println(RED + scheduledLessons + RESET);
         planning.setScheduledLessons(scheduledLessons);
         planningRepository.save(planning);
+    }
+    
+    public void updateConfig(Planning planning, Config config) {
+        if (config.getName() != null) planning.setName(config.getName());
+        if (config.isGlobalUnavailability() != null) planning.setGlobalUnavailability(config.isGlobalUnavailability());
+        if (config.getWeightGlobalUnavailability() != null) planning.setWeightGlobalUnavailability(config.getWeightGlobalUnavailability());
+        if (config.isLecturersUnavailability() != null) planning.setLecturersUnavailability(config.isLecturersUnavailability());
+        if (config.getWeightLecturersUnavailability() != null) planning.setWeightLecturersUnavailability(config.getWeightLecturersUnavailability());
+        if (config.isSynchronise() != null) planning.setSynchronise(config.isSynchronise());
+        if (config.getUEInterlacing() != null) planning.setUEInterlacing(config.getUEInterlacing());
+        if (config.isMiddayBreak() != null) planning.setMiddayBreak(config.isMiddayBreak());
+        if (config.getStartMiddayBreak() != null) planning.setStartMiddayBreak(config.getStartMiddayBreak());
+        if (config.getEndMiddayBreak() != null) planning.setEndMiddayBreak(config.getEndMiddayBreak());
+        if (config.isMiddayGrouping() != null) planning.setMiddayGrouping(config.isMiddayGrouping());
+        if (config.getWeightMiddayGrouping() != null) planning.setWeightMiddayGrouping(config.getWeightMiddayGrouping());
+        if (config.isLessonBalancing() != null) planning.setLessonBalancing(config.isLessonBalancing());
+        if (config.getWeightLessonBalancing() != null) planning.setWeightLessonBalancing(config.getWeightLessonBalancing());
+        if (config.isLessonGrouping() != null) planning.setLessonGrouping(config.isLessonGrouping());
+        if (config.getWeightLessonGrouping() != null) planning.setWeightLessonGrouping(config.getWeightLessonGrouping());
+        if (config.getMaxSolveDuration() != null) planning.setMaxSolveDuration(config.getMaxSolveDuration());
+        
+        if (config.getConstraintsSynchronisation() != null && !config.getConstraintsSynchronisation().isEmpty()) {
+            for (Config.CSyncrho cs : config.getConstraintsSynchronisation()) {
+                if (cs.getOtherPlanning() != null) {
+                    for (ConstraintSynchroniseWithTAF c :planning.getConstraintsSynchronisation()) {
+                        if (cs.getOtherPlanning() == c.getPlanning().getId()) {
+                        	constraintSynchroniseWithTAFService.updateConfig(c, cs);
+                        }
+                    }
+                }
+            }
+        }
+
+        if (config.getConstraintsOfUEs() != null && !config.getConstraintsOfUEs().isEmpty() ) {
+            for (Config.CUE cue : config.getConstraintsOfUEs()) {
+                if (cue.getUe() != null) {
+                    for (ConstraintsOfUE c : planning.getConstraintsOfUEs()) {
+                        if (cue.getUe() == c.getUe().getId()) {
+                            constraintsOfUEService.updateConfig(c, cue);
+                        }
+                    }
+                }
+            }
+        }
+        save(planning);
     }
     
     public Planning createPlanningForGeneration(Planning planning) {

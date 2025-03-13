@@ -1,13 +1,15 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { Box, List, ListItem, Typography } from "@mui/material";
-import { Link } from "react-router-dom";
+import { Box, List, ListItemButton, Typography } from "@mui/material";
+import { Link, useParams } from "react-router-dom";
 import locale from "@/config/locale.json";
 
 // Styles
 import styles from "./LessonList.styles";
 
 const LessonList = ({ lessons, tafID }) => {
+  const params = useParams();
+
   return (
     <Box sx={styles.container}>
       <Typography variant="h6" sx={styles.title}>
@@ -20,13 +22,15 @@ const LessonList = ({ lessons, tafID }) => {
             key={id}
             style={{ textDecoration: "none", color: "inherit" }}
           >
-            <ListItem sx={styles.listItem}>
+            <ListItemButton sx={styles.listItem} selected={params?.idUE == id}>
               <Typography variant="body1">{name}</Typography>
-              <Typography variant="body2" color="textSecondary">
-                {locale.layout.sideBar.UEManager}:{" "}
-                {managers.map((m) => m.name).join(", ")}
-              </Typography>
-            </ListItem>
+              {managers.length > 0 && (
+                <Typography variant="body2" color="textSecondary">
+                  {locale.layout.sideBar.UEManager}:{" "}
+                  {managers.map((m) => m.name).join(", ")}
+                </Typography>
+              )}
+            </ListItemButton>
           </Link>
         ))}
       </List>

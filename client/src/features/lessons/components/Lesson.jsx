@@ -149,6 +149,7 @@ const Lesson = ({ lesson, onEdit, onDelete, onDuplicate }) => {
           direction="row"
           justifyContent="space-between"
           alignItems="center"
+          spacing={2}
         >
           <LessonTitle title={lesson.title} />
           {lesson.synchronise.length > 0 && lesson.synchronise[0] && (

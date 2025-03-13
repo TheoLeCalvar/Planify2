@@ -365,7 +365,7 @@ const BlockManager = ({
     <Container maxWidth="lg">
       <Paper elevation={3} sx={styles.paper}>
         <Typography variant="h5" align="center" gutterBottom>
-          Gestion des Blocs et Cours
+          Gestion des blocs et cours
         </Typography>
         <DependencyCycleError
           dependencyCycle={dependencyCycle}

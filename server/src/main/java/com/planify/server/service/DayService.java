@@ -39,12 +39,6 @@ public class DayService {
     public Day addDay(int number, Week week) {
         Day day = new Day(number, week);
 
-        // Update days list for week
-        // List<Day> days = week.getDays();
-        // days.addLast(day);
-        // week.setDays(days);
-        // weekService.save(week);
-
         dayRepository.save(day);
         return day;
     }
@@ -108,12 +102,6 @@ public class DayService {
         if (dayRepository.existsById(id)) {
 
             Day day = dayRepository.findById(id).get();
-
-            // Update days list for week
-            List<Day> days = day.getWeek().getDays();
-            days.remove(day);
-            day.getWeek().setDays(days);
-            dayRepository.save(day);
 
             // Delete the slots associated to this day
             List<Slot> slots = day.getSlots();

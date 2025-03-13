@@ -16,7 +16,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 
 @Entity
 public class Slot implements Comparable<Slot> {
@@ -41,8 +43,9 @@ public class Slot implements Comparable<Slot> {
     @JoinColumn(name = "idCalendar")
     private Calendar calendar;
 
-    @OneToMany(mappedBy = "slot", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "slot", fetch = FetchType.LAZY)
     private List<UserUnavailability> userUnavailabilities = new ArrayList<>();
+    
 
     public Slot() {
     }
@@ -116,8 +119,8 @@ public class Slot implements Comparable<Slot> {
     public void setUserUnavailabilities(List<UserUnavailability> list) {
         this.userUnavailabilities = list;
     }
-    
-    public long getDurationMinutes() {
+
+	public long getDurationMinutes() {
     	return ChronoUnit.MINUTES.between(this.getStart(), this.getEnd());
     }
     

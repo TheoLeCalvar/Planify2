@@ -1,20 +1,20 @@
 // React imports
 import React from "react";
-import { Outlet } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 import { ThemeProvider } from "@mui/material/styles";
 import muiTheme from "@/assets/muiTheme";
-import useAxiosInterceptor from "@/hooks/useAxiosInterceptor";
 import { AuthProvider } from "@/hooks/AuthContext";
+import { ProfileProvider } from "@/hooks/ProfileContext";
+import Router from "./Router";
 
 export default function Root() {
-  useAxiosInterceptor();
-
   return (
     <ThemeProvider theme={muiTheme}>
       <AuthProvider>
-        <Outlet />
+        <ProfileProvider>
+          <Router />
+        </ProfileProvider>
       </AuthProvider>
       <ToastContainer
         position="bottom-right"

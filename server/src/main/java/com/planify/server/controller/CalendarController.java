@@ -282,15 +282,15 @@ public class CalendarController {
     })
     @PatchMapping("/config/{configId}")
     public ResponseEntity<?> updateConfig(@PathVariable Long configId, @RequestBody Config config) {
-        Optional<Planning> optionalPlanning = planningService.findById(configId);
+        System.out.println("Update CONFIG !!!!!!!!!!!!!!!");
+    	Optional<Planning> optionalPlanning = planningService.findById(configId);
         if (optionalPlanning.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ErrorResponse("No planning with this id was found", 404));
         }
         Planning planning = optionalPlanning.get();
 
-        planning.updateConfig(config);
-        planningService.save(planning);
+        planningService.updateConfig(planning, config);
 
         return ResponseEntity.ok(new Config(planning));
 

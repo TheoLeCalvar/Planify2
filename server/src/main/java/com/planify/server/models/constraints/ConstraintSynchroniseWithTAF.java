@@ -2,13 +2,17 @@ package com.planify.server.models.constraints;
 
 import java.io.Serializable;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.planify.server.controller.returnsClass.Config;
 import com.planify.server.models.Planning;
+import com.planify.server.service.ConstraintSynchroniseWithTAFService;
+
 import jakarta.persistence.*;
 
 @Entity
 public class ConstraintSynchroniseWithTAF {
-
+	
     @EmbeddedId
     private ConstraintsSynchroniseWithTAFId id;
 
@@ -107,9 +111,5 @@ public class ConstraintSynchroniseWithTAF {
                 "id=" + id +
                 ", enabled=" + enabled +
                 '}';
-    }
-
-    public void updateConfig(Config.CSyncrho cs) {
-        if (cs.isEnabled() != null) this.enabled = cs.isEnabled();
     }
 }

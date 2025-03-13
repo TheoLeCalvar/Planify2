@@ -1,5 +1,5 @@
 // React imports
-import React from "react";
+import React, { useContext } from "react";
 import { Box, CssBaseline, Drawer } from "@mui/material";
 import { Outlet, useOutletContext } from "react-router-dom";
 
@@ -13,13 +13,16 @@ import SidebarActions from "./SideBarActions";
 
 // Styles
 import styles from "./SideBarComponent.styles";
+import { ProfileContext } from "@/hooks/ProfileContext";
+import LessonListLecturer from "./SideBarLecturer";
 
 const SideBar = () => {
   const isOpen = useStore((state) => state.sideBarOpen);
 
+  const { profile } = useContext(ProfileContext);
+
   // Get the taf object from the outlet context
-  const { taf } = useOutletContext();
-  const { UE: lessons, id: tafID, resultPlanning } = taf;
+  const { taf, lessons } = useOutletContext();
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -31,9 +34,18 @@ const SideBar = () => {
         sx={styles.drawer}
       >
         <Box sx={styles.sidebarContainer} role="presentation">
-          <SidebarNavigation />
-          <LessonList lessons={lessons} tafID={tafID} />
-          <SidebarActions tafID={tafID} resultPlanning={resultPlanning} />
+          {profile === "lecturer" ? (
+            <LessonListLecturer lessons={lessons} />
+          ) : (
+            <>
+              <SidebarNavigation />
+              <LessonList lessons={taf.UE} tafID={taf.id} />
+              <SidebarActions
+                tafID={taf.id}
+                resultPlanning={taf.resultPlanning}
+              />
+            </>
+          )}
         </Box>
       </Drawer>
 

@@ -81,6 +81,12 @@ public class LessonController {
 
     @Autowired
     private PlanningService planningService;
+    
+    @Autowired
+    private ConstraintsOfUEService constraintsOfUEService;
+    
+    @Autowired
+    private ConstraintSynchroniseWithTAFService constraintSynchroniseWithTAFService;
 
     @Autowired
     private TAFManagerService tafManagerService;
@@ -133,6 +139,7 @@ public class LessonController {
         relatedTafs.addAll(tafManagers.stream().map(manager -> manager.getTaf()).collect(Collectors.toList()));
         relatedTafs.addAll(ueManagers.stream().map(manager -> manager.getUe().getTaf()).collect(Collectors.toList()));
         relatedTafs.addAll(lessonLecturers.stream().map(lecturer -> lecturer.getLesson().getUe().getTaf()).collect(Collectors.toList()));
+        relatedTafs = relatedTafs.stream().distinct().collect(Collectors.toList());
         List<TAFShort> answer = new ArrayList<TAFShort>();
         for (TAF taf : relatedTafs) {
             answer.add(new TAFShort(taf.getId(), taf.getName(), taf.getDescription()));
@@ -866,7 +873,8 @@ public class LessonController {
     @Operation(summary = "Add a new configuration for the TAF")
     @PostMapping(value = "/taf/{tafId}/configs", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> addPlanning(@PathVariable Long tafId, @RequestBody Config config) {
-        if (!tafService.existsById(tafId)) {
+    	System.out.println("CREATE CONFIG !!!!!!!!!!!!!!!");
+    	if (!tafService.existsById(tafId)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("TAF not found");
         }
@@ -886,37 +894,37 @@ public class LessonController {
             throw new RuntimeException(e);
         }
 
-        Planning planning = new Planning(
-                calendar,
-                config.getName(),
-                config.isGlobalUnavailability(),
-                config.getWeightGlobalUnavailability(),
-                config.isLecturersUnavailability(),
-                config.getWeightLecturersUnavailability(),
-                config.isSynchronise(),
-                config.getUEInterlacing(),
-                config.isMiddayBreak(),
-                config.getStartMiddayBreak(),
-                config.getEndMiddayBreak(),
-                config.isMiddayGrouping(),
-                config.getWeightMiddayGrouping(),
-                config.isLessonBalancing(),
-                config.getWeightLessonBalancing(),
-                config.getWeightLessonGrouping(),
-                config.isLessonGrouping(),
-                config.getMaxSolveDuration()
-        );
+        Planning planning = planningService.addPlanning(
+				                calendar,
+				                config.getName(),
+				                config.isGlobalUnavailability(),
+				                config.getWeightGlobalUnavailability(),
+				                config.isLecturersUnavailability(),
+				                config.getWeightLecturersUnavailability(),
+				                config.isSynchronise(),
+				                config.getWeightMaxTimeWithoutLesson(),
+				                config.getUEInterlacing(),
+				                config.isMiddayBreak(),
+				                config.getStartMiddayBreak(),
+				                config.getEndMiddayBreak(),
+				                config.isMiddayGrouping(),
+				                config.getWeightMiddayGrouping(),
+				                config.isLessonBalancing(),
+				                config.getWeightLessonBalancing(),
+				                config.getWeightLessonGrouping(),
+				                config.isLessonGrouping(),
+				                config.getMaxSolveDuration()
+				        );
 
         //Addition of the synchronisation's constraints
         List<ConstraintSynchroniseWithTAF> cSynchronisations = new ArrayList<>();
         if (config.getConstraintsSynchronisation()!=null && !config.getConstraintsSynchronisation().isEmpty()) {
             for (Config.CSyncrho cs : config.getConstraintsSynchronisation()) {
-                ConstraintSynchroniseWithTAF c = new ConstraintSynchroniseWithTAF(
+            	cSynchronisations.add(constraintSynchroniseWithTAFService.add(
                         planning,
                         planningService.findById(cs.getOtherPlanning()).orElseThrow(() -> new IllegalArgumentException("The Other Planning doesn't exist")),
                         cs.isEnabled()
-                );
-                cSynchronisations.add(c);
+                ));
             }
         }
         planning.setConstrainedSynchronisations(cSynchronisations);
@@ -926,7 +934,7 @@ public class LessonController {
         int[] lessonGroupingNbLessons = {2,3};
         if (taf.getUes()!=null) {
             for (UE ue : taf.getUes()) {
-                ConstraintsOfUE c = new ConstraintsOfUE(
+            	cUEs.add(constraintsOfUEService.add(
                         ue,
                         planning,
                         true,
@@ -939,15 +947,12 @@ public class LessonController {
                         12,
                         1,
                         lessonGroupingNbLessons
-                );
-                cUEs.add(c);
+                ));
             }
         }
         planning.setConstraintsOfUEs(cUEs);
         planningService.save(planning);
         return ResponseEntity.ok("New config added !");
-
-
     }
 
     // TAFs related to lecturer
@@ -1020,21 +1025,26 @@ public class LessonController {
         List<UELecturerShort> answer = new ArrayList<UELecturerShort>();
 
         for (UE ue : ues) {
-            List<UEManager> ueManagers = ue.getUeManagers();
+            List<UEManager> ueManagers = ue.getUEManagers();
             List<UserBrief> managers = new ArrayList<>();
             for (UEManager ueManager : ueManagers) {
                 managers.add(new UserBrief(ueManager.getUser().getId(), ueManager.getUser().getFullName()));
             }
             List<Lesson> lessons = ue.getLessons();
-            List<LessonShort> lessonShorts = new ArrayList<>();
+            lessons = lessons.stream()
+                    .filter(lesson -> lesson.getLessonLecturers().stream()
+                            .anyMatch(lecturer -> lecturer.getId().getIdUser() == user.getId()))
+                    .collect(Collectors.toList());
+            List<LessonShortLecturer> lessonShorts = new ArrayList<>();
             for (Lesson lesson : lessons) {
-                List<Long> lecturers = lesson.getLessonLecturers().stream()
-                        .map(lecturer -> lecturer.getId().getIdUser())
+                List<UserBrief> lecturers = lesson.getLessonLecturers().stream()
+                        .filter(lecturer -> lecturer.getUser().getId() != user.getId())
+                        .map(lecturer -> new UserBrief(lecturer.getUser().getId(), lecturer.getUser().getFullName()))
                         .collect(Collectors.toList());
                 List<LessonSynchronised> synchronise = lesson.getSynchronizations().stream()
                         .map(s -> new LessonSynchronised(s.getLesson1().getId(), ue.getTaf().getName(), ue.getName(), s.getLesson1().getName()))
                         .collect(Collectors.toList());
-                LessonShort lessonShort = new LessonShort(lesson.getId(), lesson.getName(), lesson.getDescription(), lecturers, synchronise);
+                LessonShortLecturer lessonShort = new LessonShortLecturer(lesson.getId(), lesson.getName(), lesson.getDescription(), lecturers, synchronise);
                 lessonShorts.add(lessonShort);
             }
             UELecturerShort ueLecturerShort = new UELecturerShort(ue.getId(), ue.getName(), ue.getDescription(), managers, lessonShorts);

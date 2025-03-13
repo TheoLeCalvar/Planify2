@@ -10,15 +10,13 @@ import GenericWeekCalendar from "@/features/calendar/components/GenericWeekCalen
 import CalendarContextProvider from "@/hooks/CalendarContext";
 import ImportButton from "@/features/calendar/components/ImportButton";
 import ExportButton from "@/features/calendar/components/ExportButton";
-import generateClassSlots from "@/features/calendar/utils/classSlot";
 import ResetButton from "@/features/calendar/components/ResetButton";
 import ImportExclusionButton from "@/features/calendar/components/ImportExclusionButton";
-import { useOutletContext, useLoaderData, redirect } from "react-router-dom";
+import { useLoaderData, redirect } from "react-router-dom";
 import SaveButton from "@/features/calendar/components/SaveButton";
 import axiosInstance from "@/config/axiosConfig";
 import { JSONToCalendarEvent } from "@/features/calendar/utils/calendarEvent";
 import { toast } from "react-toastify";
-import adaptCalendar from "@/features/calendar/utils/adaptCalendar";
 
 export async function loader({ params }) {
   const response = await axiosInstance.get(`/taf/${params.idTAF}/availability`);
@@ -31,22 +29,19 @@ export async function action({ request, params }) {
   return await axiosInstance
     .put(`/taf/${params.idTAF}/availability`, data)
     .then(() => {
-      toast.success("Disponibilité des créneaux de cours mise à jour");
+      toast.success("Disponibilités mises à jour");
       return redirect("..");
     })
     .catch(() => {
-      toast.error(
-        "Erreur lors de la mise à jour de la disponibilité des créneaux de cours",
-      );
+      toast.error("Erreur lors de la mise à jour des disponibilités");
       return null;
     });
 }
 
-export default function LessonsAvailability() {
+export default function LecturerAvailability() {
   const [tabIndex, setTabIndex] = useState(1);
 
   const data = useLoaderData();
-  const context = useOutletContext();
 
   const handleChange = (event, newValue) => {
     setTabIndex(newValue);
@@ -54,39 +49,47 @@ export default function LessonsAvailability() {
 
   const initialEvents =
     typeof data === "string"
-      ? generateClassSlots(context.taf.startDate, context.taf.endDate)
-      : adaptCalendar(
-          data.map(JSONToCalendarEvent),
-          context.taf.startDate,
-          context.taf.endDate,
-        );
+      ? null
+      : data
+          .filter((event) => event.status != "UNAVAILABLE")
+          .map(JSONToCalendarEvent);
 
   return (
     <div>
-      <Stack direction="row" spacing={2} alignItems="center">
-        <Typography variant="h4" gutterBottom>
-          Disponibilité des créneaux de cours
+      {initialEvents.length > 0 ? (
+        <>
+          <Stack direction="row" spacing={2} alignItems="center">
+            <Typography variant="h4" gutterBottom>
+              Disponibilité des créneaux de cours
+            </Typography>
+            <Tabs value={tabIndex} onChange={handleChange} centered>
+              <Tab label="Semaine type" />
+              <Tab label="Agenda" />
+            </Tabs>
+          </Stack>
+          <CalendarContextProvider initialEvents={initialEvents}>
+            <div hidden={tabIndex !== 0}>
+              <GenericWeekCalendar />
+            </div>
+            <div hidden={tabIndex !== 1}>
+              <Calendar />
+            </div>
+            <Stack spacing={2} direction={"row"}>
+              <ResetButton />
+              <ImportButton />
+              <ExportButton />
+              <ImportExclusionButton />
+              <SaveButton />
+            </Stack>
+          </CalendarContextProvider>
+        </>
+      ) : (
+        <Typography variant="h6" gutterBottom>
+          {
+            "Le calendrier de la TAF n'est pas disponible. Demandez au responsable de TAF de le configurer."
+          }
         </Typography>
-        <Tabs value={tabIndex} onChange={handleChange} centered>
-          <Tab label="Semaine type" />
-          <Tab label="Agenda" />
-        </Tabs>
-      </Stack>
-      <CalendarContextProvider initialEvents={initialEvents}>
-        <div hidden={tabIndex !== 0}>
-          <GenericWeekCalendar />
-        </div>
-        <div hidden={tabIndex !== 1}>
-          <Calendar />
-        </div>
-        <Stack spacing={2} direction={"row"}>
-          <ResetButton />
-          <ImportButton />
-          <ExportButton />
-          <ImportExclusionButton />
-          <SaveButton />
-        </Stack>
-      </CalendarContextProvider>
+      )}
     </div>
   );
 }

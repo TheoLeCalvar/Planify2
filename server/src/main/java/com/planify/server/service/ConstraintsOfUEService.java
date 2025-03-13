@@ -1,5 +1,7 @@
 package com.planify.server.service;
 
+import com.planify.server.controller.returnsClass.Config;
+import com.planify.server.models.Lesson;
 import com.planify.server.models.Planning;
 import com.planify.server.models.UE;
 import com.planify.server.models.constraints.ConstraintsOfUE;
@@ -17,6 +19,9 @@ public class ConstraintsOfUEService {
     @Autowired
     private ConstraintsOfUERepository constraintsOfUERepository;
     
+    public void save(ConstraintsOfUE constraintsOfUE) {
+    	constraintsOfUERepository.save(constraintsOfUE);
+    }
 
     List<ConstraintsOfUE> findAll() {
         return constraintsOfUERepository.findAll();
@@ -26,7 +31,7 @@ public class ConstraintsOfUEService {
         return constraintsOfUERepository.findById(id);
     }
 
-    ConstraintsOfUE add(UE ue, Planning planning, boolean lessonCount, int maxLesson, int minLesson, boolean maxTimeWithoutLesson, boolean maxTimeWLUnitInWeeks, int maxTimeWLDuration, boolean spreading, int maxSpreading, int minSpreading, int[] lessonGroupingNbLessons) {
+    public ConstraintsOfUE add(UE ue, Planning planning, boolean lessonCount, int maxLesson, int minLesson, boolean maxTimeWithoutLesson, boolean maxTimeWLUnitInWeeks, int maxTimeWLDuration, boolean spreading, int maxSpreading, int minSpreading, int[] lessonGroupingNbLessons) {
         return  constraintsOfUERepository.save(new ConstraintsOfUE(ue, planning, lessonCount, maxLesson, minLesson, maxTimeWithoutLesson, maxTimeWLUnitInWeeks, maxTimeWLDuration, spreading,maxSpreading, minSpreading, lessonGroupingNbLessons));
     }
 
@@ -52,5 +57,21 @@ public class ConstraintsOfUEService {
             constraintsOfUERepository.save(coue);
         }
     	return newCUes;
+    }
+    
+
+    public ConstraintsOfUE updateConfig(ConstraintsOfUE consUe, Config.CUE cue) {
+        if (cue.isLessonCountInWeek() != null) consUe.setLessonCountInWeek(cue.isLessonCountInWeek());
+        if (cue.getMaxLessonInWeek() != null) consUe.setMaxLessonInWeek(cue.getMaxLessonInWeek());
+        if (cue.getMinLessonInWeek() != null) consUe.setMinLessonInWeek(cue.getMinLessonInWeek());
+        if (cue.isMaxTimeWithoutLesson() != null) consUe.setMaxTimeWithoutLesson(cue.isMaxTimeWithoutLesson());
+        if (cue.isMaxTimeWLUnitInWeeks() != null) consUe.setMaxTimeWLUnitInWeeks(cue.isMaxTimeWLUnitInWeeks());
+        if (cue.getMaxTimeWLDuration() != null) consUe.setMaxTimeWLDuration(cue.getMaxTimeWLDuration());
+        if (cue.isSpreading() != null) consUe.setSpreading(cue.isSpreading());
+        if (cue.getMaxSpreading() != null) consUe.setMaxSpreading(cue.getMaxSpreading());
+        if (cue.getMinSpreading() != null) consUe.setMinSpreading(cue.getMinSpreading());
+        if (cue.getLessonGroupingNbLessons() != null) consUe.setLessonGroupingNbLessons(cue.getLessonGroupingNbLessons());
+        save(consUe);
+        return consUe;
     }
 }

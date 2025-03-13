@@ -9,6 +9,7 @@ import java.util.List;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.planify.server.models.*;
 import com.planify.server.models.Antecedence.AntecedenceId;
@@ -47,6 +48,7 @@ public class ServerApplication {
 	private static WeekService weekService;
 	private static PlanningService planningService;
 	private static ConstraintSynchroniseWithTAFService constraintSynchroniseWithTAFService;
+	private static PasswordEncoder passwordEncoder;
 	
 	private static final String RESET = "\u001B[0m";
 	private static final String RED = "\u001B[31m";
@@ -79,6 +81,9 @@ public class ServerApplication {
 		weekService = context.getBean(WeekService.class);
 		planningService = context.getBean(PlanningService.class);
 		constraintSynchroniseWithTAFService = context.getBean(ConstraintSynchroniseWithTAFService.class);
+		passwordEncoder = context.getBean(PasswordEncoder.class);
+
+		// testLecturerLessonsAndRoles();
 		
 		/*
 		TAF taf = tafService.addTAF("LOGIN", "Polyglotte", "début", "fin");
@@ -1123,5 +1128,42 @@ public class ServerApplication {
 		for (Lesson lesson : lessons)
 			lessonLecturerService.addLessonLecturer(user, lesson);
 	}
+
+	private static void testLecturerLessonsAndRoles() {
+    // Create the first user with encoded password
+    User firstUser = userService.addUser("John", "Doe", "john.doe@example.com", passwordEncoder.encode("password123"));
+
+    // Create a TAF
+    TAF taf = tafService.addTAF("TAF Example", "Description of TAF", "2025-01-01", "2025-12-31");
+
+    // Create two UEs
+    UE ue1 = ueService.addUE("UE1", "Description of UE1", taf);
+    UE ue2 = ueService.addUE("UE2", "Description of UE2", taf);
+
+    // Create two lessons for each UE
+    Lesson lesson1UE1 = lessonService.add("Lesson1 UE1", "Description of Lesson1 UE1", ue1);
+    Lesson lesson2UE1 = lessonService.add("Lesson2 UE1", "Description of Lesson2 UE1", ue1);
+    Lesson lesson1UE2 = lessonService.add("Lesson1 UE2", "Description of Lesson1 UE2", ue2);
+    Lesson lesson2UE2 = lessonService.add("Lesson2 UE2", "Description of Lesson2 UE2", ue2);
+
+    // Create two other users with encoded passwords
+    User secondUser = userService.addUser("Jane", "Smith", "jane.smith@example.com", passwordEncoder.encode("password456"));
+    User thirdUser = userService.addUser("Alice", "Johnson", "alice.johnson@example.com", passwordEncoder.encode("password789"));
+
+    // Associate users to lessons
+    lessonLecturerService.addLessonLecturer(firstUser, lesson1UE1);
+    lessonLecturerService.addLessonLecturer(secondUser, lesson2UE1);
+    lessonLecturerService.addLessonLecturer(thirdUser, lesson1UE2);
+    lessonLecturerService.addLessonLecturer(firstUser, lesson2UE2);
+		lessonLecturerService.addLessonLecturer(secondUser, lesson1UE1);
+
+    // Make the first user UE and TAF manager
+    ueManagerService.addUEManager(firstUser, ue1);
+    ueManagerService.addUEManager(firstUser, ue2);
+    tafManagerService.addTAFManager(firstUser, taf);
+
+		System.out.println(userService.findAll());
+
+}
 	
 }

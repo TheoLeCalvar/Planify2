@@ -12,10 +12,9 @@ RUN npm install
 
 # Passer les variables d'environnement au moment de la construction
 ARG VITE_API_URL
-ARG VITE_USE_MOCK
 
 # Construire l'application avec les variables d'environnement
-RUN VITE_API_URL=$VITE_API_URL VITE_USE_MOCK=$VITE_USE_MOCK npm run build
+RUN VITE_API_URL=$VITE_API_URL npm run build
 
 # Étape de production
 FROM nginx:alpine

@@ -3,7 +3,6 @@ import React from "react";
 import { createBrowserRouter } from "react-router-dom";
 
 // Routes components
-import Root from "./routes/Root";
 import LoginPage from "./routes/Login";
 import AppBar from "./routes/layout/AppBar";
 import SideBar from "./routes/layout/SideBar";
@@ -11,8 +10,8 @@ import ErrorPage from "./routes/ErrorPage";
 import LessonsAvailability from "./routes/taf/LessonsAvailability";
 import TAF from "./routes/Taf";
 import TAFSettings from "./routes/taf/Settings";
-import TAFResults from "./routes/taf/Results";
-import TAFPlanning from "./routes/taf/Planning";
+import TAFResults from "./routes/taf/ResultsRouter";
+import TAFPlanning from "./routes/taf/Result";
 import UE from "./routes/Ue";
 import General from "./routes/ue/General";
 import Settings from "./routes/ue/Settings";
@@ -28,7 +27,7 @@ import { loader as AppBarLoader } from "./routes/layout/AppBar";
 import { loader as UELoader } from "./routes/Ue";
 import { loader as LessonsLoader } from "./routes/ue/Lessons";
 import { loader as LessonsAvailabilityLoader } from "./routes/taf/LessonsAvailability";
-import { loader as TAFResultsLoader } from "./routes/taf/Planning";
+import { loader as TAFResultsLoader } from "./routes/taf/Result";
 import { loader as SolverConfigSelectorLoader } from "./routes/taf/SolverConfigSelector";
 import { loader as SolverConfigLoader } from "./routes/taf/SolverConfig";
 import { loader as TAFGeneratePlanningLoader } from "./routes/GeneratePlanning";
@@ -40,6 +39,7 @@ import { action as createNewUserAction } from "@/components/CreateUser";
 import { action as editTAFConfigAction } from "./routes/taf/SolverConfig";
 import GeneratePlanning from "./routes/GeneratePlanning";
 import RegisterPage from "./routes/Register";
+import NavigateRoot from "./routes/NavigateRoot";
 
 // Define UE nested routes
 const ueRoutes = [
@@ -176,7 +176,7 @@ const tafRoute = [
 export const router = createBrowserRouter([
   {
     path: "/",
-    element: <Root />,
+    element: <NavigateRoot />,
     errorElement: <ErrorPage />,
     children: [
       {
@@ -200,3 +200,5 @@ export const router = createBrowserRouter([
     ],
   },
 ]);
+
+export default router;
