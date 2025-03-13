@@ -17,13 +17,42 @@ import { useNavigate } from "react-router-dom";
 const RegisterPage = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState("@imt-atlantique.fr");
   const [password, setPassword] = useState("");
+  const [errors, setErrors] = useState({});
 
   const navigate = useNavigate();
 
+  const validateEmail = (email) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(String(email).toLowerCase());
+  };
+
+  const validatePassword = (password) => {
+    // Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character
+    const re =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    return re.test(password);
+  };
+
   const handleSubmit = (event) => {
     event.preventDefault();
+
+    let validationErrors = {};
+
+    if (!validateEmail(email)) {
+      validationErrors.email = "Adresse email invalide";
+    }
+
+    if (!validatePassword(password)) {
+      validationErrors.password =
+        "Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial";
+    }
+
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
 
     axiosInstance
       .post("/auth/register", {
@@ -111,6 +140,8 @@ const RegisterPage = () => {
             autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            error={!!errors.email}
+            helperText={errors.email}
           />
 
           {/* Password Input */}
@@ -124,6 +155,8 @@ const RegisterPage = () => {
             autoComplete="new-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            error={!!errors.password}
+            helperText={errors.password}
           />
 
           {/* Submit Button */}
