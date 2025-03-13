@@ -768,6 +768,12 @@ public class LessonController {
             User user = userService.findById(managerId).orElseThrow(() -> new IllegalArgumentException("The User doesn't exist"));
             ueManagerService.addUEManager(user, ue);
         }
+        List<Planning> plannings = taf.getCalendars().getFirst().getConfigs();
+        if (plannings!=null && !plannings.isEmpty()) {
+            for (Planning p : plannings) {
+                planningService.addADefaultConstraintsOfUE(p, ue);
+            }
+        }
         return ResponseEntity.ok(ue.getId());
     }
 
