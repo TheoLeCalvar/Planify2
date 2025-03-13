@@ -239,7 +239,7 @@ public class CalendarController {
 
             case "csv":
                 CsvScheduleExporter exporter = new CsvScheduleExporter();
-                return ResponseEntity.ok(exporter.export(planning));
+                return ResponseEntity.ok(exporter.export(planning).getBytes());
 
             default:
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
