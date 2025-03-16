@@ -17,7 +17,7 @@ import {
   FormControl,
 } from "@mui/material";
 
-// Extracted style objects
+// Extracted style objects for consistent styling
 const styles = {
   formContainer: {
     display: "flex",
@@ -27,7 +27,17 @@ const styles = {
   },
 };
 
-// Subcomponent for the dependencies select field
+/**
+ * DependenciesSelect Component
+ * Renders a select field for choosing dependencies from a list of blocks.
+ *
+ * @param {Object} props - The component props.
+ * @param {Array} props.dependencies - The currently selected dependencies.
+ * @param {Function} props.onDependenciesChange - Callback for when dependencies are updated.
+ * @param {Array} props.allBlocks - The list of all available blocks.
+ * @param {Object} props.initialData - The initial data for the block being edited.
+ * @returns {JSX.Element} - The rendered DependenciesSelect component.
+ */
 const DependenciesSelect = ({
   dependencies,
   onDependenciesChange,
@@ -48,7 +58,7 @@ const DependenciesSelect = ({
       }
     >
       {allBlocks
-        .filter((block) => block.id !== initialData?.id)
+        .filter((block) => block.id !== initialData?.id) // Exclude the current block from the list
         .map((block) => (
           <MenuItem key={block.id} value={block.id}>
             {block.title}
@@ -77,7 +87,13 @@ DependenciesSelect.propTypes = {
   }),
 };
 
-// Subcomponent for form fields: title, description, and dependencies
+/**
+ * BlockFormFields Component
+ * Renders the form fields for editing or creating a block, including title, description, and dependencies.
+ *
+ * @param {Object} props - The component props.
+ * @returns {JSX.Element} - The rendered BlockFormFields component.
+ */
 const BlockFormFields = ({
   title,
   onTitleChange,
@@ -128,7 +144,13 @@ BlockFormFields.propTypes = {
   }),
 };
 
-// Subcomponent for the dialog action buttons
+/**
+ * DialogActionsButtons Component
+ * Renders the action buttons for the dialog (Cancel and Save).
+ *
+ * @param {Object} props - The component props.
+ * @returns {JSX.Element} - The rendered DialogActionsButtons component.
+ */
 const DialogActionsButtons = ({ onClose, handleSave }) => (
   <DialogActions>
     <Button onClick={onClose} color="secondary">
@@ -145,8 +167,15 @@ DialogActionsButtons.propTypes = {
   handleSave: PropTypes.func.isRequired,
 };
 
-// Main BlockDialog component
+/**
+ * BlockDialog Component
+ * The main dialog component for creating, editing, or duplicating a block.
+ *
+ * @param {Object} props - The component props.
+ * @returns {JSX.Element} - The rendered BlockDialog component.
+ */
 const BlockDialog = ({ open, onClose, onSubmit, initialData, allBlocks }) => {
+  // State variables for form fields
   const [title, setTitle] = useState(initialData?.title || "");
   const [description, setDescription] = useState(
     initialData?.description || "",
@@ -155,16 +184,19 @@ const BlockDialog = ({ open, onClose, onSubmit, initialData, allBlocks }) => {
     initialData?.dependencies || [],
   );
 
+  // Handlers for form field changes
   const handleTitleChange = (e) => setTitle(e.target.value);
   const handleDescriptionChange = (e) => setDescription(e.target.value);
   const handleDependenciesChange = (e) => setDependencies(e.target.value);
 
+  // Determine the dialog title based on the action
   const getDialogTitle = () => {
     if (initialData?.id) return "Modifier le bloc";
     if (initialData) return "Dupliquer le bloc";
     return "Ajouter un bloc";
   };
 
+  // Handle the save action
   const handleSave = () => {
     if (!title.trim()) {
       alert("Le titre est obligatoire.");

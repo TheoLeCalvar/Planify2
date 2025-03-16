@@ -1,3 +1,4 @@
+// React imports
 import React from "react";
 import {
   Button,
@@ -13,51 +14,81 @@ import {
   Stack,
   Switch,
   Typography,
-} from "@mui/material";
-import { useLoaderData, useNavigate, useRevalidator } from "react-router-dom";
-import axiosInstance from "@/config/axiosConfig";
-import ConfirmationDialog from "@/components/ConfirmationDialog";
-import { toast } from "react-toastify";
-import PropTypes from "prop-types";
+} from "@mui/material"; // Material-UI components for UI elements
+import { useLoaderData, useNavigate, useRevalidator } from "react-router-dom"; // React Router hooks for data loading, navigation, and revalidation
+import axiosInstance from "@/config/axiosConfig"; // Axios instance for API requests
+import ConfirmationDialog from "@/components/ConfirmationDialog"; // Custom confirmation dialog component
+import { toast } from "react-toastify"; // Notifications for success and error messages
+import PropTypes from "prop-types"; // PropTypes for type checking
 
+/**
+ * Loader function to fetch configurations for a specific TAF.
+ * Retrieves all configurations associated with the given TAF ID.
+ *
+ * @param {Object} params - Parameters passed to the loader, including `idTAF`.
+ * @returns {Promise<Array>} - A promise that resolves to an array of configurations.
+ */
 export async function loader({ params }) {
-  const response = await axiosInstance.get(`/taf/${params.idTAF}/configs`);
-  return response.data;
+  const response = await axiosInstance.get(`/taf/${params.idTAF}/configs`); // Fetch configurations from the API
+  return response.data; // Return the fetched data
 }
 
+/**
+ * GeneratePlanning component.
+ * This component handles the generation of a new planning based on selected configurations.
+ * It provides a dialog interface for selecting configurations and managing synchronization options.
+ *
+ * @returns {JSX.Element} - The rendered component.
+ */
 export default function GeneratePlanning() {
-  const navigate = useNavigate();
-  const options = useLoaderData();
-  const revalidator = useRevalidator();
+  const navigate = useNavigate(); // Hook for navigation
+  const options = useLoaderData(); // Load configurations from the loader
+  const revalidator = useRevalidator(); // Hook for revalidating data
 
-  const [selectedConfig, setSelectedConfig] = React.useState(null);
-  const [openError, setOpenError] = React.useState(false);
-  const [errorMessage, setErrorMessage] = React.useState("");
+  // State variables
+  const [selectedConfig, setSelectedConfig] = React.useState(null); // Selected configuration ID
+  const [openError, setOpenError] = React.useState(false); // Error dialog visibility
+  const [errorMessage, setErrorMessage] = React.useState(""); // Error message
   const [synchroniseSelectionData, setSynchroniseSelectionData] =
-    React.useState(null);
+    React.useState(null); // Data for synchronized TAFs
   const [synchroniseSelectOpen, setSynchroniseSelectOpen] =
-    React.useState(false);
-  const [synchroniseResult, setSynchroniseResult] = React.useState(null);
+    React.useState(false); // Synchronization selector visibility
+  const [synchroniseResult, setSynchroniseResult] = React.useState(null); // Synchronization results
 
+  /**
+   * Handles closing the main dialog.
+   */
   const handleClose = () => {
     navigate("..");
   };
 
+  /**
+   * Handles changes in the selected configuration.
+   *
+   * @param {Object} event - The event object from the select input.
+   */
   const handleChange = (event) => {
     setSelectedConfig(event.target.value);
   };
 
+  /**
+   * Handles closing the error dialog.
+   */
   const handleCloseError = () => {
     setOpenError(false);
-    //navigate("..");
   };
 
+  /**
+   * Handles selecting a configuration and checking its validity.
+   * If valid, it prepares synchronization data or starts the planning generation.
+   */
   const handleSelect = async () => {
     if (selectedConfig) {
       await axiosInstance
-        .get(`/solver/check/${selectedConfig}`)
+        .get(`/solver/check/${selectedConfig}`) // Check the selected configuration
         .then((response) => {
           if (response.status === 200) {
+            // Prepare synchronization data
             setSynchroniseSelectionData(response.data.synchronisedTafs);
             setSynchroniseResult(
               response.data.synchronisedTafs.map((taf) => ({
@@ -67,12 +98,14 @@ export default function GeneratePlanning() {
               })),
             );
           } else if (response.status === 201) {
+            // Planning generation started
             toast.success("Le planning est en cours de génération...");
             navigate(`..`);
           }
         })
         .catch((error) => {
           if (error.response?.status === 409) {
+            // Handle specific errors
             switch (error.response.data.error) {
               case "No slots":
                 setErrorMessage(
@@ -107,6 +140,9 @@ export default function GeneratePlanning() {
     }
   };
 
+  /**
+   * Handles generating the planning with the selected configuration and synchronization data.
+   */
   const handleGeneratePlanning = async () => {
     axiosInstance
       .post(`/solver/run/${selectedConfig}`, {
@@ -124,6 +160,11 @@ export default function GeneratePlanning() {
       });
   };
 
+  /**
+   * Handles toggling synchronization for a specific TAF.
+   *
+   * @param {number} tafId - The ID of the TAF to toggle.
+   */
   const handleSynchroniseCheckChange = (tafId) => {
     setSynchroniseResult(
       synchroniseResult.map((result) =>
@@ -134,6 +175,12 @@ export default function GeneratePlanning() {
     );
   };
 
+  /**
+   * Handles selecting a configuration for synchronization.
+   *
+   * @param {number} tafId - The ID of the TAF.
+   * @param {number} configId - The ID of the selected configuration.
+   */
   const handleSynchroniseConfigSelector = (tafId, configId) => {
     setSynchroniseResult(
       synchroniseResult.map((result) =>
@@ -147,7 +194,7 @@ export default function GeneratePlanning() {
 
   return (
     <>
-      {/* Popup de confirmation */}
+      {/* Main dialog for generating a planning */}
       <Dialog
         open={true}
         onClose={handleClose}
@@ -160,11 +207,10 @@ export default function GeneratePlanning() {
         <DialogContent>
           {synchroniseSelectionData ? (
             <>
+              {/* Synchronization options */}
               <DialogContentText id="confirmation-dialog-description" mb={2}>
                 Sélectionnez pour chaque TAF synchronisée la configuration avec
-                laquelle générer le planning. Si vous sélectionnez un planning
-                généré, la synchonisation se basera sur le planning déjà généré.
-                Sinon, les deux plannings seront générés conjointements.
+                laquelle générer le planning.
               </DialogContentText>
               <Typography variant="h6" mb={2}>
                 TAF synchronisées
@@ -204,7 +250,6 @@ export default function GeneratePlanning() {
                         }
                       </Typography>
                     )}
-
                     <Button
                       variant="contained"
                       color="primary"
@@ -225,6 +270,7 @@ export default function GeneratePlanning() {
             </>
           ) : (
             <>
+              {/* Configuration selection */}
               <DialogContentText id="confirmation-dialog-description" mb={2}>
                 Sélectionnez une configuration pour générer un nouveau planning.
               </DialogContentText>
@@ -284,6 +330,8 @@ export default function GeneratePlanning() {
           )}
         </DialogActions>
       </Dialog>
+
+      {/* Error dialog */}
       <ConfirmationDialog
         open={openError}
         onCancel={handleCloseError}
@@ -293,6 +341,8 @@ export default function GeneratePlanning() {
         dialogTitle="Erreur"
         dialogMessage={"Impossible de générer le planning. " + errorMessage}
       />
+
+      {/* Synchronization configuration selector */}
       {synchroniseSelectOpen && (
         <SynchroniseConfigSelector
           tafSynchroniseData={synchroniseSelectionData.find(
@@ -306,18 +356,33 @@ export default function GeneratePlanning() {
   );
 }
 
+/**
+ * SynchroniseConfigSelector component.
+ * This component allows the user to select a configuration for a synchronized TAF.
+ *
+ * @param {Object} props - The component props.
+ * @param {Object} props.tafSynchroniseData - Data for the synchronized TAF.
+ * @param {Function} props.onClose - Function to close the selector.
+ * @param {Function} props.handleValidate - Function to validate the selected configuration.
+ * @returns {JSX.Element} - The rendered component.
+ */
 const SynchroniseConfigSelector = ({
   tafSynchroniseData,
   onClose,
   handleValidate,
 }) => {
-  const [selectedConfig, setSelectedConfig] = React.useState("");
+  const [selectedConfig, setSelectedConfig] = React.useState(""); // Selected configuration ID
 
+  /**
+   * Handles changes in the selected configuration.
+   *
+   * @param {Object} event - The event object from the select input.
+   */
   const handleChange = (event) => {
     setSelectedConfig(event.target.value);
   };
 
-  const options = tafSynchroniseData.plannings;
+  const options = tafSynchroniseData.plannings; // Available configurations for the TAF
 
   return (
     <Dialog
@@ -367,7 +432,6 @@ const SynchroniseConfigSelector = ({
             <InputLabel id="select-label-generated">
               Plannings générés
             </InputLabel>
-
             <Select
               labelId="select-label-generated"
               value={selectedConfig}
@@ -412,7 +476,7 @@ const SynchroniseConfigSelector = ({
 };
 
 SynchroniseConfigSelector.propTypes = {
-  tafSynchroniseData: PropTypes.object,
-  onClose: PropTypes.func.isRequired,
-  handleValidate: PropTypes.func.isRequired,
+  tafSynchroniseData: PropTypes.object, // Data for the synchronized TAF
+  onClose: PropTypes.func.isRequired, // Function to close the selector
+  handleValidate: PropTypes.func.isRequired, // Function to validate the selected configuration
 };

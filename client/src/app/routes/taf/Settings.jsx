@@ -29,12 +29,22 @@ import UserSelector from "@/components/UserSelector";
 import ConfirmationButton from "@/components/ConfirmationButton";
 import { toast } from "react-toastify";
 
+// Extend DayJS with custom parsing format
 dayjs.extend(customParseFormat);
 
+/**
+ * Action function to handle form submission for creating or updating a TAF.
+ * Sends a POST or PUT request depending on whether an `idTAF` is provided.
+ *
+ * @param {Object} request - The HTTP request object.
+ * @param {Object} params - Parameters passed to the action, including `idTAF`.
+ * @returns {Object|null} - Redirects on success or returns null on failure.
+ */
 export async function action({ request, params }) {
   const data = await request.json();
 
   if (params.idTAF) {
+    // Update an existing TAF
     return await axiosInstance
       .put(`/taf/${params.idTAF}`, data)
       .then(() => {
@@ -46,10 +56,11 @@ export async function action({ request, params }) {
         return null;
       });
   } else {
+    // Create a new TAF
     return await axiosInstance
       .post(`/taf`, data)
       .then((response) => {
-        toast.success("TAF créé");
+        toast.success("TAF créée");
         return redirect("/taf/" + response.data);
       })
       .catch(() => {
@@ -59,10 +70,21 @@ export async function action({ request, params }) {
   }
 }
 
+/**
+ * DeleteTAFButton component.
+ * Renders a confirmation button to delete a TAF.
+ *
+ * @param {number} idTAF - The ID of the TAF to delete.
+ * @returns {JSX.Element} - The rendered button.
+ */
 const DeleteTAFButton = ({ idTAF }) => {
   const navigate = useNavigate();
   const revalidator = useRevalidator();
 
+  /**
+   * Handles the deletion of a TAF.
+   * Sends a DELETE request and navigates back on success.
+   */
   const handleDelete = () => {
     axiosInstance
       .delete(`/taf/${idTAF}`)
@@ -91,30 +113,42 @@ DeleteTAFButton.propTypes = {
   idTAF: PropTypes.number.isRequired,
 };
 
+// Define minimum and maximum dates for date pickers
 const minDate = dayjs().subtract(1, "year");
 const maxDate = dayjs().add(2, "year");
 
+/**
+ * TAFSettings component.
+ * Renders a form for creating or editing a TAF, including fields for name, description, dates, and managers.
+ *
+ * @returns {JSX.Element} - The rendered component.
+ */
 export default function TAFSettings() {
-  const context = useOutletContext();
+  const context = useOutletContext(); // Access context data from the parent route
   const navigate = useNavigate();
   const params = useParams();
 
-  const isEditing = !!params.idTAF;
-
-  const taf = context?.taf;
+  const isEditing = !!params.idTAF; // Determine if the form is in edit mode
+  const taf = context?.taf; // Retrieve TAF data from the context
 
   const [managers, setManagers] = React.useState(
-    taf?.managers.map((m) => m.id) || [],
+    taf?.managers.map((m) => m.id) || [], // Initialize managers state
   );
 
+  /**
+   * Validates form fields based on their name and value.
+   *
+   * @param {string} name - The name of the field.
+   * @param {any} value - The value of the field.
+   * @param {Object} otherValues - Other form values for cross-field validation.
+   * @returns {string} - An error message if validation fails, otherwise an empty string.
+   */
   const validateField = (name, value, otherValues) => {
     switch (name) {
       case "name":
         if (value.length < 3)
           return "Le nom doit contenir au moins 3 caractères.";
         break;
-      default:
-        return "";
       case "endDate": {
         const compareValue = dayjs.isDayjs(value) ? value : dayjs(value);
         if (!compareValue.isValid()) {
@@ -133,11 +167,17 @@ export default function TAFSettings() {
         if (!compareValue2.isValid()) {
           return "La date de début n'est pas valide.";
         }
+        break;
       }
+      default:
+        return "";
     }
-    return ""; // Pas d'erreur
+    return ""; // No error
   };
 
+  /**
+   * Handles the cancel action by navigating back to the parent route.
+   */
   const onCancel = () => {
     navigate("..");
   };
@@ -153,6 +193,7 @@ export default function TAFSettings() {
         actionButtons={isEditing ? <DeleteTAFButton idTAF={taf.id} /> : null}
       >
         <Stack direction="column" spacing={3}>
+          {/* Name input */}
           <ValidatedInput
             name="name"
             label="Nom"
@@ -161,6 +202,7 @@ export default function TAFSettings() {
             fullWidth
             required
           />
+          {/* Description input */}
           <ValidatedInput
             name="description"
             label="Description"
@@ -170,6 +212,7 @@ export default function TAFSettings() {
             margin="normal"
             fullWidth
           />
+          {/* Date pickers for start and end dates */}
           <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="fr">
             <Stack direction="row" spacing={2} mt={2}>
               <ValidatedInput
@@ -188,6 +231,7 @@ export default function TAFSettings() {
               </ValidatedInput>
             </Stack>
           </LocalizationProvider>
+          {/* Managers selector */}
           <ValidatedInput
             name={"managers"}
             label={"Responsables"}

@@ -44,7 +44,14 @@ const styles = {
   }),
 };
 
-// Subcomponent for the Lesson title
+/**
+ * LessonTitle Component
+ * Displays the title of the lesson.
+ *
+ * @param {Object} props - The component props.
+ * @param {string} props.title - The title of the lesson.
+ * @returns {JSX.Element} - The rendered LessonTitle component.
+ */
 const LessonTitle = ({ title }) => (
   <Typography variant="subtitle1" sx={styles.lessonTitle}>
     {title}
@@ -55,7 +62,15 @@ LessonTitle.propTypes = {
   title: PropTypes.string.isRequired,
 };
 
-// Subcomponent for rendering the lecturer list
+/**
+ * LecturerList Component
+ * Displays a list of lecturers associated with the lesson.
+ *
+ * @param {Object} props - The component props.
+ * @param {Array} props.lecturers - The list of lecturer IDs.
+ * @param {Function} props.getLecturerName - Function to retrieve lecturer names by ID.
+ * @returns {JSX.Element|null} - The rendered LecturerList component or null if no lecturers are provided.
+ */
 const LecturerList = ({ lecturers, getLecturerName }) => {
   if (!lecturers || lecturers.length === 0) return null;
 
@@ -78,7 +93,18 @@ LecturerList.propTypes = {
   getLecturerName: PropTypes.func.isRequired,
 };
 
-// Subcomponent for the action buttons (Edit, Delete, Duplicate)
+/**
+ * LessonActions Component
+ * Renders action buttons for the lesson (Edit, Delete, Duplicate).
+ *
+ * @param {Object} props - The component props.
+ * @param {boolean} props.isHovered - Whether the lesson is hovered.
+ * @param {Function} props.onEdit - Callback for editing the lesson.
+ * @param {Function} props.onDelete - Callback for deleting the lesson.
+ * @param {Function} props.onDuplicate - Callback for duplicating the lesson.
+ * @param {string} props.lessonTitle - The title of the lesson.
+ * @returns {JSX.Element} - The rendered LessonActions component.
+ */
 const LessonActions = ({
   isHovered,
   onEdit,
@@ -119,7 +145,14 @@ LessonActions.propTypes = {
   lessonTitle: PropTypes.string.isRequired,
 };
 
-// Subcomponent for the Lesson description
+/**
+ * LessonDescription Component
+ * Displays the description of the lesson.
+ *
+ * @param {Object} props - The component props.
+ * @param {string} props.description - The description of the lesson.
+ * @returns {JSX.Element} - The rendered LessonDescription component.
+ */
 const LessonDescription = ({ description }) => (
   <Typography variant="body2" color="text.secondary">
     {description || "Aucune description fournie"}
@@ -130,7 +163,17 @@ LessonDescription.propTypes = {
   description: PropTypes.string,
 };
 
-// Main Lesson component
+/**
+ * Lesson Component
+ * The main component that represents a lesson.
+ *
+ * @param {Object} props - The component props.
+ * @param {Object} props.lesson - The lesson data.
+ * @param {Function} props.onEdit - Callback for editing the lesson.
+ * @param {Function} props.onDelete - Callback for deleting the lesson.
+ * @param {Function} props.onDuplicate - Callback for duplicating the lesson.
+ * @returns {JSX.Element} - The rendered Lesson component.
+ */
 const Lesson = ({ lesson, onEdit, onDelete, onDuplicate }) => {
   const [isHovered, setIsHovered] = useState(false);
   const { lecturersList } = useContext(LessonsContext);
@@ -138,7 +181,7 @@ const Lesson = ({ lesson, onEdit, onDelete, onDuplicate }) => {
   const handleMouseEnter = () => setIsHovered(true);
   const handleMouseLeave = () => setIsHovered(false);
 
-  // Helper to retrieve lecturer name from the lecturersList based on lecturer id
+  // Helper to retrieve lecturer name from the lecturersList based on lecturer ID
   const getLecturerName = (lecturerId) =>
     lecturersList.find((item) => item.id === lecturerId)?.name;
 

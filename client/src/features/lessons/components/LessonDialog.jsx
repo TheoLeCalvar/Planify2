@@ -20,12 +20,12 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 
 // Local imports
-import { LessonsContext } from "@/hooks/LessonsContext";
-import UserSelector from "@/components/UserSelector";
-import LessonSelector from "@/components/LessonSelector";
-import { toast } from "react-toastify";
+import { LessonsContext } from "@/hooks/LessonsContext"; // Context for managing lessons
+import UserSelector from "@/components/UserSelector"; // Component for selecting users
+import LessonSelector from "@/components/LessonSelector"; // Component for selecting lessons
+import { toast } from "react-toastify"; // Library for displaying toast notifications
 
-// Extracted style objects
+// Extracted style objects for consistent styling
 const styles = {
   formContainer: {
     display: "flex",
@@ -36,7 +36,17 @@ const styles = {
   checkbox: { mr: 1 },
 };
 
-// Subcomponent for the Title and Description text fields
+/**
+ * LessonTextFields Component
+ * Renders the text fields for the lesson title and description.
+ *
+ * @param {Object} props - The component props.
+ * @param {string} props.title - The title of the lesson.
+ * @param {string} props.description - The description of the lesson.
+ * @param {Function} props.onTitleChange - Callback for when the title changes.
+ * @param {Function} props.onDescriptionChange - Callback for when the description changes.
+ * @returns {JSX.Element} - The rendered LessonTextFields component.
+ */
 const LessonTextFields = ({
   title,
   description,
@@ -69,7 +79,17 @@ LessonTextFields.propTypes = {
   onDescriptionChange: PropTypes.func.isRequired,
 };
 
-// Main LessonDialog component
+/**
+ * LessonDialog Component
+ * The main dialog component for creating, editing, or duplicating a lesson.
+ *
+ * @param {Object} props - The component props.
+ * @param {boolean} props.open - Whether the dialog is open.
+ * @param {Function} props.onClose - Callback for closing the dialog.
+ * @param {Function} props.onSubmit - Callback for submitting the lesson data.
+ * @param {Object} [props.initialData] - The initial data for the lesson (used for editing or duplicating).
+ * @returns {JSX.Element} - The rendered LessonDialog component.
+ */
 const LessonDialog = ({ open, onClose, onSubmit, initialData }) => {
   // Local state for form fields
   const [title, setTitle] = useState(initialData?.title || "");
@@ -89,14 +109,14 @@ const LessonDialog = ({ open, onClose, onSubmit, initialData }) => {
   const handleTitleChange = (e) => setTitle(e.target.value);
   const handleDescriptionChange = (e) => setDescription(e.target.value);
 
-  // Determine the dialog title based on initialData
+  // Determine the dialog title based on the action
   const getDialogTitle = () => {
     if (initialData?.id) return "Modifier le cours";
     if (initialData) return "Dupliquer le cours";
     return "Ajouter un cours";
   };
 
-  // Update the lecturersList to mark selected lecturers
+  // Update the lecturers list to mark selected lecturers
   const updateSelectedLecturers = () => {
     setLecturersList((prev) =>
       prev.map((lecturer) =>
@@ -107,6 +127,7 @@ const LessonDialog = ({ open, onClose, onSubmit, initialData }) => {
     );
   };
 
+  // Handle saving the lesson
   const handleSave = () => {
     if (!title.trim()) {
       alert("Le titre est obligatoire.");
@@ -124,12 +145,14 @@ const LessonDialog = ({ open, onClose, onSubmit, initialData }) => {
     onClose();
   };
 
+  // Handle validating the synchronisation with another lesson
   const handleValidateSynchronise = (lesson) => {
     setSynchronisedLesson([lesson]);
     setSynchroniseDialogOpen(false);
     toast.info("Synchronisation du cours activée", { autoClose: 1000 });
   };
 
+  // Handle cancelling the synchronisation
   const handleCancelSynchronise = () => {
     setSynchronisedLesson([]);
     toast.info("Synchronisation du cours supprimée", { autoClose: 1000 });

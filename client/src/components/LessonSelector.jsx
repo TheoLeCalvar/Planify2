@@ -1,5 +1,9 @@
 /* eslint-disable react/prop-types */
+
+// React imports
 import React, { useState, useEffect, Fragment } from "react";
+
+// Material-UI imports
 import {
   TextField,
   List,
@@ -11,32 +15,60 @@ import {
   Breadcrumbs,
   Divider,
 } from "@mui/material";
+
+// Material-UI icons
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
+
+// Animation imports
 import { motion, AnimatePresence } from "framer-motion";
+
+// Axios instance for API requests
 import axiosInstance from "@/config/axiosConfig";
+
+// React Router hook
 import { useOutletContext } from "react-router-dom";
 
+/**
+ * LessonSelector component.
+ * This component provides a hierarchical selection interface for TAFs, UEs, blocks, and lessons.
+ * It allows users to navigate through a breadcrumb-based structure and select a lesson.
+ *
+ * @param {Object} props - The component props.
+ * @param {Function} props.onValidate - Callback function executed when a lesson is selected.
+ *
+ * @returns {JSX.Element} - The rendered LessonSelector component.
+ */
 const LessonSelector = ({ onValidate }) => {
-  const [currentItems, setCurrentItems] = useState([]);
-  const [breadcrumb, setBreadcrumb] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [loading, setLoading] = useState(false);
+  // State variables
+  const [currentItems, setCurrentItems] = useState([]); // Current list of items to display
+  const [breadcrumb, setBreadcrumb] = useState([]); // Breadcrumb navigation state
+  const [searchTerm, setSearchTerm] = useState(""); // Search term for filtering items
+  const [loading, setLoading] = useState(false); // Loading state for API requests
 
-  const context = useOutletContext();
-  const tafId = context.taf.id;
+  const context = useOutletContext(); // Access context data from the parent route
+  const tafId = context.taf.id; // Current TAF ID from the context
 
+  /**
+   * Fetches items based on the current breadcrumb level.
+   *
+   * @param {Array} parents - The breadcrumb trail representing the current hierarchy.
+   * @returns {Promise<Array>} - A promise that resolves to the fetched items.
+   */
   const fetchItems = async (parents) => {
     if (parents.length === 0) {
+      // Fetch all TAFs except the current one
       return axiosInstance
         .get("/alltaf")
-        .then((response) => response.data.filter((taf) => taf.id != tafId));
-    } else if (parents.length == 1) {
+        .then((response) => response.data.filter((taf) => taf.id !== tafId));
+    } else if (parents.length === 1) {
+      // Fetch UEs for the selected TAF
       return axiosInstance
         .get(`/taf/${parents[0].id}`)
         .then((response) => response.data.UE);
-    } else if (parents.length == 2) {
+    } else if (parents.length === 2) {
+      // Fetch blocks for the selected UE
       return axiosInstance.get(`/ue/${parents[1].id}/lesson`).then((response) =>
         response.data.map((block) => ({
           id: block.id,
@@ -45,7 +77,8 @@ const LessonSelector = ({ onValidate }) => {
           ...block,
         })),
       );
-    } else if (parents.length == 3) {
+    } else if (parents.length === 3) {
+      // Fetch lessons for the selected block
       return currentItems
         .find((item) => item.id === parents[2].id)
         .lessons.map((lesson) => ({
@@ -55,20 +88,28 @@ const LessonSelector = ({ onValidate }) => {
     }
   };
 
+  // Fetch initial items when the component mounts or breadcrumb changes
   useEffect(() => {
     setLoading(true);
     fetchItems(breadcrumb).then((items) => {
       setCurrentItems(items);
       setLoading(false);
     });
-  }, []);
+  }, [breadcrumb]);
 
+  /**
+   * Handles item click events.
+   * Navigates to the next level or validates the selected lesson.
+   *
+   * @param {Object} item - The clicked item.
+   */
   const handleItemClick = async (item) => {
     if (breadcrumb.length === 3) {
+      // Validate the selected lesson
       onValidate({ ...item, taf: breadcrumb[0].name, ue: breadcrumb[1].name });
       return;
     }
-    if (item.empty) return;
+    if (item.empty) return; // Prevent navigation if the item is empty
     setLoading(true);
     const newItems = await fetchItems([...breadcrumb, item]);
     setCurrentItems(newItems);
@@ -76,11 +117,20 @@ const LessonSelector = ({ onValidate }) => {
     setLoading(false);
   };
 
+  /**
+   * Handles the back button click.
+   * Navigates to the previous breadcrumb level.
+   */
   const handleBack = () => {
     if (breadcrumb.length === 0) return;
     navigateToBreadcrumb(breadcrumb.length - 2);
   };
 
+  /**
+   * Navigates to a specific breadcrumb level.
+   *
+   * @param {number} index - The index of the breadcrumb to navigate to.
+   */
   const navigateToBreadcrumb = (index) => {
     if (breadcrumb.length === index + 1) return;
     const newBreadcrumb = breadcrumb.slice(0, index + 1);
@@ -92,6 +142,7 @@ const LessonSelector = ({ onValidate }) => {
     });
   };
 
+  // Filter items based on the search term
   const filteredItems =
     currentItems?.filter((item) =>
       item.name.toLowerCase().includes(searchTerm.toLowerCase()),
@@ -99,6 +150,7 @@ const LessonSelector = ({ onValidate }) => {
 
   return (
     <div style={{ width: 350 }}>
+      {/* Breadcrumb navigation */}
       <div
         style={{
           display: "flex",
@@ -140,6 +192,8 @@ const LessonSelector = ({ onValidate }) => {
           )}
         </Breadcrumbs>
       </div>
+
+      {/* Search input */}
       <TextField
         fullWidth
         size="small"
@@ -149,6 +203,8 @@ const LessonSelector = ({ onValidate }) => {
         onChange={(e) => setSearchTerm(e.target.value)}
         style={{ marginTop: 10, marginBottom: 10 }}
       />
+
+      {/* Item list */}
       {loading ? (
         <CircularProgress style={{ display: "block", margin: "auto" }} />
       ) : (
@@ -167,7 +223,7 @@ const LessonSelector = ({ onValidate }) => {
                       breadcrumb.length < 3 ? (
                         <IconButton
                           edge="end"
-                          aria-label="delete"
+                          aria-label="navigate"
                           onClick={() => handleItemClick(item)}
                         >
                           <ArrowForwardIosIcon />
@@ -187,7 +243,7 @@ const LessonSelector = ({ onValidate }) => {
               ))}
               {filteredItems.length === 0 && (
                 <ListItem>
-                  <ListItemText primary="Aucun élement..." />
+                  <ListItemText primary="Aucun élément..." />
                 </ListItem>
               )}
             </List>

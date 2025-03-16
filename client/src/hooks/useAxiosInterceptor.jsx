@@ -1,51 +1,69 @@
+// Axios instance import
 import axiosInstance from "../config/axiosConfig";
+
+// React Router imports
 import { useNavigate } from "react-router-dom";
+
+// React imports
 import { useEffect } from "react";
 
+/**
+ * useAxiosInterceptor Hook
+ * This custom hook sets up an Axios response interceptor to handle global errors.
+ * It manages actions such as redirecting the user to the login page when authentication errors occur.
+ */
 const useAxiosInterceptor = () => {
-  const navigate = useNavigate();
+  const navigate = useNavigate(); // Hook for navigating between routes
 
   useEffect(() => {
-    // Intercepteur de réponse pour gérer les erreurs globales
+    // Response interceptor to handle global errors
     const responseInterceptor = axiosInstance.interceptors.response.use(
       (response) => {
+        // Return the response as-is if no errors occur
         return response;
       },
       (error) => {
-        // Vous pouvez gérer les erreurs ici, comme des redirections si l'utilisateur n'est pas authentifié
-        console.log("Erreur capturée par Axios", error);
+        // Handle errors globally
+        console.log("Error captured by Axios", error);
+
         if (error.response) {
+          // Handle errors with a response from the server
           if (error.response.status === 401 || error.response.status === 403) {
-            // Rediriger vers la page de connexion
-            localStorage.removeItem("authToken");
-            sessionStorage.removeItem("authToken");
-            navigate("/login");
+            // If the user is unauthorized or forbidden, redirect to the login page
+            localStorage.removeItem("authToken"); // Remove the auth token from localStorage
+            sessionStorage.removeItem("authToken"); // Remove the auth token from sessionStorage
+            navigate("/login"); // Redirect to the login page
           } else {
+            // For other response errors, reject the promise with a custom error message
             return Promise.reject({
               ...error,
               statusText:
-                "Erreur code" + error.response?.status + " - " + error?.message,
+                "Error code " + error.response?.status + " - " + error?.message,
             });
           }
         } else if (error.request) {
+          // Handle errors where the request was made but no response was received
           return Promise.reject({
             ...error,
-            statusText: "Serveur injoignable. " + error?.message,
+            statusText: "Server unreachable. " + error?.message,
           });
         }
+
+        // Handle unknown errors
         return Promise.reject({
           ...error,
-          statusText: "Erreur inconnue lors de la requête. " + error?.message,
+          statusText: "Unknown error during the request. " + error?.message,
         });
       },
     );
 
-    console.log("Intercepteurs Axios configurés");
+    console.log("Axios interceptors configured");
 
+    // Cleanup function to eject the interceptor when the component unmounts
     return () => {
       axiosInstance.interceptors.response.eject(responseInterceptor);
     };
-  }, [navigate]);
+  }, [navigate]); // Dependency array ensures the effect runs when `navigate` changes
 };
 
 export default useAxiosInterceptor;
