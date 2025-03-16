@@ -580,7 +580,7 @@ public class LessonController {
                     calendar = taf.getCalendars().getFirst();
                 }
 
-                calendarService.save(calendar);
+                //calendarService.save(calendar);
                 Integer year = firstSlotStart.getYear();
                 Week currentWeek = new Week(weekCount, year);
                 weekService.save(currentWeek);
