@@ -19,15 +19,18 @@ import { JSONToCalendarEvent } from "@/features/calendar/utils/calendarEvent";
 import { toast } from "react-toastify";
 
 export async function loader({ params }) {
-  const response = await axiosInstance.get(`/taf/${params.idTAF}/availability`);
-  return response.data;
+  const [response, lecturer] = await Promise.all([
+    axiosInstance.get(`/taf/${params.idTAF}/availability`),
+    axiosInstance.get(`/taf/${params.idTAF}/lecturer_availability`),
+  ]);
+  return { tafPlanning: response.data, lecturerPlanning: lecturer.data };
 }
 
 export async function action({ request, params }) {
   let data = await request.json();
 
   return await axiosInstance
-    .put(`/taf/${params.idTAF}/availability`, data)
+    .put(`/taf/${params.idTAF}/lecturer_availability`, data)
     .then(() => {
       toast.success("Disponibilités mises à jour");
       return redirect("..");
@@ -41,17 +44,23 @@ export async function action({ request, params }) {
 export default function LecturerAvailability() {
   const [tabIndex, setTabIndex] = useState(1);
 
-  const data = useLoaderData();
+  const { tafPlanning, lecturerPlanning } = useLoaderData();
 
   const handleChange = (event, newValue) => {
     setTabIndex(newValue);
   };
 
   const initialEvents =
-    typeof data === "string"
+    typeof tafPlanning === "string"
       ? null
-      : data
+      : tafPlanning
           .filter((event) => event.status != "UNAVAILABLE")
+          .map((event) => {
+            let newStatus = lecturerPlanning.find(
+              (lesson) => lesson.id == event.id,
+            )?.status;
+            return { ...event, status: newStatus || event.status };
+          })
           .map(JSONToCalendarEvent);
 
   return (
@@ -60,7 +69,7 @@ export default function LecturerAvailability() {
         <>
           <Stack direction="row" spacing={2} alignItems="center">
             <Typography variant="h4" gutterBottom>
-              Disponibilité des créneaux de cours
+              Vos disponibilités
             </Typography>
             <Tabs value={tabIndex} onChange={handleChange} centered>
               <Tab label="Semaine type" />
