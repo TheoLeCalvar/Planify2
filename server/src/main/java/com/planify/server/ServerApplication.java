@@ -9,7 +9,12 @@ import java.util.List;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.planify.server.controller.LessonController;
 import com.planify.server.models.*;
 import com.planify.server.models.Antecedence.AntecedenceId;
 import com.planify.server.models.LessonLecturer.LessonLecturerId;
@@ -47,6 +52,7 @@ public class ServerApplication {
 	private static WeekService weekService;
 	private static PlanningService planningService;
 	private static ConstraintSynchroniseWithTAFService constraintSynchroniseWithTAFService;
+	private static PasswordEncoder passwordEncoder;
 	
 	private static final String RESET = "\u001B[0m";
 	private static final String RED = "\u001B[31m";
@@ -79,6 +85,9 @@ public class ServerApplication {
 		weekService = context.getBean(WeekService.class);
 		planningService = context.getBean(PlanningService.class);
 		constraintSynchroniseWithTAFService = context.getBean(ConstraintSynchroniseWithTAFService.class);
+		passwordEncoder = context.getBean(PasswordEncoder.class);
+
+		// testGetLecturerUnavailability();
 		
 		/*
 		TAF taf = tafService.addTAF("LOGIN", "Polyglotte", "début", "fin");
@@ -1123,5 +1132,65 @@ public class ServerApplication {
 		for (Lesson lesson : lessons)
 			lessonLecturerService.addLessonLecturer(user, lesson);
 	}
+
+	private static void testLecturerLessonsAndRoles() {
+    // Create the first user with encoded password
+    User firstUser = userService.addUser("John", "Doe", "john.doe@example.com", passwordEncoder.encode("password123"));
+
+    // Create a TAF
+    TAF taf = tafService.addTAF("TAF Example", "Description of TAF", "2025-01-01", "2025-12-31");
+
+    // Create two UEs
+    UE ue1 = ueService.addUE("UE1", "Description of UE1", taf);
+    UE ue2 = ueService.addUE("UE2", "Description of UE2", taf);
+
+    // Create two lessons for each UE
+    Lesson lesson1UE1 = lessonService.add("Lesson1 UE1", "Description of Lesson1 UE1", ue1);
+    Lesson lesson2UE1 = lessonService.add("Lesson2 UE1", "Description of Lesson2 UE1", ue1);
+    Lesson lesson1UE2 = lessonService.add("Lesson1 UE2", "Description of Lesson1 UE2", ue2);
+    Lesson lesson2UE2 = lessonService.add("Lesson2 UE2", "Description of Lesson2 UE2", ue2);
+
+    // Create two other users with encoded passwords
+    User secondUser = userService.addUser("Jane", "Smith", "jane.smith@example.com", passwordEncoder.encode("password456"));
+    User thirdUser = userService.addUser("Alice", "Johnson", "alice.johnson@example.com", passwordEncoder.encode("password789"));
+
+    // Associate users to lessons
+    lessonLecturerService.addLessonLecturer(firstUser, lesson1UE1);
+    lessonLecturerService.addLessonLecturer(secondUser, lesson2UE1);
+    lessonLecturerService.addLessonLecturer(thirdUser, lesson1UE2);
+    lessonLecturerService.addLessonLecturer(firstUser, lesson2UE2);
+		lessonLecturerService.addLessonLecturer(secondUser, lesson1UE1);
+
+    // Make the first user UE and TAF manager
+    ueManagerService.addUEManager(firstUser, ue1);
+    ueManagerService.addUEManager(firstUser, ue2);
+    tafManagerService.addTAFManager(firstUser, taf);
+
+		System.out.println(userService.findAll());
+
+}
+
+	private static void testGetLecturerUnavailability() {
+    // Create a user with encoded password
+    User user = userService.addUser("Test", "User", "testuser123", passwordEncoder.encode("password123"));
+    System.out.println("Test user created: test.user@example.com / password123");
+
+    // Create a TAF
+    TAF taf = tafService.addTAF("Test TAF", "Description of Test TAF", "2025-01-01", "2025-02-31");
+
+    // Create a calendar for the TAF
+    Calendar calendar = calendarService.addCalendar(taf);
+
+    // Create a week and a day
+    Week week = weekService.addWeek(1, 2025);
+    Day day = dayService.addDay(1, week);
+
+    // Create a slot and add it to the calendar
+    Slot slot = slotService.add(1, day, calendar, LocalDateTime.of(2025, 1, 1, 9, 0), LocalDateTime.of(2025, 1, 1, 10, 0));
+    slotService.save(slot);
+
+    // Add user unavailability
+    userUnavailabilityService.addUserUnavailability(slot, user, true);
+}
 	
 }

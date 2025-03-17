@@ -36,6 +36,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import com.planify.server.authentification.CustomUserDetailsService;
 import com.planify.server.authentification.JwtUtil;
 import com.planify.server.models.LessonLecturer;
 import com.planify.server.models.TAF;
@@ -74,6 +75,9 @@ public class UserController {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private CustomUserDetailsService userDetailsService;
 
     // Get the list of the users
     @Operation(summary = "Get the list of the users and precising if they already work for this TAF")
@@ -116,14 +120,16 @@ public class UserController {
     @PostMapping(value = "users", consumes = "application/json", produces = "application/json")
     public ResponseEntity<String> createUser(@RequestBody UserShort userRequest) {
         List<User> users = userService.findAll();
-        boolean exists = users.stream().anyMatch(user -> user.getName().equals(userRequest.getFirstName())
-                && user.getLastName().equals(userRequest.getLastName()));
+        boolean exists = users.stream().anyMatch(user -> user.getMail().equals(userRequest.getEmail()));
 
         if (exists) {
-            return ResponseEntity.status(209).body("User already exists");
+            return ResponseEntity.status(409).body("User already exists");
         }
+        System.out.println(userRequest.getFirstName());
+        System.out.println(userRequest.getLastName());
+        String password = passwordEncoder.encode(userRequest.getPassword());
         User u = userService.addUser(userRequest.getFirstName(), userRequest.getLastName(), userRequest.getEmail(),
-                "not implemented");
+                password);
         return ResponseEntity.ok("User created !");
     }
 
@@ -157,20 +163,20 @@ public class UserController {
     @PostMapping("/auth/login")
     public ResponseEntity<?> login(@RequestBody AuthentificationRequest authRequest) {
         try {
+            // Retrieve UserDetails from UserService
+            Optional<User> userOptional = userService.findByMail(authRequest.getMail());
+            if (userOptional.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+            }
+
             // Authenticate user credentials
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(authRequest.getMail(), authRequest.getPassword()));
 
-            // Retrieve UserDetails from UserService
-            Optional<User> userOptional = userService.findByMail(authRequest.getMail());
-            if (userOptional.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found");
-            }
-
             User user = userOptional.get();
 
             UserDetails userDetails = new org.springframework.security.core.userdetails.User(
-                    user.getMail(), userOptional.get().getPassword(), new ArrayList<>());
+                    user.getMail(), user.getPassword(), userDetailsService.loadUserByUsername(user.getMail()).getAuthorities());
 
             // Generate JWT token
             String jwt = jwtUtil.generateToken(userDetails.getUsername());

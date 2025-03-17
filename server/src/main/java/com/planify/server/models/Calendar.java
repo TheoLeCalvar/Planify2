@@ -68,6 +68,10 @@ public class Calendar {
 	public void setPlannings(List<Planning> plannings) {
 		this.plannings = plannings;
 	}
-    
+
+
+    public List<Planning> getConfigs() {
+        return this.getPlannings().stream().filter(p -> p.getStatus() == Planning.Status.CONFIG).toList();
+    }
 
 }

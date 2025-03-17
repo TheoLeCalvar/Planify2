@@ -3,7 +3,10 @@ package com.planify.server.authentification;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -13,7 +16,11 @@ import java.security.Key;
 @Component
 public class JwtUtil {
 
-    private final Key SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    private final Key SECRET_KEY;
+
+    public JwtUtil(@Value("${jwt.secret}") String secret) {
+        this.SECRET_KEY = Keys.hmacShaKeyFor(Base64.getDecoder().decode(secret));
+    }
 
     public String generateToken(String username) {
         Map<String, Object> claims = new HashMap<>();
@@ -39,7 +46,6 @@ public class JwtUtil {
     
         return claims.get("roles", List.class);
     }
-    
 
     public boolean validateToken(String token, String username) {
         return username.equals(extractUsername(token)) && !isTokenExpired(token);

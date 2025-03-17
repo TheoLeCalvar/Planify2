@@ -139,6 +139,7 @@ public class LessonController {
         relatedTafs.addAll(tafManagers.stream().map(manager -> manager.getTaf()).collect(Collectors.toList()));
         relatedTafs.addAll(ueManagers.stream().map(manager -> manager.getUe().getTaf()).collect(Collectors.toList()));
         relatedTafs.addAll(lessonLecturers.stream().map(lecturer -> lecturer.getLesson().getUe().getTaf()).collect(Collectors.toList()));
+        relatedTafs = relatedTafs.stream().distinct().collect(Collectors.toList());
         List<TAFShort> answer = new ArrayList<TAFShort>();
         for (TAF taf : relatedTafs) {
             answer.add(new TAFShort(taf.getId(), taf.getName(), taf.getDescription()));
@@ -579,7 +580,7 @@ public class LessonController {
                     calendar = taf.getCalendars().getFirst();
                 }
 
-                calendarService.save(calendar);
+                //calendarService.save(calendar);
                 Integer year = firstSlotStart.getYear();
                 Week currentWeek = new Week(weekCount, year);
                 weekService.save(currentWeek);
@@ -767,6 +768,12 @@ public class LessonController {
             User user = userService.findById(managerId).orElseThrow(() -> new IllegalArgumentException("The User doesn't exist"));
             ueManagerService.addUEManager(user, ue);
         }
+        List<Planning> plannings = taf.getCalendars().getFirst().getConfigs();
+        if (plannings!=null && !plannings.isEmpty()) {
+            for (Planning p : plannings) {
+                planningService.addADefaultConstraintsOfUE(p, ue);
+            }
+        }
         return ResponseEntity.ok(ue.getId());
     }
 
@@ -792,14 +799,12 @@ public class LessonController {
         } 
         
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        System.out.println("AUTHENTICATION : " + authentication);
         if (authentication == null || !(authentication.getPrincipal() instanceof UserDetails)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body("Authentication required");
         }
 
         String mail = ((UserDetails) authentication.getPrincipal()).getUsername();
-        System.out.println("Authenticated User: " + mail);
         Optional<User> userOpt = userService.findByMail(mail);
 
         // If user not found, return error
@@ -832,6 +837,51 @@ public class LessonController {
         }
         
        return ResponseEntity.ok("ok");
+
+    }
+
+    @Operation(summary = "Get a lecturer availabilities")
+    @GetMapping(value = "/taf/{tafId}/lecturer_availability", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getLecturerUnavailability(@PathVariable Long tafId) {
+        Optional<TAF> taf = tafService.findById(tafId);
+        if (taf.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorResponse("No TAF with this id was found", 404));
+        }
+        
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !(authentication.getPrincipal() instanceof UserDetails)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Authentication required");
+        }
+
+        String mail = ((UserDetails) authentication.getPrincipal()).getUsername();
+        Optional<User> userOpt = userService.findByMail(mail);
+
+        // If user not found, return error
+        if (!userOpt.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("User not found");
+        }
+
+        User user = userOpt.get();
+
+        List<UserUnavailabilityShort> userAvailabilities = new ArrayList<>();
+
+        // Get user's unavailabilities
+        List<UserUnavailability> userUnavailabilities = userUnavailabilityService.findByUser(user);
+
+        // Filter the ones corresponding to the taf
+        userUnavailabilities = userUnavailabilities.stream()
+                .filter(userUnavailability -> userUnavailability.getSlot().getCalendar().getTaf().getId().equals(tafId))
+                .collect(Collectors.toList());
+        for (UserUnavailability userUnavailability : userUnavailabilities) {
+            AvailabilityEnum status = userUnavailability.getStrict() ? AvailabilityEnum.UNAVAILABLE : AvailabilityEnum.UNPREFERRED;
+            System.out.println("USER UNAVAILABILITY SHORT :" + status);
+            userAvailabilities.add(new UserUnavailabilityShort(userUnavailability.getSlot().getId(), status));
+            System.out.println("USER UNAVAILABILITIES SHORT :" + userAvailabilities);
+        }
+        return ResponseEntity.ok(userAvailabilities);
 
     }
 
@@ -949,7 +999,7 @@ public class LessonController {
                         1,
                         lessonGroupingNbLessons
                 ));
-            	System.out.println("aaaaaaaa " + ue.getName());
+                cUEs.add(c);
             }
         }
         planning.setConstraintsOfUEs(cUEs);
@@ -957,6 +1007,8 @@ public class LessonController {
         System.out.println("Comp !!!!" + planning.getConstraintsOfUEs().size());
         System.out.println("Comp !!!!" + planningService.findById(planning.getId()).get().getConstraintsOfUEs().size());
         return ResponseEntity.ok("New config added !");
+
+
     }
 
 }

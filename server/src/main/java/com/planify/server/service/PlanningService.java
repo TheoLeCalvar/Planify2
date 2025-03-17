@@ -188,4 +188,21 @@ public class PlanningService {
     	for (int i = 0; i < plannings.length; i ++) plannings[i] = createPlanningForGeneration(planningsToGenerate[i]);
     	return plannings;
     }
+
+    public void addADefaultConstraintsOfUE(Planning p, UE ue) {
+        int[] lessonGroupingNbLessons = {2,3};
+        p.getConstraintsOfUEs().add(constraintsOfUEService.add(
+                ue,
+                p,
+                true,
+                6,
+                1,
+                false,
+                true,
+                2,
+                false,
+                12,
+                1,
+                lessonGroupingNbLessons));
+    }
 }

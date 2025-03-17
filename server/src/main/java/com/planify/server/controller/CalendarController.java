@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import com.planify.server.controller.exportSchedule.CsvScheduleExporter;
 import com.planify.server.controller.returnsClass.*;
 import com.planify.server.models.*;
 import com.planify.server.models.constraints.ConstraintSynchroniseWithTAF;
@@ -215,16 +216,37 @@ public class CalendarController {
                             schema = @Schema(implementation = GeneratedPlanning.class))),
             @ApiResponse(responseCode = "400", description = "No planning with this ID")
     })
-    @GetMapping(value = "/solver/result/{planningId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getPlanning(@PathVariable Long planningId) {
+    @GetMapping(value = "/solver/result/{planningId}/{format}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getPlanning(@PathVariable Long planningId, @PathVariable String format) {
         Optional<Planning> optionalPlanning = planningService.findById(planningId);
         if (optionalPlanning.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ErrorResponse("No planning with this id was found", 404));
         }
+
+        if (format == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorResponse("Please, precise a format", 404));
+        }
+
         Planning planning = optionalPlanning.get();
-        GeneratedPlanning genePlan = new GeneratedPlanning(planning.getScheduledLessons(), planning.getStatus(), planning.isSolutionOptimal(), planning.getMessageGeneration());
-        return ResponseEntity.ok(genePlan);
+
+        switch (format.toLowerCase()) {
+
+            case "basic":
+                GeneratedPlanning genePlan = new GeneratedPlanning(planning.getScheduledLessons(), planning.getStatus(), planning.isSolutionOptimal(), planning.getMessageGeneration());
+                return ResponseEntity.ok(genePlan);
+
+            case "csv":
+                CsvScheduleExporter exporter = new CsvScheduleExporter();
+                return ResponseEntity.ok(exporter.export(planning).getBytes());
+
+            default:
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(new ErrorResponse("Unsupported format", 404));
+
+        }
+
     }
 
     @Operation(summary = "Get the detail of a configuration")
