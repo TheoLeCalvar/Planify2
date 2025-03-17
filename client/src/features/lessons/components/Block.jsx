@@ -24,7 +24,7 @@ import { Draggable, Droppable } from "@hello-pangea/dnd";
 import ConfirmationButton from "@/components/ConfirmationButton";
 import Lesson from "./Lesson";
 
-// Extracted style objects
+// Extracted style objects for consistent styling
 const styles = {
   paper: { padding: 2 },
   actionBox: (isHovered) => ({
@@ -40,7 +40,14 @@ const styles = {
   },
 };
 
-// Subcomponent to display dependencies
+/**
+ * DependenciesDisplay Component
+ * Displays the dependencies of the block.
+ *
+ * @param {Object} props - The component props.
+ * @param {Array} props.dependencies - The list of dependencies.
+ * @returns {JSX.Element} - The rendered DependenciesDisplay component.
+ */
 const DependenciesDisplay = ({ dependencies }) => {
   const text =
     dependencies.length > 0
@@ -57,7 +64,13 @@ DependenciesDisplay.propTypes = {
   dependencies: PropTypes.arrayOf(PropTypes.string).isRequired,
 };
 
-// Subcomponent for the header actions (Add lesson, Edit, Delete, Duplicate)
+/**
+ * BlockActions Component
+ * Renders the action buttons for the block (Add Lesson, Edit, Delete, Duplicate).
+ *
+ * @param {Object} props - The component props.
+ * @returns {JSX.Element} - The rendered BlockActions component.
+ */
 const BlockActions = ({
   blockId,
   blockTitle,
@@ -113,7 +126,13 @@ BlockActions.propTypes = {
   isAddDisabled: PropTypes.bool.isRequired,
 };
 
-// Subcomponent for rendering the lessons list using Droppable/Draggable
+/**
+ * LessonsList Component
+ * Renders the list of lessons within the block using Droppable and Draggable components.
+ *
+ * @param {Object} props - The component props.
+ * @returns {JSX.Element} - The rendered LessonsList component.
+ */
 const LessonsList = ({
   blockId,
   lessons,
@@ -164,7 +183,13 @@ LessonsList.propTypes = {
   onDuplicateLesson: PropTypes.func.isRequired,
 };
 
-// Main Block component
+/**
+ * Block Component
+ * The main component that represents a block containing lessons and actions.
+ *
+ * @param {Object} props - The component props.
+ * @returns {JSX.Element} - The rendered Block component.
+ */
 const Block = ({
   block,
   dependencies,

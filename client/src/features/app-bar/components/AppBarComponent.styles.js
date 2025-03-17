@@ -14,7 +14,7 @@ const styles = {
   },
   mainContent: {
     marginTop: `${appBarHeight}px`,
-  }
+  },
 };
 
 export default styles;

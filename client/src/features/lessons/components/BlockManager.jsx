@@ -67,7 +67,15 @@ const styles = {
   addBlockBox: { mt: 2, textAlign: "center" },
 };
 
-// Subcomponent: Renders an error message if a dependency cycle is detected.
+/**
+ * DependencyCycleError Component
+ * Displays an error message if a dependency cycle is detected.
+ *
+ * @param {Object} props - The component props.
+ * @param {Array} props.dependencyCycle - The detected dependency cycle.
+ * @param {Array} props.blocks - The list of blocks.
+ * @returns {JSX.Element|null} - The rendered error message or null if no cycle is detected.
+ */
 const DependencyCycleError = ({ dependencyCycle, blocks }) => {
   if (!dependencyCycle) return null;
   const cycleTitles = dependencyCycle
@@ -79,10 +87,10 @@ const DependencyCycleError = ({ dependencyCycle, blocks }) => {
   return (
     <Box sx={styles.errorBox}>
       <Typography variant="body2" color="error">
-        Erreur : des cycles de dépendances ont été détectés !
+        Error: Dependency cycles detected!
       </Typography>
       <Typography variant="body2" color="error">
-        Cycle : {cycleTitles}
+        Cycle: {cycleTitles}
       </Typography>
     </Box>
   );
@@ -93,31 +101,51 @@ DependencyCycleError.propTypes = {
   blocks: PropTypes.array.isRequired,
 };
 
+/**
+ * EmptyBlockError Component
+ * Displays an error message if any block is empty (contains no lessons).
+ *
+ * @param {Object} props - The component props.
+ * @param {Array} props.blocks - The list of blocks.
+ * @returns {JSX.Element|null} - The rendered error message or null if no empty block is found.
+ */
 const EmptyBlockError = ({ blocks }) => {
   const errorBlock = blocks.find((block) => block.lessons.length === 0);
   if (!errorBlock) return null;
   return (
     <Box sx={styles.errorBox}>
       <Typography variant="body2" color="error">
-        Erreur : tous les blocs doivent contenir au moins un cours.
+        Error: All blocks must contain at least one lesson.
       </Typography>
       <Typography variant="body2" color="error">
-        Bloc vide : {errorBlock.title}
+        Empty block: {errorBlock.title}
       </Typography>
     </Box>
   );
 };
 
+EmptyBlockError.propTypes = {
+  blocks: PropTypes.array.isRequired,
+};
+
+/**
+ * SurchargeBlockError Component
+ * Displays an error message if any block contains more than 3 lessons.
+ *
+ * @param {Object} props - The component props.
+ * @param {Array} props.blocks - The list of blocks.
+ * @returns {JSX.Element|null} - The rendered error message or null if no overloaded block is found.
+ */
 const SurchargeBlockError = ({ blocks }) => {
   const errorBlock = blocks.find((block) => block.lessons.length > 3);
   if (!errorBlock) return null;
   return (
     <Box sx={styles.errorBox}>
       <Typography variant="body2" color="error">
-        Erreur : tous les blocs doivent contenir au maximum 3 cours.
+        Error: All blocks must contain at most 3 lessons.
       </Typography>
       <Typography variant="body2" color="error">
-        Bloc surchargé : {errorBlock.title}
+        Overloaded block: {errorBlock.title}
       </Typography>
     </Box>
   );
@@ -127,11 +155,13 @@ SurchargeBlockError.propTypes = {
   blocks: PropTypes.array.isRequired,
 };
 
-EmptyBlockError.propTypes = {
-  blocks: PropTypes.array.isRequired,
-};
-
-// Subcomponent: Renders the blocks in a drag & drop context.
+/**
+ * BlocksDragDropList Component
+ * Renders the list of blocks in a drag-and-drop context.
+ *
+ * @param {Object} props - The component props.
+ * @returns {JSX.Element} - The rendered drag-and-drop list of blocks.
+ */
 const BlocksDragDropList = ({
   blocks,
   onDragEnd,
@@ -195,21 +225,27 @@ BlocksDragDropList.propTypes = {
   handleDuplicateLesson: PropTypes.func.isRequired,
 };
 
-// Main component: BlockManager.
+/**
+ * BlockManager Component
+ * The main component for managing blocks and lessons.
+ *
+ * @param {Object} props - The component props.
+ * @returns {JSX.Element} - The rendered BlockManager component.
+ */
 const BlockManager = ({
   lessonsData: blocks,
   setLessonsData: setBlocks,
   dependencyError: dependencyCycle,
   setDependencyError: setDependencyCycle,
 }) => {
-  // Local UI state for dialogs and editing items.
+  // Local UI state for dialogs and editing items
   const [isDialogOpen, setDialogOpen] = useState(false);
   const [editBlock, setEditBlock] = useState(null);
   const [currentBlockId, setCurrentBlockId] = useState(null);
   const [lessonDialogOpen, setLessonDialogOpen] = useState(false);
   const [editingLesson, setEditingLesson] = useState(null);
 
-  // Recompute dependency cycle whenever blocks are updated.
+  // Recompute dependency cycle whenever blocks are updated
   useEffect(() => {
     setDependencyCycle(hasDependencyCycle(blocks));
   }, [blocks, setDependencyCycle]);
@@ -226,18 +262,19 @@ const BlockManager = ({
   };
 
   const handleDuplicateBlock = (block) => {
-    const { id, ...rest } = block; // eslint-disable-line no-unused-vars
+    // eslint-disable-next-line no-unused-vars
+    const { id, ...rest } = block; // Exclude the ID for duplication
     setEditBlock(rest);
     setDialogOpen(true);
   };
 
   const handleSaveBlock = (block) => {
     if (block.id) {
-      // Update existing block.
-      toast.info("Bloc mis à jour", { autoClose: 1000 });
+      // Update existing block
+      toast.info("Block updated", { autoClose: 1000 });
       setBlocks((prev) => prev.map((b) => (b.id === block.id ? block : b)));
     } else {
-      // If there are lessons, assign them new ids and add the new block.
+      // Add new block
       if (block.lessons) {
         block.lessons = block.lessons.map((lesson, index) => ({
           ...lesson,
@@ -245,13 +282,13 @@ const BlockManager = ({
         }));
       }
       setBlocks((prev) => [...prev, { id: Date.now(), lessons: [], ...block }]);
-      toast.info("Bloc ajouté", { autoClose: 1000 });
+      toast.info("Block added", { autoClose: 1000 });
     }
   };
 
   const handleDeleteBlock = (blockId) => {
     setBlocks((prev) => prev.filter((block) => block.id !== blockId));
-    toast.info("Bloc supprimé", { autoClose: 1000 });
+    toast.info("Block deleted", { autoClose: 1000 });
   };
 
   /* === Drag & Drop Handler === */
@@ -263,7 +300,7 @@ const BlockManager = ({
       source.droppableId === "blocks" &&
       destination.droppableId === "blocks"
     ) {
-      // Reorder blocks.
+      // Reorder blocks
       const reorderedBlocks = Array.from(blocks);
       const [removed] = reorderedBlocks.splice(source.index, 1);
       reorderedBlocks.splice(destination.index, 0, removed);
@@ -272,7 +309,7 @@ const BlockManager = ({
       source.droppableId.startsWith("lessons-") &&
       destination.droppableId.startsWith("lessons-")
     ) {
-      // Handle lesson reordering or moving between blocks.
+      // Handle lesson reordering or moving between blocks
       const sourceBlockId = parseInt(source.droppableId.split("-")[1], 10);
       const destinationBlockId = parseInt(
         destination.droppableId.split("-")[1],
@@ -326,7 +363,8 @@ const BlockManager = ({
   };
 
   const handleDuplicateLesson = (blockId, lesson) => {
-    const { id, ...rest } = lesson; // eslint-disable-line no-unused-vars
+    // eslint-disable-next-line no-unused-vars
+    const { id, ...rest } = lesson; // Exclude the ID for duplication
     setCurrentBlockId(blockId);
     setEditingLesson(rest);
     setLessonDialogOpen(true);
@@ -341,7 +379,7 @@ const BlockManager = ({
         return { ...block, lessons: updatedLessons };
       }),
     );
-    toast.info("Cours supprimé", { autoClose: 1000 });
+    toast.info("Lesson deleted", { autoClose: 1000 });
   };
 
   const handleSaveLesson = (lesson) => {
@@ -358,14 +396,14 @@ const BlockManager = ({
         return block;
       }),
     );
-    toast.info("Cours enregistré", { autoClose: 1000 });
+    toast.info("Lesson saved", { autoClose: 1000 });
   };
 
   return (
     <Container maxWidth="lg">
       <Paper elevation={3} sx={styles.paper}>
         <Typography variant="h5" align="center" gutterBottom>
-          Gestion des Blocs et Cours
+          Block and Lesson Management
         </Typography>
         <DependencyCycleError
           dependencyCycle={dependencyCycle}
@@ -391,7 +429,7 @@ const BlockManager = ({
             startIcon={<AddIcon />}
             onClick={handleAddBlock}
           >
-            Ajouter un bloc
+            Add Block
           </Button>
         </Box>
       </Paper>
