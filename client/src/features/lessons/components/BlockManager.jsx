@@ -87,10 +87,10 @@ const DependencyCycleError = ({ dependencyCycle, blocks }) => {
   return (
     <Box sx={styles.errorBox}>
       <Typography variant="body2" color="error">
-        Error: Dependency cycles detected!
+        Erreur : des cycles de dépendances ont été détectés !
       </Typography>
       <Typography variant="body2" color="error">
-        Cycle: {cycleTitles}
+        Cycle : {cycleTitles}
       </Typography>
     </Box>
   );
@@ -115,10 +115,10 @@ const EmptyBlockError = ({ blocks }) => {
   return (
     <Box sx={styles.errorBox}>
       <Typography variant="body2" color="error">
-        Error: All blocks must contain at least one lesson.
+        Erreur : tous les blocs doivent contenir au moins un cours.
       </Typography>
       <Typography variant="body2" color="error">
-        Empty block: {errorBlock.title}
+        Bloc vide : {errorBlock.title}
       </Typography>
     </Box>
   );
@@ -142,10 +142,10 @@ const SurchargeBlockError = ({ blocks }) => {
   return (
     <Box sx={styles.errorBox}>
       <Typography variant="body2" color="error">
-        Error: All blocks must contain at most 3 lessons.
+        Erreur : tous les blocs doivent contenir au maximum 3 cours.
       </Typography>
       <Typography variant="body2" color="error">
-        Overloaded block: {errorBlock.title}
+        Bloc surchargé : {errorBlock.title}
       </Typography>
     </Box>
   );
@@ -271,7 +271,7 @@ const BlockManager = ({
   const handleSaveBlock = (block) => {
     if (block.id) {
       // Update existing block
-      toast.info("Block updated", { autoClose: 1000 });
+      toast.info("Bloc mis à jour", { autoClose: 1000 });
       setBlocks((prev) => prev.map((b) => (b.id === block.id ? block : b)));
     } else {
       // Add new block
@@ -282,13 +282,13 @@ const BlockManager = ({
         }));
       }
       setBlocks((prev) => [...prev, { id: Date.now(), lessons: [], ...block }]);
-      toast.info("Block added", { autoClose: 1000 });
+      toast.info("Bloc ajouté", { autoClose: 1000 });
     }
   };
 
   const handleDeleteBlock = (blockId) => {
     setBlocks((prev) => prev.filter((block) => block.id !== blockId));
-    toast.info("Block deleted", { autoClose: 1000 });
+    toast.info("Bloc supprimé", { autoClose: 1000 });
   };
 
   /* === Drag & Drop Handler === */
@@ -379,7 +379,7 @@ const BlockManager = ({
         return { ...block, lessons: updatedLessons };
       }),
     );
-    toast.info("Lesson deleted", { autoClose: 1000 });
+    toast.info("Cours supprimé", { autoClose: 1000 });
   };
 
   const handleSaveLesson = (lesson) => {
@@ -396,14 +396,14 @@ const BlockManager = ({
         return block;
       }),
     );
-    toast.info("Lesson saved", { autoClose: 1000 });
+    toast.info("Cours enregistré", { autoClose: 1000 });
   };
 
   return (
     <Container maxWidth="lg">
       <Paper elevation={3} sx={styles.paper}>
         <Typography variant="h5" align="center" gutterBottom>
-          Block and Lesson Management
+          Gestion des blocs et cours
         </Typography>
         <DependencyCycleError
           dependencyCycle={dependencyCycle}
@@ -429,7 +429,7 @@ const BlockManager = ({
             startIcon={<AddIcon />}
             onClick={handleAddBlock}
           >
-            Add Block
+            Ajouter un bloc
           </Button>
         </Box>
       </Paper>
