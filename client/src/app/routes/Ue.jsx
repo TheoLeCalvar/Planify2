@@ -4,7 +4,7 @@ import { Outlet, useLoaderData, useOutletContext } from "react-router-dom"; // R
 import { useNavigate, useLocation } from "react-router-dom"; // Hooks for navigation and accessing the current location
 
 // Material-UI imports
-import { Tabs, Tab, Typography } from "@mui/material"; // Components for tab navigation and typography
+import { Tabs, Tab, Typography, Paper } from "@mui/material"; // Components for tab navigation and typography
 
 // Local imports
 import axiosInstance from "@/config/axiosConfig"; // Axios instance for API requests
@@ -76,7 +76,9 @@ export default function UE() {
       </Typography>
 
       {/* Render nested routes with the UE data as context */}
-      <Outlet context={{ ...context, ue }} />
+      <Paper elevation={3} sx={{ padding: 2, marginTop: 2 }}>
+        <Outlet context={{ ...context, ue }} />
+      </Paper>
     </>
   );
 }

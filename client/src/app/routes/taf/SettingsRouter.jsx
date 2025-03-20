@@ -3,7 +3,7 @@ import React from "react";
 import { Outlet, useNavigate, useOutletContext } from "react-router-dom"; // React Router hooks for navigation and context
 
 // Material-UI imports
-import { Tab, Tabs } from "@mui/material"; // Components for tab navigation
+import { Paper, Tab, Tabs } from "@mui/material"; // Components for tab navigation
 
 /**
  * TAFAllSettings component.
@@ -55,7 +55,9 @@ export default function TAFAllSettings() {
       {tabs[currentTab].element}
 
       {/* Render nested routes with additional context */}
-      <Outlet context={context} />
+      <Paper elevation={3} sx={{ padding: 2, marginTop: 2 }}>
+        <Outlet context={context} />
+      </Paper>
     </>
   );
 }
