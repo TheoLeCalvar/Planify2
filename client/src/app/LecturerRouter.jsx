@@ -17,12 +17,22 @@ import { loaderLecturer as AppBarLoader } from "./routes/layout/AppBar"; // Load
 import { loader as AvailibilityLoader } from "./routes/lecturer/LecturerAvailability"; // Loader for fetching lecturer availability data
 import { action as AvailibilityAction } from "./routes/lecturer/LecturerAvailability"; // Action for handling lecturer availability updates
 import LecturerAvailability from "./routes/lecturer/LecturerAvailability"; // Lecturer availability component
+import EmptyStateMessage from "./routes/EmptyPage";
 
 /**
  * Define the TAF route (with a nested SideBar).
  * This route handles the TAF-related pages for lecturers, including their availability.
  */
 const tafRoute = [
+  {
+    path: "",
+    element: (
+      <EmptyStateMessage
+        messagePrimary={"Sélectionnez une TAF"}
+        messageSecondary={""}
+      />
+    ), // Empty state message
+  },
   {
     path: "taf/:idTAF", // Dynamic route for a specific TAF
     element: <TAF />, // Main TAF component

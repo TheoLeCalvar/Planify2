@@ -1,6 +1,8 @@
 // React imports
+import { Typography } from "@mui/material";
 import React from "react";
-import { Outlet, useOutletContext } from "react-router-dom"; // React Router hooks for nested routes and context
+import { useOutletContext } from "react-router-dom"; // React Router hooks for nested routes and context
+import EmptyStateMessage from "../EmptyPage";
 
 /**
  * UEGeneral component.
@@ -17,14 +19,22 @@ const UEGeneral = () => {
 
   return (
     <>
-      {/* Header section */}
-      <h1>Général</h1>
-      {/* Display the name of the UE */}
-      <h2>{ue.name}</h2>
-      {/* Display the description of the UE */}
-      <p>{ue.description}</p>
-      {/* Render nested routes with the same context */}
-      <Outlet context={context} />
+      <Typography variant="h3" gutterBottom>
+        Informations générales
+      </Typography>
+      <Typography variant="h4">{ue.name}</Typography>
+      <Typography variant="body1" sx={{ marginBottom: 2 }}>
+        {ue.description}
+      </Typography>
+      <Typography variant="h5">Responsables de l&apos;UE</Typography>
+      <Typography variant="body1" sx={{ marginBottom: 2 }}>
+        {ue.managers.map((m) => m.name).join(", ") || "Aucun responsable"}
+      </Typography>
+      <EmptyStateMessage
+        messagePrimary={"Sélectionnez un onglet"}
+        messageSecondary={"pour éditer l'UE."}
+        centerPage={false}
+      />
     </>
   );
 };

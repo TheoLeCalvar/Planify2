@@ -42,6 +42,8 @@ import { action as editTAFCalendarAction } from "./routes/taf/LessonsAvailabilit
 import { action as editTAFSettingsAction } from "./routes/taf/Settings"; // Action for editing TAF settings
 import { action as createNewUserAction } from "@/components/CreateUser"; // Action for creating a new user
 import { action as editTAFConfigAction } from "./routes/taf/SolverConfig"; // Action for editing solver configurations
+import EmptyStateMessage from "./routes/EmptyPage";
+import TAFGeneral from "./routes/taf/General";
 
 /**
  * Define UE nested routes.
@@ -89,6 +91,10 @@ const ueRoutes = [
  * These routes handle TAF-related pages, such as calendar, settings, planning generation, results, and UE management.
  */
 const tafRoutes = [
+  {
+    path: "",
+    element: <TAFGeneral />, // General TAF information
+  },
   {
     path: "calendar",
     element: <LessonsAvailability />, // TAF calendar for lessons availability
@@ -175,6 +181,15 @@ const tafRoute = [
     path: "",
     element: <ContentPadding />, // Layout with padding
     children: [
+      {
+        path: "",
+        element: (
+          <EmptyStateMessage
+            messagePrimary={"Sélectionnez une TAF"}
+            messageSecondary={"ou créez-en une nouvelle."}
+          />
+        ), // Empty state message
+      },
       {
         path: "taf/new",
         element: <TAFSettings />, // Create a new TAF
