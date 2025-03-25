@@ -245,7 +245,7 @@ public class SolverMain {
 		if (solution == null)
 			return false;
 		System.out.println(solMain.showSolutionsDebug(solution));
-		System.out.println(solMain.makeSolutionString(solution));
+		//System.out.println(solMain.makeSolutionString(solution));
 		return true;
 	}
 	
@@ -269,7 +269,7 @@ public class SolverMain {
 		if (obj != null) model.setObjective(false, obj);
 		Solution solution = solveModelPlanning(solMain, planning.getMaxSolveDuration());
 		//solution = solver.findSolution();
-		System.out.println(Arrays.deepToString(model.getVars()));
+		//System.out.println(Arrays.deepToString(model.getVars()));
 		solver.printShortStatistics();
 		planning.endProcessing();
 		planning.setSolutionOptimal(solver.isObjectiveOptimal());
@@ -483,6 +483,7 @@ public class SolverMain {
 		Integer idML = 1;
 		for (Lesson lesson : getLessons()) {
 			idMLesson.put(lesson.getId(), idML);
+			System.out.println(lesson.getId());
 			lessonVarSlot.put(lesson.getId(), getModel().intVar(nameLesson(lesson) + "-VarSlot", 1, nbSlots));
 			if (varDay) lessonVarDay.put(lesson.getId(), getModel().intVar(nameLesson(lesson) + "-VarDay", valsDays));
 			if (varWeek) lessonVarWeek.put(lesson.getId(), getModel().intVar(nameLesson(lesson) + "-VarWeek", 1, nbWeeks));
@@ -514,8 +515,6 @@ public class SolverMain {
 		while (testiLengths(iSlots, lengthSlots)) {
 			List<Integer> iMins = new ArrayList<Integer>();
 			for (int i = 0; i < plannings.length; i ++) {
-				System.out.println(i);
-				System.out.println(iSlots[i] < lengthSlots[i]);
 				if (iSlots[i] < lengthSlots[i]) {
 					if (iMins.size() == 0) {
 						iMins.add(i);
@@ -623,8 +622,8 @@ public class SolverMain {
 		int[] globInt = new int[] {};
 		if (global) globInt = slots.stream().mapToInt(s -> getIdMSlotGlobal(s)).toArray();
 		int[] dayInt = new int[] {};
-		System.out.println(slots.stream().map(s -> s.toString()).reduce("", String::concat));
-		System.out.println(idMDay.keySet().toString());
+		//System.out.println(slots.stream().map(s -> s.toString()).reduce("", String::concat));
+		//System.out.println(idMDay.keySet().toString());
 		if (day) dayInt = slots.stream().mapToInt(s -> getIdMDay(s.getDay())).toArray();
 		int[] weekInt = new int[] {};
 		if (week) weekInt = slots.stream().mapToInt(s -> getIdMWeek(s.getDay().getWeek())).toArray();
@@ -666,6 +665,9 @@ public class SolverMain {
 				if (i != sequences.size()) next = sequences.remove(i).getNextLesson();
 				else next = null;
 			}
+			//System.out.println("Seq");
+			//System.out.println(aglomerateSequences.getLast().getFirst().getId());
+			//System.out.println(aglomerateSequences.getLast().getLast().getId());
 		}
 		//System.out.println("Sequencings : " + aglomerateSequences);
 		//Set the sequencings constraints on each days.
@@ -805,7 +807,7 @@ public class SolverMain {
 	 * The choice for each UE if we want Day or Week is made using the constraintsOfUe of the UE
 	 * and it's field isMaxTimeWLUnitInWeeks.
 	 * Doesn't create the sorted variables if isMaxTimeWithoutLesson is set to false.
-	 * @return An HashMap mapping the idM of an UE with the list of sorted the sorted values of Lessons-Var(Day|Week).
+	 * @return An HashMap mapping the idM of an UE with the list of the sorted values of Lessons-Var(Day|Week).
 	 */
 	private HashMap<Integer, List<IntVar>> setConstraintSortedLessonsUeVarDayOrWeek() {
 		Model model = getModel();
@@ -1014,16 +1016,26 @@ public class SolverMain {
 	    return model.sum("NotPreferredAllocations", isNotPreferredVars.stream().toArray(IntVar[]::new));
 	}
 	
+	/**
+	 * Set the preference that lessons must be centered.
+	 * Actually this version doesn't really centered lessons but regroup them,
+	 * but when there is courses in each half day, they will be centered in the day.
+	 * @return the penalty var.
+	 */
 	private IntVar setPreferenceCenteredLessons() {
 		Model model = getModel();
 		ArrayList<IntVar> penaltiesNotCentered = new ArrayList<IntVar>();
 		List<Day> days = getDaysOrderedWU();
+		//Get the max number of slots in one day.
 		int nbMaxSlotsDay = days.stream().mapToInt(l -> l.getSlots().size()).max().orElse(0);
 		int nbUes = getUes().size();
-		System.out.println(nbUes);
+		//System.out.println(nbUes);
+		//Get the automaton
 		FiniteAutomaton automaton = this.automatonPreferenceNoInterweaving(IntStream.range(1, nbUes + 1).toArray(), new int[] {0});
-		System.out.println(automaton.run(new int[] {0,0,0,1}));
-		System.out.println(automaton.run(new int[] {1,0,0,0}));
+		//System.out.println(automaton.run(new int[] {0,0,0,1}));
+		//System.out.println(automaton.run(new int[] {1,0,0,0}));
+		
+		//Create the costs tbls for the two costsAutomaton.
 		int[][][] costsForward = new int[nbMaxSlotsDay][nbUes + 1][2];
 		int[][][] costsBackward = new int[nbMaxSlotsDay][nbUes + 1][2];
 		for (int i = 0; i < nbMaxSlotsDay; i ++)
@@ -1036,10 +1048,13 @@ public class SolverMain {
 		ICostAutomaton cAutoBackward = CostAutomaton.makeSingleResource(automaton, costsBackward, 0, nbMaxSlotsDay - 1);
 		for (Day day : days) {
 			IntVar[] vars = getSlotsByDayOrdered(day).stream().map(s -> getSlotVarUe(s)).toArray(IntVar[]::new);
-			System.out.println(vars.length);
+			//System.out.println(vars.length);
 			if (vars.length > 0) {
+				//Cost Forward is a cost equal to the number of slots with no lesson after the first slot having a lesson.
 				IntVar costForward = model.intVar("CostForwardCentered day " + getIdMDay(day), 0, vars.length - 1);
+				//Cost Backward is a cost equal to the number of slots with no lesson after the last slot having a lesson.
 				IntVar costBackward = model.intVar("CostBackwardCentered day " + getIdMDay(day), 0, vars.length - 1);
+				//Cost Day is the number of slots without lesson between the first and the last lesson of the day.
 				IntVar costDay = model.intVar("CostDayCentered day " + getIdMDay(day), 0, vars.length - 2);
 				IntVar[] varsReversed = new IntVar[vars.length];
 				for (int i = 0; i < vars.length; i ++) varsReversed[vars.length - 1 - i] = vars[i];
@@ -1052,6 +1067,13 @@ public class SolverMain {
 		return model.sum("preferenceCenteredLesson", penaltiesNotCentered.stream().toArray(IntVar[]::new));
 	}
 	
+	/**
+	 * Set the preference that lessons must be centered.
+	 * Second version that centered lessons but will also as a side effect balance the number of slots in each day.
+	 * It work simply by assigning a cost to each slot, and if a lesson is in the slot, we got the cost.
+	 * The costs are made to increase when we are farer from the centeredSlot.
+	 * @return the penalty var.
+	 */
 	private IntVar setPreferenceCenteredLessons2() {
 		Model model = getModel();
 		ArrayList<IntVar> penaltyNotCentered = new ArrayList<IntVar>();
@@ -1069,7 +1091,11 @@ public class SolverMain {
 		return model.sum("preferenceCenteredLesson", penaltyNotCentered.stream().toArray(IntVar[]::new));
 	}
 	
-
+	/**
+	 * Get the slot which begin the nearest from the centeredTime (hardcoded to 12h00 here).
+	 * @param slots The list of the slots to consider.
+	 * @return The nearest slot from the centeredTime.
+	 */
 	private Slot getCenteredSlot(List<Slot> slots) {
 		LocalTime centeredTime = LocalTime.of(12, 0);
 		Slot centeredSlot = slots.getFirst();
@@ -1082,6 +1108,10 @@ public class SolverMain {
 		return centeredSlot;
 	}
 	
+	/**
+	 * Set the preference to balance the number of lessons per day.
+	 * @return The penalty var.
+	 */
 	private IntVar setPreferenceBalancedLesson() {
 		Model model = getModel();
 		ArrayList<IntVar> penalties = new ArrayList<>();		
@@ -1089,37 +1119,46 @@ public class SolverMain {
 	    int totalCourses = getNumberOfLessons(); 
 	    List<Day> days = getDaysOrderedWU();
 	    int totalDays = days.size();
-	    int averageCoursesPerDay = totalCourses/ totalDays; //return an int (eclidean division)
-	    //IntVar averageCoursesPerDay = model.intVar("AverageCoursesPerDay", totalCourses / totalDays);
+	    int averageCoursesPerDay = totalCourses/ totalDays;
 	    
 	    for (Day day : days) {
 	    	List<Slot> slots = getSlotsByDayOrdered(day);
-	    	
+	    	// We count the number of empty slots, so we can know that all the other slots have a lesson.
 	    	IntVar nbSlotEmpty = model.count("VarNbSlotEmpty-Day " + day.getId(), 0, getSlotVarLesson(slots.stream().toArray(Slot[]::new)));
 	    	int nbTotalSlots = slots.size();
 	    	IntVar nbSlotNotEmpty = nbSlotEmpty.sub(nbTotalSlots).neg().intVar();
-	    	
+	    	//We add as a penalty the distance between the number of lessons in the day and the average number of lessons per day.
 	        penalties.add(model.abs(nbSlotNotEmpty.sub(averageCoursesPerDay).intVar()));	    	 
 	    }
 	    return model.sum("penaltiesBalancing",penalties.toArray(new IntVar[0]));
 	}
 	
+	/**
+	 * Set the preference to regroup the lessons of the same ue in a day and to have a certain number of lessons of the ue in the day.
+	 * This constraint is made by counting the number of lesson of the ue and comparing
+	 * it to prefered number of lessons, and by prefering having no interweaving
+	 * for the lessons of an UE with something else (lesson of another ue or no lesson).
+	 * @return The penalty var.
+	 */
 	private IntVar setPreferenceRegroupLessonsByNbSlots() {
 		Model model = getModel();
 		List<Day> days = getDaysOrderedWU(); 
 		List<List<Slot>> slotDays = days.stream().map(d -> getSlotsByDay(d)).toList();
+		//Get the max number of slots in a day.
 		int nbMaxSlotsDay = slotDays.stream().mapToInt(l -> l.size()).max().orElse(0);
 		if (nbMaxSlotsDay == 0) return null;
 		List<IntVar> distancesFromPreferedValues = new ArrayList<IntVar>();
  		List<UE> ues = getUes();
 
-		System.out.println(ues.size());
-		System.out.println(ues.stream().map(u -> u.getId()));
-		System.out.println(getPlanning().getConstraintsOfUEs().size());
-		System.out.println(getPlanning().getConstraintsOfUEs().stream().map(cUe -> cUe.getUe().getId()));
- 		int[][] costs = ues.stream().map(ue -> getCostsTblRegroupLessons(getConstraintsOfUe(ue).getLessonGroupingNbLessons(), nbMaxSlotsDay)).toArray(int[][]::new);
+		//System.out.println(ues.size());
+		//System.out.println(ues.stream().map(u -> u.getId()));
+		//System.out.println(getPlanning().getConstraintsOfUEs().size());
+		//System.out.println(getPlanning().getConstraintsOfUEs().stream().map(cUe -> cUe.getUe().getId()));
+ 		
+ 		//Create the array representing the cost for each number of lessons of the ue in a day.
+		int[][] costs = ues.stream().map(ue -> getCostsTblRegroupLessons(getConstraintsOfUe(ue).getLessonGroupingNbLessons(), nbMaxSlotsDay)).toArray(int[][]::new);
  		int iDay = 0;
-		int[] idUes = getArrayInt(getIdMUe(ues.stream().toArray(UE[]::new)));
+ 		int[] idUes = getArrayInt(getIdMUe(ues.stream().toArray(UE[]::new)));
 		for (List<Slot> slots : slotDays) {
 			List<IntVar> cnts = new ArrayList<IntVar>();
  			for (UE ue : ues) {
@@ -1129,15 +1168,26 @@ public class SolverMain {
 						model.element("Distance Ue " + ue.getName() + "(" + getIdMUe(ue) + ") in Day " + getIdMDay(days.get(iDay)),
 									costs[getIdMUe(ue) - 1], cnts.getLast(), 0));
  			}
+ 			//GCC (globalCardinality) is like several count constraints.
  			model.globalCardinality(getSlotVarUe(slots.stream().toArray(Slot[]::new)), idUes, cnts.stream().toArray(IntVar[]::new), false).post();
  			iDay ++;
  		}
+		//Get the penalty for Interweaving and multiply it by two to make it more important than the number of lessons in the day.
  		IntVar preferenceNoInterweaving = setPreferenceNoInterweaving(nbMaxSlotsDay).mul(2).intVar();
  		IntVar preferenceNbLessons = model.sum("preferenceNbLessons", distancesFromPreferedValues.stream().toArray(IntVar[]::new));
 		return model.sum("preferenceRegroupLessons", preferenceNoInterweaving, preferenceNbLessons);
 	}
 	
+	/**
+	 * Create the array representing the cost for each number of lessons of the ue in a day.
+	 * It calculate the distance between the number of lessons and the nearest prefered number of lesson
+	 * for each number of lessons.
+	 * @param preferedVals The prefered number of lessons.
+	 * @param nbMaxSlotsDay The maximal number of slots in a day.
+	 * @return the int[] for which tbl[i] represent the distance between i and the nearest value in preferedVals.
+	 */
 	private int[] getCostsTblRegroupLessons(int[] preferedVals, int nbMaxSlotsDay) {
+		Arrays.sort(preferedVals);
 		int[] costs = new int[nbMaxSlotsDay];
 		costs[0] = 0;
 		int iPreferedVal = 0;
@@ -1151,10 +1201,20 @@ public class SolverMain {
 		return costs;
 	}
 	
+	/**
+	 * Set the preference to not have interweaving in the lessons of an UE.
+	 * Not used yet because it is included in setPreferenceRegroupLessonsByNbSlots.
+	 * @return The penalty var.
+	 */
 	private IntVar setPreferenceNoInterweaving() {
 		return setPreferenceNoInterweaving(getDaysOrderedWU().stream().mapToInt(l -> l.getSlots().size()).max().orElse(0));
 	}
 	
+	/**
+	 * Set the preference to not have interweaving in the lessons of an UE.
+	 * @param nbMaxSlotsDay The max number of slots in a day.
+	 * @return The penalty var.
+	 */
 	private IntVar setPreferenceNoInterweaving(int nbMaxSlotsDay) {
 		Model model = getModel();
 		if (nbMaxSlotsDay == 0) return null;
@@ -1176,8 +1236,11 @@ public class SolverMain {
 			ICostAutomaton cAutoForward = CostAutomaton.makeSingleResource(automaton, costsForward, 0, nbMaxSlotsDay - 1);
 			ICostAutomaton cAutoBackward = CostAutomaton.makeSingleResource(automaton, costsBackward, 0, nbMaxSlotsDay - 1);
 			for (Day day : days) {
+				//Cost Forward is a cost equal to the number of slots without a lesson of the ue after the first slot having a lesson of the ue.
 				IntVar costForward = model.intVar("CostForward " + ue.getName() + " day " + getIdMDay(day), 0, nbMaxSlotsDay - 1);
+				//Cost Backward is a cost equal to the number of slots without a lesson of the ue after the last slot having a lesson of the ue.
 				IntVar costBackward = model.intVar("CostBackward " + ue.getName() + " day " + getIdMDay(day), 0, nbMaxSlotsDay - 1);
+				//Cost Day is the number of slots without lesson between the first and the last lesson of the day.
 				IntVar costDay = model.intVar("CostDay " + ue.getName() + " day " + getIdMDay(day), 0, nbMaxSlotsDay - 2);
 				IntVar[] vars = getSlotsByDayOrdered(day).stream().map(s -> getSlotVarUe(s)).toArray(IntVar[]::new);
 				IntVar[] varsReversed = new IntVar[vars.length];
@@ -1191,11 +1254,30 @@ public class SolverMain {
 		return model.sum("preferenceNoInterweaving", costsDays.stream().toArray(IntVar[]::new));
 	}
 	
+	/**
+	 * Create the FiniteAutomaton used to avoid interweaving (Preference) in the lessons of an ue in a day.
+	 * @param ue The ue that need to be not interweaved.
+	 * @param nbMaxSlotsDay The max number of slots in a day.
+	 * @param nbUes The number of ues.
+	 * @return The FiniteAutomaton.
+	 */
 	private FiniteAutomaton automatonPreferenceNoInterweaving(UE ue, int nbMaxSlotsDay, int nbUes) {
 		int idMUe = getIdMUe(ue);
 		return automatonPreferenceNoInterweaving(new int[] {idMUe}, IntStream.range(0, nbUes + 1).filter(val -> val != idMUe).toArray());
 	}
 	
+	/**
+	 * Create a FiniteAutomaton that have two states : 0 and 1.
+	 * 0 is the initial state, and both 0 and 1 are final states.
+	 * We stay in state 0 as long as we get symbols in otherSymbols.
+	 * At the first symbol in symbolsLesson, we go on state 1.
+	 * On the state 1, all symbols are recognized and go on state 1.
+	 * The automaton recognize every word using symbols in the union of symbolsLesson and otherSymbols,
+	 * but the separation between the two states is made for cost automaton, to have a distinction of cost between the two states.
+	 * @param symbolsLesson The first set of symbols, the one that triggers the move to state 1.
+	 * @param otherSymbols The other symbols that can be used in the automaton.
+	 * @return The automaton.
+	 */
 	private FiniteAutomaton automatonPreferenceNoInterweaving(int[] symbolsLesson, int[] otherSymbols) {
 		FiniteAutomaton automaton = new FiniteAutomaton();
 		int[] alphabet = ArrayUtils.concat(symbolsLesson, otherSymbols);
@@ -1209,6 +1291,10 @@ public class SolverMain {
 		return automaton;
 	}
 	
+	/**
+	 * 
+	 * @return The penalty var.
+	 */
 	private IntVar setPreferenceMaxBreakWithoutLessonUe() {
 		Model model = getModel();
 		List<IntVar> penalties = new ArrayList<IntVar>();
@@ -1284,43 +1370,12 @@ public class SolverMain {
 		
 	}
 	
-	/*public Object[][] strategies() {
-    return new Object[][]{
-            {(Function<IntVar[], AbstractStrategy<IntVar>>) vars -> new ImpactBased(vars, 2, 3, 10, 0, true)},
-            {(Function<IntVar[], AbstractStrategy<IntVar>>) Search::activityBasedSearch},
-            {(Function<IntVar[], AbstractStrategy<IntVar>>) Search::domOverWDegSearch},
-            {(Function<IntVar[], AbstractStrategy<IntVar>>) Search::conflictHistorySearch},
-            {(Function<IntVar[], AbstractStrategy<IntVar>>) Search::domOverWDegRefSearch},
-            {(Function<IntVar[], AbstractStrategy<IntVar>>) Search::failureRateBasedSearch},
-            {(Function<IntVar[], AbstractStrategy<IntVar>>) Search::failureLengthBasedSearch},
-            {(Function<IntVar[], AbstractStrategy<IntVar>>) Search::pickOnDom},
-            {(Function<IntVar[], AbstractStrategy<IntVar>>) Search::pickOnFil},
-            {(Function<IntVar[], AbstractStrategy<IntVar>>) Search::roundRobinSearch}};
-	}
-	
-	@Test(groups = "10s", timeOut = 60000, dataProvider = "strategies")
-	public void testCostas(Function<IntVar[], AbstractStrategy<IntVar>> strat) {
-	Model model = ProblemMaker.makeCostasArrays(6);
-	IntVar[] vars = model.retrieveIntVars(true);
-	Solver solver = model.getSolver();
-	solver.setSearch(strat.apply(vars));
-	solver.setGeometricalRestart(vars.length * 3L, 1.1d, new FailCounter(model, 0), 1000);
-	solver.setNoGoodRecordingFromRestarts();
-	model.getSolver().showRestarts();
-	solver.findAllSolutions();
-	solver.printShortStatistics();
-	Assert.assertEquals(solver.getSolutionCount(), 58);
-	}*/
-	
 	/**
 	 * Set the strategy of the solver (For multiple planning to generate due to sync constraint)
 	 * @param solMains The SolverMain objects related to the plannings to generate.
 	 * @param solver The solver of the model.
 	 */
 	private static void setStrategy(SolverMain[] solMains, Model model) {
-		// 2 semaines, mardi mercredi, préférence globale pas premier, dernier et milieu.
-		// 2 ues, [2,2,1,1,1], [3,1,1,2]
-		// 45 obj.
 		Solver solver = model.getSolver();
 		Solution solution = solver.defaultSolution();
 		IntVar[] decisionVars = ArrayUtils.flatten(IntStream.range(0, solMains.length).
@@ -1335,11 +1390,19 @@ public class SolverMain {
 		
 	}
 	
+	/**
+	 * Get the decision variables to solve the model.
+	 * @return the decision variables.
+	 */
 	private IntVar[] getDecisionVars() {
 		return getVarDecisionSlots();
 		//return ArrayUtils.concat(getVarDecisionSlots(), getVarDecisionLessons());
 	}
 	
+	/**
+	 * Get all the variables slotVarLesson.
+	 * @return the slotVarLesson variables.
+	 */
 	private IntVar[] getVarDecisionSlots() {
 		List<IntVar> vars = new ArrayList<IntVar>();
 		vars.addAll(getSlotsOrderedWUD().stream().map(s -> getSlotVarLesson(s)).toList());
@@ -1347,6 +1410,10 @@ public class SolverMain {
 		return varsArr;
 	}
 	
+	/**
+	 * Get all the variables lessonVarSlot.
+	 * @return the lessonVarSlot variables.
+	 */
 	private IntVar[] getVarDecisionLessons() {
 		List<IntVar> vars = new ArrayList<IntVar>();
 		vars.addAll(getLessons().stream().map(l -> getLessonVarSlot(l)).toList());
@@ -1354,12 +1421,22 @@ public class SolverMain {
 		return varsArr;
 	}
 	
+	/**
+	 * Convert a List of IntVar into an IntVar[].
+	 * @param list the list.
+	 * @return The IntVar[].
+	 */
 	private IntVar[] convertListToArrayIntVar(List<IntVar> list){
 		IntVar[] arr = new IntVar[list.size()];
 		for (int i = 0; i < list.size(); i ++) arr[i] = list.get(i);
 		return arr;
 	}
 	
+	/**
+	 * Get the variables slotVarLesson, ordered by day and with the slots near the middle of
+	 * the day first.
+	 * @return
+	 */
 	private IntVar[] getVarDecisionSlotsMiddle() {
 		List<IntVar> vars = new ArrayList<IntVar>();
 		for (Day day : getDaysOrderedWU()) {
@@ -1376,6 +1453,11 @@ public class SolverMain {
 		return convertListToArrayIntVar(vars);
 	}
 	
+	/**
+	 * Convert an array of Integer to an array of int.
+	 * @param tbl the Integer array.
+	 * @return the int array.
+	 */
 	private int[] getArrayInt(Integer[] tbl) {
 		int[] tblRes = new int[tbl.length];
 		for (int i = 0; i < tbl.length; i ++)
@@ -1383,14 +1465,29 @@ public class SolverMain {
 		return tblRes;
 	}
 	
+	/**
+	 * Get a short string representing the name of the slot.
+	 * @param slot The slot.
+	 * @return The short name.
+	 */
 	private String nameSlot(Slot slot) {
 		return "Slot " + idMSlot.getValue(slot.getId()) + " (" + slot.getId() + ")";
 	}
 	
+	/**
+	 * Get a short string representing the name of the lesson.
+	 * @param lesson The lesson.
+	 * @return The short name.
+	 */
 	private String nameLesson(Lesson lesson) {
 		return "Lesson " + idMLesson.getValue(lesson.getId()) + " (" + lesson.getId() + ")";
 	}
 	
+	/**
+	 * Create the list of result corresponding to the solution solution.
+	 * @param solution The solution.
+	 * @return The list of Result.
+	 */
 	private List<Result> makeSolution(Solution solution) {
 		List<Result> results = new ArrayList<Result>();
 		for (Slot s : getSlotsOrderedWUD())
@@ -1399,6 +1496,11 @@ public class SolverMain {
 		return results;
 	}
 	
+	/**
+	 * Create a json String corresponding to the solution solution.
+	 * @param solution The solution.
+	 * @return A json in the String representing the solution.
+	 */
 	private String makeSolutionString(Solution solution) {
 		StringBuilder res = new StringBuilder();
 		res.append("{\"slots\":[");
@@ -1408,6 +1510,11 @@ public class SolverMain {
 		return res.toString();
 	}
 	
+	/**
+	 * Create a json string with several informations for debug purpose.
+	 * @param solution The solution.
+	 * @return The json String.
+	 */
 	private String showSolutionsDebug(Solution solution) {
 		StringBuilder res = new StringBuilder();
 		res.append(getTaf().getName() + "\r\n");
