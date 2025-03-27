@@ -79,12 +79,10 @@ const LessonSelector = ({ onValidate }) => {
       );
     } else if (parents.length === 3) {
       // Fetch lessons for the selected block
-      return currentItems
-        .find((item) => item.id === parents[2].id)
-        .lessons.map((lesson) => ({
-          id: lesson.id,
-          name: lesson.title,
-        }));
+      return parents[2].lessons.map((lesson) => ({
+        id: lesson.id,
+        name: lesson.title,
+      }));
     }
   };
 
