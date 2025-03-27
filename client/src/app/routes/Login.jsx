@@ -175,12 +175,12 @@ const LoginPage = () => {
                 color="primary"
               />
             }
-            label="Rester connecter"
+            label="Rester connecté"
           />
 
           {/* Submit Button */}
           <Button type="submit" fullWidth variant="contained" color="primary">
-            Login
+            Se connecter
           </Button>
         </form>
       </Box>
