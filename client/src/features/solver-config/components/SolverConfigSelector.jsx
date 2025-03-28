@@ -140,11 +140,13 @@ const SolverConfigSelectorComponent = () => {
         />
 
         {/* Button to create a new configuration */}
-        <Link to="./new">
-          <IconButton>
-            <AddCircle color="secondary" />
-          </IconButton>
-        </Link>
+        {!context.ue && (
+          <Link to="./new">
+            <IconButton>
+              <AddCircle color="secondary" />
+            </IconButton>
+          </Link>
+        )}
       </Box>
 
       {/* Render child routes with the parent context */}
